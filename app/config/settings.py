@@ -68,6 +68,17 @@ class OptionsSettings(BaseSettings):
     limit_price_offset_pct: float = _yaml_get("options", "limit_price_offset_pct", default=0.02)
 
 
+class PositionSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="POSITION_", extra="ignore")
+
+    stop_loss_pct: float = _yaml_get("position", "stop_loss_pct", default=0.50)
+    take_profit_pct: float = _yaml_get("position", "take_profit_pct", default=1.00)
+    trailing_stop_pct: float = _yaml_get("position", "trailing_stop_pct", default=0.25)
+    max_hold_minutes: int = _yaml_get("position", "max_hold_minutes", default=120)
+    eod_exit_time: str = _yaml_get("position", "eod_exit_time", default="15:45")
+    cooldown_after_loss_minutes: int = _yaml_get("position", "cooldown_after_loss_minutes", default=15)
+
+
 class BacktestSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="BACKTEST_", extra="ignore")
 
@@ -133,6 +144,7 @@ class Settings(BaseSettings):
     risk: RiskSettings = RiskSettings()
     options: OptionsSettings = OptionsSettings()
     backtesting: BacktestSettings = BacktestSettings()
+    position: PositionSettings = PositionSettings()
 
     @field_validator("live_trading_enabled", mode="before")
     @classmethod

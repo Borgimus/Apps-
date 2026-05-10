@@ -8,11 +8,14 @@ Runs one complete cycle:
   3. Runs ORB, VWAP, and RSI strategies.
   4. Applies IV-crush filter.
   5. For each actionable signal:
+       - Checks dedup (skip if position already open for that symbol).
+       - Checks cooldown (skip if within cooldown window after a loss).
        - Fetches a live Alpaca option chain (real bid/ask from data.alpaca.markets).
        - Selects the most liquid near-ATM contract via the liquidity filter.
        - Runs all pre-trade risk checks (session buffer, daily limits, etc.).
        - DRY RUN  : logs every decision; places no orders.
-       - PAPER    : places a limit order on the Alpaca paper account.
+       - PAPER    : places a limit order on the Alpaca paper account;
+                    writes entry to trade journal.
   6. Prints a structured summary.
 
 Usage:
@@ -51,7 +54,7 @@ import warnings
 from datetime import datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 from zoneinfo import ZoneInfo
 
 warnings.filterwarnings("ignore")
@@ -88,6 +91,27 @@ def _skip(msg: str):
     print(f"  ✗ {msg}")
 
 
+# ── Retry helper ──────────────────────────────────────────────────────────────
+
+async def _with_retry(coro_fn, *, retries: int = 3, label: str = ""):
+    """
+    Call an async coroutine factory up to `retries` times with exponential
+    backoff (2, 4, 8 seconds).  Returns the result or raises on final failure.
+    """
+    delay = 2
+    last_exc = None
+    for attempt in range(1, retries + 1):
+        try:
+            return await coro_fn()
+        except Exception as exc:
+            last_exc = exc
+            if attempt < retries:
+                _warn(f"  {label} attempt {attempt} failed ({exc}) — retrying in {delay}s")
+                await asyncio.sleep(delay)
+                delay *= 2
+    raise last_exc
+
+
 # ── Stale-order cancellation ──────────────────────────────────────────────────
 
 async def cancel_stale_orders(broker, max_age_minutes: int) -> int:
@@ -97,7 +121,7 @@ async def cancel_stale_orders(broker, max_age_minutes: int) -> int:
     """
     _section(f"Cancelling stale orders (> {max_age_minutes} min unfilled)")
     try:
-        orders = await broker.get_orders()
+        orders = await _with_retry(broker.get_orders, label="get_orders")
     except NotImplementedError:
         _info("Broker does not support get_orders — skipping stale cancellation")
         return 0
@@ -110,7 +134,6 @@ async def cancel_stale_orders(broker, max_age_minutes: int) -> int:
         return 0
 
     now = datetime.now(tz=ET)
-    cutoff = now - timedelta(minutes=max_age_minutes)
     cancelled = 0
 
     for order in orders:
@@ -150,17 +173,56 @@ async def process_signal(
     settings,
     now: datetime,
     dry_run: bool,
+    position_manager=None,
+    journal=None,
 ) -> bool:
     """
     Select a contract, run risk checks, and place (or log) a limit order.
+
+    Additional safety guards:
+      • Dedup: skip if position_manager already holds a position for sig.symbol.
+      • Cooldown: skip if position_manager is in cooldown after a recent loss.
     Returns True if an order was placed (or would be placed in dry-run mode).
     """
     from app.brokers.broker_interface import OrderRequest, OrderSide, OrderType
     from app.strategies.strategy_base import SignalDirection
 
+    # ── Dedup guard ───────────────────────────────────────────────────────────
+    if position_manager is not None and position_manager.has_position_for_symbol(sig.symbol):
+        _skip(f"  Dedup: position already open for {sig.symbol}")
+        if journal:
+            await journal.record_rejection(
+                strategy_id=sig.strategy_id,
+                signal_direction=sig.direction.value,
+                underlying_symbol=sig.symbol,
+                underlying_price=sig.price,
+                option_symbol=None,
+                rejection_reason="duplicate_position",
+            )
+            await journal.commit()
+        return False
+
+    # ── Cooldown guard ────────────────────────────────────────────────────────
+    if position_manager is not None and position_manager.is_in_cooldown(now):
+        _skip(f"  Cooldown: in loss-cooldown window — skipping new entry")
+        if journal:
+            await journal.record_rejection(
+                strategy_id=sig.strategy_id,
+                signal_direction=sig.direction.value,
+                underlying_symbol=sig.symbol,
+                underlying_price=sig.price,
+                option_symbol=None,
+                rejection_reason="cooldown_after_loss",
+            )
+            await journal.commit()
+        return False
+
     # ── Choose expiration ─────────────────────────────────────────────────────
     try:
-        expirations = await broker.get_available_expirations(sig.symbol)
+        expirations = await _with_retry(
+            lambda: broker.get_available_expirations(sig.symbol),
+            label="get_expirations",
+        )
     except Exception as exc:
         _warn(f"  Cannot fetch expirations: {exc}")
         return False
@@ -185,7 +247,10 @@ async def process_signal(
     # ── Fetch option chain ────────────────────────────────────────────────────
     _info(f"  Fetching {sig.symbol} option chain from Alpaca ...")
     try:
-        chain = await broker.get_option_chain(sig.symbol, target_exp)
+        chain = await _with_retry(
+            lambda: broker.get_option_chain(sig.symbol, target_exp),
+            label="get_option_chain",
+        )
     except Exception as exc:
         _warn(f"  Chain fetch failed: {exc}")
         return False
@@ -199,6 +264,16 @@ async def process_signal(
     contract = liq_filter.select_contract(chain, sig)
     if contract is None:
         _skip("  Liquidity filter: no qualifying contract")
+        if journal:
+            await journal.record_rejection(
+                strategy_id=sig.strategy_id,
+                signal_direction=sig.direction.value,
+                underlying_symbol=sig.symbol,
+                underlying_price=sig.price,
+                option_symbol=None,
+                rejection_reason="liquidity_filter_no_contract",
+            )
+            await journal.commit()
         return False
 
     _info(f"  Contract   : {contract.option_symbol}")
@@ -209,11 +284,7 @@ async def process_signal(
         _info(f"  Delta      : {contract.delta:.3f}")
 
     # ── Build order ───────────────────────────────────────────────────────────
-    side = (
-        OrderSide.BUY_TO_OPEN
-        if sig.direction in (SignalDirection.LONG, SignalDirection.SHORT)
-        else OrderSide.SELL_TO_CLOSE
-    )
+    side = OrderSide.BUY_TO_OPEN
     offset = Decimal(str(settings.options.limit_price_offset_pct))
     limit_price = (contract.ask * (1 + offset)).quantize(Decimal("0.01"))
 
@@ -229,7 +300,12 @@ async def process_signal(
     )
 
     # ── Risk check ────────────────────────────────────────────────────────────
-    acct = await broker.get_account()
+    try:
+        acct = await _with_retry(broker.get_account, label="get_account")
+    except Exception as exc:
+        _warn(f"  Cannot fetch account: {exc}")
+        return False
+
     risk_result = risk.check_order(
         request=request,
         equity=acct.equity,
@@ -241,6 +317,16 @@ async def process_signal(
         _skip(f"  Risk check : FAILED")
         for msg in risk_result.messages:
             _info(f"               → {msg}")
+        if journal:
+            await journal.record_rejection(
+                strategy_id=sig.strategy_id,
+                signal_direction=sig.direction.value,
+                underlying_symbol=sig.symbol,
+                underlying_price=sig.price,
+                option_symbol=contract.option_symbol,
+                rejection_reason="; ".join(risk_result.messages),
+            )
+            await journal.commit()
         return False
 
     _ok(f"  Risk check : PASSED | qty={risk_result.approved_quantity} "
@@ -254,10 +340,50 @@ async def process_signal(
         return True
 
     try:
-        order = await broker.place_option_order(request)
+        order = await _with_retry(
+            lambda: broker.place_option_order(request),
+            label="place_option_order",
+        )
         risk.record_trade()
         _ok(f"  Order      : {order.order_id[:8]}... | "
             f"status={order.status.value} | limit=${limit_price}")
+
+        # Journal entry
+        if journal:
+            journal_id = await journal.record_entry(
+                entry_time=now,
+                strategy_id=sig.strategy_id,
+                signal_direction=sig.direction.value,
+                underlying_symbol=sig.symbol,
+                underlying_price=sig.price,
+                option_symbol=contract.option_symbol,
+                expiration=str(target_exp),
+                strike=float(contract.strike),
+                option_type=contract.option_type,
+                delta=contract.delta,
+                iv=contract.implied_volatility,
+                spread_pct=contract.spread_pct,
+                limit_price=float(limit_price),
+                fill_price=None,  # filled asynchronously
+                quantity=request.quantity,
+                is_paper=True,
+                notes=f"order_id={order.order_id}",
+            )
+            await journal.commit()
+
+            # Register in position manager so dedup works for next signal
+            if position_manager is not None:
+                position_manager.open(
+                    option_symbol=contract.option_symbol,
+                    symbol=sig.symbol,
+                    strategy_id=sig.strategy_id,
+                    direction=sig.direction.value,
+                    entry_time=now,
+                    entry_price=float(contract.ask),
+                    quantity=request.quantity,
+                    journal_id=journal_id,
+                )
+
         return True
     except Exception as exc:
         _warn(f"  Order placement failed: {exc}")
@@ -267,6 +393,7 @@ async def process_signal(
 # ── Main loop ─────────────────────────────────────────────────────────────────
 
 async def run(args: argparse.Namespace):
+    from app.api.models import AsyncSessionLocal, init_db
     from app.brokers import get_broker
     from app.config import get_settings
     from app.data import YFinanceDataSource
@@ -278,6 +405,7 @@ async def run(args: argparse.Namespace):
         RSITrendStrategy,
         VWAPReclaimStrategy,
     )
+    from app.trading import PositionManager, TradeJournal
 
     settings = get_settings()
     t0 = time.monotonic()
@@ -298,6 +426,12 @@ async def run(args: argparse.Namespace):
     broker  = get_broker(settings)
     data    = YFinanceDataSource()
     risk    = RiskManager(settings)
+    pm      = PositionManager(settings)
+
+    # Initialise DB and trade journal (no-op in dry-run — commit is never called)
+    await init_db()
+    db_session = AsyncSessionLocal()
+    journal = TradeJournal(db_session) if not args.dry_run else None
 
     iv_filter = IVCrushFilter({
         "earnings_blackout_days": settings.risk.earnings_blackout_days,
@@ -331,17 +465,28 @@ async def run(args: argparse.Namespace):
     if settings.is_kill_switch_active():
         print(f"\n⛔  KILL SWITCH ACTIVE ({settings.kill_switch_file}) — aborting.")
         await broker.close()
+        await db_session.close()
         return
 
     # ── Account ───────────────────────────────────────────────────────────────
     _section("Account")
-    acct = await broker.get_account()
+    try:
+        acct = await _with_retry(broker.get_account, label="get_account")
+    except Exception as exc:
+        _warn(f"Cannot fetch account: {exc}")
+        await broker.close()
+        await db_session.close()
+        return
+
     risk.start_session(acct.equity)
     _info(f"ID           : {acct.account_id}")
     _info(f"Equity       : ${acct.equity:,.2f}")
     _info(f"Cash         : ${acct.cash:,.2f}")
     _info(f"Paper mode   : {acct.is_paper}")
     _info(f"Risk session : {risk.trades_today} trades today | P&L ${risk.daily_pnl:.2f}")
+
+    if pm.is_in_cooldown(now):
+        _warn(f"Loss cooldown active — new entries blocked for {settings.position.cooldown_after_loss_minutes} min")
 
     # ── Cancel stale orders ───────────────────────────────────────────────────
     if args.cancel_stale > 0:
@@ -359,6 +504,7 @@ async def run(args: argparse.Namespace):
               f"skipping signal scan (market {mkt_open.strftime('%H:%M')}–"
               f"{mkt_close.strftime('%H:%M')} ET)")
         await broker.close()
+        await db_session.close()
         _print_summary(0, 0, args.dry_run, time.monotonic() - t0)
         return
 
@@ -369,7 +515,15 @@ async def run(args: argparse.Namespace):
     for symbol in args.symbols:
         # ── Fetch intraday bars ───────────────────────────────────────────────
         _section(f"Fetching 5-min {symbol} bars (yfinance — research only)")
-        bars = await data.get_intraday_bars(symbol, interval="5m", days_back=3)
+        try:
+            bars = await _with_retry(
+                lambda: data.get_intraday_bars(symbol, interval="5m", days_back=3),
+                label="get_intraday_bars",
+            )
+        except Exception as exc:
+            _warn(f"Bar fetch failed: {exc}")
+            continue
+
         if bars.empty:
             _warn(f"No bars returned for {symbol}")
             continue
@@ -406,14 +560,25 @@ async def run(args: argparse.Namespace):
             _info(f"Time      : {sig.timestamp.strftime('%Y-%m-%d %H:%M %Z')}")
 
             placed = await process_signal(
-                sig, broker, risk, liq_filter, settings, now, args.dry_run
+                sig, broker, risk, liq_filter, settings, now, args.dry_run,
+                position_manager=pm,
+                journal=journal,
             )
             total_signals += 1
             if placed:
                 total_placed += 1
 
+    # ── EOD position check ────────────────────────────────────────────────────
+    open_pos = pm.open_positions()
+    if open_pos:
+        _section("Open positions")
+        for p in open_pos:
+            hold_min = (now - p.entry_time).total_seconds() / 60
+            _info(f"{p.option_symbol}  entry={p.entry_price:.4f}  hold={hold_min:.0f}min")
+
     # ── Summary ───────────────────────────────────────────────────────────────
     await broker.close()
+    await db_session.close()
     _print_summary(total_signals, total_placed, args.dry_run, time.monotonic() - t0)
 
 

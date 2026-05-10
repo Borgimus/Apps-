@@ -41,7 +41,9 @@ from .models import (
     DBOrder,
     DBPosition,
     DBRiskEvent,
+    DBSessionLog,
     DBSignal,
+    DBTradeJournal,
     get_db,
     init_db,
 )
@@ -52,6 +54,7 @@ logger = logging.getLogger(__name__)
 _broker = None
 _risk_manager = None
 _paper_trader = None
+_position_manager = None   # app.trading.PositionManager — set externally
 
 # WebSocket connection manager
 class _ConnectionManager:
@@ -106,11 +109,13 @@ def create_app(
     broker=None,
     risk_manager=None,
     paper_trader=None,
+    position_manager=None,
 ) -> FastAPI:
-    global _broker, _risk_manager, _paper_trader
+    global _broker, _risk_manager, _paper_trader, _position_manager
     _broker = broker
     _risk_manager = risk_manager
     _paper_trader = paper_trader
+    _position_manager = position_manager
 
     settings = get_settings()
 
@@ -378,6 +383,255 @@ def create_app(
         await db.commit()
 
         return result.to_dict()
+
+    # ── Open positions (live PositionManager) ──────────────────────────────
+
+    @app.get("/positions/open")
+    async def open_positions():
+        pm = _position_manager
+        if pm is None:
+            return []
+        return pm.to_dict_list()
+
+    # ── Trade journal ──────────────────────────────────────────────────────
+
+    @app.get("/journal")
+    async def journal(
+        limit: int = 100,
+        status: Optional[str] = None,
+        strategy_id: Optional[str] = None,
+        symbol: Optional[str] = None,
+        db: AsyncSession = Depends(get_db),
+    ):
+        query = (
+            select(DBTradeJournal)
+            .order_by(DBTradeJournal.created_at.desc())
+            .limit(limit)
+        )
+        if status:
+            query = query.where(DBTradeJournal.status == status)
+        if strategy_id:
+            query = query.where(DBTradeJournal.strategy_id == strategy_id)
+        if symbol:
+            query = query.where(DBTradeJournal.underlying_symbol == symbol)
+        rows = (await db.execute(query)).scalars().all()
+        return [
+            {
+                "id": r.id,
+                "status": r.status,
+                "entry_time": str(r.entry_time) if r.entry_time else None,
+                "exit_time": str(r.exit_time) if r.exit_time else None,
+                "strategy_id": r.strategy_id,
+                "signal_direction": r.signal_direction,
+                "underlying_symbol": r.underlying_symbol,
+                "underlying_price": r.underlying_price,
+                "option_symbol": r.option_symbol,
+                "expiration": r.expiration,
+                "strike": r.strike,
+                "option_type": r.option_type,
+                "delta": r.delta,
+                "iv": r.iv,
+                "spread_pct": r.spread_pct,
+                "limit_price": r.limit_price,
+                "fill_price": r.fill_price,
+                "exit_price": r.exit_price,
+                "exit_reason": r.exit_reason,
+                "realized_pnl": r.realized_pnl,
+                "unrealized_pnl": r.unrealized_pnl,
+                "slippage": r.slippage,
+                "hold_duration_secs": r.hold_duration_secs,
+                "rejection_reason": r.rejection_reason,
+                "bid": r.bid,
+                "ask": r.ask,
+                "quantity": r.quantity,
+                "filled_quantity": r.filled_quantity,
+                "order_id": r.order_id,
+                "weekday": r.weekday,
+                "is_paper": r.is_paper,
+                "notes": r.notes,
+            }
+            for r in rows
+        ]
+
+    # ── Analytics ──────────────────────────────────────────────────────────
+
+    @app.get("/analytics")
+    async def analytics_summary(db: AsyncSession = Depends(get_db)):
+        from ..analytics import AnalyticsEngine
+        engine = AnalyticsEngine(db)
+        return await engine.summary()
+
+    @app.get("/analytics/strategies")
+    async def analytics_by_strategy(db: AsyncSession = Depends(get_db)):
+        from ..analytics import AnalyticsEngine
+        engine = AnalyticsEngine(db)
+        return await engine.by_strategy()
+
+    @app.get("/analytics/hourly")
+    async def analytics_by_hour(db: AsyncSession = Depends(get_db)):
+        from ..analytics import AnalyticsEngine
+        engine = AnalyticsEngine(db)
+        return await engine.by_hour()
+
+    @app.get("/analytics/delta")
+    async def analytics_by_delta(db: AsyncSession = Depends(get_db)):
+        from ..analytics import AnalyticsEngine
+        engine = AnalyticsEngine(db)
+        return await engine.by_delta_range()
+
+    @app.get("/analytics/iv")
+    async def analytics_by_iv(db: AsyncSession = Depends(get_db)):
+        from ..analytics import AnalyticsEngine
+        engine = AnalyticsEngine(db)
+        return await engine.by_iv_percentile()
+
+    @app.get("/analytics/spread")
+    async def analytics_spread(db: AsyncSession = Depends(get_db)):
+        from ..analytics import AnalyticsEngine
+        engine = AnalyticsEngine(db)
+        return await engine.spread_analysis()
+
+    @app.get("/analytics/rejections")
+    async def analytics_rejections(db: AsyncSession = Depends(get_db)):
+        from ..analytics import AnalyticsEngine
+        engine = AnalyticsEngine(db)
+        return await engine.rejection_summary()
+
+    @app.get("/analytics/weekday")
+    async def analytics_by_weekday(db: AsyncSession = Depends(get_db)):
+        from ..analytics import AnalyticsEngine
+        engine = AnalyticsEngine(db)
+        return await engine.by_weekday()
+
+    @app.get("/analytics/equity-curve")
+    async def analytics_equity_curve(
+        starting_equity: float = 0.0,
+        db: AsyncSession = Depends(get_db),
+    ):
+        from ..analytics import AnalyticsEngine
+        engine = AnalyticsEngine(db)
+        return await engine.equity_curve(starting_equity)
+
+    # ── Journal enriched fields ────────────────────────────────────────────
+
+    @app.get("/journal/daily")
+    async def journal_daily(
+        session_date: Optional[str] = None,
+        db: AsyncSession = Depends(get_db),
+    ):
+        """Return all journal entries for a specific session date (YYYY-MM-DD)."""
+        from datetime import date as _date
+        target = session_date or str(_date.today())
+        query = (
+            select(DBTradeJournal)
+            .where(DBTradeJournal.session_date == target)
+            .order_by(DBTradeJournal.entry_time)
+        )
+        rows = (await db.execute(query)).scalars().all()
+        return {
+            "session_date": target,
+            "total": len(rows),
+            "closed": sum(1 for r in rows if r.status == "closed"),
+            "rejected": sum(1 for r in rows if r.status == "rejected"),
+            "open": sum(1 for r in rows if r.status == "open"),
+            "realized_pnl": round(
+                sum(r.realized_pnl for r in rows if r.realized_pnl is not None), 2
+            ),
+            "trades": [
+                {
+                    "id": r.id,
+                    "status": r.status,
+                    "entry_time": str(r.entry_time) if r.entry_time else None,
+                    "exit_time": str(r.exit_time) if r.exit_time else None,
+                    "strategy_id": r.strategy_id,
+                    "signal_direction": r.signal_direction,
+                    "option_symbol": r.option_symbol,
+                    "delta": r.delta,
+                    "iv": r.iv,
+                    "bid": r.bid,
+                    "ask": r.ask,
+                    "spread_pct": r.spread_pct,
+                    "limit_price": r.limit_price,
+                    "fill_price": r.fill_price,
+                    "exit_price": r.exit_price,
+                    "exit_reason": r.exit_reason,
+                    "realized_pnl": r.realized_pnl,
+                    "slippage": r.slippage,
+                    "hold_duration_secs": r.hold_duration_secs,
+                    "rejection_reason": r.rejection_reason,
+                }
+                for r in rows
+            ],
+        }
+
+    # ── Session logs ───────────────────────────────────────────────────────
+
+    @app.get("/session/logs")
+    async def session_logs(
+        session_date: Optional[str] = None,
+        event: Optional[str] = None,
+        limit: int = 200,
+        db: AsyncSession = Depends(get_db),
+    ):
+        from datetime import date as _date
+        target = session_date or str(_date.today())
+        query = (
+            select(DBSessionLog)
+            .where(DBSessionLog.session_date == target)
+            .order_by(DBSessionLog.timestamp.desc())
+            .limit(limit)
+        )
+        if event:
+            query = query.where(DBSessionLog.event == event)
+        rows = (await db.execute(query)).scalars().all()
+        return [
+            {
+                "id": r.id,
+                "timestamp": str(r.timestamp),
+                "level": r.level,
+                "event": r.event,
+                "symbol": r.symbol,
+                "message": r.message,
+                "data": r.data_json,
+            }
+            for r in rows
+        ]
+
+    # ── Heartbeat ─────────────────────────────────────────────────────────
+
+    @app.get("/heartbeat")
+    async def heartbeat(db: AsyncSession = Depends(get_db)):
+        """
+        Latest heartbeat from the session runner.
+        Returns the most recent heartbeat log entry and elapsed seconds since it.
+        """
+        from datetime import date as _date, timezone
+        today = str(_date.today())
+        row = (
+            await db.execute(
+                select(DBSessionLog)
+                .where(DBSessionLog.session_date == today)
+                .where(DBSessionLog.event == "heartbeat")
+                .order_by(DBSessionLog.timestamp.desc())
+                .limit(1)
+            )
+        ).scalars().first()
+
+        if row is None:
+            return {"runner_active": False, "last_heartbeat": None, "stale_secs": None}
+
+        now_utc = datetime.now(tz=timezone.utc)
+        ts = row.timestamp
+        if ts.tzinfo is None:
+            from zoneinfo import ZoneInfo
+            ts = ts.replace(tzinfo=ZoneInfo("America/New_York"))
+        stale = (now_utc - ts.astimezone(timezone.utc)).total_seconds()
+        return {
+            "runner_active": stale < 600,   # stale after 10 min
+            "last_heartbeat": str(row.timestamp),
+            "stale_secs": round(stale),
+            "message": row.message,
+        }
 
     # ── WebSocket signal stream ────────────────────────────────────────────
 

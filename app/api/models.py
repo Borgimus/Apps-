@@ -125,3 +125,72 @@ class DBRiskEvent(Base):
     message = Column(Text)
     severity = Column(String(16), default="info")
     timestamp = Column(DateTime, server_default=func.now())
+
+
+class DBTradeJournal(Base):
+    """Full lifecycle of a single trade attempt — entry, exit, or rejection."""
+    __tablename__ = "trade_journal"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # Entry / signal
+    entry_time = Column(DateTime, index=True)
+    session_date = Column(String(10), index=True)   # YYYY-MM-DD for fast daily queries
+    strategy_id = Column(String(64), nullable=False, index=True)
+    signal_direction = Column(String(16))            # LONG / SHORT
+    underlying_symbol = Column(String(16), nullable=False, index=True)
+    underlying_price = Column(Float)
+    weekday = Column(Integer)                        # 0=Mon … 4=Fri
+
+    # Contract
+    option_symbol = Column(String(64), index=True)
+    expiration = Column(String(16))
+    strike = Column(Float)
+    option_type = Column(String(8))                  # call / put
+    delta = Column(Float)
+    iv = Column(Float)
+    bid = Column(Float)
+    ask = Column(Float)
+    spread_pct = Column(Float)
+
+    # Order
+    limit_price = Column(Float)
+    fill_price = Column(Float)
+    quantity = Column(Integer)
+    filled_quantity = Column(Integer)                # for partial fills
+    order_id = Column(String(128), index=True)       # broker order id
+
+    # Exit
+    exit_time = Column(DateTime)
+    exit_price = Column(Float)
+    exit_reason = Column(String(32))                 # stop_loss / take_profit / trailing_stop / max_hold / eod_exit / cancellation / manual
+    realized_pnl = Column(Float)
+    unrealized_pnl = Column(Float)                   # last known if exiting early
+    hold_duration_secs = Column(Float)
+    slippage = Column(Float)                         # fill_price - limit_price
+
+    # Rejection
+    rejection_reason = Column(Text)
+
+    # Market context tags (optional JSON blob)
+    regime_tags = Column(Text)                       # e.g. '{"vix":"high","trend":"up"}'
+
+    # Metadata
+    status = Column(String(16), nullable=False, default="open", index=True)  # open / closed / rejected / cancelled
+    is_paper = Column(Boolean, default=True)
+    notes = Column(Text)
+    created_at = Column(DateTime, server_default=func.now())
+
+
+class DBSessionLog(Base):
+    """Structured log entries for each trading session poll cycle."""
+    __tablename__ = "session_logs"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    session_date = Column(String(10), index=True)
+    timestamp = Column(DateTime, server_default=func.now(), index=True)
+    level = Column(String(16), default="info")       # info / warning / error
+    event = Column(String(64))                        # heartbeat / signal / order / exit / error
+    symbol = Column(String(16))
+    message = Column(Text)
+    data_json = Column(Text)                          # arbitrary structured payload

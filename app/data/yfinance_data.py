@@ -81,7 +81,7 @@ class YFinanceDataSource:
         self, symbol: str, start: str, end: Optional[str], interval: str
     ) -> pd.DataFrame:
         ticker = yf.Ticker(symbol)
-        kwargs = dict(start=start, interval=interval, auto_adjust=True, progress=False)
+        kwargs = dict(start=start, interval=interval, auto_adjust=True)
         if end:
             kwargs["end"] = end
         df = ticker.history(**kwargs)
@@ -110,7 +110,7 @@ class YFinanceDataSource:
 
     def _fetch_latest_price(self, symbol: str) -> float:
         ticker = yf.Ticker(symbol)
-        hist = ticker.history(period="1d", interval="1m", progress=False)
+        hist = ticker.history(period="1d", interval="1m")
         if hist.empty:
             raise ValueError(f"No price data returned for {symbol}")
         return float(hist["Close"].iloc[-1])

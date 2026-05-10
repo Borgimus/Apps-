@@ -1,10 +1,9 @@
 """
 Alpaca broker adapter.
 
-Uses the Alpaca Markets REST API v2 for paper and live trading.
-Options order flow requires the alpaca-py SDK.
-
-Install:  pip install alpaca-py
+Alpaca uses two separate hosts:
+  Trading API  : paper-api.alpaca.markets  (account, orders, positions)
+  Market Data  : data.alpaca.markets       (quotes, bars, option chains)
 
 Paper trading endpoint: https://paper-api.alpaca.markets
 Live trading endpoint:  https://api.alpaca.markets
@@ -52,23 +51,35 @@ class AlpacaBroker(BrokerInterface):
       https://alpaca.markets/sdks/python/
     """
 
+    # Market data always served from this host regardless of paper/live
+    _DATA_URL = "https://data.alpaca.markets"
+
     def __init__(self, api_key: str, secret_key: str, base_url: str, is_paper: bool = True):
         self._api_key = api_key
         self._secret_key = secret_key
         self._base_url = base_url.rstrip("/")
         self._is_paper = is_paper
+        _headers = {
+            "APCA-API-KEY-ID": self._api_key,
+            "APCA-API-SECRET-KEY": self._secret_key,
+        }
+        # Trading client — account, orders, positions
         self._client = httpx.AsyncClient(
             base_url=self._base_url,
-            headers={
-                "APCA-API-KEY-ID": self._api_key,
-                "APCA-API-SECRET-KEY": self._secret_key,
-            },
+            headers=_headers,
+            timeout=10.0,
+        )
+        # Market data client — quotes, bars, option chains
+        self._data_client = httpx.AsyncClient(
+            base_url=self._DATA_URL,
+            headers=_headers,
             timeout=10.0,
         )
         logger.info(
-            "AlpacaBroker initialised | paper=%s | base_url=%s",
+            "AlpacaBroker initialised | paper=%s | trade_url=%s | data_url=%s",
             is_paper,
             base_url,
+            self._DATA_URL,
         )
         if not is_paper:
             logger.warning(
@@ -114,7 +125,8 @@ class AlpacaBroker(BrokerInterface):
     # ── Quotes ────────────────────────────────────────────────────────────────
 
     async def get_quote(self, symbol: str) -> Quote:
-        resp = await self._client.get(f"/v2/stocks/{symbol}/quotes/latest")
+        # Equity quotes come from the data host, not the trading host
+        resp = await self._data_client.get(f"/v2/stocks/{symbol}/quotes/latest")
         resp.raise_for_status()
         q = resp.json()["quote"]
         return Quote(
@@ -127,8 +139,7 @@ class AlpacaBroker(BrokerInterface):
         )
 
     async def get_option_chain(self, symbol: str, expiration: date) -> OptionChain:
-        # TODO: Alpaca options chain endpoint
-        # https://docs.alpaca.markets/reference/optioncontracts-1
+        # Contract metadata lives on the trading host; snapshots on data host
         exp_str = expiration.strftime("%Y-%m-%d")
         resp = await self._client.get(
             "/v2/options/contracts",
@@ -141,26 +152,32 @@ class AlpacaBroker(BrokerInterface):
         resp.raise_for_status()
         data = resp.json()
 
+        # Fetch underlying price for context
+        try:
+            underlying_quote = await self.get_quote(symbol)
+            underlying_price = underlying_quote.mid
+        except Exception:
+            underlying_price = Decimal("0")
+
         chain = OptionChain(
             symbol=symbol,
             expiration=expiration,
-            underlying_price=Decimal("0"),  # fetch separately if needed
+            underlying_price=underlying_price,
             fetched_at=datetime.utcnow(),
         )
         for c in data.get("option_contracts", []):
-            strike = Decimal(str(c["strike_price"]))
             contract = OptionContract(
                 symbol=symbol,
                 option_symbol=c["symbol"],
                 expiration=expiration,
-                strike=strike,
+                strike=Decimal(str(c["strike_price"])),
                 option_type=c["type"],
-                bid=Decimal(str(c.get("bid_price", 0))),
-                ask=Decimal(str(c.get("ask_price", 0))),
-                last=Decimal(str(c.get("close_price", 0))),
-                volume=int(c.get("volume", 0)),
-                open_interest=int(c.get("open_interest", 0)),
-                implied_volatility=float(c.get("implied_volatility", 0)),
+                bid=Decimal(str(c.get("bid_price") or 0)),
+                ask=Decimal(str(c.get("ask_price") or 0)),
+                last=Decimal(str(c.get("close_price") or 0)),
+                volume=int(c.get("volume") or 0),
+                open_interest=int(c.get("open_interest") or 0),
+                implied_volatility=float(c.get("implied_volatility") or 0),
                 delta=c.get("delta"),
                 gamma=c.get("gamma"),
                 theta=c.get("theta"),
@@ -173,19 +190,23 @@ class AlpacaBroker(BrokerInterface):
         return chain
 
     async def get_option_quote(self, option_symbol: str) -> OptionQuote:
-        resp = await self._client.get(f"/v2/options/snapshots/{option_symbol}")
+        # Option snapshots (bid/ask/greeks) come from the data host
+        resp = await self._data_client.get(
+            "/v2/options/snapshots",
+            params={"symbols": option_symbol},
+        )
         resp.raise_for_status()
-        snap = resp.json()["snapshots"][option_symbol]
+        snap = resp.json().get("snapshots", {}).get(option_symbol, {})
         greeks = snap.get("greeks", {})
         latest = snap.get("latestQuote", {})
         return OptionQuote(
             option_symbol=option_symbol,
-            bid=Decimal(str(latest.get("bp", 0))),
-            ask=Decimal(str(latest.get("ap", 0))),
-            last=Decimal(str(snap.get("latestTrade", {}).get("p", 0))),
-            volume=int(snap.get("dailyBar", {}).get("v", 0)),
-            open_interest=int(snap.get("openInterest", 0)),
-            implied_volatility=float(snap.get("impliedVolatility", 0)),
+            bid=Decimal(str(latest.get("bp") or 0)),
+            ask=Decimal(str(latest.get("ap") or 0)),
+            last=Decimal(str(snap.get("latestTrade", {}).get("p") or 0)),
+            volume=int(snap.get("dailyBar", {}).get("v") or 0),
+            open_interest=int(snap.get("openInterest") or 0),
+            implied_volatility=float(snap.get("impliedVolatility") or 0),
             delta=greeks.get("delta"),
             timestamp=datetime.utcnow(),
         )
@@ -267,3 +288,4 @@ class AlpacaBroker(BrokerInterface):
 
     async def close(self):
         await self._client.aclose()
+        await self._data_client.aclose()

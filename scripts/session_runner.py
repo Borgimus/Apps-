@@ -201,6 +201,7 @@ async def scan_and_place(
     settings,
     now: datetime,
     dry_run: bool,
+    fill_tracker=None,
 ) -> int:
     """Return number of orders placed (or would-be placed in dry-run)."""
     from app.brokers.broker_interface import OrderRequest, OrderSide, OrderType
@@ -242,9 +243,12 @@ async def scan_and_place(
         if sig_ts_et.date() < now.date():
             continue
 
-        # Dedup
+        # Dedup — also block if there is a pending-but-unfilled order
         if pm.has_position_for_symbol(symbol):
             logger.debug("Dedup: position already open for %s", symbol)
+            continue
+        if fill_tracker and fill_tracker.has_pending_for_symbol(symbol):
+            logger.debug("Dedup: pending order already registered for %s", symbol)
             continue
 
         # Cooldown
@@ -406,16 +410,30 @@ async def scan_and_place(
                 )
                 await journal.commit()
 
-                pm.open(
-                    option_symbol=contract.option_symbol,
-                    symbol=symbol,
-                    strategy_id=sig.strategy_id,
-                    direction=sig.direction.value,
-                    entry_time=now,
-                    entry_price=float(contract.ask),
-                    quantity=request.quantity,
-                    journal_id=journal_id,
-                )
+                if fill_tracker:
+                    fill_tracker.register(
+                        order_id=order.order_id,
+                        journal_id=journal_id,
+                        option_symbol=contract.option_symbol,
+                        symbol=symbol,
+                        strategy_id=sig.strategy_id,
+                        direction=sig.direction.value,
+                        quantity=request.quantity,
+                        limit_price=float(limit_price),
+                        placed_at=now,
+                    )
+                else:
+                    # No fill tracker: open position immediately (legacy / dry-run)
+                    pm.open(
+                        option_symbol=contract.option_symbol,
+                        symbol=symbol,
+                        strategy_id=sig.strategy_id,
+                        direction=sig.direction.value,
+                        entry_time=now,
+                        entry_price=float(contract.ask),
+                        quantity=request.quantity,
+                        journal_id=journal_id,
+                    )
             placed += 1
         except Exception as exc:
             logger.error("Order placement failed for %s: %s", symbol, exc)
@@ -434,7 +452,7 @@ async def run_session(args: argparse.Namespace):
     from app.data import YFinanceDataSource
     from app.risk import RiskManager
     from app.strategies import IVCrushFilter, LiquidityFilter, OpeningRangeBreakoutStrategy, RSITrendStrategy, VWAPReclaimStrategy
-    from app.trading import PositionManager, TradeJournal
+    from app.trading import FillTracker, PositionManager, TradeJournal
 
     settings = get_settings()
 
@@ -450,6 +468,7 @@ async def run_session(args: argparse.Namespace):
     data = YFinanceDataSource()
     risk = RiskManager(settings)
     pm = PositionManager(settings)
+    fill_tracker = FillTracker(max_age_minutes=30)
 
     await init_db()
     db_session = AsyncSessionLocal()
@@ -545,12 +564,21 @@ async def run_session(args: argparse.Namespace):
 
         # EOD liquidation (before scanning for new entries)
         if now >= eod_time and not eod_liquidated:
-            logger.warning("EOD time reached — liquidating all positions")
+            logger.warning("EOD time reached — cancelling pending orders and liquidating all positions")
+            # Cancel all pending orders so they don't fill after we've liquidated
+            if fill_tracker.count() > 0:
+                await fill_tracker.poll(broker, pm, journal, now, risk)
             await eod_liquidate(broker, pm, journal, risk, now, args.dry_run)
             eod_liquidated = True
             # Don't scan for new entries after EOD
             await asyncio.sleep(args.poll)
             continue
+
+        # Poll pending orders for fills / cancellations
+        if fill_tracker.count() > 0:
+            fills = await fill_tracker.poll(broker, pm, journal, now, risk)
+            if fills:
+                logger.info("FillTracker: %d fill(s) processed this cycle", fills)
 
         # Monitor + close existing positions
         closed = await monitor_positions(broker, pm, journal, risk, now, args.dry_run)
@@ -573,6 +601,7 @@ async def run_session(args: argparse.Namespace):
                     settings=settings,
                     now=now,
                     dry_run=args.dry_run,
+                    fill_tracker=fill_tracker,
                 )
                 session_placed += placed
 

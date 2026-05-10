@@ -100,6 +100,7 @@ async def monitor_positions(
     risk,
     now: datetime,
     dry_run: bool,
+    alert_service=None,
 ) -> int:
     """
     For every open position, fetch a live quote, check exit conditions,
@@ -147,6 +148,20 @@ async def monitor_positions(
                         data={"reason": reason, "pnl": round(pnl, 2), "hold_secs": round(hold_secs)},
                     )
                     await journal.commit()
+                if alert_service:
+                    from app.utils.alerting import AlertEvent
+                    if reason == "stop_loss":
+                        alert_event = AlertEvent.STOP_LOSS
+                    elif reason in ("take_profit", "trailing_stop"):
+                        alert_event = AlertEvent.TAKE_PROFIT
+                    else:
+                        alert_event = None
+                    if alert_event:
+                        await alert_service.send(
+                            alert_event,
+                            f"{pos.option_symbol} {reason} pnl={pnl:.2f}",
+                            data={"symbol": pos.symbol, "reason": reason, "pnl": round(pnl, 2)},
+                        )
             else:
                 logger.info("DRY RUN: would close %s (%s)", pos.option_symbol, reason)
                 pm.close(pos.option_symbol, current_price, pnl)
@@ -211,6 +226,7 @@ async def scan_and_place(
     fill_tracker=None,
     store=None,
     session_date: str = "",
+    alert_service=None,
 ) -> int:
     """Return number of orders placed (or would-be placed in dry-run)."""
     from app.brokers.broker_interface import OrderRequest, OrderSide, OrderType
@@ -419,6 +435,20 @@ async def scan_and_place(
                 )
                 await journal.commit()
 
+                if alert_service:
+                    from app.utils.alerting import AlertEvent
+                    await alert_service.send(
+                        AlertEvent.ORDER_SUBMITTED,
+                        f"{sig.direction.value} {contract.option_symbol} limit={float(limit_price):.2f}",
+                        data={
+                            "order_id": order.order_id,
+                            "symbol": symbol,
+                            "strategy": sig.strategy_id,
+                            "limit_price": float(limit_price),
+                            "quantity": request.quantity,
+                        },
+                    )
+
                 if fill_tracker:
                     po = fill_tracker.register(
                         order_id=order.order_id,
@@ -469,6 +499,7 @@ async def run_session(args: argparse.Namespace):
     from app.trading.pending_order_store import PendingOrderStore
     from app.trading.reconciler import Reconciler
     from app.trading.session_recovery import SessionRecovery
+    from app.utils.alerting import AlertConfig, AlertEvent, AlertService
 
     settings = get_settings()
 
@@ -485,11 +516,13 @@ async def run_session(args: argparse.Namespace):
     risk = RiskManager(settings)
     pm = PositionManager(settings)
 
+    alert_service = AlertService(AlertConfig.from_env())
+
     await init_db()
     db_session = AsyncSessionLocal()
     journal = TradeJournal(db_session, is_paper=True) if not args.dry_run else None
     store = PendingOrderStore(db_session) if not args.dry_run else None
-    fill_tracker = FillTracker(max_age_minutes=30, store=store)
+    fill_tracker = FillTracker(max_age_minutes=30, store=store, alert_service=alert_service)
 
     iv_filter = IVCrushFilter({
         "earnings_blackout_days": settings.risk.earnings_blackout_days,
@@ -539,6 +572,11 @@ async def run_session(args: argparse.Namespace):
         acct = await _retry(broker.get_account, label="get_account")
         risk.start_session(acct.equity)
         logger.info("Account: equity=%.2f paper=%s", float(acct.equity), acct.is_paper)
+        await alert_service.send(
+            AlertEvent.SESSION_STARTED,
+            f"Paper session started | equity={float(acct.equity):.2f} | symbols={args.symbols}",
+            data={"mode": mode, "symbols": args.symbols, "equity": float(acct.equity)},
+        )
     except Exception as exc:
         logger.error("Cannot fetch account at startup: %s — aborting", exc)
         await broker.close()
@@ -573,6 +611,7 @@ async def run_session(args: argparse.Namespace):
     cycle = 0
     eod_liquidated = False
     session_placed = 0
+    kill_switch_alerted = False
 
     # ── Main polling loop ─────────────────────────────────────────────────────
     while not _shutdown_requested:
@@ -582,8 +621,17 @@ async def run_session(args: argparse.Namespace):
         # Kill switch
         if settings.is_kill_switch_active():
             logger.warning("Kill switch active — halting order placement")
+            if not kill_switch_alerted:
+                await alert_service.send(
+                    AlertEvent.KILL_SWITCH,
+                    "Kill switch activated — order placement halted",
+                    data={"cycle": cycle},
+                )
+                kill_switch_alerted = True
             await asyncio.sleep(args.poll)
             continue
+        else:
+            kill_switch_alerted = False
 
         # Before market open: wait
         if now < mkt_open:
@@ -615,8 +663,14 @@ async def run_session(args: argparse.Namespace):
             # Cancel all pending orders so they don't fill after we've liquidated
             if fill_tracker.count() > 0:
                 await fill_tracker.poll(broker, pm, journal, now, risk)
+            n_pos = len(pm.open_positions())
             await eod_liquidate(broker, pm, journal, risk, now, args.dry_run)
             eod_liquidated = True
+            await alert_service.send(
+                AlertEvent.EOD_LIQUIDATION,
+                f"EOD liquidation: closed {n_pos} position(s)",
+                data={"positions_closed": n_pos, "daily_pnl": float(risk.daily_pnl)},
+            )
             # Don't scan for new entries after EOD
             await asyncio.sleep(args.poll)
             continue
@@ -630,6 +684,11 @@ async def run_session(args: argparse.Namespace):
             except Exception as exc:
                 logger.error("FillTracker poll error: %s", exc)
                 api_errors += 1
+                await alert_service.send(
+                    AlertEvent.API_ERROR,
+                    f"FillTracker poll error: {exc}",
+                    data={"cycle": cycle, "total_errors": api_errors},
+                )
 
         # Periodic broker reconciliation
         recon_due = (
@@ -646,7 +705,7 @@ async def run_session(args: argparse.Namespace):
                 api_errors += 1
 
         # Monitor + close existing positions
-        closed = await monitor_positions(broker, pm, journal, risk, now, args.dry_run)
+        closed = await monitor_positions(broker, pm, journal, risk, now, args.dry_run, alert_service=alert_service)
         if closed:
             logger.info("Closed %d position(s) this cycle", closed)
 
@@ -669,6 +728,7 @@ async def run_session(args: argparse.Namespace):
                     fill_tracker=fill_tracker,
                     store=store,
                     session_date=today_str,
+                    alert_service=alert_service,
                 )
                 session_placed += placed
 
@@ -745,6 +805,21 @@ async def run_session(args: argparse.Namespace):
                 data=report,
             )
             await journal.commit()
+
+            await alert_service.send(
+                AlertEvent.SESSION_SUMMARY,
+                (
+                    f"{report['trades']['total_closed']} trades | "
+                    f"pnl={report['realized_pnl']} | "
+                    f"win_rate={report['trades'].get('win_rate', 0):.0%}"
+                ),
+                data={
+                    "trades": report["trades"]["total_closed"],
+                    "realized_pnl": report["realized_pnl"],
+                    "win_rate": report["trades"].get("win_rate"),
+                    "max_drawdown": report.get("max_drawdown"),
+                },
+            )
         except Exception as exc:
             logger.error("Health report generation failed: %s", exc)
 
@@ -753,6 +828,12 @@ async def run_session(args: argparse.Namespace):
         cycle, session_placed, float(risk.daily_pnl),
     )
     print(f"\n  Session complete — {cycle} cycles | {session_placed} orders | P&L ${float(risk.daily_pnl):.2f}\n")
+
+    await alert_service.send(
+        AlertEvent.SESSION_STOPPED,
+        f"Session stopped | cycles={cycle} | placed={session_placed} | pnl={float(risk.daily_pnl):.2f}",
+        data={"cycles": cycle, "placed": session_placed, "pnl": float(risk.daily_pnl), "api_errors": api_errors},
+    )
 
     await broker.close()
     await db_session.close()

@@ -40,6 +40,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from zoneinfo import ZoneInfo
 
 from ..brokers.broker_interface import OrderStatus
+from ..utils.alerting import AlertEvent, AlertService
 
 if TYPE_CHECKING:
     from .pending_order_store import PendingOrderStore
@@ -90,6 +91,7 @@ class FillTracker:
         self,
         max_age_minutes: int = 30,
         store: Optional[Any] = None,
+        alert_service: Optional[AlertService] = None,
     ):
         """
         Parameters
@@ -101,10 +103,13 @@ class FillTracker:
             status is durable across restarts.  The store must share the
             same AsyncSession as the TradeJournal passed to poll() so
             that both updates commit atomically.
+        alert_service : AlertService | None
+            When supplied, sends alerts on fill and cancel events.
         """
         self._pending: Dict[str, PendingOrder] = {}   # order_id → PendingOrder
         self._max_age_minutes = max_age_minutes
         self._store: Optional[Any] = store
+        self._alerts: Optional[AlertService] = alert_service
 
     # ── Registration ──────────────────────────────────────────────────────────
 
@@ -277,6 +282,22 @@ class FillTracker:
             await self._store.update_status(order_id, db_status, filled_qty, fill_price)
             await self._store.commit()
 
+        # Send alert
+        if self._alerts:
+            event = AlertEvent.ORDER_PARTIAL if partial else AlertEvent.ORDER_FILLED
+            await self._alerts.send(
+                event,
+                f"{pending.option_symbol} {filled_qty}×@ {fill_price:.4f}",
+                data={
+                    "order_id": order_id,
+                    "symbol": pending.symbol,
+                    "strategy": pending.strategy_id,
+                    "fill_price": fill_price,
+                    "filled_qty": filled_qty,
+                    "total_qty": pending.quantity,
+                },
+            )
+
         # Open / update position with real fill price
         if not partial:
             # Full fill: open position in PM (entry_price = actual fill)
@@ -362,5 +383,26 @@ class FillTracker:
             )
             await self._store.update_status(order_id, db_status)
             await self._store.commit()
+
+        # Send alert
+        if self._alerts:
+            if reason == "stale_cancelled":
+                event = AlertEvent.ORDER_STALE_CANCELLED
+            elif reason in ("cancelled", "canceled"):
+                event = AlertEvent.ORDER_CANCELLED
+            elif reason == "rejected":
+                event = AlertEvent.ORDER_REJECTED
+            else:
+                event = AlertEvent.ORDER_CANCELLED
+            await self._alerts.send(
+                event,
+                f"Order {order_id[:8]} {reason}: {pending.option_symbol}",
+                data={
+                    "order_id": order_id,
+                    "symbol": pending.symbol,
+                    "strategy": pending.strategy_id,
+                    "reason": reason,
+                },
+            )
 
         del self._pending[order_id]

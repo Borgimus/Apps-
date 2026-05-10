@@ -30,8 +30,9 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..config import get_settings
@@ -39,6 +40,7 @@ from .models import (
     AsyncSessionLocal,
     DBBacktestResult,
     DBOrder,
+    DBPendingOrder,
     DBPosition,
     DBRiskEvent,
     DBSessionLog,
@@ -126,8 +128,8 @@ def create_app(
     )
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:3000", "http://127.0.0.1:3000"],
-        allow_methods=["*"],
+        allow_origins=["*"],   # localhost-only by bind address; no auth token needed
+        allow_methods=["GET", "POST", "DELETE"],
         allow_headers=["*"],
     )
 
@@ -138,11 +140,155 @@ def create_app(
         if settings.live_trading_enabled:
             logger.warning("⚠️  LIVE TRADING IS ENABLED via API startup")
 
-    # ── Health ─────────────────────────────────────────────────────────────
+    # ── Dashboard UI ───────────────────────────────────────────────────────
+
+    @app.get("/", response_class=HTMLResponse, include_in_schema=False)
+    def dashboard_ui():
+        """Serve the single-page monitoring dashboard."""
+        static_path = Path(__file__).parent.parent / "static" / "index.html"
+        try:
+            return HTMLResponse(content=static_path.read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            return HTMLResponse(
+                content="<h1>Dashboard not built</h1><p>index.html not found.</p>",
+                status_code=404,
+            )
+
+    # ── Health (comprehensive) ─────────────────────────────────────────────
 
     @app.get("/health")
-    async def health():
-        return {"status": "ok", "timestamp": datetime.utcnow().isoformat()}
+    async def health(db: AsyncSession = Depends(get_db)):
+        """
+        Liveness and readiness check.
+
+        Returns database connectivity, runner heartbeat age, current market
+        session status, and paper-mode confirmation.
+        """
+        from datetime import date as _date, timezone, time as _time
+        from zoneinfo import ZoneInfo
+        _ET = ZoneInfo("America/New_York")
+        now = datetime.now(tz=_ET)
+
+        # ── Database ───────────────────────────────────────────────────────
+        db_ok = False
+        try:
+            await db.execute(text("SELECT 1"))
+            db_ok = True
+        except Exception as exc:
+            logger.warning("Health check: DB error: %s", exc)
+
+        # ── Runner heartbeat ───────────────────────────────────────────────
+        runner_active = False
+        heartbeat_age_secs: Optional[int] = None
+        try:
+            row = (
+                await db.execute(
+                    select(DBSessionLog)
+                    .where(DBSessionLog.session_date == str(_date.today()))
+                    .where(DBSessionLog.event == "heartbeat")
+                    .order_by(DBSessionLog.timestamp.desc())
+                    .limit(1)
+                )
+            ).scalars().first()
+            if row and row.timestamp:
+                ts = row.timestamp
+                if ts.tzinfo is None:
+                    ts = ts.replace(tzinfo=_ET)
+                age = (now - ts.astimezone(_ET)).total_seconds()
+                heartbeat_age_secs = int(age)
+                runner_active = age < 600
+        except Exception:
+            pass
+
+        # ── Market session status ──────────────────────────────────────────
+        weekday = now.weekday()
+        if weekday >= 5:
+            mkt_status = "weekend"
+        elif now.time() < _time(9, 30):
+            mkt_status = "pre_market"
+        elif now.time() < _time(16, 0):
+            mkt_status = "open"
+        else:
+            mkt_status = "after_hours"
+
+        # ── Data feed freshness (last session log entry) ────────────────
+        feed_age_secs: Optional[int] = None
+        try:
+            last_log = (
+                await db.execute(
+                    select(DBSessionLog)
+                    .where(DBSessionLog.session_date == str(_date.today()))
+                    .order_by(DBSessionLog.timestamp.desc())
+                    .limit(1)
+                )
+            ).scalars().first()
+            if last_log and last_log.timestamp:
+                ts = last_log.timestamp
+                if ts.tzinfo is None:
+                    ts = ts.replace(tzinfo=_ET)
+                feed_age_secs = int((now - ts.astimezone(_ET)).total_seconds())
+        except Exception:
+            pass
+
+        overall = "ok" if db_ok else "degraded"
+
+        return {
+            "status": overall,
+            "paper_mode": not settings.live_trading_enabled,
+            "kill_switch_active": settings.is_kill_switch_active(),
+            "database": {
+                "status": "ok" if db_ok else "error",
+            },
+            "runner": {
+                "active": runner_active,
+                "heartbeat_age_secs": heartbeat_age_secs,
+            },
+            "data_feed": {
+                "last_event_age_secs": feed_age_secs,
+                "stale": feed_age_secs is not None and feed_age_secs > 600,
+            },
+            "market": {
+                "status": mkt_status,
+                "time_et": now.strftime("%H:%M:%S"),
+                "date": str(_date.today()),
+            },
+            "timestamp": now.isoformat(),
+        }
+
+    # ── Pending orders (from DBPendingOrder) ───────────────────────────────
+
+    @app.get("/pending-orders")
+    async def pending_orders(
+        session_date: Optional[str] = None,
+        db: AsyncSession = Depends(get_db),
+    ):
+        """Return open pending orders for today (or a given session date)."""
+        from datetime import date as _date
+        target = session_date or str(_date.today())
+        rows = (
+            await db.execute(
+                select(DBPendingOrder)
+                .where(DBPendingOrder.session_date == target)
+                .order_by(DBPendingOrder.submitted_at.desc())
+            )
+        ).scalars().all()
+        return [
+            {
+                "order_id": r.order_id,
+                "option_symbol": r.option_symbol,
+                "symbol": r.symbol,
+                "strategy_id": r.strategy_id,
+                "direction": r.direction,
+                "quantity": r.quantity,
+                "limit_price": r.limit_price,
+                "status": r.status,
+                "filled_quantity": r.filled_quantity,
+                "avg_fill_price": r.avg_fill_price,
+                "submitted_at": str(r.submitted_at) if r.submitted_at else None,
+                "last_polled_at": str(r.last_polled_at) if r.last_polled_at else None,
+            }
+            for r in rows
+        ]
 
     # ── Status ─────────────────────────────────────────────────────────────
 

@@ -301,6 +301,187 @@ Test coverage includes:
 
 ---
 
+## Unattended Session Runner
+
+`scripts/session_runner.py` is the hardened, crash-safe replacement for `paper_trader.py`.
+It is designed to run unattended and restart automatically after a crash.
+
+```bash
+# Single paper session (places real Alpaca paper orders)
+python scripts/session_runner.py
+
+# Dry-run (no orders placed, full pipeline exercised)
+python scripts/session_runner.py --dry-run
+
+# Multiple symbols, custom poll interval
+python scripts/session_runner.py --symbol SPY QQQ --poll 60
+
+# Cancel unfilled orders on shutdown, reconcile every 15 minutes
+python scripts/session_runner.py --cancel-pending --reconcile-interval 15
+```
+
+On startup the runner:
+1. Reloads any pending orders from the database (crash recovery)
+2. Reconciles local positions against the broker
+3. Enters the polling loop (fill tracking → position monitor → signal scan)
+
+On shutdown (SIGTERM/SIGINT or market close):
+1. Final fill poll so no fills are missed
+2. Optional pending-order cancellation (`--cancel-pending`)
+3. Position liquidation
+4. Session health report written to `logs/session_YYYY-MM-DD.json`
+
+---
+
+## Docker Deployment
+
+```bash
+cp .env.example .env
+# Edit .env with your broker credentials and alert settings
+
+docker compose up -d
+```
+
+Two services start:
+- **dashboard** — FastAPI on port 8000; restarts on crash; healthcheck on `/health`
+- **session-runner** — Runs `session_runner.py`; restarts on crash; waits for dashboard to be healthy first
+
+Logs and the SQLite database are mounted from the host so they persist across container restarts:
+
+```
+./logs/   → /app/logs   (trading.log, errors.log, session_*.json, etc.)
+./data/   → /app/data
+```
+
+To stop cleanly:
+
+```bash
+docker compose down
+```
+
+To tail live logs:
+
+```bash
+docker compose logs -f session-runner
+```
+
+---
+
+## Monitoring Dashboard
+
+Once the dashboard service is running, open **http://localhost:8000** in your browser.
+
+The dashboard auto-refreshes every 30 seconds and shows:
+- Daily P&L, win rate, open positions count
+- Risk status (drawdown, trades remaining, kill switch state)
+- Open positions table with unrealised P&L
+- Pending orders table with age
+- Recent fills and rejections
+- Scrollable session log
+- Kill switch toggle buttons
+
+---
+
+## Logging
+
+All events are written to multiple rotating files under `./logs/`:
+
+| File | Contents |
+|------|----------|
+| `trading.log` | All events (plain text, 10 MB × 5) |
+| `trading.jsonl` | All events as NDJSON — machine-readable (20 MB × 10) |
+| `errors.log` | ERROR and above only (5 MB × 10) |
+| `broker.log` | `app.brokers.*` events only (5 MB × 5) |
+| `api.log` | `app.api.*` events only (5 MB × 5) |
+| `session_YYYY-MM-DD.log` | Today's session in plain text (daily rotation, 30 days) |
+| `session_YYYY-MM-DD.json` | End-of-day health report (JSON) |
+
+Query with `jq`:
+
+```bash
+# All fills today
+jq 'select(.msg | contains("FILL"))' logs/trading.jsonl
+
+# All errors
+jq 'select(.level == "ERROR")' logs/trading.jsonl
+```
+
+---
+
+## Alerts
+
+Configure Slack and/or email by setting environment variables in `.env`:
+
+```bash
+# Slack
+ALERT_SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+
+# Email (Gmail example)
+ALERT_EMAIL_FROM=bot@gmail.com
+ALERT_EMAIL_TO=you@gmail.com
+ALERT_SMTP_HOST=smtp.gmail.com
+ALERT_SMTP_PORT=587
+ALERT_SMTP_USER=bot@gmail.com
+ALERT_SMTP_PASSWORD=app_password_here
+
+# Only send warning+ events (default: info = everything)
+ALERT_MIN_LEVEL=warning
+```
+
+Alerts fire for these 15 events:
+
+| Event | Default level |
+|-------|--------------|
+| Session started/stopped | info |
+| Order submitted/filled/partial | info |
+| Order cancelled/rejected/stale-cancelled | warning |
+| Stop loss / Take profit | warning / info |
+| Daily loss threshold reached | critical |
+| Kill switch activated | critical |
+| API/broker error | warning |
+| EOD liquidation | info |
+| Session summary | info |
+
+If no channels are configured the alert service is a no-op — no errors are raised.
+
+---
+
+## Safe Stop
+
+To stop the session runner without losing any in-flight data:
+
+```bash
+# Graceful (recommended): SIGTERM triggers final fill poll + health report
+kill -TERM $(pgrep -f session_runner)
+
+# Or create the kill switch file to halt new orders first, then stop:
+touch ./KILL_SWITCH
+# ... wait for current positions to be managed ...
+kill -TERM $(pgrep -f session_runner)
+```
+
+With Docker:
+
+```bash
+docker compose stop session-runner   # sends SIGTERM, waits for graceful exit
+```
+
+---
+
+## Paper Mode Enforcement
+
+The session runner enforces paper trading at startup:
+
+```python
+if settings.live_trading_enabled:
+    logger.critical("LIVE_TRADING_ENABLED=true — aborting.")
+    sys.exit(1)
+```
+
+`LIVE_TRADING_ENABLED` must never be set to `true` when using `session_runner.py`.
+
+---
+
 ## Project Structure
 
 ```
@@ -312,10 +493,18 @@ Test coverage includes:
 │   ├── risk/            # Pre-trade risk manager
 │   ├── backtesting/     # Backtest engine + report generator
 │   ├── api/             # FastAPI dashboard + SQLAlchemy models
-│   └── utils/           # Logging setup
+│   ├── trading/         # FillTracker, PositionManager, TradeJournal,
+│   │                    # PendingOrderStore, Reconciler, SessionRecovery,
+│   │                    # HealthReporter
+│   └── utils/           # Logging setup, alert service
+├── scripts/
+│   ├── session_runner.py  # Hardened unattended trading loop
+│   └── integration_test.py
 ├── tests/               # pytest unit tests
-├── paper_trader.py      # Intraday trading loop orchestrator
+├── paper_trader.py      # Legacy intraday loop
 ├── main.py              # CLI entry point
+├── Dockerfile
+├── docker-compose.yml
 ├── config.yaml          # Default configuration
 ├── .env.example         # Environment variable template
 └── requirements.txt

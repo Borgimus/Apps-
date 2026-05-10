@@ -3,26 +3,33 @@ Daily Session Runner — continuous intraday paper-trading loop.
 
 Runs from market open until market close, polling every POLL_INTERVAL seconds.
 Each poll cycle:
-  1. Heartbeat check (connectivity + account)
-  2. Stale-quote detection
-  3. Update open positions (fetch quotes, evaluate exit conditions)
-  4. Scan for new signals and attempt order placement
-  5. Log structured session event
+  1. Fill tracker poll (update pending order statuses from broker)
+  2. Position monitor (fetch quotes, evaluate exit conditions)
+  3. Signal scan + order placement (if before EOD)
+  4. Broker reconciliation (every --reconcile-interval minutes)
+  5. Heartbeat log
 
 Safety guarantees:
   • LIVE_TRADING_ENABLED=true aborts immediately.
   • Kill switch file respected on every cycle.
   • All positions force-closed at EOD_EXIT_TIME.
-  • SIGTERM / SIGINT trigger graceful shutdown (close positions, then exit).
+  • SIGTERM / SIGINT trigger graceful shutdown:
+      – one final fill poll
+      – optional pending-order cancellation (--cancel-pending)
+      – position liquidation
+      – session health report written to logs/
   • API failures are retried with exponential backoff; after MAX_RETRIES the
-    cycle is skipped and an error is logged — the runner never crashes.
+    cycle is skipped — the runner never crashes.
+  • On restart, pending orders are reloaded from DB and broker positions
+    are reconciled so no duplicate orders are placed.
 
 Usage:
   python scripts/session_runner.py                # runs today's session
   python scripts/session_runner.py --dry-run      # no orders placed
   python scripts/session_runner.py --symbol QQQ SPY
   python scripts/session_runner.py --poll 60      # poll every 60 s
-  python scripts/session_runner.py --log-level INFO
+  python scripts/session_runner.py --cancel-pending   # cancel open orders on shutdown
+  python scripts/session_runner.py --reconcile-interval 15  # recon every 15 min
 """
 
 from __future__ import annotations
@@ -202,6 +209,8 @@ async def scan_and_place(
     now: datetime,
     dry_run: bool,
     fill_tracker=None,
+    store=None,
+    session_date: str = "",
 ) -> int:
     """Return number of orders placed (or would-be placed in dry-run)."""
     from app.brokers.broker_interface import OrderRequest, OrderSide, OrderType
@@ -411,7 +420,7 @@ async def scan_and_place(
                 await journal.commit()
 
                 if fill_tracker:
-                    fill_tracker.register(
+                    po = fill_tracker.register(
                         order_id=order.order_id,
                         journal_id=journal_id,
                         option_symbol=contract.option_symbol,
@@ -422,6 +431,9 @@ async def scan_and_place(
                         limit_price=float(limit_price),
                         placed_at=now,
                     )
+                    # Persist so the order survives a crash/restart
+                    if store and session_date:
+                        await store.save(po, session_date)
                 else:
                     # No fill tracker: open position immediately (legacy / dry-run)
                     pm.open(
@@ -453,6 +465,10 @@ async def run_session(args: argparse.Namespace):
     from app.risk import RiskManager
     from app.strategies import IVCrushFilter, LiquidityFilter, OpeningRangeBreakoutStrategy, RSITrendStrategy, VWAPReclaimStrategy
     from app.trading import FillTracker, PositionManager, TradeJournal
+    from app.trading.health_report import HealthReporter
+    from app.trading.pending_order_store import PendingOrderStore
+    from app.trading.reconciler import Reconciler
+    from app.trading.session_recovery import SessionRecovery
 
     settings = get_settings()
 
@@ -468,11 +484,12 @@ async def run_session(args: argparse.Namespace):
     data = YFinanceDataSource()
     risk = RiskManager(settings)
     pm = PositionManager(settings)
-    fill_tracker = FillTracker(max_age_minutes=30)
 
     await init_db()
     db_session = AsyncSessionLocal()
     journal = TradeJournal(db_session, is_paper=True) if not args.dry_run else None
+    store = PendingOrderStore(db_session) if not args.dry_run else None
+    fill_tracker = FillTracker(max_age_minutes=30, store=store)
 
     iv_filter = IVCrushFilter({
         "earnings_blackout_days": settings.risk.earnings_blackout_days,
@@ -490,6 +507,11 @@ async def run_session(args: argparse.Namespace):
         VWAPReclaimStrategy(params={"proximity_pct": 0.002, "confirmation_bars": 2}),
         RSITrendStrategy(params={"rsi_period": 14, "rsi_oversold": 35, "trend_ema_period": 20}),
     ]
+
+    # ── Runtime stats (for health report) ────────────────────────────────────
+    api_errors: int = 0
+    recon_warnings: List[str] = []
+    today_str = datetime.now(tz=ET).strftime("%Y-%m-%d")
 
     # ── Session window ────────────────────────────────────────────────────────
     now = datetime.now(tz=ET)
@@ -522,6 +544,31 @@ async def run_session(args: argparse.Namespace):
         await broker.close()
         await db_session.close()
         sys.exit(1)
+
+    # ── Startup recovery ──────────────────────────────────────────────────────
+    if store:
+        try:
+            recovery_result = await SessionRecovery().recover(
+                broker, pm, fill_tracker, store, today_str
+            )
+            for w in recovery_result.warnings:
+                logger.warning("Recovery: %s", w)
+                recon_warnings.append(w)
+            for e in recovery_result.errors:
+                logger.error("Recovery: %s", e)
+                api_errors += 1
+            if recovery_result.pending_orders_loaded or recovery_result.broker_positions_loaded:
+                logger.info(
+                    "Recovery loaded %d pending order(s), %d broker position(s)",
+                    recovery_result.pending_orders_loaded,
+                    recovery_result.broker_positions_loaded,
+                )
+        except Exception as exc:
+            logger.error("Startup recovery failed: %s", exc)
+            api_errors += 1
+
+    reconciler = Reconciler()
+    last_reconciled_at: Optional[datetime] = None
 
     cycle = 0
     eod_liquidated = False
@@ -576,9 +623,27 @@ async def run_session(args: argparse.Namespace):
 
         # Poll pending orders for fills / cancellations
         if fill_tracker.count() > 0:
-            fills = await fill_tracker.poll(broker, pm, journal, now, risk)
-            if fills:
-                logger.info("FillTracker: %d fill(s) processed this cycle", fills)
+            try:
+                fills = await fill_tracker.poll(broker, pm, journal, now, risk)
+                if fills:
+                    logger.info("FillTracker: %d fill(s) processed this cycle", fills)
+            except Exception as exc:
+                logger.error("FillTracker poll error: %s", exc)
+                api_errors += 1
+
+        # Periodic broker reconciliation
+        recon_due = (
+            last_reconciled_at is None
+            or (now - last_reconciled_at).total_seconds() / 60 >= args.reconcile_interval
+        )
+        if recon_due:
+            try:
+                recon = await reconciler.reconcile(broker, pm, fill_tracker, now)
+                recon_warnings.extend(recon.flagged)
+                last_reconciled_at = now
+            except Exception as exc:
+                logger.warning("Reconciliation error: %s", exc)
+                api_errors += 1
 
         # Monitor + close existing positions
         closed = await monitor_positions(broker, pm, journal, risk, now, args.dry_run)
@@ -602,6 +667,8 @@ async def run_session(args: argparse.Namespace):
                     now=now,
                     dry_run=args.dry_run,
                     fill_tracker=fill_tracker,
+                    store=store,
+                    session_date=today_str,
                 )
                 session_placed += placed
 
@@ -611,9 +678,75 @@ async def run_session(args: argparse.Namespace):
         await asyncio.sleep(args.poll)
 
     # ── Graceful shutdown ─────────────────────────────────────────────────────
-    logger.info("Shutdown: liquidating %d remaining position(s)", len(pm.open_positions()))
     now = datetime.now(tz=ET)
-    await eod_liquidate(broker, pm, journal, risk, now, args.dry_run)
+    logger.info(
+        "Shutdown: %d position(s) open, %d order(s) pending",
+        len(pm.open_positions()), fill_tracker.count(),
+    )
+
+    # 1. One final fill poll so we don't lose fills that arrived at shutdown
+    if fill_tracker.count() > 0:
+        logger.info("Shutdown: final fill poll for %d pending order(s)", fill_tracker.count())
+        try:
+            await fill_tracker.poll(broker, pm, journal, now, risk)
+        except Exception as exc:
+            logger.warning("Shutdown: final fill poll failed: %s", exc)
+
+    # 2. Cancel open orders if requested
+    if getattr(args, "cancel_pending", False) and fill_tracker.count() > 0:
+        logger.warning(
+            "Shutdown: cancelling %d pending order(s)", fill_tracker.count()
+        )
+        for pending in list(fill_tracker.pending_orders()):
+            try:
+                await broker.cancel_order(pending.order_id)
+                logger.info("Shutdown: cancelled %s", pending.order_id[:8])
+            except Exception as exc:
+                logger.warning(
+                    "Shutdown: cancel failed for %s: %s", pending.order_id[:8], exc
+                )
+
+    # 3. Liquidate any remaining open positions
+    if pm.open_positions():
+        logger.warning(
+            "Shutdown: liquidating %d position(s)", len(pm.open_positions())
+        )
+        await eod_liquidate(broker, pm, journal, risk, now, args.dry_run)
+
+    # 4. Generate and persist health report
+    if journal and store:
+        try:
+            reporter = HealthReporter(db_session)
+            report = await reporter.generate(
+                session_date=today_str,
+                api_errors=api_errors,
+                reconciliation_warnings=recon_warnings,
+            )
+            import json as _json
+            report_line = _json.dumps(report, default=str)
+            logger.info("Health report: %s", report_line)
+
+            # Write to file
+            import os
+            os.makedirs("logs", exist_ok=True)
+            report_path = f"logs/session_{today_str}.json"
+            with open(report_path, "w") as fh:
+                _json.dump(report, fh, indent=2, default=str)
+            logger.info("Health report written to %s", report_path)
+
+            # Log to DB
+            await journal.log_event(
+                event="session_summary",
+                message=(
+                    f"Session complete: "
+                    f"{report['trades']['total_closed']} trades, "
+                    f"pnl={report['realized_pnl']}"
+                ),
+                data=report,
+            )
+            await journal.commit()
+        except Exception as exc:
+            logger.error("Health report generation failed: %s", exc)
 
     logger.info(
         "Session complete | cycles=%d | placed=%d | pnl=%.2f",
@@ -639,6 +772,14 @@ def _parse_args() -> argparse.Namespace:
                    help="Polling interval in seconds (default: 300 = 5 min)")
     p.add_argument("--log-level", default="INFO",
                    choices=["DEBUG", "INFO", "WARNING", "ERROR"])
+    p.add_argument(
+        "--cancel-pending", action="store_true",
+        help="Cancel all pending orders on shutdown (default: leave open)",
+    )
+    p.add_argument(
+        "--reconcile-interval", type=int, default=30, metavar="MINUTES",
+        help="Broker reconciliation interval in minutes (default: 30)",
+    )
     return p.parse_args()
 
 

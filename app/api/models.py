@@ -182,6 +182,35 @@ class DBTradeJournal(Base):
     created_at = Column(DateTime, server_default=func.now())
 
 
+class DBPendingOrder(Base):
+    """
+    Persisted record of every pending broker order so the session can recover
+    after a crash or restart without re-submitting already-placed orders.
+
+    Updated in place by PendingOrderStore as the order progresses through
+    the fill lifecycle (pending → partially_filled → filled / cancelled /
+    rejected / expired).
+    """
+    __tablename__ = "pending_orders"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    order_id = Column(String(128), unique=True, nullable=False, index=True)
+    journal_id = Column(Integer)                    # FK to trade_journal.id
+    option_symbol = Column(String(64), nullable=False, index=True)
+    symbol = Column(String(16), nullable=False, index=True)
+    strategy_id = Column(String(64))
+    direction = Column(String(16))                  # LONG / SHORT
+    quantity = Column(Integer, nullable=False)
+    limit_price = Column(Float, nullable=False)
+    submitted_at = Column(DateTime, nullable=False)
+    status = Column(String(32), nullable=False, default="pending", index=True)
+    filled_quantity = Column(Integer, default=0)
+    avg_fill_price = Column(Float)
+    last_polled_at = Column(DateTime)
+    session_date = Column(String(10), index=True)   # YYYY-MM-DD
+    created_at = Column(DateTime, server_default=func.now())
+
+
 class DBSessionLog(Base):
     """Structured log entries for each trading session poll cycle."""
     __tablename__ = "session_logs"

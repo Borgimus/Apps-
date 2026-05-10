@@ -36,10 +36,13 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from zoneinfo import ZoneInfo
 
 from ..brokers.broker_interface import OrderStatus
+
+if TYPE_CHECKING:
+    from .pending_order_store import PendingOrderStore
 
 logger = logging.getLogger(__name__)
 ET = ZoneInfo("America/New_York")
@@ -83,15 +86,25 @@ class FillTracker:
     All methods are synchronous except poll(), which calls the broker.
     """
 
-    def __init__(self, max_age_minutes: int = 30):
+    def __init__(
+        self,
+        max_age_minutes: int = 30,
+        store: Optional[Any] = None,
+    ):
         """
         Parameters
         ----------
         max_age_minutes : int
             Orders older than this are cancelled on the next poll cycle.
+        store : PendingOrderStore | None
+            When supplied, fill / dead events also update the DB row so
+            status is durable across restarts.  The store must share the
+            same AsyncSession as the TradeJournal passed to poll() so
+            that both updates commit atomically.
         """
         self._pending: Dict[str, PendingOrder] = {}   # order_id → PendingOrder
         self._max_age_minutes = max_age_minutes
+        self._store: Optional[Any] = store
 
     # ── Registration ──────────────────────────────────────────────────────────
 
@@ -231,7 +244,7 @@ class FillTracker:
             order_id[:8], fill_price, filled_qty, pending.quantity,
         )
 
-        # Update journal
+        # Update journal + persistent store
         if journal and pending.journal_id:
             await journal.record_fill(
                 journal_id=pending.journal_id,
@@ -253,7 +266,16 @@ class FillTracker:
                     "partial": partial,
                 },
             )
+            if self._store:
+                db_status = "partially_filled" if partial else "filled"
+                await self._store.update_status(
+                    order_id, db_status, filled_qty, fill_price
+                )
             await journal.commit()
+        elif self._store:
+            db_status = "partially_filled" if partial else "filled"
+            await self._store.update_status(order_id, db_status, filled_qty, fill_price)
+            await self._store.commit()
 
         # Open / update position with real fill price
         if not partial:
@@ -324,6 +346,21 @@ class FillTracker:
                 symbol=pending.symbol,
                 data={"order_id": order_id, "reason": reason},
             )
+            if self._store:
+                db_status = (
+                    "cancelled"
+                    if reason in ("stale_cancelled", "cancelled", "canceled")
+                    else reason
+                )
+                await self._store.update_status(order_id, db_status)
             await journal.commit()
+        elif self._store:
+            db_status = (
+                "cancelled"
+                if reason in ("stale_cancelled", "cancelled", "canceled")
+                else reason
+            )
+            await self._store.update_status(order_id, db_status)
+            await self._store.commit()
 
         del self._pending[order_id]

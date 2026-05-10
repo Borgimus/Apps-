@@ -32,3 +32,57 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# ── Python Trading App ────────────────────────────────────────────────────────
+
+# Environment & secrets — NEVER commit these
+.env
+.env.local
+*.pem
+
+# Kill switch
+KILL_SWITCH
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+*.egg
+.eggs/
+venv/
+.venv/
+env/
+.python-version
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs (project-level)
+logs/
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Backtest outputs
+backtest_results/
+reports/
+*.html
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Alembic versions cache
+alembic/versions/*.pyc

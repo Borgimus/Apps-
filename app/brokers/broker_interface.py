@@ -38,12 +38,17 @@ class OrderType(str, Enum):
 
 class OrderStatus(str, Enum):
     PENDING = "pending"
+    ACCEPTED = "accepted"           # Alpaca: received but not yet working
+    PENDING_NEW = "pending_new"     # Alpaca: submitted to exchange
+    NEW = "new"                     # Alpaca: live at exchange
     OPEN = "open"
     PARTIALLY_FILLED = "partially_filled"
     FILLED = "filled"
     CANCELLED = "cancelled"
+    CANCELED = "canceled"           # Alpaca uses this spelling
     REJECTED = "rejected"
     EXPIRED = "expired"
+    HELD = "held"                   # Alpaca: held for market open
 
 
 @dataclass

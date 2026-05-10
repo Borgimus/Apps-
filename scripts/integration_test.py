@@ -85,30 +85,56 @@ async def run():
     print(f"\nFirst signal: {sig.strategy_id} | {sig.symbol} | {sig.direction.value} | "
           f"@ {sig.price:.2f} | {sig.timestamp.date()}")
 
-    dummy_contract = OptionContract(
-        symbol=sig.symbol,
-        option_symbol="SPY_SMOKE_TEST",
-        expiration=date(2024, 3, 15),
-        strike=Decimal("470"),
-        option_type="call" if sig.direction.value == "long" else "put",
-        bid=Decimal("2.10"),
-        ask=Decimal("2.20"),
-        last=Decimal("2.15"),
-        volume=500,
-        open_interest=1000,
-        implied_volatility=0.20,
-        delta=0.40,
-    )
+    # ── Fetch a real option contract from the broker ──────────────────────────
+    print(f"\n── Fetching live {sig.symbol} option chain ───────────────────────")
+    live_contract = None
+    try:
+        exps = await broker.get_available_expirations(sig.symbol)
+        if exps:
+            # Use the nearest expiration that is at least 1 day out
+            from datetime import date as date_
+            today = date_.today()
+            future_exps = [e for e in exps if e > today]
+            target_exp = future_exps[0] if future_exps else exps[0]
+            print(f"  Using expiration: {target_exp}")
+            chain = await broker.get_option_chain(sig.symbol, target_exp)
+            contracts = chain.calls if sig.direction.value == "long" else chain.puts
+            # Pick the nearest-ATM liquid contract (bid > 0, OI > 50)
+            underlying = chain.underlying_price or Decimal("1")
+            liquid = [
+                c for c in contracts
+                if c.bid > Decimal("0") and c.open_interest > 50
+            ]
+            if not liquid:
+                # Relax OI filter if nothing qualifies
+                liquid = [c for c in contracts if c.bid > Decimal("0")]
+            if liquid:
+                # Sort by strike proximity to current underlying price
+                liquid.sort(key=lambda c: abs(c.strike - underlying))
+                live_contract = liquid[0]
+                print(f"  Contract: {live_contract.option_symbol}  "
+                      f"strike={live_contract.strike}  bid={live_contract.bid}  "
+                      f"ask={live_contract.ask}")
+    except Exception as e:
+        print(f"  Chain fetch failed: {e}")
+
+    if live_contract is None:
+        print("  No live contract available — skipping order placement.")
+        await broker.close()
+        return
+
     req = OrderRequest(
         symbol=sig.symbol,
-        option_symbol="SPY_SMOKE_TEST",
+        option_symbol=live_contract.option_symbol,
         side=OrderSide.BUY_TO_OPEN,
         quantity=1,
         order_type=OrderType.LIMIT,
-        limit_price=Decimal("2.20"),
+        limit_price=live_contract.ask,
     )
-    mid_session = datetime(2024, 3, 15, 11, 0, tzinfo=ZoneInfo("America/New_York"))
-    risk_result = rm.check_order(req, acct.equity, dummy_contract, now=mid_session)
+    now_et = datetime.now(tz=ZoneInfo("America/New_York"))
+    # Force timestamp to mid-session for risk check so time-of-day filters pass
+    mid_session = now_et.replace(hour=11, minute=0, second=0, microsecond=0)
+    risk_result = rm.check_order(req, acct.equity, live_contract, now=mid_session)
 
     if risk_result.passed:
         print(f"Risk check: PASSED  (approved qty={risk_result.approved_quantity},"
@@ -117,11 +143,13 @@ async def run():
         print(f"Paper order: {order.status.value} | id={order.order_id[:8]}..."
               f" | filled @ {order.filled_price}")
         acct2 = await broker.get_account()
-        # Equity = cash + mark-to-cost of positions, so it stays flat immediately
-        # after a buy.  Show cash to see money actually deployed.
+        # Show cash delta to confirm money was deployed
         cash_deployed = acct.cash - acct2.cash
         print(f"Account after trade: ${acct2.equity:,.2f} equity  "
               f"| ${acct2.cash:,.2f} cash  (${cash_deployed:.2f} deployed in options)")
+        # Cancel immediately — this is a smoke test only
+        cancelled = await broker.cancel_order(order.order_id)
+        print(f"Order cancelled: {cancelled}")
     else:
         print(f"Risk check: FAILED — {', '.join(risk_result.messages)}")
 

@@ -159,29 +159,38 @@ class AlpacaBroker(BrokerInterface):
         except Exception:
             underlying_price = Decimal("0")
 
+        contracts_raw = data.get("option_contracts", [])
+
+        # Enrich with live quotes from the snapshot endpoint
+        all_symbols = [c["symbol"] for c in contracts_raw]
+        snapshots = await self._fetch_snapshots(all_symbols)
+
         chain = OptionChain(
             symbol=symbol,
             expiration=expiration,
             underlying_price=underlying_price,
             fetched_at=datetime.utcnow(),
         )
-        for c in data.get("option_contracts", []):
+        for c in contracts_raw:
+            snap = snapshots.get(c["symbol"], {})
+            greeks = snap.get("greeks", {})
+            latest_quote = snap.get("latestQuote", {})
             contract = OptionContract(
                 symbol=symbol,
                 option_symbol=c["symbol"],
                 expiration=expiration,
                 strike=Decimal(str(c["strike_price"])),
                 option_type=c["type"],
-                bid=Decimal(str(c.get("bid_price") or 0)),
-                ask=Decimal(str(c.get("ask_price") or 0)),
-                last=Decimal(str(c.get("close_price") or 0)),
-                volume=int(c.get("volume") or 0),
+                bid=Decimal(str(latest_quote.get("bp") or c.get("bid_price") or 0)),
+                ask=Decimal(str(latest_quote.get("ap") or c.get("ask_price") or 0)),
+                last=Decimal(str(snap.get("latestTrade", {}).get("p") or c.get("close_price") or 0)),
+                volume=int(snap.get("dailyBar", {}).get("v") or c.get("volume") or 0),
                 open_interest=int(c.get("open_interest") or 0),
-                implied_volatility=float(c.get("implied_volatility") or 0),
-                delta=c.get("delta"),
-                gamma=c.get("gamma"),
-                theta=c.get("theta"),
-                vega=c.get("vega"),
+                implied_volatility=float(snap.get("impliedVolatility") or c.get("implied_volatility") or 0),
+                delta=greeks.get("delta") or c.get("delta"),
+                gamma=greeks.get("gamma") or c.get("gamma"),
+                theta=greeks.get("theta") or c.get("theta"),
+                vega=greeks.get("vega") or c.get("vega"),
             )
             if c["type"] == "call":
                 chain.calls.append(contract)
@@ -190,9 +199,9 @@ class AlpacaBroker(BrokerInterface):
         return chain
 
     async def get_option_quote(self, option_symbol: str) -> OptionQuote:
-        # Option snapshots (bid/ask/greeks) come from the data host
+        # Option snapshots (bid/ask/greeks) live on the data host under v1beta1
         resp = await self._data_client.get(
-            "/v2/options/snapshots",
+            "/v1beta1/options/snapshots",
             params={"symbols": option_symbol},
         )
         resp.raise_for_status()
@@ -211,16 +220,32 @@ class AlpacaBroker(BrokerInterface):
             timestamp=datetime.utcnow(),
         )
 
+    async def _fetch_snapshots(self, symbols: List[str]) -> dict:
+        """Batch-fetch option snapshots, chunking to stay under URL length limits."""
+        snapshots: dict = {}
+        chunk_size = 100
+        for i in range(0, len(symbols), chunk_size):
+            chunk = symbols[i : i + chunk_size]
+            resp = await self._data_client.get(
+                "/v1beta1/options/snapshots",
+                params={"symbols": ",".join(chunk)},
+            )
+            if resp.status_code == 200:
+                snapshots.update(resp.json().get("snapshots", {}))
+        return snapshots
+
     # ── Orders ────────────────────────────────────────────────────────────────
 
     async def place_option_order(self, request: OrderRequest) -> OrderResult:
         if request.order_type == OrderType.MARKET:
             raise ValueError("Market orders for options are not allowed. Use limit orders.")
 
+        # Alpaca accepts only "buy" / "sell" — map buy_to_open/sell_to_close etc.
+        alpaca_side = "buy" if request.side in (OrderSide.BUY, OrderSide.BUY_TO_OPEN) else "sell"
         payload = {
             "symbol": request.option_symbol,
             "qty": str(request.quantity),
-            "side": request.side.value,
+            "side": alpaca_side,
             "type": "limit",
             "time_in_force": request.time_in_force,
             "limit_price": str(request.limit_price),

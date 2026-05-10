@@ -259,7 +259,7 @@ class AlpacaBroker(BrokerInterface):
 
         return OrderResult(
             order_id=data["id"],
-            status=OrderStatus(data["status"]),
+            status=self._parse_status(data["status"]),
             symbol=request.symbol,
             option_symbol=request.option_symbol,
             side=request.side,
@@ -282,13 +282,44 @@ class AlpacaBroker(BrokerInterface):
         resp = await self._client.get(f"/v2/orders/{order_id}")
         resp.raise_for_status()
         data = resp.json()
+        return self._order_from_dict(data)
+
+    async def get_orders(
+        self,
+        status: Optional["OrderStatus"] = None,
+        limit: int = 100,
+    ) -> List[OrderResult]:
+        # Alpaca status param: "open" covers accepted/new/pending_new/held
+        from .broker_interface import OrderStatus as OS
+        if status and status in (OS.FILLED,):
+            alpaca_status = "closed"
+        else:
+            alpaca_status = "open"
+
+        resp = await self._client.get(
+            "/v2/orders",
+            params={"status": alpaca_status, "limit": min(limit, 500), "direction": "desc"},
+        )
+        resp.raise_for_status()
+        results = []
+        for item in resp.json():
+            try:
+                results.append(self._order_from_dict(item))
+            except Exception as exc:
+                logger.warning("Skipping unparseable order: %s", exc)
+        return results
+
+    def _order_from_dict(self, data: dict) -> OrderResult:
+        """Parse a single Alpaca order dict into an OrderResult."""
+        alpaca_side = data.get("side", "buy")
+        side = OrderSide.BUY if alpaca_side == "buy" else OrderSide.SELL
         return OrderResult(
             order_id=data["id"],
-            status=OrderStatus(data["status"]),
+            status=self._parse_status(data["status"]),
             symbol=data.get("symbol", ""),
             option_symbol=data.get("symbol", ""),
-            side=OrderSide(data["side"]),
-            quantity=int(data["qty"]),
+            side=side,
+            quantity=int(data.get("qty", 0)),
             limit_price=Decimal(str(data.get("limit_price") or 0)),
             filled_price=Decimal(str(data["filled_avg_price"])) if data.get("filled_avg_price") else None,
             filled_quantity=int(data.get("filled_qty", 0)),
@@ -299,6 +330,15 @@ class AlpacaBroker(BrokerInterface):
                 data["filled_at"].replace("Z", "+00:00")
             ) if data.get("filled_at") else None,
         )
+
+    def _parse_status(self, status_str: str) -> "OrderStatus":
+        """Map an Alpaca status string to OrderStatus, defaulting gracefully."""
+        from .broker_interface import OrderStatus as OS
+        try:
+            return OS(status_str)
+        except ValueError:
+            logger.debug("Unknown Alpaca order status %r — defaulting to PENDING", status_str)
+            return OS.PENDING
 
     async def get_available_expirations(self, symbol: str) -> List[date]:
         resp = await self._client.get(

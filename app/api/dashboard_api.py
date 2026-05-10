@@ -400,3 +400,10 @@ async def broadcast_signal(signal_data: dict):
 
 async def broadcast_order(order_data: dict):
     await manager.broadcast({"type": "order", "data": order_data})
+
+
+# ── Standalone app instance ────────────────────────────────────────────────────
+# Used by uvicorn when running the dashboard without the trading loop:
+#   uvicorn app.api.dashboard_api:app --reload
+# Broker-dependent endpoints (/account, /positions) return 503 in this mode.
+app = create_app()

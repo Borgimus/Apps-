@@ -76,7 +76,104 @@ ALPACA_SECRET_KEY=your_secret
 ALPACA_BASE_URL=https://paper-api.alpaca.markets
 ```
 
-### 3. Run backtests
+---
+
+## How to Run
+
+### Unit tests
+
+```bash
+pytest tests/ -v
+```
+
+All 59 tests should pass.  Coverage includes:
+
+- ORB strategy with 5-minute intraday bars (13 tests in `test_intraday_orb.py`)
+- Risk sizing, session buffers, kill switch, daily loss guardrails
+- Broker interface (PaperBroker), paper order placement end-to-end
+- Strategy signal generation for ORB, RSI, VWAP, MA Compression
+
+### Integration test (real Alpaca paper account)
+
+Requires Alpaca API credentials in `.env`.
+
+```bash
+python scripts/integration_test.py
+```
+
+This fetches live SPY bars, runs all strategies, risk-checks a live option
+contract selected from the Alpaca chain, places a paper limit order, then
+immediately cancels it.
+
+### Dashboard (standalone)
+
+Starts the FastAPI dashboard without the trading loop.  Broker-dependent
+endpoints (`/account`, `/positions`) return 503; all others work fully.
+
+```bash
+uvicorn app.api.dashboard_api:app --reload
+# Open: http://127.0.0.1:8000/health
+# Docs: http://127.0.0.1:8000/docs
+```
+
+To start the dashboard with a live broker connection (and the trading loop
+running in the background), use `python paper_trader.py` instead.
+
+### Manual paper-trading loop (dry run — no orders placed)
+
+Fetches today's 5-minute SPY bars, runs ORB/VWAP/RSI strategies, selects
+live Alpaca contracts, runs full risk checks, and logs every decision.
+**No orders are submitted.**
+
+```bash
+python scripts/paper_loop.py --dry-run
+```
+
+Optional flags:
+
+```bash
+# Cancel unfilled orders older than 20 minutes, then dry-run:
+python scripts/paper_loop.py --dry-run --cancel-stale 20
+
+# Show internal library logs (useful for debugging):
+python scripts/paper_loop.py --dry-run --log-level INFO
+
+# Different symbol:
+python scripts/paper_loop.py --dry-run --symbol QQQ
+```
+
+### Manual paper-trading loop (places Alpaca paper limit orders)
+
+Same pipeline as dry-run, but actually submits limit orders to Alpaca's
+paper account.  **Limit orders only — market orders are always rejected.**
+
+```bash
+python scripts/paper_loop.py
+```
+
+Orders are placed during the valid session window (09:45–15:45 ET by default)
+and respect all risk guardrails (max 3 trades/day, 2% daily loss cap, etc.).
+
+To cancel stale unfilled orders from previous runs:
+
+```bash
+python scripts/paper_loop.py --cancel-stale 15   # cancel orders > 15 min old
+```
+
+### Kill switch
+
+To halt all order submissions immediately:
+
+```bash
+touch ./KILL_SWITCH          # activate
+rm ./KILL_SWITCH             # deactivate
+
+# Or via the dashboard API:
+curl -X POST http://127.0.0.1:8000/kill-switch/activate
+curl -X DELETE http://127.0.0.1:8000/kill-switch
+```
+
+### Backtests
 
 ```bash
 python main.py backtest --symbol SPY QQQ --start 2023-01-01 --end 2024-12-31
@@ -85,14 +182,6 @@ python main.py backtest --symbol SPY QQQ --start 2023-01-01 --end 2024-12-31
 Reports are saved to `./backtest_results/`.
 
 > ⚠️ Backtest results use **synthetic options pricing** (Black-Scholes) because yfinance does not provide historical options data. Results are clearly marked as `[APPROXIMATE]`.
-
-### 4. Start paper trading
-
-```bash
-python main.py trade
-```
-
-Opens the dashboard at `http://127.0.0.1:8000`.
 
 ### 5. Dashboard API
 

@@ -1,0 +1,322 @@
+"""
+Risk Manager.
+
+Enforces all pre-trade guardrails before any order reaches the broker.
+This is the last gate before order submission — it must be called
+unconditionally for every order attempt.
+
+Hard-coded rules (not configurable at runtime):
+  • No market orders for options — always limit only.
+  • Kill switch file check.
+  • No trades in first 15 min / last 15 min of session.
+
+Configurable rules (from settings):
+  • max_risk_per_trade    (fraction of equity)
+  • max_trades_per_day
+  • max_daily_loss        (fraction of starting equity)
+  • min_open_interest
+  • min_volume
+  • max_spread_pct
+  • earnings blackout
+"""
+
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass, field
+from datetime import date, datetime, time, timedelta
+from decimal import Decimal
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+from zoneinfo import ZoneInfo
+
+from ..brokers.broker_interface import OptionContract, OrderRequest, OrderType
+from ..config import Settings, get_settings
+
+logger = logging.getLogger(__name__)
+
+ET = ZoneInfo("America/New_York")
+
+
+class RiskCheck(str, Enum):
+    KILL_SWITCH = "kill_switch"
+    MARKET_ORDER = "market_order"
+    SESSION_BUFFER = "session_buffer"
+    MAX_RISK_PER_TRADE = "max_risk_per_trade"
+    MAX_TRADES_PER_DAY = "max_trades_per_day"
+    MAX_DAILY_LOSS = "max_daily_loss"
+    MIN_OPEN_INTEREST = "min_open_interest"
+    MIN_VOLUME = "min_volume"
+    MAX_SPREAD_PCT = "max_spread_pct"
+    EARNINGS_BLACKOUT = "earnings_blackout"
+    LIVE_TRADING_GUARD = "live_trading_guard"
+
+
+@dataclass
+class RiskCheckResult:
+    passed: bool
+    failed_checks: List[RiskCheck] = field(default_factory=list)
+    messages: List[str] = field(default_factory=list)
+    approved_quantity: int = 0
+    approved_risk_dollars: Decimal = Decimal("0")
+
+    def add_failure(self, check: RiskCheck, msg: str):
+        self.passed = False
+        self.failed_checks.append(check)
+        self.messages.append(msg)
+
+    def summary(self) -> str:
+        if self.passed:
+            return f"APPROVED | qty={self.approved_quantity} | risk=${self.approved_risk_dollars:.2f}"
+        return "REJECTED | " + " | ".join(self.messages)
+
+
+class RiskManager:
+    """
+    Stateful risk manager.  Must be instantiated once per trading session
+    and re-used so that daily counters (trades, P&L) are maintained correctly.
+    """
+
+    def __init__(self, settings: Settings | None = None):
+        self._s = settings or get_settings()
+        self._trades_today: int = 0
+        self._daily_pnl: Decimal = Decimal("0")
+        self._session_date: Optional[date] = None
+        self._starting_equity: Optional[Decimal] = None
+
+    # ── Session management ────────────────────────────────────────────────────
+
+    def start_session(self, equity: Decimal):
+        """Call at the start of each trading day."""
+        today = date.today()
+        if self._session_date != today:
+            logger.info(
+                "RiskManager: new session %s | starting_equity=%.2f", today, equity
+            )
+            self._session_date = today
+            self._trades_today = 0
+            self._daily_pnl = Decimal("0")
+            self._starting_equity = equity
+
+    def record_trade(self, pnl: Decimal = Decimal("0")):
+        """Call when an order is filled to track daily counters."""
+        self._trades_today += 1
+        self._daily_pnl += pnl
+        logger.info(
+            "RiskManager: trade recorded | trades_today=%d | daily_pnl=%.2f",
+            self._trades_today,
+            self._daily_pnl,
+        )
+
+    # ── Main check ────────────────────────────────────────────────────────────
+
+    def check_order(
+        self,
+        request: OrderRequest,
+        equity: Decimal,
+        contract: Optional[OptionContract] = None,
+        earnings_calendar: Optional[Dict[str, List[date]]] = None,
+        now: Optional[datetime] = None,
+    ) -> RiskCheckResult:
+        """
+        Run all pre-trade risk checks.
+
+        Parameters
+        ----------
+        request           : proposed order.
+        equity            : current account equity.
+        contract          : option contract details (for liquidity checks).
+        earnings_calendar : {symbol: [earnings_date, ...]} for blackout check.
+        now               : override current datetime (useful for testing).
+        """
+        result = RiskCheckResult(passed=True, approved_quantity=request.quantity)
+        now = now or datetime.now(tz=ET)
+
+        self._check_kill_switch(result)
+        self._check_live_trading_guard(result)
+        self._check_market_order(result, request)
+        self._check_session_buffer(result, now)
+        self._check_max_trades_per_day(result)
+        self._check_daily_loss(result, equity)
+        self._check_risk_per_trade(result, request, equity, contract)
+        if contract:
+            self._check_liquidity(result, contract)
+        self._check_earnings_blackout(result, request.symbol, earnings_calendar, now.date())
+
+        if not result.passed:
+            logger.warning(
+                "RiskManager: REJECTED %s %s | %s",
+                request.side,
+                request.option_symbol,
+                result.summary(),
+            )
+        else:
+            logger.info(
+                "RiskManager: APPROVED %s %s | %s",
+                request.side,
+                request.option_symbol,
+                result.summary(),
+            )
+
+        return result
+
+    # ── Individual checks ─────────────────────────────────────────────────────
+
+    def _check_kill_switch(self, result: RiskCheckResult):
+        if self._s.is_kill_switch_active():
+            result.add_failure(
+                RiskCheck.KILL_SWITCH,
+                f"Kill switch active: {self._s.kill_switch_file} exists",
+            )
+
+    def _check_live_trading_guard(self, result: RiskCheckResult):
+        if self._s.live_trading_enabled:
+            # Log prominent warning — do not block, but create an audit trail
+            logger.warning(
+                "⚠️  LIVE TRADING ENABLED — order will be submitted to live broker"
+            )
+
+    def _check_market_order(self, result: RiskCheckResult, request: OrderRequest):
+        if request.order_type == OrderType.MARKET:
+            result.add_failure(
+                RiskCheck.MARKET_ORDER,
+                "Market orders for options are prohibited. Use limit orders only.",
+            )
+
+    def _check_session_buffer(self, result: RiskCheckResult, now: datetime):
+        open_h, open_m = map(int, self._s.market_open.split(":"))
+        close_h, close_m = map(int, self._s.market_close.split(":"))
+
+        market_open_dt = now.replace(hour=open_h, minute=open_m, second=0, microsecond=0)
+        market_close_dt = now.replace(hour=close_h, minute=close_m, second=0, microsecond=0)
+
+        no_trade_open = market_open_dt + timedelta(minutes=self._s.no_trade_open_buffer_minutes)
+        no_trade_close = market_close_dt - timedelta(minutes=self._s.no_trade_close_buffer_minutes)
+
+        if now < no_trade_open:
+            result.add_failure(
+                RiskCheck.SESSION_BUFFER,
+                f"No trades in first {self._s.no_trade_open_buffer_minutes} min after open "
+                f"(until {no_trade_open.strftime('%H:%M')} ET)",
+            )
+        elif now >= no_trade_close:
+            result.add_failure(
+                RiskCheck.SESSION_BUFFER,
+                f"No trades in last {self._s.no_trade_close_buffer_minutes} min before close "
+                f"(after {no_trade_close.strftime('%H:%M')} ET)",
+            )
+
+    def _check_max_trades_per_day(self, result: RiskCheckResult):
+        if self._trades_today >= self._s.risk.max_trades_per_day:
+            result.add_failure(
+                RiskCheck.MAX_TRADES_PER_DAY,
+                f"Max trades per day reached: {self._trades_today}/{self._s.risk.max_trades_per_day}",
+            )
+
+    def _check_daily_loss(self, result: RiskCheckResult, equity: Decimal):
+        if self._starting_equity and self._starting_equity > 0:
+            loss_pct = float(-self._daily_pnl / self._starting_equity)
+            max_loss = self._s.risk.max_daily_loss
+            if loss_pct >= max_loss:
+                result.add_failure(
+                    RiskCheck.MAX_DAILY_LOSS,
+                    f"Daily loss limit reached: {loss_pct:.1%} >= {max_loss:.1%}",
+                )
+
+    def _check_risk_per_trade(
+        self,
+        result: RiskCheckResult,
+        request: OrderRequest,
+        equity: Decimal,
+        contract: Optional[OptionContract],
+    ):
+        max_risk = equity * Decimal(str(self._s.risk.max_risk_per_trade))
+        # Option premium × 100 shares per contract = max loss on long option
+        premium = contract.ask if contract else request.limit_price
+        trade_cost = premium * 100 * request.quantity
+        result.approved_risk_dollars = trade_cost
+
+        if trade_cost > max_risk:
+            # Scale down quantity instead of hard reject if possible
+            max_contracts = int(max_risk / (premium * 100))
+            if max_contracts < 1:
+                result.add_failure(
+                    RiskCheck.MAX_RISK_PER_TRADE,
+                    f"Trade cost ${trade_cost:.2f} exceeds max risk ${max_risk:.2f} "
+                    f"and cannot be reduced to 1 contract",
+                )
+            else:
+                logger.info(
+                    "RiskManager: quantity reduced %d→%d to stay within risk limit",
+                    request.quantity,
+                    max_contracts,
+                )
+                result.approved_quantity = max_contracts
+                result.approved_risk_dollars = premium * 100 * max_contracts
+
+    def _check_liquidity(self, result: RiskCheckResult, contract: OptionContract):
+        r = self._s.risk
+
+        if contract.open_interest < r.min_open_interest:
+            result.add_failure(
+                RiskCheck.MIN_OPEN_INTEREST,
+                f"Open interest {contract.open_interest} < {r.min_open_interest}",
+            )
+
+        if contract.volume < r.min_volume:
+            result.add_failure(
+                RiskCheck.MIN_VOLUME,
+                f"Volume {contract.volume} < {r.min_volume}",
+            )
+
+        if contract.spread_pct > r.max_spread_pct:
+            result.add_failure(
+                RiskCheck.MAX_SPREAD_PCT,
+                f"Spread {contract.spread_pct:.3f} > {r.max_spread_pct:.3f}",
+            )
+
+    def _check_earnings_blackout(
+        self,
+        result: RiskCheckResult,
+        symbol: str,
+        earnings_calendar: Optional[Dict[str, List[date]]],
+        today: date,
+    ):
+        if self._s.risk.allow_earnings_trades or not earnings_calendar:
+            return
+
+        blackout = self._s.risk.earnings_blackout_days
+        for ed in earnings_calendar.get(symbol, []):
+            if abs((ed - today).days) <= blackout:
+                result.add_failure(
+                    RiskCheck.EARNINGS_BLACKOUT,
+                    f"{symbol} has earnings on {ed} (within {blackout}-day blackout)",
+                )
+                break
+
+    # ── Utility ───────────────────────────────────────────────────────────────
+
+    @property
+    def trades_today(self) -> int:
+        return self._trades_today
+
+    @property
+    def daily_pnl(self) -> Decimal:
+        return self._daily_pnl
+
+    def position_size_contracts(
+        self, equity: Decimal, option_ask: Decimal, max_risk_override: float | None = None
+    ) -> int:
+        """
+        Calculate maximum number of contracts based on risk budget.
+        Returns at least 1 if the single-contract cost is within budget,
+        otherwise 0 (meaning the trade should not be placed).
+        """
+        risk_pct = max_risk_override or self._s.risk.max_risk_per_trade
+        max_risk = equity * Decimal(str(risk_pct))
+        cost_per_contract = option_ask * 100
+        if cost_per_contract <= 0:
+            return 0
+        contracts = int(max_risk / cost_per_contract)
+        return max(contracts, 0)

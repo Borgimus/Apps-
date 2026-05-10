@@ -1,0 +1,142 @@
+# ── Options Trading Research System ──────────────────────────────────────────
+# Edit these values or override any key via environment variable.
+# Live trading is disabled by default and requires an explicit env var override.
+
+trading:
+  # SAFETY: live_trading_enabled is always overridden by the LIVE_TRADING_ENABLED
+  # environment variable. This yaml value is the fallback only.
+  live_trading_enabled: false
+
+  # Broker: alpaca | tradier | ibkr
+  broker: alpaca
+
+  # Watchlist for intraday scanning
+  watchlist:
+    - SPY
+    - QQQ
+    - AAPL
+    - TSLA
+    - NVDA
+    - AMZN
+
+  # Market session (ET)
+  market_open: "09:30"
+  market_close: "16:00"
+
+  # No-trade buffers (minutes) at session edges
+  no_trade_open_buffer_minutes: 15
+  no_trade_close_buffer_minutes: 15
+
+risk:
+  # Fraction of account equity risked per trade (0.01 = 1%)
+  max_risk_per_trade: 0.01
+
+  # Maximum options orders placed in a single calendar day
+  max_trades_per_day: 3
+
+  # Daily loss limit as fraction of starting equity (0.02 = 2%)
+  max_daily_loss: 0.02
+
+  # Reject any option leg with open interest below this
+  min_open_interest: 100
+
+  # Reject any option leg with volume below this
+  min_volume: 50
+
+  # Reject if bid/ask spread percentage exceeds this (ask - bid) / mid
+  max_spread_pct: 0.10
+
+  # Block trades within this many calendar days of an earnings announcement
+  earnings_blackout_days: 1
+
+  # Allow overriding earnings blackout per strategy (false = respect blackout)
+  allow_earnings_trades: false
+
+options:
+  # Preferred days-to-expiration list (tried in order)
+  preferred_dte: [0, 1, 2]
+
+  # Delta target range for strike selection
+  delta_target_min: 0.35
+  delta_target_max: 0.45
+
+  # Only limit orders allowed for options
+  order_type: limit
+
+  # Limit price as a fraction of mid-price (e.g. 0.02 = 2 cents over mid for buys)
+  limit_price_offset_pct: 0.02
+
+backtesting:
+  # Directory to write backtest HTML/CSV reports
+  output_dir: ./backtest_results
+
+  # Default date range for backtests
+  default_start: "2023-01-01"
+  default_end: "2024-12-31"
+
+  # Slippage assumption per contract (dollars)
+  slippage_per_contract: 0.05
+
+  # Commission per contract (dollars)
+  commission_per_contract: 0.65
+
+  # Assumed bid/ask spread for options fills (dollars, added to cost)
+  options_spread_assumption: 0.10
+
+  # Clearly label backtests using synthetic options data
+  warn_synthetic_options: true
+
+strategies:
+  opening_range_breakout:
+    enabled: true
+    symbols: [SPY, QQQ]
+    # Minutes after open to define the opening range
+    range_minutes: 15
+    # Minimum range size in points to take a trade
+    min_range_pts: 0.5
+    volume_confirmation: true
+
+  vwap_reclaim:
+    enabled: true
+    symbols: [SPY, QQQ, AAPL, TSLA]
+    # Price must be within this % of VWAP to qualify
+    proximity_pct: 0.002
+    confirmation_bars: 2
+
+  rsi_trend:
+    enabled: true
+    symbols: [SPY, QQQ, NVDA, AMZN]
+    rsi_period: 14
+    rsi_oversold: 35
+    rsi_overbought: 65
+    trend_ema_period: 50
+
+  ma_compression:
+    enabled: true
+    symbols: [SPY, QQQ]
+    fast_period: 8
+    slow_period: 21
+    compression_threshold_pct: 0.005
+
+  iv_crush_filter:
+    enabled: true
+    # Reject when IV rank exceeds this before earnings (0-100)
+    max_iv_rank_pre_earnings: 60
+
+  liquidity_filter:
+    enabled: true
+    # All thresholds are also applied from risk section above
+
+database:
+  # Override via DATABASE_URL env var
+  url: "sqlite+aiosqlite:///./trading.db"
+
+api:
+  host: "127.0.0.1"
+  port: 8000
+
+logging:
+  level: INFO
+  file: ./logs/trading.log
+  rotation_bytes: 10485760  # 10 MB
+  backup_count: 5

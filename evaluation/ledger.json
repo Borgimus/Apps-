@@ -1,7 +1,7 @@
 {
   "version": "1",
   "created_at": "2026-05-11T12:07:54.394379",
-  "last_updated": "2026-05-11T12:12:33.284412",
+  "last_updated": "2026-05-11T14:54:15.050095",
   "sessions": [
     {
       "date": "2026-05-11",
@@ -15,11 +15,18 @@
       "spread_cost_total": 0,
       "api_errors": 0,
       "kill_switch_events": 0,
-      "trades_submitted": 0,
+      "trades_submitted": 1,
       "trades_filled": 0,
-      "trades_cancelled": 0,
+      "trades_cancelled": 1,
       "trades_rejected": 0,
-      "by_strategy": {},
+      "by_strategy": {
+        "paper_smoke_test": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0
+        }
+      },
       "by_entry_hour": {},
       "by_delta_bucket": {},
       "by_spread_bucket": {},
@@ -34,7 +41,14 @@
     "win_rate": null,
     "profit_factor": null,
     "max_drawdown": 0.0,
-    "pnl_by_strategy": {},
+    "pnl_by_strategy": {
+      "paper_smoke_test": {
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "pnl": 0.0
+      }
+    },
     "pnl_by_entry_hour": {},
     "pnl_by_delta_bucket": {},
     "pnl_by_spread_bucket": {},

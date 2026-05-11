@@ -46,6 +46,7 @@ async def _migrate_schema(conn) -> None:
         ("trade_journal", "exit_bid",           "FLOAT"),
         ("trade_journal", "exit_ask",           "FLOAT"),
         ("trade_journal", "exit_spread_pct",    "FLOAT"),
+        ("trade_journal", "limit_price_mode",   "VARCHAR(32)"),
     ]
     for table, col, col_type in migrations:
         try:
@@ -173,6 +174,7 @@ class DBTradeJournal(Base):
 
     # Order
     limit_price = Column(Float)
+    limit_price_mode = Column(String(32))             # bid / mid / ask / marketable_limit
     fill_price = Column(Float)
     quantity = Column(Integer)
     filled_quantity = Column(Integer)                # for partial fills
@@ -248,3 +250,29 @@ class DBSessionLog(Base):
     symbol = Column(String(16))
     message = Column(Text)
     data_json = Column(Text)                          # arbitrary structured payload
+
+
+class DBOrderStatusTransition(Base):
+    """
+    Telemetry: every broker order status change for a tracked order.
+
+    Written by FillTracker.poll() each time the broker returns a new status.
+    Enables post-session analysis of fill latency, status progression, and
+    cancellation patterns.
+    """
+    __tablename__ = "order_status_transitions"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    order_id = Column(String(128), nullable=False, index=True)
+    journal_id = Column(Integer)                     # FK to trade_journal.id
+    option_symbol = Column(String(64), index=True)
+    symbol = Column(String(16))
+    prev_status = Column(String(32))                 # status before this transition
+    status = Column(String(32), nullable=False)      # new status
+    filled_qty = Column(Integer, default=0)
+    avg_fill_price = Column(Float)
+    bid = Column(Float)                              # bid snapshot at transition (if available)
+    ask = Column(Float)                              # ask snapshot at transition (if available)
+    spread_pct = Column(Float)
+    timestamp = Column(DateTime, nullable=False, index=True)
+    created_at = Column(DateTime, server_default=func.now())

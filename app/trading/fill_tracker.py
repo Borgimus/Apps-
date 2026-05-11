@@ -110,6 +110,7 @@ class FillTracker:
         self._max_age_minutes = max_age_minutes
         self._store: Optional[Any] = store
         self._alerts: Optional[AlertService] = alert_service
+        self._last_status: Dict[str, str] = {}        # order_id → last known status string
 
     # ── Registration ──────────────────────────────────────────────────────────
 
@@ -200,6 +201,22 @@ class FillTracker:
                 continue
 
             status = order.status
+            status_str = status.value
+            prev_status = self._last_status.get(order_id, "pending")
+
+            # Record telemetry on every status change
+            if status_str != prev_status:
+                await self._record_transition(
+                    order_id=order_id,
+                    pending=pending,
+                    prev_status=prev_status,
+                    new_status=status_str,
+                    filled_qty=order.filled_quantity or 0,
+                    avg_fill_price=float(order.filled_price) if order.filled_price else None,
+                    journal=journal,
+                    now=now,
+                )
+                self._last_status[order_id] = status_str
 
             if status == OrderStatus.FILLED:
                 fills += await self._handle_fill(
@@ -320,6 +337,7 @@ class FillTracker:
                 logger.warning("FillTracker: position already open for %s — updated entry price", pending.option_symbol)
 
             del self._pending[order_id]
+            self._last_status.pop(order_id, None)
             return 1
 
         else:
@@ -406,3 +424,40 @@ class FillTracker:
             )
 
         del self._pending[order_id]
+        self._last_status.pop(order_id, None)
+
+    async def _record_transition(
+        self,
+        order_id: str,
+        pending: PendingOrder,
+        prev_status: str,
+        new_status: str,
+        filled_qty: int,
+        avg_fill_price: Optional[float],
+        journal,
+        now: datetime,
+    ):
+        """Persist a single order status transition to the telemetry table."""
+        if journal is None:
+            return
+        try:
+            from ..api.models import DBOrderStatusTransition
+            row = DBOrderStatusTransition(
+                order_id=order_id,
+                journal_id=pending.journal_id,
+                option_symbol=pending.option_symbol,
+                symbol=pending.symbol,
+                prev_status=prev_status,
+                status=new_status,
+                filled_qty=filled_qty,
+                avg_fill_price=avg_fill_price,
+                timestamp=now,
+            )
+            journal._db.add(row)
+            logger.debug(
+                "Telemetry: %s %s→%s qty=%d price=%s",
+                order_id[:8], prev_status, new_status,
+                filled_qty, f"{avg_fill_price:.4f}" if avg_fill_price else "—",
+            )
+        except Exception as exc:
+            logger.debug("Telemetry write failed (non-fatal): %s", exc)

@@ -11,6 +11,7 @@ Outputs:
 from __future__ import annotations
 
 import json
+from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -78,6 +79,14 @@ class DailyReport:
     stop_loss_hit_pct: Optional[float] = None
     take_profit_hit_pct: Optional[float] = None
     eod_exit_pct: Optional[float] = None
+
+    # Fill aggressiveness by pricing mode
+    fill_rate_by_mode: Dict[str, float] = field(default_factory=dict)
+    cancel_rate_by_mode: Dict[str, float] = field(default_factory=dict)
+    avg_fill_latency_by_mode: Dict[str, float] = field(default_factory=dict)
+
+    # Cancellation reason breakdown
+    cancel_reason_breakdown: Dict[str, int] = field(default_factory=dict)
 
     # System health
     api_errors: int = 0
@@ -238,6 +247,37 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
             1 for t in closed if t.exit_reason == "eod_exit"
         ) / n
 
+    # ── Fill aggressiveness by pricing mode ───────────────────────────────────
+    mode_data: Dict[str, Dict] = defaultdict(
+        lambda: {"total": 0, "filled": 0, "cancelled": 0, "fill_times": []}
+    )
+    for t in submitted:
+        mode = getattr(t, "limit_price_mode", None) or "unknown"
+        mode_data[mode]["total"] += 1
+        if t.fill_price is not None:
+            mode_data[mode]["filled"] += 1
+            ttf = getattr(t, "time_to_fill_secs", None)
+            if ttf is not None:
+                mode_data[mode]["fill_times"].append(float(ttf))
+        if t.status == "cancelled":
+            mode_data[mode]["cancelled"] += 1
+
+    for mode, d in mode_data.items():
+        if d["total"] > 0:
+            report.fill_rate_by_mode[mode] = d["filled"] / d["total"]
+            report.cancel_rate_by_mode[mode] = d["cancelled"] / d["total"]
+        if d["fill_times"]:
+            report.avg_fill_latency_by_mode[mode] = (
+                sum(d["fill_times"]) / len(d["fill_times"])
+            )
+
+    # ── Cancellation reason breakdown ─────────────────────────────────────────
+    for t in cancelled:
+        reason = getattr(t, "exit_reason", None) or "unknown"
+        report.cancel_reason_breakdown[reason] = (
+            report.cancel_reason_breakdown.get(reason, 0) + 1
+        )
+
     # ── Per-strategy breakdown ────────────────────────────────────────────────
     strat_ids = {t.strategy_id for t in trades} | set(signals_by_strategy)
     for sid in sorted(strat_ids):
@@ -340,6 +380,38 @@ def _generate_notes(r: DailyReport):
 # ── Output formatters ─────────────────────────────────────────────────────────
 
 
+def _fill_mode_table(r: DailyReport) -> str:
+    if not r.fill_rate_by_mode:
+        return ""
+    rows = ""
+    for mode in sorted(r.fill_rate_by_mode):
+        fr = f"{r.fill_rate_by_mode[mode]:.1%}"
+        cr = f"{r.cancel_rate_by_mode.get(mode, 0):.1%}"
+        lat = r.avg_fill_latency_by_mode.get(mode)
+        lat_str = f"{lat:.0f}s" if lat is not None else "n/a"
+        rows += f"| {mode} | {fr} | {cr} | {lat_str} |\n"
+    return (
+        "\n### Fill Rate by Pricing Mode\n\n"
+        "| Mode | Fill Rate | Cancel Rate | Avg Latency |\n"
+        "|---|---|---|---|\n"
+        f"{rows}"
+    )
+
+
+def _cancel_reason_table(r: DailyReport) -> str:
+    if not r.cancel_reason_breakdown:
+        return ""
+    rows = ""
+    for reason, count in sorted(r.cancel_reason_breakdown.items(), key=lambda x: -x[1]):
+        rows += f"| {reason} | {count} |\n"
+    return (
+        "\n### Cancellation Reason Breakdown\n\n"
+        "| Reason | Count |\n"
+        "|---|---|\n"
+        f"{rows}"
+    )
+
+
 def to_json(report: DailyReport) -> str:
     return json.dumps(asdict(report), indent=2, default=str)
 
@@ -410,6 +482,8 @@ def to_markdown(report: DailyReport) -> str:
 | Stop-loss exits | {f"{r.stop_loss_hit_pct:.1%}" if r.stop_loss_hit_pct is not None else "n/a"} |
 | Take-profit exits | {f"{r.take_profit_hit_pct:.1%}" if r.take_profit_hit_pct is not None else "n/a"} |
 | EOD exits | {f"{r.eod_exit_pct:.1%}" if r.eod_exit_pct is not None else "n/a"} |
+
+{_fill_mode_table(r)}{_cancel_reason_table(r)}
 
 ## System Health
 

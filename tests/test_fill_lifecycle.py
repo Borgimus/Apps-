@@ -674,3 +674,450 @@ class TestSessionStateEndpoint:
         assert "current_price" in d
         # stop_loss_level = 4.00 * 0.50 = 2.00
         assert d["stop_loss_level"] == pytest.approx(2.00, abs=0.001)
+
+
+# ── Pricing modes: compute_limit_price ───────────────────────────────────────
+
+class TestPricingModes:
+
+    def setup_method(self):
+        from app.trading.pricing import compute_limit_price
+        self.clp = compute_limit_price
+
+    def test_bid_mode_returns_bid(self):
+        assert self.clp("bid", bid=1.00, ask=1.20) == pytest.approx(1.00)
+
+    def test_mid_mode_returns_midpoint(self):
+        assert self.clp("mid", bid=1.00, ask=1.20) == pytest.approx(1.10)
+
+    def test_ask_mode_returns_ask(self):
+        assert self.clp("ask", bid=1.00, ask=1.20) == pytest.approx(1.20)
+
+    def test_marketable_limit_above_ask(self):
+        # marketable_limit = ask + spread * offset_pct = 1.20 + 0.20 * 0.01 = 1.202 → 1.20
+        result = self.clp("marketable_limit", bid=1.00, ask=1.20, offset_pct=0.01)
+        assert result >= 1.20
+        assert result == pytest.approx(1.20, abs=0.01)
+
+    def test_marketable_limit_wide_spread(self):
+        # spread = 0.50, offset adds 0.50 * 0.10 = 0.05 above ask
+        result = self.clp("marketable_limit", bid=1.00, ask=1.50, offset_pct=0.10)
+        assert result == pytest.approx(1.55, abs=0.01)
+
+    def test_unknown_mode_falls_back_to_mid(self):
+        result = self.clp("turbo", bid=1.00, ask=1.20)
+        assert result == pytest.approx(1.10)
+
+    def test_returns_two_decimal_places(self):
+        result = self.clp("mid", bid=1.001, ask=1.009)
+        # midpoint = 1.005 → rounded to 2dp = 1.01
+        assert result == round(result, 2)
+
+    def test_all_modes_positive_for_positive_inputs(self):
+        for mode in ("bid", "mid", "ask", "marketable_limit"):
+            assert self.clp(mode, bid=0.50, ask=0.80) > 0
+
+
+# ── Settings: realistic_fill_test_mode fields ────────────────────────────────
+
+class TestRealisticFillTestModeSettings:
+
+    def test_default_realistic_fill_test_mode_is_false(self, monkeypatch):
+        monkeypatch.delenv("REALISTIC_FILL_TEST_MODE", raising=False)
+        monkeypatch.delenv("ENTRY_ORDER_TIMEOUT_SECS", raising=False)
+        from app.config.settings import Settings
+        s = Settings()
+        assert s.realistic_fill_test_mode is False
+
+    def test_entry_order_timeout_default(self, monkeypatch):
+        monkeypatch.delenv("ENTRY_ORDER_TIMEOUT_SECS", raising=False)
+        from app.config.settings import Settings
+        s = Settings()
+        assert s.entry_order_timeout_secs == 120
+
+    def test_exit_order_timeout_default(self, monkeypatch):
+        monkeypatch.delenv("EXIT_ORDER_TIMEOUT_SECS", raising=False)
+        from app.config.settings import Settings
+        s = Settings()
+        assert s.exit_order_timeout_secs == 120
+
+    def test_fill_test_max_spread_pct_default(self, monkeypatch):
+        monkeypatch.delenv("FILL_TEST_MAX_SPREAD_PCT", raising=False)
+        from app.config.settings import Settings
+        s = Settings()
+        assert s.fill_test_max_spread_pct == pytest.approx(0.20)
+
+    def test_entry_limit_price_mode_default(self, monkeypatch):
+        monkeypatch.delenv("OPTIONS_ENTRY_LIMIT_PRICE_MODE", raising=False)
+        from app.config.settings import OptionsSettings
+        s = OptionsSettings()
+        assert s.entry_limit_price_mode == "mid"
+
+    def test_exit_limit_price_mode_default(self, monkeypatch):
+        monkeypatch.delenv("OPTIONS_EXIT_LIMIT_PRICE_MODE", raising=False)
+        from app.config.settings import OptionsSettings
+        s = OptionsSettings()
+        assert s.exit_limit_price_mode == "mid"
+
+    def test_entry_marketable_offset_pct_default(self, monkeypatch):
+        monkeypatch.delenv("OPTIONS_ENTRY_MARKETABLE_OFFSET_PCT", raising=False)
+        from app.config.settings import OptionsSettings
+        s = OptionsSettings()
+        assert s.entry_marketable_offset_pct == pytest.approx(0.01)
+
+
+# ── Order status telemetry: FillTracker writes DBOrderStatusTransition ────────
+
+class TestOrderStatusTelemetry:
+
+    @pytest.mark.asyncio
+    async def test_fill_tracker_records_status_transition(self):
+        from app.api.models import Base, DBOrderStatusTransition, DBTradeJournal
+        from app.trading.fill_tracker import FillTracker
+        from app.trading.position_manager import PositionManager
+        from app.trading.trade_journal import TradeJournal
+        from app.brokers.broker_interface import OrderResult, OrderStatus, OrderSide
+
+        engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        factory = async_sessionmaker(engine, expire_on_commit=False)
+
+        async with factory() as session:
+            # Insert a journal row
+            row = DBTradeJournal(
+                session_date="2026-06-01",
+                strategy_id="orb",
+                underlying_symbol="SPY",
+                option_symbol="SPY260601C00740000",
+                status="open",
+                limit_price=2.00,
+                quantity=1,
+                entry_time=datetime(2026, 6, 1, 9, 45, tzinfo=ET),
+                is_paper=True,
+            )
+            session.add(row)
+            await session.flush()
+            journal_id = row.id
+
+            journal = TradeJournal(session, is_paper=True)
+            pm_settings = MagicMock()
+            pm_settings.stop_loss_pct = 0.50
+            pm_settings.take_profit_pct = 1.00
+            pm_settings.trailing_stop_pct = 0.25
+            pm_settings.max_hold_minutes = 120
+            pm_settings.eod_exit_time = "15:45"
+            pm_settings.cooldown_after_loss_minutes = 15
+            full_settings = MagicMock()
+            full_settings.position = pm_settings
+            pm = PositionManager(full_settings)
+
+            ft = FillTracker(max_age_minutes=30)
+            ft.register(
+                order_id="order-001",
+                journal_id=journal_id,
+                option_symbol="SPY260601C00740000",
+                symbol="SPY",
+                strategy_id="orb",
+                direction="LONG",
+                quantity=1,
+                limit_price=2.00,
+                placed_at=datetime(2026, 6, 1, 9, 45, tzinfo=ET),
+            )
+
+            # Mock broker returning NEW status first
+            mock_broker = AsyncMock()
+            mock_broker.get_order_status.return_value = OrderResult(
+                order_id="order-001",
+                status=OrderStatus.NEW,
+                symbol="SPY",
+                option_symbol="SPY260601C00740000",
+                side=OrderSide.BUY_TO_OPEN,
+                quantity=1,
+                limit_price=2.00,
+            )
+            now = datetime(2026, 6, 1, 9, 46, tzinfo=ET)
+            await ft.poll(mock_broker, pm, journal, now)
+            await session.commit()
+
+            # Check telemetry row was written
+            from sqlalchemy import select
+            transitions = (
+                await session.execute(
+                    select(DBOrderStatusTransition)
+                    .where(DBOrderStatusTransition.order_id == "order-001")
+                )
+            ).scalars().all()
+            assert len(transitions) >= 1
+            t = transitions[0]
+            assert t.status == "new"
+            assert t.prev_status == "pending"
+            assert t.option_symbol == "SPY260601C00740000"
+            assert t.journal_id == journal_id
+
+        await engine.dispose()
+
+    @pytest.mark.asyncio
+    async def test_fill_tracker_does_not_duplicate_same_status(self):
+        from app.api.models import Base, DBOrderStatusTransition, DBTradeJournal
+        from app.trading.fill_tracker import FillTracker
+        from app.trading.position_manager import PositionManager
+        from app.trading.trade_journal import TradeJournal
+        from app.brokers.broker_interface import OrderResult, OrderStatus, OrderSide
+
+        engine = create_async_engine("sqlite+aiosqlite:///:memory:", echo=False)
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        factory = async_sessionmaker(engine, expire_on_commit=False)
+
+        async with factory() as session:
+            row = DBTradeJournal(
+                session_date="2026-06-01",
+                strategy_id="orb",
+                underlying_symbol="SPY",
+                option_symbol="SPY260601C00740001",
+                status="open",
+                limit_price=2.00,
+                quantity=1,
+                entry_time=datetime(2026, 6, 1, 9, 45, tzinfo=ET),
+                is_paper=True,
+            )
+            session.add(row)
+            await session.flush()
+
+            journal = TradeJournal(session, is_paper=True)
+            pm_settings = MagicMock()
+            pm_settings.stop_loss_pct = 0.50
+            pm_settings.take_profit_pct = 1.00
+            pm_settings.trailing_stop_pct = 0.25
+            pm_settings.max_hold_minutes = 120
+            pm_settings.eod_exit_time = "15:45"
+            pm_settings.cooldown_after_loss_minutes = 15
+            full_settings = MagicMock()
+            full_settings.position = pm_settings
+            pm = PositionManager(full_settings)
+
+            ft = FillTracker(max_age_minutes=30)
+            ft.register(
+                order_id="order-002",
+                journal_id=row.id,
+                option_symbol="SPY260601C00740001",
+                symbol="SPY",
+                strategy_id="orb",
+                direction="LONG",
+                quantity=1,
+                limit_price=2.00,
+                placed_at=datetime(2026, 6, 1, 9, 45, tzinfo=ET),
+            )
+
+            mock_broker = AsyncMock()
+            mock_broker.get_order_status.return_value = OrderResult(
+                order_id="order-002",
+                status=OrderStatus.NEW,
+                symbol="SPY",
+                option_symbol="SPY260601C00740001",
+                side=OrderSide.BUY_TO_OPEN,
+                quantity=1,
+                limit_price=2.00,
+            )
+            now = datetime(2026, 6, 1, 9, 46, tzinfo=ET)
+
+            # Poll twice with same status — should record transition only once
+            await ft.poll(mock_broker, pm, journal, now)
+            await ft.poll(mock_broker, pm, journal, now)
+            await session.commit()
+
+            from sqlalchemy import select
+            transitions = (
+                await session.execute(
+                    select(DBOrderStatusTransition)
+                    .where(DBOrderStatusTransition.order_id == "order-002")
+                )
+            ).scalars().all()
+            # Only one transition: pending → new  (not duplicated on second poll)
+            assert len(transitions) == 1
+
+        await engine.dispose()
+
+
+# ── DailyReport: extended reporting (fill by mode, cancellation breakdown) ────
+
+class TestDailyReportExtended:
+
+    async def _make_report(self, trades):
+        from app.evaluation.daily_report import build_daily_report
+        factory, engine = await _make_db()
+        session_date = "2026-06-01"
+        async with factory() as session:
+            for t in trades:
+                session.add(t)
+            await session.commit()
+            report = await build_daily_report(session, session_date)
+        await engine.dispose()
+        return report
+
+    def _trade(self, idx, *, status="closed", mode="mid", fill_price=2.00,
+               time_to_fill=None, exit_reason="take_profit", pnl=10.0):
+        from app.api.models import DBTradeJournal
+        now = datetime(2026, 6, 1, 10, 0, tzinfo=ET)
+        return DBTradeJournal(
+            session_date="2026-06-01",
+            strategy_id="orb",
+            underlying_symbol="SPY",
+            option_symbol=f"SPY260601C{idx:08d}",
+            status=status,
+            fill_price=fill_price if status == "closed" else None,
+            limit_price=1.95,
+            limit_price_mode=mode,
+            exit_price=2.50 if status == "closed" else None,
+            realized_pnl=pnl if status == "closed" else None,
+            exit_reason=exit_reason if status == "closed" else (
+                "stale_cancelled" if status == "cancelled" else None
+            ),
+            time_to_fill_secs=time_to_fill if status == "closed" else None,
+            quantity=1,
+            filled_quantity=1 if status == "closed" else 0,
+            entry_time=now,
+            exit_time=now + timedelta(minutes=30) if status == "closed" else None,
+            is_paper=True,
+        )
+
+    @pytest.mark.asyncio
+    async def test_fill_rate_by_mode_single_mode(self):
+        trades = [
+            self._trade(1, mode="marketable_limit", status="closed"),
+            self._trade(2, mode="marketable_limit", status="closed"),
+            self._trade(3, mode="marketable_limit", status="cancelled"),
+        ]
+        report = await self._make_report(trades)
+        assert "marketable_limit" in report.fill_rate_by_mode
+        assert report.fill_rate_by_mode["marketable_limit"] == pytest.approx(2 / 3, abs=0.001)
+
+    @pytest.mark.asyncio
+    async def test_cancel_rate_by_mode(self):
+        trades = [
+            self._trade(1, mode="mid", status="closed"),
+            self._trade(2, mode="mid", status="cancelled"),
+            self._trade(3, mode="mid", status="cancelled"),
+        ]
+        report = await self._make_report(trades)
+        assert report.cancel_rate_by_mode["mid"] == pytest.approx(2 / 3, abs=0.001)
+
+    @pytest.mark.asyncio
+    async def test_avg_fill_latency_by_mode(self):
+        trades = [
+            self._trade(1, mode="ask", status="closed", time_to_fill=30.0),
+            self._trade(2, mode="ask", status="closed", time_to_fill=60.0),
+            self._trade(3, mode="mid", status="closed", time_to_fill=120.0),
+        ]
+        report = await self._make_report(trades)
+        assert "ask" in report.avg_fill_latency_by_mode
+        assert report.avg_fill_latency_by_mode["ask"] == pytest.approx(45.0, abs=0.1)
+        assert report.avg_fill_latency_by_mode["mid"] == pytest.approx(120.0, abs=0.1)
+
+    @pytest.mark.asyncio
+    async def test_fill_rate_by_mode_empty_when_no_trades(self):
+        report = await self._make_report([])
+        assert report.fill_rate_by_mode == {}
+        assert report.cancel_rate_by_mode == {}
+
+    @pytest.mark.asyncio
+    async def test_cancel_reason_breakdown_counts_reasons(self):
+        trades = [
+            self._trade(1, status="cancelled"),
+            self._trade(2, status="cancelled"),
+            self._trade(3, status="closed"),
+        ]
+        report = await self._make_report(trades)
+        # Both cancelled trades have exit_reason="stale_cancelled"
+        assert report.cancel_reason_breakdown.get("stale_cancelled", 0) == 2
+
+    @pytest.mark.asyncio
+    async def test_cancel_reason_breakdown_empty_when_no_cancels(self):
+        trades = [self._trade(1, status="closed")]
+        report = await self._make_report(trades)
+        assert report.cancel_reason_breakdown == {}
+
+    @pytest.mark.asyncio
+    async def test_multiple_modes_tracked_independently(self):
+        trades = [
+            self._trade(1, mode="bid", status="cancelled"),
+            self._trade(2, mode="ask", status="closed"),
+            self._trade(3, mode="marketable_limit", status="closed"),
+            self._trade(4, mode="marketable_limit", status="closed"),
+        ]
+        report = await self._make_report(trades)
+        assert report.fill_rate_by_mode.get("bid", 0) == pytest.approx(0.0)
+        assert report.fill_rate_by_mode.get("ask", 0) == pytest.approx(1.0)
+        assert report.fill_rate_by_mode.get("marketable_limit", 0) == pytest.approx(1.0)
+
+
+# ── TradeJournal: limit_price_mode stored in record_entry ────────────────────
+
+class TestTradeJournalLimitPriceMode:
+
+    @pytest.mark.asyncio
+    async def test_record_entry_stores_limit_price_mode(self):
+        from app.api.models import DBTradeJournal
+        from app.trading.trade_journal import TradeJournal
+
+        factory, engine = await _make_db()
+        async with factory() as session:
+            journal = TradeJournal(session, is_paper=True)
+            jid = await journal.record_entry(
+                entry_time=datetime(2026, 6, 1, 9, 45, tzinfo=ET),
+                strategy_id="orb",
+                signal_direction="LONG",
+                underlying_symbol="SPY",
+                underlying_price=540.0,
+                option_symbol="SPY260601C00540000",
+                expiration="2026-06-01",
+                strike=540.0,
+                option_type="call",
+                delta=0.40,
+                iv=0.25,
+                bid=1.00,
+                ask=1.20,
+                spread_pct=0.18,
+                limit_price=1.21,
+                limit_price_mode="marketable_limit",
+                quantity=1,
+                order_id="test-order-abc",
+            )
+            await session.commit()
+
+            row = await session.get(DBTradeJournal, jid)
+            assert row.limit_price_mode == "marketable_limit"
+            assert row.limit_price == pytest.approx(1.21)
+
+        await engine.dispose()
+
+    @pytest.mark.asyncio
+    async def test_record_entry_mode_none_when_not_provided(self):
+        from app.api.models import DBTradeJournal
+        from app.trading.trade_journal import TradeJournal
+
+        factory, engine = await _make_db()
+        async with factory() as session:
+            journal = TradeJournal(session, is_paper=True)
+            jid = await journal.record_entry(
+                entry_time=datetime(2026, 6, 1, 9, 45, tzinfo=ET),
+                strategy_id="orb",
+                signal_direction="LONG",
+                underlying_symbol="SPY",
+                underlying_price=540.0,
+                option_symbol="SPY260601C00540001",
+                expiration="2026-06-01",
+                strike=540.0,
+                option_type="call",
+                delta=0.40,
+                iv=0.25,
+                limit_price=1.10,
+                quantity=1,
+            )
+            await session.commit()
+
+            row = await session.get(DBTradeJournal, jid)
+            assert row.limit_price_mode is None
+
+        await engine.dispose()

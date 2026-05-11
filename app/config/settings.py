@@ -67,6 +67,13 @@ class OptionsSettings(BaseSettings):
     delta_target_max: float = _yaml_get("options", "delta_target_max", default=0.45)
     limit_price_offset_pct: float = _yaml_get("options", "limit_price_offset_pct", default=0.02)
 
+    # Pricing modes: bid | mid | ask | marketable_limit
+    entry_limit_price_mode: str = _yaml_get("options", "entry_limit_price_mode", default="mid")
+    exit_limit_price_mode: str = _yaml_get("options", "exit_limit_price_mode", default="mid")
+    # Fraction of spread width added above ask in marketable_limit mode
+    entry_marketable_offset_pct: float = _yaml_get("options", "entry_marketable_offset_pct", default=0.01)
+    exit_marketable_offset_pct: float = _yaml_get("options", "exit_marketable_offset_pct", default=0.01)
+
 
 class PositionSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="POSITION_", extra="ignore")
@@ -152,6 +159,14 @@ class Settings(BaseSettings):
     paper_evaluation_mode: bool = False
     evaluation_output_dir: str = "./evaluation"
     evaluation_ledger_file: str = "./evaluation/ledger.json"
+
+    # ── Realistic fill test mode ──────────────────────────────────────────────
+    # Forces marketable_limit pricing, SPY-only, qty=1, detailed telemetry.
+    # Requires paper account.  Hard-stops if spread exceeds fill_test_max_spread_pct.
+    realistic_fill_test_mode: bool = False
+    entry_order_timeout_secs: int = 120    # stale cancel threshold for entry orders
+    exit_order_timeout_secs: int = 120     # stale cancel threshold for exit orders
+    fill_test_max_spread_pct: float = 0.20 # abort contract if spread/mid > this
 
     @model_validator(mode="after")
     def guard_eval_mode(self):

@@ -261,6 +261,11 @@ async def scan_and_place(
     filtered = iv_filter.apply(all_signals)
     actionable = [s for s in filtered if s.is_actionable()]
 
+    # Realistic fill test mode: SPY only
+    if getattr(settings, "realistic_fill_test_mode", False) and symbol != "SPY":
+        logger.info("REALISTIC_FILL_TEST_MODE: skipping non-SPY symbol %s", symbol)
+        return 0
+
     placed = 0
     for sig in actionable:
         # Only act on signals from the current session
@@ -355,8 +360,42 @@ async def scan_and_place(
         except Exception:
             continue
 
-        offset = Decimal(str(settings.options.limit_price_offset_pct))
-        limit_price = (contract.ask * (1 + offset)).quantize(Decimal("0.01"))
+        # ── Determine limit price based on configured pricing mode ────────────
+        from app.trading.pricing import compute_limit_price as _clp
+
+        _fill_test = getattr(settings, "realistic_fill_test_mode", False)
+
+        # Safety: realistic_fill_test_mode requires a paper account
+        if _fill_test and not acct.is_paper:
+            logger.critical("REALISTIC_FILL_TEST_MODE: non-paper account detected — aborting session")
+            import sys as _sys
+            _sys.exit(1)
+
+        # Determine effective mode (fill test overrides to marketable_limit)
+        _entry_mode = getattr(settings.options, "entry_limit_price_mode", "mid")
+        if _fill_test:
+            _entry_mode = "marketable_limit"
+
+        # Hard-stop if spread is too wide in fill test mode
+        if _fill_test:
+            _spread = float(contract.ask) - float(contract.bid)
+            _mid = float(contract.mid)
+            _max_spread = getattr(settings, "fill_test_max_spread_pct", 0.20)
+            if _mid > 0 and _spread / _mid > _max_spread:
+                logger.warning(
+                    "REALISTIC_FILL_TEST_MODE: spread %.1f%% > threshold %.1f%% for %s — skipping",
+                    _spread / _mid * 100, _max_spread * 100, contract.option_symbol,
+                )
+                continue
+
+        _raw_lp = _clp(
+            mode=_entry_mode,
+            bid=float(contract.bid),
+            ask=float(contract.ask),
+            offset_pct=getattr(settings.options, "entry_marketable_offset_pct", 0.01),
+        )
+        limit_price = Decimal(str(_raw_lp))
+
         request = OrderRequest(
             symbol=symbol,
             option_symbol=contract.option_symbol,
@@ -390,6 +429,9 @@ async def scan_and_place(
             continue
 
         request.quantity = risk_result.approved_quantity
+        # Fill test enforces qty=1 regardless of risk manager approval
+        if _fill_test:
+            request.quantity = 1
 
         # Place order
         if dry_run:
@@ -428,9 +470,10 @@ async def scan_and_place(
                     ask=float(contract.ask),
                     spread_pct=contract.spread_pct,
                     limit_price=float(limit_price),
+                    limit_price_mode=_entry_mode,
                     quantity=request.quantity,
                     order_id=order.order_id,
-                    notes=f"status={order.status.value}",
+                    notes=f"status={order.status.value} mode={_entry_mode}",
                 )
                 await journal.log_event(
                     event="order",
@@ -528,7 +571,8 @@ async def run_session(args: argparse.Namespace):
     db_session = AsyncSessionLocal()
     journal = TradeJournal(db_session, is_paper=True) if not args.dry_run else None
     store = PendingOrderStore(db_session) if not args.dry_run else None
-    fill_tracker = FillTracker(max_age_minutes=30, store=store, alert_service=alert_service)
+    _timeout_min = getattr(settings, "entry_order_timeout_secs", 120) / 60
+    fill_tracker = FillTracker(max_age_minutes=_timeout_min, store=store, alert_service=alert_service)
 
     iv_filter = IVCrushFilter({
         "earnings_blackout_days": settings.risk.earnings_blackout_days,
@@ -562,11 +606,19 @@ async def run_session(args: argparse.Namespace):
     eod_h, eod_m = map(int, settings.position.eod_exit_time.split(":"))
     eod_time = now.replace(hour=eod_h, minute=eod_m, second=0, microsecond=0)
 
-    mode = "DRY RUN" if args.dry_run else "PAPER"
+    _fill_test_mode = getattr(settings, "realistic_fill_test_mode", False)
+    mode = "DRY RUN" if args.dry_run else ("FILL-TEST" if _fill_test_mode else "PAPER")
     logger.info(
         "Session runner starting | mode=%s | symbols=%s | poll=%ds",
         mode, args.symbols, args.poll,
     )
+    if _fill_test_mode:
+        logger.info(
+            "REALISTIC_FILL_TEST_MODE: marketable_limit pricing | SPY only | qty=1 | "
+            "entry_timeout=%ds | max_spread=%.0f%%",
+            getattr(settings, "entry_order_timeout_secs", 120),
+            getattr(settings, "fill_test_max_spread_pct", 0.20) * 100,
+        )
     print(f"\n{'═'*60}")
     print(f"  Session Runner — {now.strftime('%Y-%m-%d')}  [{mode}]")
     print(f"  Market: {mkt_open.strftime('%H:%M')} – {mkt_close.strftime('%H:%M')} ET")

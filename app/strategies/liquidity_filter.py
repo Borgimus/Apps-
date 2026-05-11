@@ -73,9 +73,17 @@ class LiquidityFilter:
             if c.delta is not None:
                 delta_dist = abs(abs(c.delta) - target_delta)
             else:
-                # Proxy: |strike - underlying| / underlying → 0 = ATM
-                moneyness = abs(float(c.strike) - underlying) / max(underlying, 1)
-                delta_dist = abs(moneyness - (1 - target_delta))
+                # Proxy when broker doesn't provide delta (e.g. Alpaca paper).
+                # Signed moneyness from the buyer's perspective:
+                #   LONG call: positive = OTM (delta < 0.5)
+                #   SHORT put: positive = OTM (delta < 0.5)
+                if signal.direction == SignalDirection.LONG:
+                    signed_m = (float(c.strike) - underlying) / max(underlying, 1)
+                else:
+                    signed_m = (underlying - float(c.strike)) / max(underlying, 1)
+                # Rough linear approximation: 0% OTM → delta≈0.5, 10% OTM → delta≈0
+                delta_estimate = max(0.01, min(0.99, 0.5 - 5.0 * signed_m))
+                delta_dist = abs(delta_estimate - target_delta)
             spread_penalty = c.spread_pct * 0.5
             return delta_dist + spread_penalty
 

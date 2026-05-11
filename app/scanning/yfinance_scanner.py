@@ -291,27 +291,11 @@ class YFinanceScanner:
         else:
             price_vs_vwap = "at"
 
-        # Opening range (first N minutes of 09:30 session)
-        session_open_utc = datetime.combine(today, datetime.min.time()).replace(
-            hour=13, minute=30, tzinfo=_ET  # 09:30 ET = 13:30 UTC
-        ).astimezone(pd.Timestamp("2000").tz_localize("UTC").tzinfo or None)
-
-        # Filter to first orb_minutes of today
-        orb_end_et = now_et.replace(hour=9, minute=30, second=0, microsecond=0)
-        orb_end_et = orb_end_et + timedelta(minutes=self._orb_minutes)
-
-        orb_bars = today_bars[
-            today_bars.index.tz_convert(_ET).hour * 60
-            + today_bars.index.tz_convert(_ET).minute
-            <= 9 * 60 + 30 + self._orb_minutes - 1
-        ]
-        # Simpler: filter by ET time
-        orb_bars_et = today_bars[
-            today_bars.index.tz_convert(_ET).map(
-                lambda t: t.hour * 60 + t.minute < 9 * 60 + 30 + self._orb_minutes
-                and t.hour * 60 + t.minute >= 9 * 60 + 30
-            )
-        ]
+        # Opening range: first orb_minutes of the 09:30 ET session (vectorized)
+        et_idx = today_bars.index.tz_convert(_ET)
+        minutes_from_open = et_idx.hour * 60 + et_idx.minute
+        orb_mask = (minutes_from_open >= 9 * 60 + 30) & (minutes_from_open < 9 * 60 + 30 + self._orb_minutes)
+        orb_bars_et = today_bars[orb_mask]
 
         if not orb_bars_et.empty:
             orb_high = float(orb_bars_et["high"].max())

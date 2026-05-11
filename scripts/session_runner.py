@@ -214,6 +214,55 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool)
         logger.info("EOD closed %s pnl=%.2f", pos.option_symbol, pnl)
 
 
+# ── No-signal diagnostics ────────────────────────────────────────────────────
+
+def _diagnose_no_signals(bars, symbol: str, strat_counts: dict, log) -> None:
+    """Log VWAP and RSI state when no actionable signals are produced."""
+    import numpy as np
+
+    close = bars["close"]
+    volume = bars.get("volume", None)
+
+    # VWAP
+    try:
+        if volume is not None and not volume.empty:
+            typical = (bars["high"] + bars["low"] + close) / 3
+            vwap = (typical * volume).cumsum() / volume.cumsum()
+            price_now = float(close.iloc[-1])
+            vwap_now = float(vwap.iloc[-1])
+            proximity_pct = abs(price_now - vwap_now) / max(vwap_now, 0.01) * 100
+            side = "above" if price_now > vwap_now else "below"
+            crosses = int(((close > vwap) != (close > vwap).shift(1)).sum())
+            log.info(
+                "[diag:%s] VWAP: price=%.2f vwap=%.2f (%.2f%% %s) crosses_today=%d raw_vwap_signals=%d",
+                symbol, price_now, vwap_now, proximity_pct, side, crosses,
+                strat_counts.get("VWAPReclaimStrategy", 0),
+            )
+    except Exception as exc:
+        log.debug("[diag:%s] VWAP diagnostic error: %s", symbol, exc)
+
+    # RSI + EMA
+    try:
+        if len(close) >= 14:
+            delta = close.diff()
+            gain = delta.clip(lower=0)
+            loss = (-delta).clip(lower=0)
+            avg_gain = gain.ewm(span=14, adjust=False).mean()
+            avg_loss = loss.ewm(span=14, adjust=False).mean()
+            rs = avg_gain / avg_loss.replace(0, float("nan"))
+            rsi = (100 - 100 / (1 + rs)).iloc[-1]
+            ema20 = close.ewm(span=20, adjust=False).mean().iloc[-1]
+            price_now = float(close.iloc[-1])
+            log.info(
+                "[diag:%s] RSI(14)=%.1f (oversold<35, overbought>70) EMA(20)=%.2f price=%.2f %s raw_rsi_signals=%d",
+                symbol, rsi, ema20, price_now,
+                "ABOVE_EMA" if price_now > ema20 else "BELOW_EMA",
+                strat_counts.get("RSITrendStrategy", 0),
+            )
+    except Exception as exc:
+        log.debug("[diag:%s] RSI diagnostic error: %s", symbol, exc)
+
+
 # ── Signal scan + order placement (one poll cycle) ───────────────────────────
 
 async def scan_and_place(
@@ -253,13 +302,18 @@ async def scan_and_place(
 
     # Generate signals
     all_signals = []
+    strat_counts: dict = {}
     for strat in strategies:
         sigs = strat.generate_signals(bars, symbol)
+        strat_counts[type(strat).__name__] = len(sigs)
         all_signals.extend(sigs)
 
     # IV filter
     filtered = iv_filter.apply(all_signals)
     actionable = [s for s in filtered if s.is_actionable()]
+
+    if not actionable:
+        _diagnose_no_signals(bars, symbol, strat_counts, logger)
 
     # Realistic fill test mode: SPY only
     if getattr(settings, "realistic_fill_test_mode", False) and symbol != "SPY":
@@ -442,92 +496,151 @@ async def scan_and_place(
             placed += 1
             continue
 
+        order = None
+        used_contract = contract
+        used_exp = target_exp
         try:
             order = await _retry(
                 lambda: broker.place_option_order(request),
                 label="place_option_order",
             )
-            risk.record_trade()
-            logger.info(
-                "Order placed: %s | %s | limit=%.2f | status=%s",
-                order.order_id[:8], contract.option_symbol, float(limit_price), order.status.value,
-            )
-
-            if journal:
-                journal_id = await journal.record_entry(
-                    entry_time=now,
-                    strategy_id=sig.strategy_id,
-                    signal_direction=sig.direction.value,
-                    underlying_symbol=symbol,
-                    underlying_price=sig.price,
-                    option_symbol=contract.option_symbol,
-                    expiration=str(target_exp),
-                    strike=float(contract.strike),
-                    option_type=contract.option_type,
-                    delta=contract.delta,
-                    iv=contract.implied_volatility,
-                    bid=float(contract.bid),
-                    ask=float(contract.ask),
-                    spread_pct=contract.spread_pct,
-                    limit_price=float(limit_price),
-                    limit_price_mode=_entry_mode,
-                    quantity=request.quantity,
-                    order_id=order.order_id,
-                    notes=f"status={order.status.value} mode={_entry_mode}",
-                )
-                await journal.log_event(
-                    event="order",
-                    message=f"Placed {sig.direction.value} {contract.option_symbol} limit={float(limit_price):.2f}",
-                    level="info",
-                    symbol=symbol,
-                    data={"order_id": order.order_id, "strategy": sig.strategy_id},
-                )
-                await journal.commit()
-
-                if alert_service:
-                    from app.utils.alerting import AlertEvent
-                    await alert_service.send(
-                        AlertEvent.ORDER_SUBMITTED,
-                        f"{sig.direction.value} {contract.option_symbol} limit={float(limit_price):.2f}",
-                        data={
-                            "order_id": order.order_id,
-                            "symbol": symbol,
-                            "strategy": sig.strategy_id,
-                            "limit_price": float(limit_price),
-                            "quantity": request.quantity,
-                        },
-                    )
-
-                if fill_tracker:
-                    po = fill_tracker.register(
-                        order_id=order.order_id,
-                        journal_id=journal_id,
-                        option_symbol=contract.option_symbol,
-                        symbol=symbol,
-                        strategy_id=sig.strategy_id,
-                        direction=sig.direction.value,
-                        quantity=request.quantity,
-                        limit_price=float(limit_price),
-                        placed_at=now,
-                    )
-                    # Persist so the order survives a crash/restart
-                    if store and session_date:
-                        await store.save(po, session_date)
-                else:
-                    # No fill tracker: open position immediately (legacy / dry-run)
-                    pm.open(
-                        option_symbol=contract.option_symbol,
-                        symbol=symbol,
-                        strategy_id=sig.strategy_id,
-                        direction=sig.direction.value,
-                        entry_time=now,
-                        entry_price=float(contract.ask),
-                        quantity=request.quantity,
-                        journal_id=journal_id,
-                    )
-            placed += 1
         except Exception as exc:
-            logger.error("Order placement failed for %s: %s", symbol, exc)
+            err_str = str(exc)
+            # 422 = Alpaca rejected expired/non-tradeable contract; try next future expiry
+            if "422" in err_str and target_exp <= now.date():
+                logger.warning(
+                    "422 on today-expiry %s for %s — trying next future expiry",
+                    target_exp, contract.option_symbol,
+                )
+                try:
+                    future_exps = [e for e in expirations if e > now.date()]
+                    if not future_exps:
+                        logger.error("No future expirations available for %s", symbol)
+                    else:
+                        alt_exp = min(future_exps)
+                        alt_chain = await _retry(
+                            lambda: broker.get_option_chain(symbol, alt_exp),
+                            label=f"alt_chain({symbol})",
+                        )
+                        alt_contract = liq_filter.select_contract(alt_chain, sig)
+                        if alt_contract is None:
+                            logger.warning("Liquidity filter found no contract on alt expiry %s", alt_exp)
+                        else:
+                            alt_lp = Decimal(str(_clp(
+                                mode=_entry_mode,
+                                bid=float(alt_contract.bid),
+                                ask=float(alt_contract.ask),
+                                offset_pct=getattr(settings.options, "entry_marketable_offset_pct", 0.01),
+                            )))
+                            alt_request = OrderRequest(
+                                symbol=symbol,
+                                option_symbol=alt_contract.option_symbol,
+                                side=request.side,
+                                quantity=request.quantity,
+                                order_type=request.order_type,
+                                limit_price=alt_lp,
+                                strategy_id=sig.strategy_id,
+                                notes=f"{sig.notes} [next-expiry-fallback]",
+                            )
+                            order = await _retry(
+                                lambda: broker.place_option_order(alt_request),
+                                label="place_option_order_alt",
+                            )
+                            used_contract = alt_contract
+                            used_exp = alt_exp
+                            limit_price = alt_lp
+                            request = alt_request
+                            logger.info(
+                                "422 fallback order placed: %s | exp=%s | limit=%.2f",
+                                alt_contract.option_symbol, alt_exp, float(alt_lp),
+                            )
+                except Exception as fallback_exc:
+                    logger.error("422 fallback also failed for %s: %s", symbol, fallback_exc)
+            else:
+                logger.error("Order placement failed for %s: %s", symbol, exc)
+
+        if order is None:
+            continue
+
+        risk.record_trade()
+        logger.info(
+            "Order placed: %s | %s | limit=%.2f | status=%s",
+            order.order_id[:8], used_contract.option_symbol, float(limit_price), order.status.value,
+        )
+
+        if journal:
+            journal_id = await journal.record_entry(
+                entry_time=now,
+                strategy_id=sig.strategy_id,
+                signal_direction=sig.direction.value,
+                underlying_symbol=symbol,
+                underlying_price=sig.price,
+                option_symbol=used_contract.option_symbol,
+                expiration=str(used_exp),
+                strike=float(used_contract.strike),
+                option_type=used_contract.option_type,
+                delta=used_contract.delta,
+                iv=used_contract.implied_volatility,
+                bid=float(used_contract.bid),
+                ask=float(used_contract.ask),
+                spread_pct=used_contract.spread_pct,
+                limit_price=float(limit_price),
+                limit_price_mode=_entry_mode,
+                quantity=request.quantity,
+                order_id=order.order_id,
+                notes=f"status={order.status.value} mode={_entry_mode}",
+            )
+            await journal.log_event(
+                event="order",
+                message=f"Placed {sig.direction.value} {used_contract.option_symbol} limit={float(limit_price):.2f}",
+                level="info",
+                symbol=symbol,
+                data={"order_id": order.order_id, "strategy": sig.strategy_id},
+            )
+            await journal.commit()
+
+            if alert_service:
+                from app.utils.alerting import AlertEvent
+                await alert_service.send(
+                    AlertEvent.ORDER_SUBMITTED,
+                    f"{sig.direction.value} {used_contract.option_symbol} limit={float(limit_price):.2f}",
+                    data={
+                        "order_id": order.order_id,
+                        "symbol": symbol,
+                        "strategy": sig.strategy_id,
+                        "limit_price": float(limit_price),
+                        "quantity": request.quantity,
+                    },
+                )
+
+            if fill_tracker:
+                po = fill_tracker.register(
+                    order_id=order.order_id,
+                    journal_id=journal_id,
+                    option_symbol=used_contract.option_symbol,
+                    symbol=symbol,
+                    strategy_id=sig.strategy_id,
+                    direction=sig.direction.value,
+                    quantity=request.quantity,
+                    limit_price=float(limit_price),
+                    placed_at=now,
+                )
+                # Persist so the order survives a crash/restart
+                if store and session_date:
+                    await store.save(po, session_date)
+            else:
+                # No fill tracker: open position immediately (legacy / dry-run)
+                pm.open(
+                    option_symbol=used_contract.option_symbol,
+                    symbol=symbol,
+                    strategy_id=sig.strategy_id,
+                    direction=sig.direction.value,
+                    entry_time=now,
+                    entry_price=float(used_contract.ask),
+                    quantity=request.quantity,
+                    journal_id=journal_id,
+                )
+        placed += 1
 
     return placed
 

@@ -121,8 +121,8 @@ class YFinanceDataSource:
         self, symbol: str, interval: str = "5m", days_back: int = 5
     ) -> pd.DataFrame:
         """Return intraday OHLCV bars (up to 60 days, sub-daily only)."""
-        end = date.today()
-        start = end - timedelta(days=days_back)
+        end = date.today() + timedelta(days=1)  # yfinance end is exclusive; +1 includes today
+        start = end - timedelta(days=days_back + 1)
         return await self.get_bars(symbol, start, end, interval)
 
     # ── Option chains (RESEARCH only) ─────────────────────────────────────────

@@ -1,25 +1,31 @@
 {
   "version": "1",
   "created_at": "2026-05-11T12:07:54.394379",
-  "last_updated": "2026-05-11T15:58:32.659220",
+  "last_updated": "2026-05-11T20:41:07.236263",
   "sessions": [
     {
       "date": "2026-05-11",
-      "total_trades": 0,
-      "wins": 0,
+      "total_trades": 1,
+      "wins": 1,
       "losses": 0,
-      "realized_pnl": 0,
+      "realized_pnl": 2.0000000000000018,
       "unrealized_pnl": 0,
       "max_drawdown_session": 0.0,
-      "slippage_total": 0,
-      "spread_cost_total": 0,
+      "slippage_total": -0.020000000000000018,
+      "spread_cost_total": 2.4999999999999964,
       "api_errors": 0,
       "kill_switch_events": 0,
-      "trades_submitted": 2,
-      "trades_filled": 0,
+      "trades_submitted": 3,
+      "trades_filled": 1,
       "trades_cancelled": 2,
       "trades_rejected": 0,
       "by_strategy": {
+        "fill_lifecycle_test": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 2.0000000000000018
+        },
         "paper_smoke_test": {
           "trades": 0,
           "wins": 0,
@@ -27,21 +33,48 @@
           "pnl": 0
         }
       },
-      "by_entry_hour": {},
-      "by_delta_bucket": {},
-      "by_spread_bucket": {},
+      "by_entry_hour": {
+        "12:00": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 2.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 2.0
+        }
+      },
+      "by_spread_bucket": {
+        "moderate (5-10%)": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 2.0
+        }
+      },
       "reject_reasons": {}
     }
   ],
   "cumulative": {
     "trading_days": 1,
-    "total_trades": 0,
-    "total_pnl": 0,
-    "expectancy": 0.0,
-    "win_rate": null,
+    "total_trades": 1,
+    "total_pnl": 2.0,
+    "expectancy": 2.0,
+    "win_rate": 1.0,
     "profit_factor": null,
     "max_drawdown": 0.0,
     "pnl_by_strategy": {
+      "fill_lifecycle_test": {
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "pnl": 2.0
+      },
       "paper_smoke_test": {
         "trades": 0,
         "wins": 0,
@@ -49,9 +82,30 @@
         "pnl": 0.0
       }
     },
-    "pnl_by_entry_hour": {},
-    "pnl_by_delta_bucket": {},
-    "pnl_by_spread_bucket": {},
+    "pnl_by_entry_hour": {
+      "12:00": {
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "pnl": 2.0
+      }
+    },
+    "pnl_by_delta_bucket": {
+      "unknown": {
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "pnl": 2.0
+      }
+    },
+    "pnl_by_spread_bucket": {
+      "moderate (5-10%)": {
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "pnl": 2.0
+      }
+    },
     "reject_counts_by_reason": {}
   }
 }

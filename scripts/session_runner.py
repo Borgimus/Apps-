@@ -567,6 +567,30 @@ async def run_session(args: argparse.Namespace):
     print(f"  EOD exit: {eod_time.strftime('%H:%M')} ET  |  Poll: every {args.poll}s")
     print(f"{'═'*60}\n")
 
+    # ── Pre-session checklist (evaluation mode) ───────────────────────────────
+    if settings.paper_evaluation_mode:
+        from app.evaluation.pre_session import (
+            all_required_pass,
+            format_check_table,
+            run_pre_session_checks,
+        )
+        checks = await run_pre_session_checks(
+            settings=settings,
+            broker=broker,
+            db_session=db_session,
+            risk_manager=risk,
+        )
+        table = format_check_table(checks)
+        print(table)
+        logger.info("Pre-session checklist results:\n%s", table)
+        if not all_required_pass(checks):
+            logger.critical("Pre-session checks FAILED — refusing to start session")
+            print("\n  Pre-session checks FAILED — session aborted.\n")
+            await broker.close()
+            await db_session.close()
+            sys.exit(2)
+        logger.info("Pre-session checks PASSED — proceeding")
+
     # Fetch account and start risk session
     try:
         acct = await _retry(broker.get_account, label="get_account")
@@ -823,6 +847,29 @@ async def run_session(args: argparse.Namespace):
         except Exception as exc:
             logger.error("Health report generation failed: %s", exc)
 
+    # ── Post-session evaluation (evaluation mode) ─────────────────────────────
+    if settings.paper_evaluation_mode:
+        try:
+            from app.evaluation.post_session import run_post_session
+            post_result = await run_post_session(
+                settings=settings,
+                broker=broker,
+                db_session=db_session,
+                fill_tracker=fill_tracker,
+                pm=pm,
+                journal=journal,
+                alert_service=alert_service,
+                session_date=today_str,
+            )
+            logger.info(
+                "Post-session evaluation | report=%s | ledger_updated=%s | errors=%s",
+                post_result.report_path_json,
+                post_result.ledger_updated,
+                post_result.errors or "none",
+            )
+        except Exception as exc:
+            logger.error("Post-session evaluation failed: %s", exc)
+
     logger.info(
         "Session complete | cycles=%d | placed=%d | pnl=%.2f",
         cycle, session_placed, float(risk.daily_pnl),
@@ -861,11 +908,19 @@ def _parse_args() -> argparse.Namespace:
         "--reconcile-interval", type=int, default=30, metavar="MINUTES",
         help="Broker reconciliation interval in minutes (default: 30)",
     )
+    p.add_argument(
+        "--eval", action="store_true",
+        help="Enable paper evaluation mode (pre/post checklists, daily report, ledger)",
+    )
     return p.parse_args()
 
 
 if __name__ == "__main__":
     args = _parse_args()
+
+    # --eval flag sets the env var before settings are loaded
+    if args.eval:
+        os.environ.setdefault("PAPER_EVALUATION_MODE", "true")
 
     # Set up rotating JSON-capable logs before anything else
     from app.utils.logging_setup import configure_logging

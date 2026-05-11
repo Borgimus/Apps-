@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import List, Optional
 
 import yaml
-from pydantic import field_validator, model_validator
+from pydantic import field_validator, model_validator  # noqa: F401 (model_validator used below)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -145,6 +145,21 @@ class Settings(BaseSettings):
     options: OptionsSettings = OptionsSettings()
     backtesting: BacktestSettings = BacktestSettings()
     position: PositionSettings = PositionSettings()
+
+    # ── Paper evaluation mode ─────────────────────────────────────────────────
+    # When enabled: paper-only session with pre/post checklists, daily reports,
+    # and a cumulative ledger.  Incompatible with live_trading_enabled=true.
+    paper_evaluation_mode: bool = False
+    evaluation_output_dir: str = "./evaluation"
+    evaluation_ledger_file: str = "./evaluation/ledger.json"
+
+    @model_validator(mode="after")
+    def guard_eval_mode(self):
+        if self.paper_evaluation_mode and self.live_trading_enabled:
+            raise ValueError(
+                "paper_evaluation_mode and live_trading_enabled cannot both be true."
+            )
+        return self
 
     @field_validator("live_trading_enabled", mode="before")
     @classmethod

@@ -524,6 +524,136 @@ For actual order flow, the system always uses broker-provided quotes, option cha
 
 ---
 
+## Paper Evaluation Mode
+
+Paper evaluation mode adds a structured workflow around each session: a pre-session checklist that blocks unsafe starts, rich daily reports, and a cumulative ledger that tracks performance across days.
+
+### Enabling evaluation mode
+
+Set the env var before running:
+
+```bash
+PAPER_EVALUATION_MODE=true python scripts/session_runner.py --eval --symbol SPY QQQ
+```
+
+Or add to `.env`:
+
+```
+PAPER_EVALUATION_MODE=true
+EVALUATION_OUTPUT_DIR=./evaluation
+EVALUATION_LEDGER_FILE=./evaluation/ledger.json
+```
+
+The `--eval` CLI flag is a shorthand that sets `PAPER_EVALUATION_MODE=true` automatically.
+
+### Verifying paper-only mode
+
+Evaluation mode will **refuse to start** if any of the following required checks fail:
+
+| Check | What it verifies |
+|---|---|
+| `paper_mode_confirmed` | `LIVE_TRADING_ENABLED` is false |
+| `kill_switch_inactive` | No kill-switch file exists |
+| `broker_reachable` | Broker responds and confirms paper account |
+| `db_writable` | SQLite/Postgres responds to a SELECT 1 |
+| `logs_writable` | Log directory accepts a write probe |
+| `daily_loss_reset` | Risk manager PnL is zero (fresh session) |
+| `no_stale_pending_orders` | No pending orders left over from prior sessions |
+
+Advisory checks (non-blocking): `market_day`, `data_feed_fresh`.
+
+The checklist prints to stdout and is logged before the session starts. Exit code 2 means a required check failed.
+
+### Daily reports
+
+After each session a report is written to `evaluation/reports/YYYY-MM-DD.{json,md}`.
+
+**Report contents:**
+
+| Section | Metrics |
+|---|---|
+| Trade counts | Signals, submitted, fills, cancels, rejects |
+| PnL | Realized, unrealized, win rate, avg win/loss |
+| Risk | Max drawdown, largest win/loss |
+| Cost | Slippage total, spread cost estimate |
+| System | API errors, kill switch events |
+| Per-strategy | All metrics broken down by strategy |
+| Notes | Auto-generated observations |
+| Recommendations | Auto-generated improvement suggestions |
+
+Reading reports:
+
+```bash
+# Today's JSON report (machine-readable)
+cat evaluation/reports/$(date +%F).json | jq .
+
+# Today's Markdown report (human-readable)
+cat evaluation/reports/$(date +%F).md
+```
+
+### Cumulative ledger
+
+`evaluation/ledger.json` accumulates statistics across all evaluation sessions:
+
+```
+total_trading_days    Total sessions in the ledger
+total_trades          All closed trades (all days)
+total_pnl             Cumulative realized PnL
+expectancy            Average PnL per trade
+win_rate              Fraction of winning trades
+profit_factor         Gross wins / gross losses
+max_drawdown          Largest peak-to-trough drawdown (cumulative curve)
+pnl_by_strategy       PnL, win rate by strategy
+pnl_by_entry_hour     PnL, trade count by entry hour (ET)
+pnl_by_delta_bucket   PnL by option delta range
+pnl_by_spread_bucket  PnL by bid/ask spread width
+reject_counts_by_reason  Why trades were rejected
+```
+
+Reading the ledger:
+
+```bash
+cat evaluation/ledger.json | jq .cumulative
+```
+
+### What metrics matter
+
+These are the primary metrics to watch during a paper evaluation period:
+
+- **Expectancy** — must be positive after ≥20 trades before any live consideration
+- **Profit factor** — target ≥1.5; below 1.0 means losing strategy
+- **Win rate** — context-dependent; a 40% win rate with 2:1 reward/risk is breakeven
+- **Max drawdown** — compare against starting equity; keep below 5% of paper equity
+- **Slippage** — large or consistently negative slippage means limit prices need tuning
+- **Rejection rate** — persistent >50% rejection rate means filters are too tight
+
+### Minimum recommended evaluation period
+
+Run at least **20 trading days** (≈4 weeks) before drawing conclusions. Options strategies have high variance and single-week results are noise.
+
+Extend evaluation if:
+- Fewer than 20 fills occurred (sample too small)
+- More than one market regime occurred (e.g., trending + volatile weeks)
+- Strategy parameters were changed mid-evaluation
+
+### Important: strategy changes during evaluation
+
+**Do NOT change strategy parameters during an evaluation period** unless you are fixing a clear mechanical bug (e.g., wrong column name, off-by-one in a filter).
+
+Acceptable mid-evaluation changes:
+- Bug fixes that do not change strategy logic
+- Configuration changes forced by broker API updates
+
+Changes that restart the evaluation clock:
+- Adjusting entry/exit thresholds
+- Changing symbol universe
+- Modifying stop-loss or take-profit levels
+- Adding or removing strategies
+
+When you make a logic change, start a fresh evaluation period and keep the old ledger archived.
+
+---
+
 ## License
 
 MIT License. Use at your own risk.

@@ -11,6 +11,7 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./data:/app/data
+      - ./evaluation:/app/evaluation
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=5)"]
       interval: 30s
@@ -21,12 +22,13 @@ services:
   session-runner:
     build: .
     restart: unless-stopped
-    command: ["python", "scripts/session_runner.py"]
+    command: ["python", "scripts/session_runner.py", "--cancel-pending"]
     env_file:
       - .env
     volumes:
       - ./logs:/app/logs
       - ./data:/app/data
+      - ./evaluation:/app/evaluation
     depends_on:
       dashboard:
         condition: service_healthy

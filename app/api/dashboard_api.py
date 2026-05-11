@@ -235,6 +235,7 @@ def create_app(
         return {
             "status": overall,
             "paper_mode": not settings.live_trading_enabled,
+            "paper_evaluation_mode": settings.paper_evaluation_mode,
             "kill_switch_active": settings.is_kill_switch_active(),
             "database": {
                 "status": "ok" if db_ok else "error",

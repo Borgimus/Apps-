@@ -1,0 +1,29 @@
+# docker-compose override for paper evaluation mode.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.eval.yml up
+#
+# Activates:
+#   - PAPER_EVALUATION_MODE=true  (pre/post checklists, daily report, ledger)
+#   - --cancel-pending             (clean up stale orders on shutdown)
+#
+# For a one-shot dry run (no orders placed):
+#   docker compose -f docker-compose.yml -f docker-compose.eval.yml \
+#     run --rm session-runner \
+#     python scripts/session_runner.py --dry-run --eval --poll 10
+
+version: "3.9"
+
+services:
+  session-runner:
+    command:
+      - python
+      - scripts/session_runner.py
+      - --cancel-pending
+      - --eval
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PAPER_EVALUATION_MODE=true
+      - EVALUATION_OUTPUT_DIR=/app/evaluation
+      - EVALUATION_LEDGER_FILE=/app/evaluation/ledger.json
+      - RISK_MAX_TRADES_PER_DAY=3

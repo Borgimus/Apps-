@@ -80,6 +80,12 @@ def _fail(msg: str):
 # ── Safety enforcement ─────────────────────────────────────────────────────────
 
 def _check_env():
+    # Load .env so credentials set there are visible to os.environ checks below
+    _env_path = Path(__file__).parent.parent / ".env"
+    if _env_path.exists():
+        from dotenv import load_dotenv
+        load_dotenv(_env_path, override=False)
+
     required = [
         ("ALPACA_API_KEY", "Alpaca API key"),
         ("ALPACA_SECRET_KEY", "Alpaca secret key"),

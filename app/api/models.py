@@ -34,6 +34,24 @@ class Base(DeclarativeBase):
 async def init_db():
     async with _engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        await _migrate_schema(conn)
+
+
+async def _migrate_schema(conn) -> None:
+    """Add new columns to existing tables without dropping data (idempotent)."""
+    from sqlalchemy import text
+    migrations = [
+        ("trade_journal", "filled_at",         "DATETIME"),
+        ("trade_journal", "time_to_fill_secs", "FLOAT"),
+        ("trade_journal", "exit_bid",           "FLOAT"),
+        ("trade_journal", "exit_ask",           "FLOAT"),
+        ("trade_journal", "exit_spread_pct",    "FLOAT"),
+    ]
+    for table, col, col_type in migrations:
+        try:
+            await conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}"))
+        except Exception:
+            pass  # column already exists — safe to ignore
 
 
 async def get_db():
@@ -160,6 +178,10 @@ class DBTradeJournal(Base):
     filled_quantity = Column(Integer)                # for partial fills
     order_id = Column(String(128), index=True)       # broker order id
 
+    # Fill timing
+    filled_at = Column(DateTime)                     # broker-confirmed fill timestamp
+    time_to_fill_secs = Column(Float)                # seconds from entry_time to filled_at
+
     # Exit
     exit_time = Column(DateTime)
     exit_price = Column(Float)
@@ -168,6 +190,9 @@ class DBTradeJournal(Base):
     unrealized_pnl = Column(Float)                   # last known if exiting early
     hold_duration_secs = Column(Float)
     slippage = Column(Float)                         # fill_price - limit_price
+    exit_bid = Column(Float)                         # bid at time of exit
+    exit_ask = Column(Float)                         # ask at time of exit
+    exit_spread_pct = Column(Float)                  # (ask-bid)/mid at exit
 
     # Rejection
     rejection_reason = Column(Text)

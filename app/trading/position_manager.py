@@ -38,7 +38,8 @@ class OpenPosition:
     entry_time: datetime
     entry_price: float       # option premium paid (per share, ×100 = contract cost)
     quantity: int
-    peak_price: float = 0.0  # highest price seen since entry (updated on each tick)
+    current_price: float = 0.0  # most recent price from broker quote poll
+    peak_price: float = 0.0     # highest price seen since entry (for trailing stop)
     stop_loss_pct: float = 0.50
     take_profit_pct: float = 1.00
     trailing_stop_pct: float = 0.25
@@ -47,6 +48,8 @@ class OpenPosition:
     journal_id: Optional[int] = None   # DB row id for update-on-exit
 
     def __post_init__(self):
+        if self.current_price == 0.0:
+            self.current_price = self.entry_price
         if self.peak_price == 0.0:
             self.peak_price = self.entry_price
 
@@ -119,10 +122,12 @@ class PositionManager:
         return pos
 
     def update_price(self, option_symbol: str, current_price: float):
-        """Update peak price for trailing stop calculation."""
+        """Update current and peak price for trailing stop and unrealized PnL."""
         pos = self._positions.get(option_symbol)
-        if pos and current_price > pos.peak_price:
-            pos.peak_price = current_price
+        if pos:
+            pos.current_price = current_price
+            if current_price > pos.peak_price:
+                pos.peak_price = current_price
 
     def should_exit(
         self,
@@ -180,9 +185,21 @@ class PositionManager:
         return pos
 
     def to_dict_list(self) -> list:
-        """Serialise all open positions for the dashboard API."""
+        """Serialise all open positions for the dashboard supervision API."""
+        from datetime import datetime as _dt
+        from zoneinfo import ZoneInfo as _ZI
+        _ET = _ZI("America/New_York")
+        now = _dt.now(tz=_ET)
         result = []
         for p in self._positions.values():
+            cp = p.current_price if p.current_price > 0 else p.entry_price
+            unrealized_pnl = round((cp - p.entry_price) * 100 * p.quantity, 2)
+            entry_et = (
+                p.entry_time.replace(tzinfo=_ET)
+                if p.entry_time.tzinfo is None
+                else p.entry_time.astimezone(_ET)
+            )
+            hold_minutes = round((now - entry_et).total_seconds() / 60, 1)
             result.append({
                 "option_symbol": p.option_symbol,
                 "symbol": p.symbol,
@@ -190,12 +207,18 @@ class PositionManager:
                 "direction": p.direction,
                 "entry_time": p.entry_time.isoformat(),
                 "entry_price": p.entry_price,
+                "current_price": cp,
                 "peak_price": p.peak_price,
                 "quantity": p.quantity,
+                "unrealized_pnl": unrealized_pnl,
+                "stop_loss_level": round(p.entry_price * (1.0 - p.stop_loss_pct), 4),
+                "take_profit_level": round(p.entry_price * (1.0 + p.take_profit_pct), 4),
+                "trailing_stop_level": round(p.peak_price * (1.0 - p.trailing_stop_pct), 4),
                 "stop_loss_pct": p.stop_loss_pct,
                 "take_profit_pct": p.take_profit_pct,
                 "trailing_stop_pct": p.trailing_stop_pct,
                 "max_hold_minutes": p.max_hold_minutes,
                 "eod_exit_time": p.eod_exit_time.strftime("%H:%M"),
+                "hold_minutes": hold_minutes,
             })
         return result

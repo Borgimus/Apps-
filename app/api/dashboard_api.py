@@ -32,7 +32,7 @@ from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconn
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
-from sqlalchemy import select, text
+from sqlalchemy import func, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..config import get_settings
@@ -57,6 +57,7 @@ _broker = None
 _risk_manager = None
 _paper_trader = None
 _position_manager = None   # app.trading.PositionManager — set externally
+_fill_tracker = None       # app.trading.FillTracker — set externally
 
 # WebSocket connection manager
 class _ConnectionManager:
@@ -112,12 +113,14 @@ def create_app(
     risk_manager=None,
     paper_trader=None,
     position_manager=None,
+    fill_tracker=None,
 ) -> FastAPI:
-    global _broker, _risk_manager, _paper_trader, _position_manager
+    global _broker, _risk_manager, _paper_trader, _position_manager, _fill_tracker
     _broker = broker
     _risk_manager = risk_manager
     _paper_trader = paper_trader
     _position_manager = position_manager
+    _fill_tracker = fill_tracker
 
     settings = get_settings()
 
@@ -539,6 +542,65 @@ def create_app(
         if pm is None:
             return []
         return pm.to_dict_list()
+
+    # ── Session supervision state ──────────────────────────────────────────
+
+    @app.get("/session/state")
+    async def session_state(db: AsyncSession = Depends(get_db)):
+        """
+        Full snapshot of the current trading session for supervised monitoring.
+
+        Returns open positions with computed stop/profit levels, pending-order
+        count, risk utilisation, and session timing.  Safe to poll at any
+        frequency — all reads are non-blocking.
+        """
+        from datetime import datetime as _dt
+        from zoneinfo import ZoneInfo as _ZI
+        _ET = _ZI("America/New_York")
+        now = _dt.now(tz=_ET)
+
+        rm = _risk_manager
+        pm = _position_manager
+        ft = _fill_tracker
+
+        open_pos = pm.to_dict_list() if pm else []
+        unrealized_total = sum(p.get("unrealized_pnl", 0.0) for p in open_pos)
+
+        # Pending orders — prefer live FillTracker count, fall back to DB
+        if ft is not None:
+            pending_count = ft.count()
+        else:
+            try:
+                today_str = now.strftime("%Y-%m-%d")
+                result = await db.execute(
+                    select(func.count(DBPendingOrder.id))
+                    .where(DBPendingOrder.session_date == today_str)
+                    .where(DBPendingOrder.status == "pending")
+                )
+                pending_count = result.scalar() or 0
+            except Exception:
+                pending_count = 0
+
+        daily_pnl = float(rm.daily_pnl) if rm else 0.0
+        trades_today = rm.trades_today if rm else 0
+        max_trades = settings.risk.max_trades_per_day
+
+        return {
+            "session_date": str(rm._session_date) if rm and rm._session_date else now.strftime("%Y-%m-%d"),
+            "now_et": now.strftime("%H:%M:%S"),
+            "paper_mode": not settings.live_trading_enabled,
+            "paper_evaluation_mode": settings.paper_evaluation_mode,
+            "kill_switch_active": settings.is_kill_switch_active(),
+            "trades_today": trades_today,
+            "max_trades_per_day": max_trades,
+            "trades_remaining": max(0, max_trades - trades_today),
+            "daily_pnl": daily_pnl,
+            "unrealized_pnl_total": round(unrealized_total, 2),
+            "total_pnl": round(daily_pnl + unrealized_total, 2),
+            "open_positions_count": len(open_pos),
+            "open_positions": open_pos,
+            "pending_orders_count": pending_count,
+        }
 
     # ── Trade journal ──────────────────────────────────────────────────────
 

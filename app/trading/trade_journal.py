@@ -106,6 +106,8 @@ class TradeJournal:
         hold_duration_secs: float,
         unrealized_pnl: Optional[float] = None,
         filled_quantity: Optional[int] = None,
+        exit_bid: Optional[float] = None,
+        exit_ask: Optional[float] = None,
     ):
         """Update an open entry with exit details and mark it closed."""
         row = await self._db.get(DBTradeJournal, journal_id)
@@ -125,6 +127,13 @@ class TradeJournal:
         )
         if filled_quantity is not None:
             row.filled_quantity = filled_quantity
+        if exit_bid is not None:
+            row.exit_bid = exit_bid
+        if exit_ask is not None:
+            row.exit_ask = exit_ask
+        if exit_bid is not None and exit_ask is not None:
+            mid = (exit_bid + exit_ask) / 2
+            row.exit_spread_pct = (exit_ask - exit_bid) / mid if mid > 0 else None
         row.status = "closed"
         logger.info(
             "Journal exit %d: reason=%s pnl=%.2f hold=%.0fs",
@@ -139,7 +148,7 @@ class TradeJournal:
         fill_price: float,
         filled_quantity: int,
     ):
-        """Update fill price and quantity (called when broker confirms fill)."""
+        """Update fill price, quantity, and fill-timing metrics."""
         row = await self._db.get(DBTradeJournal, journal_id)
         if row is None:
             return
@@ -147,7 +156,19 @@ class TradeJournal:
         row.filled_quantity = filled_quantity
         if row.limit_price is not None:
             row.slippage = fill_price - row.limit_price
-        logger.info("Journal fill %d: filled=%d @ %.4f", journal_id, filled_quantity, fill_price)
+        now_et = datetime.now(tz=ET)
+        row.filled_at = now_et
+        if row.entry_time is not None:
+            entry_et = (
+                row.entry_time.replace(tzinfo=ET)
+                if row.entry_time.tzinfo is None
+                else row.entry_time.astimezone(ET)
+            )
+            row.time_to_fill_secs = max(0.0, (now_et - entry_et).total_seconds())
+        logger.info(
+            "Journal fill %d: filled=%d @ %.4f ttf=%.0fs",
+            journal_id, filled_quantity, fill_price, row.time_to_fill_secs or 0,
+        )
 
     # ── Cancellation ──────────────────────────────────────────────────────────
 

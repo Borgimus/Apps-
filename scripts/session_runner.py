@@ -109,12 +109,16 @@ async def monitor_positions(
     closed = 0
     for pos in list(pm.open_positions()):
         # Fetch live quote with retry
+        _exit_bid: float | None = None
+        _exit_ask: float | None = None
         try:
             quote = await _retry(
                 lambda p=pos: broker.get_option_quote(p.option_symbol),
                 label=f"get_option_quote({pos.option_symbol})",
             )
             current_price = float(quote.mid) if float(quote.mid) > 0 else pos.entry_price
+            _exit_bid = float(quote.bid)
+            _exit_ask = float(quote.ask)
         except Exception:
             current_price = pos.entry_price  # hold without data
 
@@ -139,6 +143,8 @@ async def monitor_positions(
                         exit_reason=reason,
                         realized_pnl=pnl,
                         hold_duration_secs=hold_secs,
+                        exit_bid=_exit_bid,
+                        exit_ask=_exit_ask,
                     )
                     await journal.log_event(
                         event="exit",

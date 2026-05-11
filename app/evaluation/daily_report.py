@@ -66,6 +66,19 @@ class DailyReport:
     slippage_total: float = 0.0
     spread_cost_estimate: float = 0.0
 
+    # Fill efficiency
+    fill_rate: Optional[float] = None           # fills / submitted
+    cancel_rate: Optional[float] = None         # cancels / submitted
+    missed_fills_count: int = 0                 # cancelled without any fill
+    time_to_fill_avg_secs: Optional[float] = None
+    avg_spread_at_entry: Optional[float] = None
+    avg_spread_at_exit: Optional[float] = None
+
+    # Exit-reason breakdown (fraction of filled trades)
+    stop_loss_hit_pct: Optional[float] = None
+    take_profit_hit_pct: Optional[float] = None
+    eod_exit_pct: Optional[float] = None
+
     # System health
     api_errors: int = 0
     kill_switch_events: int = 0
@@ -184,6 +197,46 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
     report.spread_cost_estimate = sum(
         _spread_cost(t) for t in fills
     )
+
+    # ── Fill efficiency metrics ───────────────────────────────────────────────
+    if report.trades_submitted > 0:
+        report.fill_rate = report.trades_filled / report.trades_submitted
+        report.cancel_rate = report.trades_cancelled / report.trades_submitted
+
+    report.missed_fills_count = sum(
+        1 for t in cancelled if not t.fill_price
+    )
+
+    entry_spreads = [float(t.spread_pct) for t in submitted if t.spread_pct is not None]
+    if entry_spreads:
+        report.avg_spread_at_entry = sum(entry_spreads) / len(entry_spreads)
+
+    exit_spreads = [
+        float(t.exit_spread_pct) for t in closed
+        if getattr(t, "exit_spread_pct", None) is not None
+    ]
+    if exit_spreads:
+        report.avg_spread_at_exit = sum(exit_spreads) / len(exit_spreads)
+
+    fill_times = [
+        float(t.time_to_fill_secs) for t in closed
+        if getattr(t, "time_to_fill_secs", None) is not None
+    ]
+    if fill_times:
+        report.time_to_fill_avg_secs = sum(fill_times) / len(fill_times)
+
+    # ── Exit-reason breakdown ─────────────────────────────────────────────────
+    if closed:
+        n = len(closed)
+        report.stop_loss_hit_pct = sum(
+            1 for t in closed if t.exit_reason == "stop_loss"
+        ) / n
+        report.take_profit_hit_pct = sum(
+            1 for t in closed if t.exit_reason == "take_profit"
+        ) / n
+        report.eod_exit_pct = sum(
+            1 for t in closed if t.exit_reason == "eod_exit"
+        ) / n
 
     # ── Per-strategy breakdown ────────────────────────────────────────────────
     strat_ids = {t.strategy_id for t in trades} | set(signals_by_strategy)
@@ -343,6 +396,20 @@ def to_markdown(report: DailyReport) -> str:
 |---|---|
 | Slippage total | ${r.slippage_total:.2f} |
 | Spread cost estimate | ${r.spread_cost_estimate:.2f} |
+| Avg spread at entry | {f"{r.avg_spread_at_entry:.1%}" if r.avg_spread_at_entry is not None else "n/a"} |
+| Avg spread at exit | {f"{r.avg_spread_at_exit:.1%}" if r.avg_spread_at_exit is not None else "n/a"} |
+
+## Fill Efficiency
+
+| Metric | Value |
+|---|---|
+| Fill rate | {f"{r.fill_rate:.1%}" if r.fill_rate is not None else "n/a"} |
+| Cancel rate | {f"{r.cancel_rate:.1%}" if r.cancel_rate is not None else "n/a"} |
+| Missed fills | {r.missed_fills_count} |
+| Avg time to fill | {f"{r.time_to_fill_avg_secs:.0f}s" if r.time_to_fill_avg_secs is not None else "n/a"} |
+| Stop-loss exits | {f"{r.stop_loss_hit_pct:.1%}" if r.stop_loss_hit_pct is not None else "n/a"} |
+| Take-profit exits | {f"{r.take_profit_hit_pct:.1%}" if r.take_profit_hit_pct is not None else "n/a"} |
+| EOD exits | {f"{r.eod_exit_pct:.1%}" if r.eod_exit_pct is not None else "n/a"} |
 
 ## System Health
 

@@ -88,6 +88,18 @@ class DailyReport:
     # Cancellation reason breakdown
     cancel_reason_breakdown: Dict[str, int] = field(default_factory=dict)
 
+    # ── Scan pipeline metrics ──────────────────────────────────────────────────
+    scanned_symbols_count: int = 0
+    candidate_count_passed: int = 0
+    candidate_count_rejected: int = 0
+    selected_symbols: List[str] = field(default_factory=list)
+    top_candidates: List[Dict[str, Any]] = field(default_factory=list)  # [{symbol, score, signal_type}]
+
+    # Per-symbol P&L
+    pnl_by_symbol: Dict[str, float] = field(default_factory=dict)
+    win_rate_by_symbol: Dict[str, float] = field(default_factory=dict)
+    expectancy_by_symbol: Dict[str, float] = field(default_factory=dict)
+
     # System health
     api_errors: int = 0
     kill_switch_events: int = 0
@@ -278,6 +290,45 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
             report.cancel_reason_breakdown.get(reason, 0) + 1
         )
 
+    # ── Scan pipeline metrics ─────────────────────────────────────────────────
+    try:
+        from app.api.models import DBScanResult
+        scan_rows = (
+            await db_session.execute(
+                select(DBScanResult).where(DBScanResult.session_date == session_date)
+            )
+        ).scalars().all()
+        if scan_rows:
+            import json as _json
+            report.scanned_symbols_count = len(scan_rows)
+            report.candidate_count_passed  = sum(1 for r in scan_rows if not r.is_rejected)
+            report.candidate_count_rejected = sum(1 for r in scan_rows if r.is_rejected)
+            report.selected_symbols = [r.symbol for r in scan_rows if r.selected]
+            top = sorted(
+                [r for r in scan_rows if not r.is_rejected],
+                key=lambda r: r.score or 0, reverse=True,
+            )[:5]
+            report.top_candidates = [
+                {"symbol": r.symbol, "score": r.score, "signal_type": r.signal_type}
+                for r in top
+            ]
+    except Exception:
+        pass  # DBScanResult table may not exist in older DBs
+
+    # ── Per-symbol P&L ────────────────────────────────────────────────────────
+    symbols = {t.underlying_symbol for t in closed if t.underlying_symbol}
+    for sym in symbols:
+        sym_trades = [t for t in closed if t.underlying_symbol == sym]
+        sym_pnls = [float(t.realized_pnl) for t in sym_trades]
+        report.pnl_by_symbol[sym] = round(sum(sym_pnls), 2)
+        wins = [p for p in sym_pnls if p > 0]
+        report.win_rate_by_symbol[sym] = len(wins) / len(sym_pnls) if sym_pnls else 0.0
+        avg_w = sum(wins) / len(wins) if wins else 0.0
+        losses = [p for p in sym_pnls if p <= 0]
+        avg_l = sum(losses) / len(losses) if losses else 0.0
+        wr = report.win_rate_by_symbol[sym]
+        report.expectancy_by_symbol[sym] = round(wr * avg_w + (1 - wr) * avg_l, 2)
+
     # ── Per-strategy breakdown ────────────────────────────────────────────────
     strat_ids = {t.strategy_id for t in trades} | set(signals_by_strategy)
     for sid in sorted(strat_ids):
@@ -412,6 +463,48 @@ def _cancel_reason_table(r: DailyReport) -> str:
     )
 
 
+def _scan_pipeline_section(r: DailyReport) -> str:
+    if r.scanned_symbols_count == 0:
+        return ""
+    selected_str = ", ".join(r.selected_symbols) if r.selected_symbols else "none"
+    top_rows = ""
+    for c in r.top_candidates:
+        top_rows += f"| {c.get('symbol','')} | {c.get('score', 0):.1f} | {c.get('signal_type', '')} |\n"
+    top_table = (
+        "\n| Symbol | Score | Signal |\n|---|---|---|\n" + top_rows
+    ) if top_rows else ""
+    return (
+        f"\n## Scan Pipeline\n\n"
+        f"| Metric | Value |\n|---|---|\n"
+        f"| Symbols scanned | {r.scanned_symbols_count} |\n"
+        f"| Passed | {r.candidate_count_passed} |\n"
+        f"| Rejected | {r.candidate_count_rejected} |\n"
+        f"| Selected | {selected_str} |\n"
+        f"\n### Top Candidates{top_table}\n"
+    )
+
+
+def _pnl_by_symbol_section(r: DailyReport) -> str:
+    if not r.pnl_by_symbol:
+        return ""
+    rows = ""
+    for sym in sorted(r.pnl_by_symbol):
+        pnl = r.pnl_by_symbol[sym]
+        wr = r.win_rate_by_symbol.get(sym)
+        exp = r.expectancy_by_symbol.get(sym)
+        rows += (
+            f"| {sym} | ${pnl:.2f} | "
+            f"{f'{wr:.1%}' if wr is not None else 'n/a'} | "
+            f"{f'${exp:.2f}' if exp is not None else 'n/a'} |\n"
+        )
+    return (
+        "\n## P&L by Symbol\n\n"
+        "| Symbol | PnL | Win Rate | Expectancy |\n"
+        "|---|---|---|---|\n"
+        f"{rows}"
+    )
+
+
 def to_json(report: DailyReport) -> str:
     return json.dumps(asdict(report), indent=2, default=str)
 
@@ -491,6 +584,8 @@ def to_markdown(report: DailyReport) -> str:
 |---|---|
 | API errors | {r.api_errors} |
 | Kill switch events | {r.kill_switch_events} |
+
+{_scan_pipeline_section(r)}{_pnl_by_symbol_section(r)}
 
 ## Per-Strategy Breakdown
 

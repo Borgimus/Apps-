@@ -86,6 +86,19 @@ class PositionSettings(BaseSettings):
     cooldown_after_loss_minutes: int = _yaml_get("position", "cooldown_after_loss_minutes", default=15)
 
 
+class UniverseSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="UNIVERSE_", extra="ignore")
+
+    mode: str = _yaml_get("universe", "mode", default="manual")
+    file: str = _yaml_get("universe", "file", default="./config/ticker_universe.yaml")
+    max_symbols_per_scan: int = _yaml_get("universe", "max_symbols_per_scan", default=10)
+    max_active_symbols: int = _yaml_get("universe", "max_active_symbols", default=3)
+    max_symbols_traded_per_day: int = _yaml_get("universe", "max_symbols_traded_per_day", default=1)
+    max_active_positions: int = _yaml_get("universe", "max_active_positions", default=1)
+    min_scan_score: float = _yaml_get("universe", "min_scan_score", default=40.0)
+    scan_interval_minutes: int = _yaml_get("universe", "scan_interval_minutes", default=30)
+
+
 class BacktestSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="BACKTEST_", extra="ignore")
 
@@ -152,6 +165,7 @@ class Settings(BaseSettings):
     options: OptionsSettings = OptionsSettings()
     backtesting: BacktestSettings = BacktestSettings()
     position: PositionSettings = PositionSettings()
+    universe: UniverseSettings = UniverseSettings()
 
     # ── Paper evaluation mode ─────────────────────────────────────────────────
     # When enabled: paper-only session with pre/post checklists, daily reports,

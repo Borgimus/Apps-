@@ -532,6 +532,129 @@ async def scan_and_place(
     return placed
 
 
+# ── Universe scan helper ──────────────────────────────────────────────────────
+
+async def _run_universe_scan(
+    settings,
+    broker,
+    journal,
+    session_date: str,
+    scan_store: Optional[dict] = None,
+) -> List[str]:
+    """
+    Run the scanning pipeline and return a ranked list of confirmed symbols.
+
+    Steps:
+      1. Load universe YAML → get candidate symbol list
+      2. YFinanceScanner → compute intraday metrics (research only)
+      3. CandidateScorer → rank and filter symbols
+      4. AlpacaConfirmer → verify option chain liquidity
+      5. Persist results to DBScanResult (if journal available)
+
+    Returns up to max_active_symbols confirmed symbol names (best first).
+    """
+    import json as _json
+    from app.scanning import AlpacaConfirmer, CandidateScorer, UniverseLoader, YFinanceScanner
+    from app.api.models import DBScanResult
+
+    uni = settings.universe
+    max_scan  = uni.max_symbols_per_scan
+    max_sym   = uni.max_active_symbols
+    min_score = uni.min_scan_score
+
+    # Load universe
+    loader = UniverseLoader()
+    loader.load()
+    if loader.mode == "off":
+        logger.info("Universe mode=off — skipping scan, using arg symbols")
+        return []
+
+    all_syms = loader.get_symbols(max_symbols=max_scan)
+    if not all_syms:
+        logger.warning("Universe empty — no symbols to scan")
+        return []
+
+    logger.info("Universe scan: %d symbols | max_active=%d", len(all_syms), max_sym)
+
+    # YFinance scan
+    scanner = YFinanceScanner()
+    metrics_list = await scanner.scan(all_syms)
+
+    # Score
+    scorer = CandidateScorer(min_scan_score=min_score)
+    candidates = scorer.score_all(metrics_list)
+
+    passed    = [c for c in candidates if not c.is_rejected]
+    rejected  = [c for c in candidates if c.is_rejected]
+    logger.info(
+        "Scan: %d passed, %d rejected",
+        len(passed), len(rejected),
+    )
+
+    for c in candidates[:5]:
+        logger.info(
+            "  %-6s  score=%.1f  signal=%-7s  %s",
+            c.symbol, c.score, c.signal_type,
+            ("REJECTED: " + ", ".join(c.rejected_reasons)) if c.is_rejected else ("reasons: " + ", ".join(c.reason_codes[:3])),
+        )
+
+    # Alpaca confirmation
+    confirmer = AlpacaConfirmer(broker, settings)
+    confirmed = await confirmer.confirm_all(passed[:max_sym * 2])  # over-sample, then cap
+
+    confirmed_syms = [cc.symbol for cc in confirmed[:max_sym]]
+    logger.info("AlpacaConfirmer: %d confirmed symbols: %s", len(confirmed_syms), confirmed_syms)
+
+    # Persist scan results to DB
+    if journal:
+        try:
+            for c in candidates:
+                row = DBScanResult(
+                    session_date=session_date,
+                    symbol=c.symbol,
+                    score=c.score,
+                    signal_type=c.signal_type,
+                    reason_codes=_json.dumps(c.reason_codes),
+                    rejected_reasons=_json.dumps(c.rejected_reasons),
+                    is_rejected=c.is_rejected,
+                    selected=c.symbol in confirmed_syms,
+                    atr_pct=c.metrics.atr_pct,
+                    rvol=c.metrics.rvol,
+                    rsi=c.metrics.rsi,
+                    vwap=c.metrics.vwap,
+                    price=c.metrics.price,
+                    price_vs_vwap=c.metrics.price_vs_vwap,
+                    gap_pct=c.metrics.gap_pct,
+                    trend=c.metrics.trend,
+                    ma_compression=c.metrics.ma_compression,
+                    has_earnings=c.metrics.has_earnings_today,
+                )
+                journal._db.add(row)
+            await journal.commit()
+        except Exception as exc:
+            logger.warning("Failed to persist scan results: %s", exc)
+
+    # Update in-memory scan store (for dashboard)
+    if scan_store is not None:
+        scan_store.clear()
+        scan_store["session_date"] = session_date
+        scan_store["scanned_at"] = datetime.now(tz=ET).isoformat()
+        scan_store["confirmed"] = confirmed_syms
+        scan_store["candidates"] = [
+            {
+                "symbol": c.symbol,
+                "score": c.score,
+                "signal_type": c.signal_type,
+                "is_rejected": c.is_rejected,
+                "reason_codes": c.reason_codes,
+                "rejected_reasons": c.rejected_reasons,
+            }
+            for c in candidates
+        ]
+
+    return confirmed_syms
+
+
 # ── Main session loop ─────────────────────────────────────────────────────────
 
 async def run_session(args: argparse.Namespace):
@@ -607,10 +730,11 @@ async def run_session(args: argparse.Namespace):
     eod_time = now.replace(hour=eod_h, minute=eod_m, second=0, microsecond=0)
 
     _fill_test_mode = getattr(settings, "realistic_fill_test_mode", False)
+    _uni_mode_pre = getattr(settings.universe, "mode", "off")
     mode = "DRY RUN" if args.dry_run else ("FILL-TEST" if _fill_test_mode else "PAPER")
     logger.info(
-        "Session runner starting | mode=%s | symbols=%s | poll=%ds",
-        mode, args.symbols, args.poll,
+        "Session runner starting | mode=%s | symbols=%s | universe=%s | poll=%ds",
+        mode, args.symbols, _uni_mode_pre, args.poll,
     )
     if _fill_test_mode:
         logger.info(
@@ -689,6 +813,38 @@ async def run_session(args: argparse.Namespace):
 
     reconciler = Reconciler()
     last_reconciled_at: Optional[datetime] = None
+
+    # ── Universe scan (pre-session) ───────────────────────────────────────────
+    _scan_store: dict = {}
+    active_symbols: List[str] = list(args.symbols)  # default: CLI args
+    _uni_mode = getattr(settings.universe, "mode", "off")
+
+    if _uni_mode != "off" and not _fill_test_mode:
+        logger.info("Running pre-session universe scan (mode=%s) …", _uni_mode)
+        try:
+            scanned = await _run_universe_scan(
+                settings=settings,
+                broker=broker,
+                journal=journal,
+                session_date=today_str,
+                scan_store=_scan_store,
+            )
+            if scanned:
+                active_symbols = scanned
+                logger.info("Active symbols from scan: %s", active_symbols)
+            else:
+                logger.warning("Scan returned no confirmed symbols — falling back to %s", args.symbols)
+        except Exception as exc:
+            logger.error("Pre-session scan failed: %s — using arg symbols", exc)
+    elif _fill_test_mode:
+        logger.info("REALISTIC_FILL_TEST_MODE: universe scan disabled — using SPY only")
+        active_symbols = ["SPY"]
+
+    _max_active_pos = getattr(settings.universe, "max_active_positions", 1)
+    _max_sym_per_day = getattr(settings.universe, "max_symbols_traded_per_day", 1)
+    _last_scan_at: Optional[datetime] = datetime.now(tz=ET) if _uni_mode != "off" else None
+    _scan_interval_min = getattr(settings.universe, "scan_interval_minutes", 30)
+    symbols_traded_today: set = set()
 
     cycle = 0
     eod_liquidated = False
@@ -791,9 +947,43 @@ async def run_session(args: argparse.Namespace):
         if closed:
             logger.info("Closed %d position(s) this cycle", closed)
 
+        # Periodic re-scan (skip in fill-test mode)
+        if (
+            _uni_mode != "off"
+            and not _fill_test_mode
+            and _last_scan_at is not None
+            and (now - _last_scan_at).total_seconds() / 60 >= _scan_interval_min
+            and now < eod_time
+        ):
+            logger.info("Periodic universe re-scan …")
+            try:
+                rescanned = await _run_universe_scan(
+                    settings=settings,
+                    broker=broker,
+                    journal=journal,
+                    session_date=today_str,
+                    scan_store=_scan_store,
+                )
+                if rescanned:
+                    active_symbols = rescanned
+                    logger.info("Re-scan updated active symbols: %s", active_symbols)
+            except Exception as exc:
+                logger.warning("Periodic re-scan failed: %s", exc)
+            _last_scan_at = now
+
         # Only open new positions if not past EOD
         if now < eod_time:
-            for symbol in args.symbols:
+            for symbol in active_symbols:
+                # Global max-positions gate
+                if len(pm.open_positions()) >= _max_active_pos:
+                    logger.debug(
+                        "Max active positions (%d) reached — skipping scan", _max_active_pos
+                    )
+                    break
+                # Per-day symbol limit
+                if symbol in symbols_traded_today:
+                    logger.debug("Already traded %s today — skipping", symbol)
+                    continue
                 placed = await scan_and_place(
                     symbol=symbol,
                     broker=broker,
@@ -812,6 +1002,13 @@ async def run_session(args: argparse.Namespace):
                     session_date=today_str,
                     alert_service=alert_service,
                 )
+                if placed > 0:
+                    symbols_traded_today.add(symbol)
+                    if len(symbols_traded_today) >= _max_sym_per_day:
+                        logger.info(
+                            "Max symbols traded per day (%d) reached", _max_sym_per_day
+                        )
+                        break
                 session_placed += placed
 
         if _shutdown_requested:

@@ -58,6 +58,7 @@ _risk_manager = None
 _paper_trader = None
 _position_manager = None   # app.trading.PositionManager — set externally
 _fill_tracker = None       # app.trading.FillTracker — set externally
+_scan_store: dict = {}     # latest scan results — updated by session runner
 
 # WebSocket connection manager
 class _ConnectionManager:
@@ -114,13 +115,16 @@ def create_app(
     paper_trader=None,
     position_manager=None,
     fill_tracker=None,
+    scan_results_store: Optional[dict] = None,
 ) -> FastAPI:
-    global _broker, _risk_manager, _paper_trader, _position_manager, _fill_tracker
+    global _broker, _risk_manager, _paper_trader, _position_manager, _fill_tracker, _scan_store
     _broker = broker
     _risk_manager = risk_manager
     _paper_trader = paper_trader
     _position_manager = position_manager
     _fill_tracker = fill_tracker
+    if scan_results_store is not None:
+        _scan_store = scan_results_store
 
     settings = get_settings()
 
@@ -840,6 +844,59 @@ def create_app(
             "last_heartbeat": str(row.timestamp),
             "stale_secs": round(stale),
             "message": row.message,
+        }
+
+    # ── Scan results ───────────────────────────────────────────────────────
+
+    @app.get("/scan/results")
+    async def scan_results(db: AsyncSession = Depends(get_db)):
+        """
+        Latest scan pipeline results.
+
+        Returns in-memory scan store (set by session runner each scan cycle)
+        augmented with the most recent DB scan rows for today.
+        """
+        from datetime import date as _date
+        import json as _json
+        today = str(_date.today())
+
+        # Pull today's DB records as fallback / supplement
+        try:
+            from .models import DBScanResult
+            rows = (
+                await db.execute(
+                    select(DBScanResult)
+                    .where(DBScanResult.session_date == today)
+                    .order_by(DBScanResult.scanned_at.desc())
+                )
+            ).scalars().all()
+            db_results = [
+                {
+                    "symbol": r.symbol,
+                    "score": r.score,
+                    "signal_type": r.signal_type,
+                    "is_rejected": r.is_rejected,
+                    "selected": r.selected,
+                    "reason_codes": _json.loads(r.reason_codes or "[]"),
+                    "rejected_reasons": _json.loads(r.rejected_reasons or "[]"),
+                    "rvol": r.rvol,
+                    "rsi": r.rsi,
+                    "atr_pct": r.atr_pct,
+                    "trend": r.trend,
+                    "price_vs_vwap": r.price_vs_vwap,
+                    "gap_pct": r.gap_pct,
+                    "scanned_at": str(r.scanned_at),
+                }
+                for r in rows
+            ]
+        except Exception:
+            db_results = []
+
+        return {
+            "session_date": today,
+            "live": dict(_scan_store),
+            "db_results": db_results,
+            "count": len(db_results),
         }
 
     # ── WebSocket signal stream ────────────────────────────────────────────

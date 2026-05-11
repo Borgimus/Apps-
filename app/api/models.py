@@ -252,6 +252,38 @@ class DBSessionLog(Base):
     data_json = Column(Text)                          # arbitrary structured payload
 
 
+class DBScanResult(Base):
+    """
+    Persisted record of each symbol evaluated by the scanning pipeline.
+
+    Written after each universe scan; used for daily reports and dashboard.
+    """
+    __tablename__ = "scan_results"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    session_date = Column(String(10), index=True)           # YYYY-MM-DD
+    symbol = Column(String(16), nullable=False, index=True)
+    score = Column(Float)
+    signal_type = Column(String(16))                        # LONG / SHORT / NEUTRAL
+    reason_codes = Column(Text)                             # JSON list
+    rejected_reasons = Column(Text)                         # JSON list
+    is_rejected = Column(Boolean, default=False)
+    selected = Column(Boolean, default=False)               # was this chosen for trading
+    # Key metrics snapshot
+    atr_pct = Column(Float)
+    rvol = Column(Float)
+    rsi = Column(Float)
+    vwap = Column(Float)
+    price = Column(Float)
+    price_vs_vwap = Column(String(8))
+    gap_pct = Column(Float)
+    trend = Column(String(16))
+    ma_compression = Column(Boolean)
+    has_earnings = Column(Boolean)
+    scanned_at = Column(DateTime, server_default=func.now(), index=True)
+    created_at = Column(DateTime, server_default=func.now())
+
+
 class DBOrderStatusTransition(Base):
     """
     Telemetry: every broker order status change for a tracked order.

@@ -604,6 +604,8 @@ def create_app(
             "open_positions_count": len(open_pos),
             "open_positions": open_pos,
             "pending_orders_count": pending_count,
+            "scanner_standby": _scan_store.get("standby", False),
+            "standby_reason": _scan_store.get("standby_reason", None),
         }
 
     # ── Trade journal ──────────────────────────────────────────────────────

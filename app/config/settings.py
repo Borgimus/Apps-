@@ -97,6 +97,12 @@ class UniverseSettings(BaseSettings):
     max_active_positions: int = _yaml_get("universe", "max_active_positions", default=1)
     min_scan_score: float = _yaml_get("universe", "min_scan_score", default=40.0)
     scan_interval_minutes: int = _yaml_get("universe", "scan_interval_minutes", default=30)
+    # When all scanner candidates are rejected, block CLI fallback trades (safe default=False).
+    # If True, fallback is still gated by fallback_min_rvol.
+    allow_cli_fallback_when_scanner_rejects: bool = _yaml_get(
+        "universe", "allow_cli_fallback_when_scanner_rejects", default=False
+    )
+    fallback_min_rvol: float = _yaml_get("universe", "fallback_min_rvol", default=0.20)
 
 
 class BacktestSettings(BaseSettings):

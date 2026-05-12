@@ -107,6 +107,13 @@ class DailyReport:
     # Per-strategy breakdown
     by_strategy: List[StrategyStats] = field(default_factory=list)
 
+    # Scanner standby
+    scanner_standby_activated: bool = False
+    standby_reason: Optional[str] = None
+
+    # Exit spread warnings
+    exit_spread_warning_count: int = 0
+
     # Auto-generated notes
     notes: List[str] = field(default_factory=list)
     recommendations: List[str] = field(default_factory=list)
@@ -137,13 +144,23 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
         report.session_start = _fmt_ts(first_ts)
         report.session_end = _fmt_ts(last_ts)
 
-    # ── API errors & kill switch events ──────────────────────────────────────
+    # ── API errors, kill switch, standby, and spread warnings ────────────────
     for log in logs:
         if log.level == "error":
             report.api_errors += 1
         evt = (log.event or "").lower()
         if "kill_switch" in evt or "kill switch" in evt:
             report.kill_switch_events += 1
+        if evt == "standby" and not report.scanner_standby_activated:
+            report.scanner_standby_activated = True
+            try:
+                import json as _json
+                _data = _json.loads(log.data_json) if log.data_json else {}
+                report.standby_reason = _data.get("reason") or log.message
+            except Exception:
+                report.standby_reason = log.message
+        if evt == "exit_spread_warning":
+            report.exit_spread_warning_count += 1
 
     # ── Signal counts ─────────────────────────────────────────────────────────
     signal_rows = (
@@ -417,6 +434,15 @@ def _generate_notes(r: DailyReport):
         notes.append(f"Kill switch was activated {r.kill_switch_events} time(s)")
         recs.append("Investigate what triggered the kill switch")
 
+    if r.scanner_standby_activated:
+        reason_str = f": {r.standby_reason}" if r.standby_reason else ""
+        notes.append(f"Scanner entered STANDBY — no new entries{reason_str}")
+        recs.append("Review universe scan settings; consider adjusting min_scan_score or rvol threshold")
+
+    if r.exit_spread_warning_count > 0:
+        notes.append(f"{r.exit_spread_warning_count} exit spread warning(s) — spread exceeded max_spread_pct at exit")
+        recs.append("Wide exit spreads recorded; consider using marketable_limit exit mode or tighter spread gate")
+
     slippage_per_fill = (r.slippage_total / r.trades_filled) if r.trades_filled > 0 else 0
     if abs(slippage_per_fill) > 0.10:
         notes.append(f"Average slippage: ${slippage_per_fill:.3f}/contract")
@@ -464,9 +490,13 @@ def _cancel_reason_table(r: DailyReport) -> str:
 
 
 def _scan_pipeline_section(r: DailyReport) -> str:
-    if r.scanned_symbols_count == 0:
+    if r.scanned_symbols_count == 0 and not r.scanner_standby_activated:
         return ""
     selected_str = ", ".join(r.selected_symbols) if r.selected_symbols else "none"
+    standby_row = (
+        f"| **STANDBY** | {r.standby_reason or 'activated'} |\n"
+        if r.scanner_standby_activated else ""
+    )
     top_rows = ""
     for c in r.top_candidates:
         top_rows += f"| {c.get('symbol','')} | {c.get('score', 0):.1f} | {c.get('signal_type', '')} |\n"
@@ -476,6 +506,7 @@ def _scan_pipeline_section(r: DailyReport) -> str:
     return (
         f"\n## Scan Pipeline\n\n"
         f"| Metric | Value |\n|---|---|\n"
+        f"{standby_row}"
         f"| Symbols scanned | {r.scanned_symbols_count} |\n"
         f"| Passed | {r.candidate_count_passed} |\n"
         f"| Rejected | {r.candidate_count_rejected} |\n"
@@ -584,6 +615,8 @@ def to_markdown(report: DailyReport) -> str:
 |---|---|
 | API errors | {r.api_errors} |
 | Kill switch events | {r.kill_switch_events} |
+| Scanner standby | {"YES — " + r.standby_reason if r.scanner_standby_activated and r.standby_reason else ("YES" if r.scanner_standby_activated else "no")} |
+| Exit spread warnings | {r.exit_spread_warning_count} |
 
 {_scan_pipeline_section(r)}{_pnl_by_symbol_section(r)}
 

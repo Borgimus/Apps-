@@ -101,6 +101,7 @@ async def monitor_positions(
     now: datetime,
     dry_run: bool,
     alert_service=None,
+    settings=None,
 ) -> int:
     """
     For every open position, fetch a live quote, check exit conditions,
@@ -132,6 +133,47 @@ async def monitor_positions(
                 "Position exit | %s | reason=%s | price=%.4f | pnl=%.2f",
                 pos.option_symbol, reason, current_price, pnl,
             )
+
+            # ── Exit spread awareness ──────────────────────────────────────
+            # Warn when spread is wide, but never block emergency exits.
+            _emergency_reasons = ("stop_loss", "eod_exit")
+            if (
+                settings is not None
+                and _exit_bid is not None
+                and _exit_ask is not None
+                and _exit_ask > 0
+            ):
+                _mid = (_exit_bid + _exit_ask) / 2
+                if _mid > 0:
+                    _spread_pct = (_exit_ask - _exit_bid) / _mid
+                    _max_spread = getattr(settings.risk, "max_spread_pct", 0.10)
+                    if _spread_pct > _max_spread:
+                        logger.warning(
+                            "Exit spread warning | %s | spread_pct=%.3f > max=%.3f | "
+                            "bid=%.4f ask=%.4f | reason=%s",
+                            pos.option_symbol, _spread_pct, _max_spread,
+                            _exit_bid, _exit_ask, reason,
+                        )
+                        if journal:
+                            await journal.log_event(
+                                event="exit_spread_warning",
+                                message=(
+                                    f"{pos.option_symbol} wide spread on exit: "
+                                    f"spread_pct={_spread_pct:.3f} > max={_max_spread:.3f}"
+                                ),
+                                level="warning",
+                                symbol=pos.symbol,
+                                data={
+                                    "reason": reason,
+                                    "spread_pct": round(_spread_pct, 4),
+                                    "max_spread_pct": _max_spread,
+                                    "bid": _exit_bid,
+                                    "ask": _exit_ask,
+                                    "is_emergency": reason in _emergency_reasons,
+                                },
+                            )
+                            await journal.commit()
+
             if not dry_run:
                 # Place exit order with broker before removing from local state
                 from app.brokers.broker_interface import (
@@ -210,7 +252,7 @@ async def monitor_positions(
 
 # ── EOD force-close all positions ────────────────────────────────────────────
 
-async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool):
+async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool, settings=None):
     """Force-close every open position at end-of-day."""
     positions = pm.open_positions()
     if not positions:
@@ -223,11 +265,53 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool)
                 label=f"eod_quote({pos.option_symbol})",
             )
             exit_price = float(quote.mid) if float(quote.mid) > 0 else pos.entry_price
+            _eod_bid_pre = float(quote.bid) if float(quote.bid) > 0 else None
+            _eod_ask_pre = float(quote.ask) if float(quote.ask) > 0 else None
         except Exception:
             exit_price = pos.entry_price
+            _eod_bid_pre = None
+            _eod_ask_pre = None
 
         pnl = (exit_price - pos.entry_price) * 100 * pos.quantity
         hold_secs = (now - pos.entry_time).total_seconds()
+
+        # ── Exit spread awareness (EOD is always emergency — log only) ────
+        if (
+            settings is not None
+            and _eod_bid_pre is not None
+            and _eod_ask_pre is not None
+            and _eod_ask_pre > 0
+        ):
+            _eod_mid = (_eod_bid_pre + _eod_ask_pre) / 2
+            if _eod_mid > 0:
+                _eod_spread_pct = (_eod_ask_pre - _eod_bid_pre) / _eod_mid
+                _eod_max_spread = getattr(settings.risk, "max_spread_pct", 0.10)
+                if _eod_spread_pct > _eod_max_spread:
+                    logger.warning(
+                        "Exit spread warning | %s | spread_pct=%.3f > max=%.3f | "
+                        "bid=%.4f ask=%.4f | reason=eod_exit (proceeding)",
+                        pos.option_symbol, _eod_spread_pct, _eod_max_spread,
+                        _eod_bid_pre, _eod_ask_pre,
+                    )
+                    if journal:
+                        await journal.log_event(
+                            event="exit_spread_warning",
+                            message=(
+                                f"{pos.option_symbol} wide spread on EOD exit: "
+                                f"spread_pct={_eod_spread_pct:.3f} > max={_eod_max_spread:.3f}"
+                            ),
+                            level="warning",
+                            symbol=pos.symbol,
+                            data={
+                                "reason": "eod_exit",
+                                "spread_pct": round(_eod_spread_pct, 4),
+                                "max_spread_pct": _eod_max_spread,
+                                "bid": _eod_bid_pre,
+                                "ask": _eod_ask_pre,
+                                "is_emergency": True,
+                            },
+                        )
+                        await journal.commit()
 
         if not dry_run:
             # Place exit order with broker before removing from local state
@@ -725,7 +809,7 @@ async def _run_universe_scan(
     journal,
     session_date: str,
     scan_store: Optional[dict] = None,
-) -> List[str]:
+) -> Optional[List[str]]:
     """
     Run the scanning pipeline and return a ranked list of confirmed symbols.
 
@@ -736,7 +820,11 @@ async def _run_universe_scan(
       4. AlpacaConfirmer → verify option chain liquidity
       5. Persist results to DBScanResult (if journal available)
 
-    Returns up to max_active_symbols confirmed symbol names (best first).
+    Returns:
+      None          — STANDBY: all candidates rejected, CLI fallback blocked.
+      []            — fallback allowed (allow_cli_fallback_when_scanner_rejects=True
+                      and rvol gate passed) but no confirmed symbols.
+      [sym, ...]    — confirmed symbol names, best first.
     """
     import json as _json
     from app.scanning import AlpacaConfirmer, CandidateScorer, UniverseLoader, YFinanceScanner
@@ -783,6 +871,81 @@ async def _run_universe_scan(
             ("REJECTED: " + ", ".join(c.rejected_reasons)) if c.is_rejected else ("reasons: " + ", ".join(c.reason_codes[:3])),
         )
 
+    # ── STANDBY guard ─────────────────────────────────────────────────────────
+    # When every candidate is rejected, block CLI fallback unless explicitly
+    # allowed AND the rvol gate passes.
+    if len(passed) == 0 and len(candidates) > 0:
+        uni = settings.universe
+        allow_fallback = getattr(uni, "allow_cli_fallback_when_scanner_rejects", False)
+        fallback_min_rvol = getattr(uni, "fallback_min_rvol", 0.20)
+        max_rvol = max((c.metrics.rvol or 0.0) for c in candidates)
+
+        if not allow_fallback:
+            standby_reason = (
+                f"all_{len(candidates)}_candidates_rejected_fallback_disabled"
+            )
+        elif max_rvol < fallback_min_rvol:
+            standby_reason = (
+                f"all_candidates_rejected_max_rvol={max_rvol:.3f}_below_{fallback_min_rvol}"
+            )
+        else:
+            standby_reason = None  # fallback is permitted
+
+        _cand_payload = [
+            {
+                "symbol": c.symbol,
+                "score": c.score,
+                "signal_type": c.signal_type,
+                "is_rejected": c.is_rejected,
+                "reason_codes": c.reason_codes,
+                "rejected_reasons": c.rejected_reasons,
+            }
+            for c in candidates
+        ]
+
+        if standby_reason is not None:
+            logger.warning("STANDBY: %s", standby_reason)
+            if journal:
+                await journal.log_event(
+                    event="standby",
+                    message=f"Scanner STANDBY: {standby_reason}",
+                    level="warning",
+                    data={
+                        "reason": standby_reason,
+                        "candidates_rejected": len(candidates),
+                        "max_rvol": round(max_rvol, 4),
+                    },
+                )
+                await journal.commit()
+            if scan_store is not None:
+                scan_store.clear()
+                scan_store.update({
+                    "session_date": session_date,
+                    "scanned_at": datetime.now(tz=ET).isoformat(),
+                    "standby": True,
+                    "standby_reason": standby_reason,
+                    "confirmed": [],
+                    "candidates": _cand_payload,
+                })
+            return None
+        else:
+            logger.info(
+                "STANDBY-FALLBACK: all candidates rejected but CLI fallback allowed "
+                "(max_rvol=%.3f >= %.3f)",
+                max_rvol, fallback_min_rvol,
+            )
+            if scan_store is not None:
+                scan_store.clear()
+                scan_store.update({
+                    "session_date": session_date,
+                    "scanned_at": datetime.now(tz=ET).isoformat(),
+                    "standby": False,
+                    "standby_reason": None,
+                    "confirmed": [],
+                    "candidates": _cand_payload,
+                })
+            return []
+
     # Alpaca confirmation
     confirmer = AlpacaConfirmer(broker, settings)
     confirmed = await confirmer.confirm_all(passed[:max_sym * 2])  # over-sample, then cap
@@ -824,6 +987,8 @@ async def _run_universe_scan(
         scan_store.clear()
         scan_store["session_date"] = session_date
         scan_store["scanned_at"] = datetime.now(tz=ET).isoformat()
+        scan_store["standby"] = False
+        scan_store["standby_reason"] = None
         scan_store["confirmed"] = confirmed_syms
         scan_store["candidates"] = [
             {
@@ -1001,10 +1166,15 @@ async def run_session(args: argparse.Namespace):
 
     # ── Universe scan (pre-session) ───────────────────────────────────────────
     _scan_store: dict = {}
-    active_symbols: List[str] = list(args.symbols)  # default: CLI args
+    active_symbols: List[str] = []
     _uni_mode = getattr(settings.universe, "mode", "off")
 
-    if _uni_mode != "off" and not _fill_test_mode:
+    if _fill_test_mode:
+        logger.info("REALISTIC_FILL_TEST_MODE: universe scan disabled — using SPY only")
+        active_symbols = ["SPY"]
+    elif _uni_mode == "off":
+        active_symbols = list(args.symbols)
+    else:
         logger.info("Running pre-session universe scan (mode=%s) …", _uni_mode)
         try:
             scanned = await _run_universe_scan(
@@ -1014,16 +1184,22 @@ async def run_session(args: argparse.Namespace):
                 session_date=today_str,
                 scan_store=_scan_store,
             )
-            if scanned:
+            if scanned is None:
+                logger.warning(
+                    "STANDBY: scanner rejected all candidates, fallback blocked — "
+                    "no new entries this session"
+                )
+            elif scanned:
                 active_symbols = scanned
                 logger.info("Active symbols from scan: %s", active_symbols)
             else:
-                logger.warning("Scan returned no confirmed symbols — falling back to %s", args.symbols)
+                logger.warning(
+                    "Scan returned no confirmed symbols — falling back to %s", args.symbols
+                )
+                active_symbols = list(args.symbols)
         except Exception as exc:
             logger.error("Pre-session scan failed: %s — using arg symbols", exc)
-    elif _fill_test_mode:
-        logger.info("REALISTIC_FILL_TEST_MODE: universe scan disabled — using SPY only")
-        active_symbols = ["SPY"]
+            active_symbols = list(args.symbols)
 
     _max_active_pos = getattr(settings.universe, "max_active_positions", 1)
     _max_sym_per_day = getattr(settings.universe, "max_symbols_traded_per_day", 1)
@@ -1087,7 +1263,7 @@ async def run_session(args: argparse.Namespace):
             if fill_tracker.count() > 0:
                 await fill_tracker.poll(broker, pm, journal, now, risk)
             n_pos = len(pm.open_positions())
-            await eod_liquidate(broker, pm, journal, risk, now, args.dry_run)
+            await eod_liquidate(broker, pm, journal, risk, now, args.dry_run, settings=settings)
             eod_liquidated = True
             await alert_service.send(
                 AlertEvent.EOD_LIQUIDATION,
@@ -1128,7 +1304,7 @@ async def run_session(args: argparse.Namespace):
                 api_errors += 1
 
         # Monitor + close existing positions
-        closed = await monitor_positions(broker, pm, journal, risk, now, args.dry_run, alert_service=alert_service)
+        closed = await monitor_positions(broker, pm, journal, risk, now, args.dry_run, alert_service=alert_service, settings=settings)
         if closed:
             logger.info("Closed %d position(s) this cycle", closed)
 
@@ -1149,9 +1325,21 @@ async def run_session(args: argparse.Namespace):
                     session_date=today_str,
                     scan_store=_scan_store,
                 )
-                if rescanned:
+                if rescanned is None:
+                    logger.warning(
+                        "STANDBY: periodic re-scan rejected all candidates — "
+                        "clearing active symbols"
+                    )
+                    active_symbols = []
+                elif rescanned:
                     active_symbols = rescanned
                     logger.info("Re-scan updated active symbols: %s", active_symbols)
+                else:
+                    logger.warning(
+                        "Re-scan returned no confirmed symbols — falling back to %s",
+                        args.symbols,
+                    )
+                    active_symbols = list(args.symbols)
             except Exception as exc:
                 logger.warning("Periodic re-scan failed: %s", exc)
             _last_scan_at = now
@@ -1235,7 +1423,7 @@ async def run_session(args: argparse.Namespace):
         logger.warning(
             "Shutdown: liquidating %d position(s)", len(pm.open_positions())
         )
-        await eod_liquidate(broker, pm, journal, risk, now, args.dry_run)
+        await eod_liquidate(broker, pm, journal, risk, now, args.dry_run, settings=settings)
 
     # 4. Generate and persist health report
     if journal and store:

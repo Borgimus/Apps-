@@ -589,21 +589,35 @@ def create_app(
         trades_today = rm.trades_today if rm else 0
         max_trades = settings.risk.max_trades_per_day
 
+        _uni = settings.universe
+        _max_active_pos = getattr(_uni, "max_active_positions", 1)
+        _max_sym_day = getattr(_uni, "max_symbols_traded_per_day", 1)
+        _max_contracts = getattr(_uni, "max_contracts_per_position", 1)
+
         return {
             "session_date": str(rm._session_date) if rm and rm._session_date else now.strftime("%Y-%m-%d"),
             "now_et": now.strftime("%H:%M:%S"),
             "paper_mode": not settings.live_trading_enabled,
             "paper_evaluation_mode": settings.paper_evaluation_mode,
             "kill_switch_active": settings.is_kill_switch_active(),
+            # ── Trade counts ───────────────────────────────────────────────
             "trades_today": trades_today,
             "max_trades_per_day": max_trades,
             "trades_remaining": max(0, max_trades - trades_today),
+            # ── PnL ────────────────────────────────────────────────────────
             "daily_pnl": daily_pnl,
             "unrealized_pnl_total": round(unrealized_total, 2),
             "total_pnl": round(daily_pnl + unrealized_total, 2),
+            # ── Position limits ────────────────────────────────────────────
             "open_positions_count": len(open_pos),
+            "max_active_positions": _max_active_pos,
             "open_positions": open_pos,
             "pending_orders_count": pending_count,
+            "max_contracts_per_position": _max_contracts,
+            # ── Symbol limits ──────────────────────────────────────────────
+            "active_symbols": _scan_store.get("active_symbols", []),
+            "max_symbols_traded_per_day": _max_sym_day,
+            # ── Scanner state ──────────────────────────────────────────────
             "scanner_standby": _scan_store.get("standby", False),
             "standby_reason": _scan_store.get("standby_reason", None),
         }

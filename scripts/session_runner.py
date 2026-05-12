@@ -606,6 +606,15 @@ async def scan_and_place(
         )
         limit_price = Decimal(str(_raw_lp))
 
+        # Guard: duplicate option contract (underlying dedup happens upstream;
+        # this catches the exact same option_symbol being re-entered).
+        if pm.has_position(contract.option_symbol):
+            logger.info(
+                "Dedup: already hold %s — skipping duplicate entry",
+                contract.option_symbol,
+            )
+            continue
+
         request = OrderRequest(
             symbol=symbol,
             option_symbol=contract.option_symbol,
@@ -642,6 +651,14 @@ async def scan_and_place(
         # Fill test enforces qty=1 regardless of risk manager approval
         if _fill_test:
             request.quantity = 1
+        # Hard cap at max_contracts_per_position (default 1)
+        _max_cpp = getattr(settings.universe, "max_contracts_per_position", 1)
+        if request.quantity > _max_cpp:
+            logger.info(
+                "Capping quantity %d→%d (max_contracts_per_position=%d)",
+                request.quantity, _max_cpp, _max_cpp,
+            )
+            request.quantity = _max_cpp
 
         # Place order
         if dry_run:
@@ -1206,6 +1223,10 @@ async def run_session(args: argparse.Namespace):
     _last_scan_at: Optional[datetime] = datetime.now(tz=ET) if _uni_mode != "off" else None
     _scan_interval_min = getattr(settings.universe, "scan_interval_minutes", 30)
     symbols_traded_today: set = set()
+    _recon_has_mismatch: bool = False  # set True while reconciliation flags mismatches
+
+    # Publish initial active_symbols list to shared scan_store for dashboard
+    _scan_store["active_symbols"] = list(active_symbols)
 
     cycle = 0
     eod_liquidated = False
@@ -1299,6 +1320,15 @@ async def run_session(args: argparse.Namespace):
                 recon = await reconciler.reconcile(broker, pm, fill_tracker, now)
                 recon_warnings.extend(recon.flagged)
                 last_reconciled_at = now
+                if recon.flagged:
+                    _recon_has_mismatch = True
+                    logger.warning(
+                        "Reconciliation flagged %d mismatch(es) — new entries blocked "
+                        "until next clean reconcile: %s",
+                        len(recon.flagged), recon.flagged,
+                    )
+                else:
+                    _recon_has_mismatch = False
             except Exception as exc:
                 logger.warning("Reconciliation error: %s", exc)
                 api_errors += 1
@@ -1342,11 +1372,17 @@ async def run_session(args: argparse.Namespace):
                     active_symbols = list(args.symbols)
             except Exception as exc:
                 logger.warning("Periodic re-scan failed: %s", exc)
+            _scan_store["active_symbols"] = list(active_symbols)
             _last_scan_at = now
 
         # Only open new positions if not past EOD
         if now < eod_time:
-            for symbol in active_symbols:
+            # Guard: block all new entries when a reconciliation mismatch is unresolved
+            if _recon_has_mismatch:
+                logger.info(
+                    "Recon mismatch active — all new entries blocked until next clean reconcile"
+                )
+            for symbol in (active_symbols if not _recon_has_mismatch else []):
                 # Global max-positions gate
                 if len(pm.open_positions()) >= _max_active_pos:
                     logger.debug(

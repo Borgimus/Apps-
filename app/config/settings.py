@@ -103,6 +103,10 @@ class UniverseSettings(BaseSettings):
         "universe", "allow_cli_fallback_when_scanner_rejects", default=False
     )
     fallback_min_rvol: float = _yaml_get("universe", "fallback_min_rvol", default=0.20)
+    # Hard cap on contracts per individual position (1 = never size up).
+    max_contracts_per_position: int = _yaml_get(
+        "universe", "max_contracts_per_position", default=1
+    )
 
 
 class BacktestSettings(BaseSettings):

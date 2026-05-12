@@ -1,4 +1,4 @@
-# docker-compose override for paper evaluation mode.
+# docker-compose override for controlled multi-trade paper evaluation mode.
 #
 # Usage:
 #   docker compose -f docker-compose.yml -f docker-compose.eval.yml up
@@ -6,6 +6,14 @@
 # Activates:
 #   - PAPER_EVALUATION_MODE=true  (pre/post checklists, daily report, ledger)
 #   - --cancel-pending             (clean up stale orders on shutdown)
+#
+# Risk controls active in this mode:
+#   - Max 3 trades per day
+#   - Max 2 concurrent open positions
+#   - Max 3 underlying symbols per day
+#   - Max 1 contract per position
+#   - Scanner STANDBY blocks all new entries (no CLI fallback)
+#   - marketable_limit pricing on entry and exit
 #
 # For a one-shot dry run (no orders placed):
 #   docker compose -f docker-compose.yml -f docker-compose.eval.yml \
@@ -26,4 +34,19 @@ services:
       - PAPER_EVALUATION_MODE=true
       - EVALUATION_OUTPUT_DIR=/app/evaluation
       - EVALUATION_LEDGER_FILE=/app/evaluation/ledger.json
+
+      # ── Risk caps ──────────────────────────────────────────────────────────
       - RISK_MAX_TRADES_PER_DAY=3
+      - RISK_MAX_DAILY_LOSS=0.02
+
+      # ── Position / universe caps ───────────────────────────────────────────
+      - UNIVERSE_MAX_ACTIVE_POSITIONS=2
+      - UNIVERSE_MAX_SYMBOLS_TRADED_PER_DAY=3
+      - UNIVERSE_MAX_CONTRACTS_PER_POSITION=1
+
+      # ── Scanner / fallback policy ──────────────────────────────────────────
+      - UNIVERSE_ALLOW_CLI_FALLBACK_WHEN_SCANNER_REJECTS=false
+
+      # ── Order pricing ──────────────────────────────────────────────────────
+      - OPTIONS_ENTRY_LIMIT_PRICE_MODE=marketable_limit
+      - OPTIONS_EXIT_LIMIT_PRICE_MODE=marketable_limit

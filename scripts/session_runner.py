@@ -133,6 +133,39 @@ async def monitor_positions(
                 pos.option_symbol, reason, current_price, pnl,
             )
             if not dry_run:
+                # Place exit order with broker before removing from local state
+                from app.brokers.broker_interface import (
+                    OrderRequest as _OReq,
+                    OrderSide as _OSide,
+                    OrderType as _OType,
+                )
+                _exit_lp = Decimal(str(round(
+                    _exit_bid if (_exit_bid or 0) > 0 else current_price * 0.98, 2
+                )))
+                _exit_req = _OReq(
+                    symbol=pos.symbol,
+                    option_symbol=pos.option_symbol,
+                    side=_OSide.SELL_TO_CLOSE,
+                    quantity=pos.quantity,
+                    order_type=_OType.LIMIT,
+                    limit_price=_exit_lp,
+                    strategy_id=pos.strategy_id,
+                    notes=f"exit:{reason}",
+                )
+                try:
+                    _exit_order = await _retry(
+                        lambda: broker.place_option_order(_exit_req),
+                        label=f"exit_order({pos.option_symbol})",
+                    )
+                    logger.info(
+                        "Exit order placed | %s | limit=%.4f | order_id=%s",
+                        pos.option_symbol, float(_exit_lp), _exit_order.order_id,
+                    )
+                except Exception as _exit_exc:
+                    logger.error(
+                        "Exit order placement failed for %s: %s — position closed locally only",
+                        pos.option_symbol, _exit_exc,
+                    )
                 pm_pos = pm.close(pos.option_symbol, current_price, pnl)
                 risk.record_trade(Decimal(str(pnl)))
                 if pos.journal_id and journal:

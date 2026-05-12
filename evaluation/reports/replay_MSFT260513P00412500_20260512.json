@@ -1,0 +1,641 @@
+{
+  "replay_id": "MSFT260513P00412500_20260512",
+  "generated_at": "2026-05-12T16:04:24Z",
+  "trade": {
+    "id": 13,
+    "entry_time": "2026-05-12 09:45:42",
+    "fill_time": "2026-05-12 09:46:44",
+    "exit_time": "2026-05-12 10:14:52",
+    "hold_secs": 1688,
+    "hold_mins_approx": 28.1,
+    "strategy": "rsi_trend",
+    "direction": "short",
+    "direction_note": "short underlying = bullish on puts",
+    "option": "MSFT260513P00412500",
+    "expiry": "2026-05-13",
+    "strike": 412.5,
+    "option_type": "put",
+    "delta": -0.6544,
+    "iv": 0.4349,
+    "iv_pct": "43.49%",
+    "underlying_at_scan": 410.475,
+    "quantity": 1,
+    "is_paper": true,
+    "realized_pnl": -109.5
+  },
+  "scanner": {
+    "scan_time": "2026-05-12 09:36:20",
+    "scan_result_id": 44,
+    "symbol": "MSFT",
+    "score": 50.0,
+    "signal": "SHORT",
+    "atr_pct": 2.57,
+    "rvol": 0.063,
+    "rvol_pct": "6.3%",
+    "rvol_note": "extremely thin \u2014 6.3% of normal ADV",
+    "rsi": 42.61,
+    "rsi_timeframe": "5m/daily",
+    "vwap": 411.56,
+    "price": 408.53,
+    "price_vs_vwap": "below",
+    "gap_pct": 0.43,
+    "gap_direction": "gap-up from prior close",
+    "trend": "sideways",
+    "reason_codes": [
+      "atr=2.57% (wide-range)",
+      "near_orb_level",
+      "trend_sideways",
+      "rsi=43 (healthy)",
+      "below_vwap"
+    ],
+    "rejected_reasons": [
+      "low_volume_chop"
+    ],
+    "rejection_outcome": "ALL 13 symbols rejected \u2014 fallback to CLI list",
+    "symbols_scanned": 13,
+    "symbols_passed": 0
+  },
+  "selection_path": {
+    "summary": "MSFT traded via CLI fallback despite scanner rejection for low_volume_chop",
+    "rvol_threshold_for_pass": 0.5,
+    "rvol_at_scan": 0.063,
+    "rvol_shortfall_pct": 87.4,
+    "scanner_outcome": "ALL 13 symbols rejected by scanner",
+    "fallback_mechanism": "session_runner fell back to CLI --symbol list",
+    "strategy_signal": "rsi_trend strategy generated SHORT for MSFT from fallback list",
+    "liquidity_filter_cycles": {
+      "cycles_1_to_9": {
+        "time_range": "09:36\u201309:44",
+        "reason_rejected": "no-trade buffer first 15 minutes (risk rule)",
+        "contracts_seen": [
+          {
+            "contract": "P412500",
+            "delta": -0.448
+          },
+          {
+            "contract": "P405000",
+            "delta_range": [
+              -0.335,
+              -0.369
+            ]
+          }
+        ]
+      },
+      "cycle_10": {
+        "time": "09:45:42",
+        "event": "15-min buffer lifted",
+        "contract_selected": "P412500",
+        "delta": -0.654,
+        "spread_pct": 9.3,
+        "open_interest": 301,
+        "volume": 86,
+        "volume_note": "extremely low intraday option volume"
+      }
+    }
+  },
+  "other_candidates": [
+    {
+      "symbol": "NVDA",
+      "score": 48,
+      "signal": "LONG",
+      "rvol": 0.136,
+      "trend": "trend_up",
+      "rsi": 75.0,
+      "rejected_reason": "low_volume_chop",
+      "not_traded_because": "LONG signal \u2014 rsi_trend strategy filtered for SHORT only on this session"
+    },
+    {
+      "symbol": "AMD",
+      "score": 40,
+      "signal": "LONG",
+      "rvol": 0.158,
+      "trend": "trend_up",
+      "rsi": 80.0,
+      "rejected_reason": "low_volume_chop",
+      "not_traded_because": "LONG signal \u2014 rsi_trend strategy filtered for SHORT only on this session"
+    },
+    {
+      "symbol": "AAPL",
+      "score": 38,
+      "signal": "LONG",
+      "rvol": 0.109,
+      "trend": "trend_up",
+      "rsi": 79.0,
+      "rejected_reason": "low_volume_chop",
+      "not_traded_because": "LONG signal \u2014 rsi_trend strategy filtered for SHORT only on this session"
+    }
+  ],
+  "underlying_bars": [
+    {
+      "time": "09:30",
+      "open": 414.42,
+      "high": 415.5,
+      "low": 412.86,
+      "close": 413.0,
+      "volume": 1298345,
+      "rsi14_1m": null,
+      "ema20_1m": null,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": "ORB: high=415.50 low=412.86"
+    },
+    {
+      "time": "09:35",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 408.86,
+      "volume": 186557,
+      "rsi14_1m": null,
+      "ema20_1m": null,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": "sharp drop -4.14 from open"
+    },
+    {
+      "time": "09:36",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 408.76,
+      "volume": null,
+      "rsi14_1m": null,
+      "ema20_1m": null,
+      "vwap": 411.56,
+      "vs_vwap": null,
+      "note": "scanner scan time"
+    },
+    {
+      "time": "09:39",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 407.41,
+      "volume": null,
+      "rsi14_1m": null,
+      "ema20_1m": null,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": "session low close"
+    },
+    {
+      "time": "09:44",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 408.9,
+      "volume": null,
+      "rsi14_1m": null,
+      "ema20_1m": 409.88,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": "pre-signal bar"
+    },
+    {
+      "time": "09:45",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 408.21,
+      "volume": null,
+      "rsi14_1m": 17.87,
+      "ema20_1m": 409.72,
+      "vwap": 410.77,
+      "vs_vwap": -2.56,
+      "note": "SIGNAL FIRED \u2014 entry order placed"
+    },
+    {
+      "time": "09:46",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 407.77,
+      "volume": null,
+      "rsi14_1m": 17.06,
+      "ema20_1m": 409.54,
+      "vwap": 410.66,
+      "vs_vwap": -2.89,
+      "note": "FILL @6.15"
+    },
+    {
+      "time": "09:47",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 406.82,
+      "volume": null,
+      "rsi14_1m": 15.42,
+      "ema20_1m": null,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": "PUT gaining, downtrend continues"
+    },
+    {
+      "time": "09:48",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 406.67,
+      "volume": null,
+      "rsi14_1m": 15.17,
+      "ema20_1m": null,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": "MSFT INTRADAY LOW; PUT PEAK ~$6.74"
+    },
+    {
+      "time": "09:49",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 407.49,
+      "volume": null,
+      "rsi14_1m": 22.5,
+      "ema20_1m": null,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": "bounce begins"
+    },
+    {
+      "time": "09:50",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 407.89,
+      "volume": null,
+      "rsi14_1m": 25.87,
+      "ema20_1m": null,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": "bounce continues"
+    },
+    {
+      "time": "10:00",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 407.86,
+      "volume": null,
+      "rsi14_1m": null,
+      "ema20_1m": null,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": ""
+    },
+    {
+      "time": "10:04",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 408.93,
+      "volume": null,
+      "rsi14_1m": null,
+      "ema20_1m": null,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": "reclaim attempt"
+    },
+    {
+      "time": "10:13",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 408.43,
+      "volume": null,
+      "rsi14_1m": 44.95,
+      "ema20_1m": null,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": ""
+    },
+    {
+      "time": "10:14",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 409.24,
+      "volume": null,
+      "rsi14_1m": 53.35,
+      "ema20_1m": null,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": "TRAILING STOP FIRES, PUT=$5.055"
+    },
+    {
+      "time": "10:15",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 409.67,
+      "volume": null,
+      "rsi14_1m": null,
+      "ema20_1m": null,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": "continued rally post-exit"
+    },
+    {
+      "time": "10:16",
+      "open": null,
+      "high": null,
+      "low": null,
+      "close": 410.0,
+      "volume": null,
+      "rsi14_1m": null,
+      "ema20_1m": null,
+      "vwap": null,
+      "vs_vwap": null,
+      "note": "MSFT crosses above VWAP ~409.55"
+    }
+  ],
+  "spy_context": [
+    {
+      "time": "09:44",
+      "close": 736.72,
+      "vwap": 736.42,
+      "vs_vwap": 0.3,
+      "note": "above VWAP"
+    },
+    {
+      "time": "09:45",
+      "close": 736.73,
+      "vwap": 736.43,
+      "vs_vwap": 0.31,
+      "note": "above VWAP \u2014 entry candle"
+    },
+    {
+      "time": "09:46",
+      "close": 736.39,
+      "vwap": 736.42,
+      "vs_vwap": -0.03,
+      "note": "crossing VWAP \u2014 fill candle"
+    },
+    {
+      "time": "09:47",
+      "close": 735.77,
+      "vwap": 736.41,
+      "vs_vwap": -0.64,
+      "note": "below VWAP \u2014 supporting SHORT"
+    },
+    {
+      "time": "09:48",
+      "close": 735.62,
+      "vwap": 736.4,
+      "vs_vwap": -0.77,
+      "note": "below VWAP"
+    },
+    {
+      "time": "10:00",
+      "close": 734.82,
+      "vwap": 736.11,
+      "vs_vwap": -1.29,
+      "note": "well below VWAP"
+    },
+    {
+      "time": "10:14",
+      "close": 736.11,
+      "vwap": 735.97,
+      "vs_vwap": 0.14,
+      "note": "SPY RECLAIMS VWAP \u2014 same minute as trailing stop"
+    },
+    {
+      "time": "10:15",
+      "close": 736.19,
+      "vwap": 735.97,
+      "vs_vwap": 0.22,
+      "note": ""
+    }
+  ],
+  "qqq_context": [
+    {
+      "time": "09:44",
+      "close": 709.94,
+      "vwap": 707.5,
+      "vs_vwap": 2.44,
+      "note": "well above VWAP"
+    },
+    {
+      "time": "09:45",
+      "close": 709.69,
+      "vwap": 707.55,
+      "vs_vwap": 2.14,
+      "note": "above VWAP \u2014 entry candle"
+    },
+    {
+      "time": "09:46",
+      "close": 709.45,
+      "vwap": 707.6,
+      "vs_vwap": 1.85,
+      "note": "above VWAP \u2014 still bullish"
+    },
+    {
+      "time": "09:47",
+      "close": 708.15,
+      "vwap": 707.61,
+      "vs_vwap": 0.54,
+      "note": "near VWAP \u2014 weakening"
+    },
+    {
+      "time": "09:55",
+      "close": 707.65,
+      "vwap": 707.67,
+      "vs_vwap": -0.02,
+      "note": "at VWAP"
+    },
+    {
+      "time": "10:00",
+      "close": 705.92,
+      "vwap": 707.56,
+      "vs_vwap": -1.64,
+      "note": "well below VWAP \u2014 supporting SHORT"
+    },
+    {
+      "time": "10:14",
+      "close": 707.63,
+      "vwap": 707.24,
+      "vs_vwap": 0.39,
+      "note": "QQQ RECLAIMS VWAP \u2014 same minute as trailing stop"
+    },
+    {
+      "time": "10:15",
+      "close": 707.79,
+      "vwap": 707.24,
+      "vs_vwap": 0.55,
+      "note": ""
+    }
+  ],
+  "execution": {
+    "entry_bid": 5.67,
+    "entry_ask": 6.22,
+    "entry_spread": 0.55,
+    "entry_spread_pct": 0.0925,
+    "entry_spread_pct_display": "9.25%",
+    "entry_pricing_mode": "marketable_limit",
+    "limit_price": 6.23,
+    "limit_price_derivation": "ask + 0.01 = 6.22 + 0.01",
+    "fill_price": 6.15,
+    "fill_slippage": -0.08,
+    "fill_slippage_note": "filled $0.08 BETTER than limit (favorable)",
+    "ttf_secs": 62.67,
+    "ttf_note": "time-to-fill: 62.67 seconds from order to fill",
+    "exit_bid": 4.64,
+    "exit_ask": 5.47,
+    "exit_spread": 0.83,
+    "exit_spread_pct": 0.1642,
+    "exit_spread_pct_display": "16.42%",
+    "exit_price": 5.055,
+    "exit_reason": "trailing_stop"
+  },
+  "pnl_path": [
+    {
+      "time": "09:46:44",
+      "underlying": 407.77,
+      "option_est": 6.15,
+      "unrealized_pnl": 0.0,
+      "note": "FILL"
+    },
+    {
+      "time": "09:47",
+      "underlying": 406.82,
+      "option_est": 6.65,
+      "unrealized_pnl": 50.0,
+      "note": "est"
+    },
+    {
+      "time": "09:48",
+      "underlying": 406.67,
+      "option_est": 6.74,
+      "unrealized_pnl": 59.0,
+      "note": "MFE \u2014 PUT PEAK"
+    },
+    {
+      "time": "09:49",
+      "underlying": 407.49,
+      "option_est": 6.4,
+      "unrealized_pnl": 25.0,
+      "note": "reversal begins"
+    },
+    {
+      "time": "09:50",
+      "underlying": 407.89,
+      "option_est": 6.2,
+      "unrealized_pnl": 5.0,
+      "note": ""
+    },
+    {
+      "time": "10:00",
+      "underlying": 407.86,
+      "option_est": 6.05,
+      "unrealized_pnl": -10.0,
+      "note": ""
+    },
+    {
+      "time": "10:05",
+      "underlying": 408.42,
+      "option_est": 5.8,
+      "unrealized_pnl": -35.0,
+      "note": "est"
+    },
+    {
+      "time": "10:10",
+      "underlying": 408.37,
+      "option_est": 5.85,
+      "unrealized_pnl": -30.0,
+      "note": "est"
+    },
+    {
+      "time": "10:14:52",
+      "underlying": 409.24,
+      "option_est": 5.055,
+      "unrealized_pnl": -109.5,
+      "note": "EXIT \u2014 trailing stop fired"
+    }
+  ],
+  "excursion": {
+    "mfe_dollars": 59.0,
+    "mfe_pct": 9.59,
+    "mfe_note": "peak at 09:48, ~4 min into trade",
+    "mae_dollars": -109.5,
+    "mae_pct": -17.8,
+    "mae_note": "realized at exit (trailing stop was the exit trigger)",
+    "peak_time": "09:48",
+    "peak_option_price": 6.74,
+    "hold_to_peak_mins": 1
+  },
+  "exit_levels": {
+    "stop_loss_pct": 0.5,
+    "stop_loss_price": 3.075,
+    "stop_loss_derivation": "fill_price \u00d7 (1 - 0.50) = 6.15 \u00d7 0.50",
+    "stop_loss_triggered": false,
+    "take_profit_pct": 1.0,
+    "take_profit_price": 12.3,
+    "take_profit_derivation": "fill_price \u00d7 (1 + 1.00) = 6.15 \u00d7 2.00",
+    "take_profit_triggered": false,
+    "trailing_stop_pct": 0.25,
+    "trailing_stop_fired_at": 5.055,
+    "trailing_stop_derivation": "peak_price \u00d7 (1 - 0.25) = 6.74 \u00d7 0.75",
+    "trailing_stop_triggered": true,
+    "max_hold_mins": 120,
+    "max_hold_triggered": false,
+    "eod_exit_time": "10:50 ET",
+    "eod_exit_triggered": false
+  },
+  "stop_behavior": {
+    "which_exit_fired": "trailing_stop",
+    "peak_price": 6.74,
+    "trail_pct": 0.25,
+    "trail_level_at_exit": 5.055,
+    "trail_level_verified": true,
+    "fill_vs_trail_delta": 0.0,
+    "note": "Exit price $5.055 matches peak\u00d70.75 exactly \u2014 trailing stop math confirmed"
+  },
+  "market_regime": {
+    "spy_trend": "up",
+    "spy_note": "above VWAP at open; reclaimed VWAP at 10:14 exactly when stop fired",
+    "qqq_trend": "up",
+    "qqq_note": "well above VWAP at open (rvol=0.166); reclaimed VWAP at 10:14 same minute as stop",
+    "msft_trend": "sideways-to-down",
+    "msft_note": "below VWAP all morning; gap-up reversed sharply; sector divergence vs broad market",
+    "sector_divergence": "MSFT weak while SPY/QQQ broadly firm \u2014 created SHORT opportunity",
+    "market_regime_summary": "Broad market (SPY/QQQ) trending up but weakened mid-morning; MSFT exhibited idiosyncratic weakness. Both SPY and QQQ reclaimed VWAP simultaneously with MSFT trailing stop at 10:14."
+  },
+  "observations": [
+    "MSFT was the only symbol with a SHORT signal; all others (NVDA, AMD, AAPL) had LONG signals not matching the rsi_trend SHORT filter.",
+    "rvol at scan was 0.063 (6.3% of ADV) \u2014 87% below the 0.5 threshold required to pass the scanner.",
+    "The 15-minute no-trade buffer blocked 9 liquidity filter cycles (09:36\u201309:44); the trade fired immediately at cycle 10 when the buffer lifted.",
+    "RSI(1m) at entry was 17.87 \u2014 deep oversold on the 1-minute timeframe \u2014 while RSI(5m/daily) used by the scanner was 42.61.",
+    "The fill price ($6.15) was $0.08 better than the marketable limit ($6.23), indicating favorable fill quality.",
+    "The PUT reached its peak of $6.74 at 09:48, only ~4 minutes after fill, then reversed as MSFT bounced from its intraday low.",
+    "Both SPY and QQQ reclaimed their VWAPs at exactly 10:14 \u2014 the same minute the trailing stop fired \u2014 suggesting a coordinated market-wide reversal.",
+    "The trailing stop math is confirmed: $6.74 \u00d7 0.75 = $5.055, matching the recorded exit price exactly.",
+    "Entry spread was 9.25% ($0.55 wide); exit spread was 16.42% ($0.83 wide) \u2014 spread widened significantly on the exit side.",
+    "Intraday option volume at entry was 86 contracts \u2014 extremely low, consistent with the thin rvol reading.",
+    "MFE was +$59.00 (+9.59%) at 09:48; the trade eventually closed at -$109.50 (-17.80%), giving up the gain plus additional loss.",
+    "MSFT held below VWAP from open through exit; SPY/QQQ were above VWAP at open but weakened toward 10:00 then recovered.",
+    "The 25% trailing stop allowed a full round-trip: from peak gain (+$59) to realized loss (-$109.50) without triggering the 50% hard stop ($3.075).",
+    "Open interest at entry was 301 \u2014 thin contract with limited market depth for a $400+ stock.",
+    "The no-trade buffer (first 15 minutes) prevented entry during the sharpest drop (09:30\u201309:39), which may have produced a better entry price."
+  ],
+  "hypotheses": [
+    "H1: The 25% trailing stop is too loose for short-duration momentum plays in thin-volume options \u2014 a tighter trail (15\u201320%) may preserve more of the MFE.",
+    "H2: Entering when RSI(1m) is below 20 may indicate a mean-reversion bounce is imminent rather than trend continuation, making it a poor entry for a directional put.",
+    "H3: A rvol filter requiring >0.5 (50% ADV) would have blocked this trade; back-testing whether rvol<0.1 trades underperform as a class could validate tightening the fallback logic.",
+    "H4: Simultaneous SPY+QQQ VWAP reclaim at 10:14 may be a reliable exit signal for MSFT shorts \u2014 testing a market-regime exit rule could reduce trailing-stop overshoot.",
+    "H5: The 15-minute no-trade buffer forced entry 9 minutes after the scanner fired; earlier entry (09:36\u201309:39) during the sharpest drop might have produced better risk-reward.",
+    "H6: Option spread widening from 9.25% at entry to 16.42% at exit suggests liquidity deteriorated intraday \u2014 this friction cost could be partially predicted by entry spread and rvol.",
+    "H7: Trades where all scanner candidates are rejected and the system falls back to CLI list may have systematically worse outcomes \u2014 flagging and reviewing this class separately is warranted.",
+    "H8: RSI(1m) < 18 at entry on a PUT (already oversold) may correlate with faster mean-reversion, warranting a shorter max-hold window than 120 minutes."
+  ],
+  "future_evaluation_questions": [
+    "What is the win rate and average PnL for rsi_trend SHORT trades entered via CLI fallback (scanner rejected all symbols) vs. scanner-passed entries?",
+    "Does rvol < 0.1 at scan time correlate with worse realized PnL across all trades in the backtest dataset?",
+    "How often does RSI(1m) < 20 at entry signal a bounce within 5 minutes, and does it predict MFE\u2192reversal more reliably than RSI(1m) in 20\u201340 range?",
+    "What trailing stop percentage (10%, 15%, 20%, 25%) maximizes retained MFE across the put-buying short trades in this strategy?",
+    "Is there a statistically reliable pattern where simultaneous SPY+QQQ VWAP reclaim triggers reversal in MSFT shorts? Can this be quantified over historical sessions?",
+    "What is the distribution of entry-to-exit spread widening (exit_spread_pct / entry_spread_pct) for trades with OI < 500 and volume < 100?",
+    "Would adding a 'market regime' exit rule (exit if SPY and QQQ both cross above VWAP while holding a short) have improved this trade's outcome?",
+    "How does the 15-minute no-trade buffer interact with fast-moving morning setups? Are there systematic cases where earlier entry (without the buffer) would have produced better entries?",
+    "What percentage of rsi_trend SHORT trades in this ticker universe had option volume < 100 at entry, and how do they perform relative to higher-volume entries?",
+    "If the trailing stop had been set at 15% instead of 25%, what would the exit price and PnL have been for this trade? ($6.74 \u00d7 0.85 = $5.729 \u2192 PnL = ($5.729 - $6.15) \u00d7 100 = -$42.10)"
+  ]
+}

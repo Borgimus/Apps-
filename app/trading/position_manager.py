@@ -40,6 +40,7 @@ class OpenPosition:
     quantity: int
     current_price: float = 0.0  # most recent price from broker quote poll
     peak_price: float = 0.0     # highest price seen since entry (for trailing stop)
+    trough_price: float = 0.0   # lowest price seen since entry (for drawdown reporting)
     stop_loss_pct: float = 0.50
     take_profit_pct: float = 1.00
     trailing_stop_pct: float = 0.25
@@ -52,6 +53,8 @@ class OpenPosition:
             self.current_price = self.entry_price
         if self.peak_price == 0.0:
             self.peak_price = self.entry_price
+        if self.trough_price == 0.0:
+            self.trough_price = self.entry_price
 
 
 class PositionManager:
@@ -107,6 +110,7 @@ class PositionManager:
             entry_price=entry_price,
             quantity=quantity,
             peak_price=entry_price,
+            trough_price=entry_price,
             stop_loss_pct=self._s.stop_loss_pct,
             take_profit_pct=self._s.take_profit_pct,
             trailing_stop_pct=self._s.trailing_stop_pct,
@@ -122,12 +126,14 @@ class PositionManager:
         return pos
 
     def update_price(self, option_symbol: str, current_price: float):
-        """Update current and peak price for trailing stop and unrealized PnL."""
+        """Update current, peak, and trough price for trailing stop and unrealized PnL."""
         pos = self._positions.get(option_symbol)
         if pos:
             pos.current_price = current_price
             if current_price > pos.peak_price:
                 pos.peak_price = current_price
+            if current_price < pos.trough_price:
+                pos.trough_price = current_price
 
     def should_exit(
         self,
@@ -209,6 +215,9 @@ class PositionManager:
                 "entry_price": p.entry_price,
                 "current_price": cp,
                 "peak_price": p.peak_price,
+                "trough_price": p.trough_price,
+                "peak_pnl": round((p.peak_price - p.entry_price) * 100 * p.quantity, 2),
+                "trough_pnl": round((p.trough_price - p.entry_price) * 100 * p.quantity, 2),
                 "quantity": p.quantity,
                 "unrealized_pnl": unrealized_pnl,
                 "stop_loss_level": round(p.entry_price * (1.0 - p.stop_loss_pct), 4),

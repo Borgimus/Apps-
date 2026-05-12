@@ -34,7 +34,8 @@ from app.scanning.universe_loader import UniverseLoader
 from app.scanning.yfinance_scanner import SymbolMetrics, YFinanceScanner
 
 ET = ZoneInfo("America/New_York")
-_NOW = datetime(2026, 5, 11, 10, 30, tzinfo=ET)
+# Use today's date at 10:30 AM ET so AlpacaConfirmer's datetime.now() check stays valid
+_NOW = datetime.now(tz=ET).replace(hour=10, minute=30, second=0, microsecond=0)
 _TODAY = _NOW.date()
 
 
@@ -97,7 +98,7 @@ def _contract(
     mid = (bid + ask) / 2
     return OptionContract(
         symbol=symbol,
-        option_symbol=f"{symbol}260511C{int(strike * 1000):08d}",
+        option_symbol=f"{symbol}{_TODAY.strftime('%y%m%d')}C{int(strike * 1000):08d}",
         expiration=_TODAY,
         strike=Decimal(str(strike)),
         option_type=option_type,

@@ -230,6 +230,45 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool)
         hold_secs = (now - pos.entry_time).total_seconds()
 
         if not dry_run:
+            # Place exit order with broker before removing from local state
+            from app.brokers.broker_interface import (
+                OrderRequest as _OReq,
+                OrderSide as _OSide,
+                OrderType as _OType,
+            )
+            try:
+                _eod_quote = await _retry(
+                    lambda p=pos: broker.get_option_quote(p.option_symbol),
+                    label=f"eod_exit_quote({pos.option_symbol})",
+                )
+                _eod_bid = float(_eod_quote.bid) if float(_eod_quote.bid) > 0 else exit_price * 0.98
+            except Exception:
+                _eod_bid = exit_price * 0.98
+            _eod_lp = Decimal(str(round(_eod_bid, 2)))
+            _eod_req = _OReq(
+                symbol=pos.symbol,
+                option_symbol=pos.option_symbol,
+                side=_OSide.SELL_TO_CLOSE,
+                quantity=pos.quantity,
+                order_type=_OType.LIMIT,
+                limit_price=_eod_lp,
+                strategy_id=pos.strategy_id,
+                notes="exit:eod_exit",
+            )
+            try:
+                _eod_order = await _retry(
+                    lambda: broker.place_option_order(_eod_req),
+                    label=f"eod_exit_order({pos.option_symbol})",
+                )
+                logger.info(
+                    "EOD exit order placed | %s | limit=%.4f | order_id=%s",
+                    pos.option_symbol, float(_eod_lp), _eod_order.order_id,
+                )
+            except Exception as _eod_exc:
+                logger.error(
+                    "EOD exit order failed for %s: %s — closed locally only",
+                    pos.option_symbol, _eod_exc,
+                )
             pm.close(pos.option_symbol, exit_price, pnl)
             risk.record_trade(Decimal(str(pnl)))
             if pos.journal_id and journal:

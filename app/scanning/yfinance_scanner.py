@@ -58,6 +58,7 @@ class SymbolMetrics:
     avg_volume_20d: float            # 20-day average daily volume
     fetched_at: datetime = field(default_factory=lambda: datetime.now(tz=_ET))
     errors: List[str] = field(default_factory=list)
+    universe_group: Optional[str] = None  # set by caller after UniverseLoader assigns group
 
 
 class YFinanceScanner:

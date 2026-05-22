@@ -620,6 +620,7 @@ def create_app(
             # ── Scanner state ──────────────────────────────────────────────
             "scanner_standby": _scan_store.get("standby", False),
             "standby_reason": _scan_store.get("standby_reason", None),
+            "enabled_groups": _scan_store.get("enabled_groups", []),
         }
 
     # ── Trade journal ──────────────────────────────────────────────────────
@@ -901,15 +902,32 @@ def create_app(
                     "trend": r.trend,
                     "price_vs_vwap": r.price_vs_vwap,
                     "gap_pct": r.gap_pct,
+                    "universe_group": r.universe_group,
                     "scanned_at": str(r.scanned_at),
                 }
                 for r in rows
             ]
+
+            # Group-level breakdown (candidates and rejections by group)
+            by_group: Dict[str, Dict] = {}
+            for r in rows:
+                grp = r.universe_group or "unknown"
+                if grp not in by_group:
+                    by_group[grp] = {"candidates": 0, "rejected": 0, "selected": 0}
+                by_group[grp]["candidates"] += 1
+                if r.is_rejected:
+                    by_group[grp]["rejected"] += 1
+                if r.selected:
+                    by_group[grp]["selected"] += 1
         except Exception:
             db_results = []
+            by_group = {}
 
+        enabled_groups = _scan_store.get("enabled_groups", [])
         return {
             "session_date": today,
+            "enabled_groups": enabled_groups,
+            "by_group": by_group,
             "live": dict(_scan_store),
             "db_results": db_results,
             "count": len(db_results),

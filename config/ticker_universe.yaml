@@ -1,12 +1,93 @@
 # Ticker universe for the scanning pipeline.
 # yfinance is used for research/screening only.
 # Alpaca remains execution source of truth.
+#
+# mode: manual | grouped | off
+#   manual:  use flat `symbols:` list below (backward compatible)
+#   grouped: load symbols from named groups (see `groups:` section)
+#   off:     disable scanning; fall back to session-runner --symbol args
+#
+# Enabling groups: set UNIVERSE_GROUPS_ENABLED env var (comma-separated),
+# or edit `enabled_groups` below.  Symbols appearing in multiple groups
+# are deduplicated (first-listed group wins).
 
-# mode: manual | off
-# manual: use the symbols list below
-# off:    disable scanning; fall back to session-runner --symbol args
-mode: manual
+mode: grouped
 
+# Which groups are active in normal sessions.
+# Override via UNIVERSE_GROUPS_ENABLED=core_etfs,mega_cap,liquid_growth
+enabled_groups:
+  - core_etfs
+  - mega_cap
+  - liquid_growth
+
+# Limits applied at load time (overridable via env vars)
+max_total_symbols: 40
+max_per_group: 15
+
+groups:
+  core_etfs:
+    - SPY
+    - QQQ
+    - IWM
+    - DIA
+    - XLK
+    - XLF
+    - XLE
+    - XLY
+    - SMH
+
+  mega_cap:
+    - AAPL
+    - MSFT
+    - NVDA
+    - AMZN
+    - META
+    - GOOGL
+    - TSLA
+
+  liquid_growth:
+    - AMD
+    - ARM
+    - AVGO
+    - COIN
+    - MSTR
+    - PLTR
+    - SHOP
+    - SNOW
+    - NET
+    - CRWD
+    - DDOG
+
+  high_beta_liquid:
+    - RIVN
+    - SOFI
+    - HOOD
+    - MARA
+    - RIOT
+    - ROKU
+    - DKNG
+    - UBER
+    - LYFT
+    - SQ
+    - AFRM
+
+  sector_leaders:
+    - JPM
+    - BAC
+    - GS
+    - XOM
+    - CVX
+    - UNH
+    - LLY
+    - NVO
+    - COST
+    - WMT
+    - TGT
+
+  watchlist_experimental:
+    []  # add tickers manually; disabled by default (not in enabled_groups)
+
+# Fallback flat symbol list used when mode=manual
 symbols:
   - SPY
   - QQQ
@@ -22,13 +103,13 @@ symbols:
   - GOOGL
   - NFLX
 
-# Symbols always excluded regardless of score (earnings blackouts, delisted, etc.)
+# Symbols always excluded regardless of score or group
 blacklist: []
 
 scan_config:
-  max_symbols_per_scan: 10
+  max_symbols_per_scan: 40
   max_active_symbols: 3
-  max_symbols_traded_per_day: 1
-  max_active_positions: 1
+  max_symbols_traded_per_day: 3
+  max_active_positions: 2
   min_scan_score: 40.0
   scan_interval_minutes: 30

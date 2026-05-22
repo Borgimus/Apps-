@@ -47,6 +47,7 @@ async def _migrate_schema(conn) -> None:
         ("trade_journal", "exit_ask",           "FLOAT"),
         ("trade_journal", "exit_spread_pct",    "FLOAT"),
         ("trade_journal", "limit_price_mode",   "VARCHAR(32)"),
+        ("scan_results",  "universe_group",     "VARCHAR(32)"),
     ]
     for table, col, col_type in migrations:
         try:
@@ -280,6 +281,7 @@ class DBScanResult(Base):
     trend = Column(String(16))
     ma_compression = Column(Boolean)
     has_earnings = Column(Boolean)
+    universe_group = Column(String(32))                  # e.g. "core_etfs", "mega_cap"
     scanned_at = Column(DateTime, server_default=func.now(), index=True)
     created_at = Column(DateTime, server_default=func.now())
 

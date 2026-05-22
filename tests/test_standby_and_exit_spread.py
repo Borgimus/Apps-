@@ -39,9 +39,14 @@ def _make_settings(
     uni.min_scan_score = 40.0
     uni.allow_cli_fallback_when_scanner_rejects = allow_fallback
     uni.fallback_min_rvol = fallback_min_rvol
+    uni.groups_enabled = ""       # empty → use YAML enabled_groups
+    uni.max_per_group = 15
+    uni.max_total_symbols = 40
 
     risk = MagicMock()
     risk.max_spread_pct = max_spread_pct
+    risk.min_underlying_price = 0.0
+    risk.min_underlying_avg_volume = 0
 
     settings = MagicMock()
     settings.universe = uni
@@ -80,6 +85,7 @@ class TestStandbyGuard:
     @pytest.mark.asyncio
     async def test_all_rejected_fallback_disabled_returns_none(self):
         """When every candidate is rejected and fallback is disabled, scan returns None."""
+        from collections import OrderedDict
         from scripts.session_runner import _run_universe_scan
 
         candidates = _make_all_rejected_candidates(rvol=0.05)
@@ -87,7 +93,11 @@ class TestStandbyGuard:
 
         mock_loader = MagicMock()
         mock_loader.mode = "dynamic"
+        mock_loader.enabled_groups_from_yaml = []
         mock_loader.get_symbols.return_value = ["SPY", "AAPL", "NVDA"]
+        mock_loader.get_symbols_with_groups.return_value = OrderedDict(
+            [("SPY", "test"), ("AAPL", "test"), ("NVDA", "test")]
+        )
 
         mock_scanner = MagicMock()
         mock_scanner.scan = AsyncMock(return_value=[MagicMock()] * 3)
@@ -132,6 +142,7 @@ class TestStandbyGuard:
     @pytest.mark.asyncio
     async def test_fallback_true_but_low_rvol_returns_none(self):
         """Even if fallback is enabled, if max rvol < threshold the system enters STANDBY."""
+        from collections import OrderedDict
         from scripts.session_runner import _run_universe_scan
 
         # rvol=0.05 < fallback_min_rvol=0.20
@@ -140,7 +151,11 @@ class TestStandbyGuard:
 
         mock_loader = MagicMock()
         mock_loader.mode = "dynamic"
+        mock_loader.enabled_groups_from_yaml = []
         mock_loader.get_symbols.return_value = ["SPY", "AAPL", "NVDA"]
+        mock_loader.get_symbols_with_groups.return_value = OrderedDict(
+            [("SPY", "test"), ("AAPL", "test"), ("NVDA", "test")]
+        )
 
         mock_scanner = MagicMock()
         mock_scanner.scan = AsyncMock(return_value=[MagicMock()] * 3)
@@ -171,6 +186,7 @@ class TestStandbyGuard:
     @pytest.mark.asyncio
     async def test_fallback_true_and_rvol_gate_passes_returns_empty_list(self):
         """When fallback enabled and rvol gate passes, scan returns [] (fallback allowed)."""
+        from collections import OrderedDict
         from scripts.session_runner import _run_universe_scan
 
         # rvol=0.30 >= fallback_min_rvol=0.20
@@ -179,7 +195,11 @@ class TestStandbyGuard:
 
         mock_loader = MagicMock()
         mock_loader.mode = "dynamic"
+        mock_loader.enabled_groups_from_yaml = []
         mock_loader.get_symbols.return_value = ["SPY", "AAPL", "NVDA"]
+        mock_loader.get_symbols_with_groups.return_value = OrderedDict(
+            [("SPY", "test"), ("AAPL", "test"), ("NVDA", "test")]
+        )
 
         mock_scanner = MagicMock()
         mock_scanner.scan = AsyncMock(return_value=[MagicMock()] * 3)

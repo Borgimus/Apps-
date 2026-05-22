@@ -57,6 +57,11 @@ class RiskSettings(BaseSettings):
     max_spread_pct: float = _yaml_get("risk", "max_spread_pct", default=0.10)
     earnings_blackout_days: int = _yaml_get("risk", "earnings_blackout_days", default=1)
     allow_earnings_trades: bool = _yaml_get("risk", "allow_earnings_trades", default=False)
+    # Underlying-level liquidity guards (applied in CandidateScorer)
+    min_underlying_price: float = _yaml_get("risk", "min_underlying_price", default=5.0)
+    min_underlying_avg_volume: int = _yaml_get(
+        "risk", "min_underlying_avg_volume", default=500_000
+    )
 
 
 class OptionsSettings(BaseSettings):
@@ -107,6 +112,16 @@ class UniverseSettings(BaseSettings):
     max_contracts_per_position: int = _yaml_get(
         "universe", "max_contracts_per_position", default=1
     )
+    # Group-based universe settings
+    groups_enabled: str = _yaml_get(
+        "universe", "groups_enabled",
+        default="core_etfs,mega_cap,liquid_growth",
+    )
+    include_experimental: bool = _yaml_get(
+        "universe", "include_experimental", default=False
+    )
+    max_total_symbols: int = _yaml_get("universe", "max_total_symbols", default=40)
+    max_per_group: int = _yaml_get("universe", "max_per_group", default=15)
 
 
 class BacktestSettings(BaseSettings):

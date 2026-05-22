@@ -859,19 +859,47 @@ async def _run_universe_scan(
         logger.info("Universe mode=off — skipping scan, using arg symbols")
         return []
 
-    all_syms = loader.get_symbols(max_symbols=max_scan)
+    # Determine enabled groups from settings
+    _groups_enabled_str = getattr(uni, "groups_enabled", "")
+    _enabled_groups_list = (
+        [g.strip() for g in _groups_enabled_str.split(",") if g.strip()]
+        if _groups_enabled_str else None
+    )
+    _max_per_group = getattr(uni, "max_per_group", 15)
+    _max_total = getattr(uni, "max_total_symbols", 40)
+
+    sym_groups = loader.get_symbols_with_groups(
+        enabled_groups=_enabled_groups_list,
+        max_per_group=_max_per_group,
+        max_total=_max_total,
+        max_symbols=max_scan,
+    )
+    all_syms = list(sym_groups.keys())
     if not all_syms:
         logger.warning("Universe empty — no symbols to scan")
         return []
 
-    logger.info("Universe scan: %d symbols | max_active=%d", len(all_syms), max_sym)
+    logger.info(
+        "Universe scan: %d symbols from %d group(s) | max_active=%d",
+        len(all_syms), len({v for v in sym_groups.values()}), max_sym,
+    )
 
     # YFinance scan
     scanner = YFinanceScanner()
     metrics_list = await scanner.scan(all_syms)
 
-    # Score
-    scorer = CandidateScorer(min_scan_score=min_score)
+    # Attach universe_group to each metrics object so scorer can propagate it
+    for m in metrics_list:
+        m.universe_group = sym_groups.get(m.symbol)
+
+    # Score (with underlying liquidity guards from risk settings)
+    _min_price = getattr(settings.risk, "min_underlying_price", 0.0)
+    _min_avg_vol = getattr(settings.risk, "min_underlying_avg_volume", 0)
+    scorer = CandidateScorer(
+        min_scan_score=min_score,
+        min_underlying_price=_min_price,
+        min_underlying_avg_volume=_min_avg_vol,
+    )
     candidates = scorer.score_all(metrics_list)
 
     passed    = [c for c in candidates if not c.is_rejected]
@@ -993,6 +1021,7 @@ async def _run_universe_scan(
                     trend=c.metrics.trend,
                     ma_compression=c.metrics.ma_compression,
                     has_earnings=c.metrics.has_earnings_today,
+                    universe_group=c.universe_group,
                 )
                 journal._db.add(row)
             await journal.commit()
@@ -1001,12 +1030,14 @@ async def _run_universe_scan(
 
     # Update in-memory scan store (for dashboard)
     if scan_store is not None:
+        _active_grps = _enabled_groups_list or loader.enabled_groups_from_yaml
         scan_store.clear()
         scan_store["session_date"] = session_date
         scan_store["scanned_at"] = datetime.now(tz=ET).isoformat()
         scan_store["standby"] = False
         scan_store["standby_reason"] = None
         scan_store["confirmed"] = confirmed_syms
+        scan_store["enabled_groups"] = _active_grps
         scan_store["candidates"] = [
             {
                 "symbol": c.symbol,
@@ -1015,6 +1046,7 @@ async def _run_universe_scan(
                 "is_rejected": c.is_rejected,
                 "reason_codes": c.reason_codes,
                 "rejected_reasons": c.rejected_reasons,
+                "universe_group": c.universe_group,
             }
             for c in candidates
         ]

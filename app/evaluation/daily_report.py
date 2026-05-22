@@ -95,6 +95,13 @@ class DailyReport:
     selected_symbols: List[str] = field(default_factory=list)
     top_candidates: List[Dict[str, Any]] = field(default_factory=list)  # [{symbol, score, signal_type}]
 
+    # Group-level breakdowns (keyed by universe_group name)
+    candidates_by_group: Dict[str, int] = field(default_factory=dict)
+    rejected_by_group: Dict[str, int] = field(default_factory=dict)
+    trades_by_group: Dict[str, int] = field(default_factory=dict)
+    pnl_by_group: Dict[str, float] = field(default_factory=dict)
+    liquidity_rejections: int = 0    # underlying price/volume rejections by CandidateScorer
+
     # Per-symbol P&L
     pnl_by_symbol: Dict[str, float] = field(default_factory=dict)
     win_rate_by_symbol: Dict[str, float] = field(default_factory=dict)
@@ -308,15 +315,16 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
         )
 
     # ── Scan pipeline metrics ─────────────────────────────────────────────────
+    _liquidity_rejection_codes = {"price_too_low", "insufficient_underlying_volume"}
     try:
         from app.api.models import DBScanResult
+        import json as _json
         scan_rows = (
             await db_session.execute(
                 select(DBScanResult).where(DBScanResult.session_date == session_date)
             )
         ).scalars().all()
         if scan_rows:
-            import json as _json
             report.scanned_symbols_count = len(scan_rows)
             report.candidate_count_passed  = sum(1 for r in scan_rows if not r.is_rejected)
             report.candidate_count_rejected = sum(1 for r in scan_rows if r.is_rejected)
@@ -329,8 +337,38 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
                 {"symbol": r.symbol, "score": r.score, "signal_type": r.signal_type}
                 for r in top
             ]
+
+            # Group-level breakdown
+            for r in scan_rows:
+                grp = r.universe_group or "unknown"
+                report.candidates_by_group[grp] = report.candidates_by_group.get(grp, 0) + 1
+                if r.is_rejected:
+                    report.rejected_by_group[grp] = report.rejected_by_group.get(grp, 0) + 1
+                    try:
+                        rr = set(_json.loads(r.rejected_reasons or "[]"))
+                        if rr & _liquidity_rejection_codes:
+                            report.liquidity_rejections += 1
+                    except Exception:
+                        pass
     except Exception:
         pass  # DBScanResult table may not exist in older DBs
+
+    # ── Group-level trade / PnL breakdown ─────────────────────────────────────
+    # Join trade journal with scan results via underlying_symbol to get per-group stats.
+    # (scan_rows already loaded above; if it's empty this is a no-op)
+    _sym_to_group: Dict[str, str] = {}
+    try:
+        for r in scan_rows:  # type: ignore[name-defined]
+            if r.universe_group:
+                _sym_to_group[r.symbol] = r.universe_group
+    except Exception:
+        pass
+
+    for t in closed:
+        sym = t.underlying_symbol or ""
+        grp = _sym_to_group.get(sym, "unknown")
+        report.trades_by_group[grp] = report.trades_by_group.get(grp, 0) + 1
+        report.pnl_by_group[grp] = report.pnl_by_group.get(grp, 0.0) + float(t.realized_pnl)
 
     # ── Per-symbol P&L ────────────────────────────────────────────────────────
     symbols = {t.underlying_symbol for t in closed if t.underlying_symbol}
@@ -503,6 +541,27 @@ def _scan_pipeline_section(r: DailyReport) -> str:
     top_table = (
         "\n| Symbol | Score | Signal |\n|---|---|---|\n" + top_rows
     ) if top_rows else ""
+
+    # Group breakdown table
+    group_rows = ""
+    for grp in sorted(r.candidates_by_group):
+        total = r.candidates_by_group[grp]
+        rej = r.rejected_by_group.get(grp, 0)
+        passed = total - rej
+        trades = r.trades_by_group.get(grp, 0)
+        pnl = r.pnl_by_group.get(grp, 0.0)
+        group_rows += f"| {grp} | {total} | {passed} | {rej} | {trades} | ${pnl:.2f} |\n"
+    group_table = (
+        "\n### By Universe Group\n\n"
+        "| Group | Scanned | Passed | Rejected | Trades | PnL |\n"
+        "|---|---|---|---|---|---|\n"
+        f"{group_rows}"
+    ) if group_rows else ""
+
+    liquidity_row = (
+        f"| Liquidity rejections | {r.liquidity_rejections} |\n"
+        if r.liquidity_rejections > 0 else ""
+    )
     return (
         f"\n## Scan Pipeline\n\n"
         f"| Metric | Value |\n|---|---|\n"
@@ -510,8 +569,10 @@ def _scan_pipeline_section(r: DailyReport) -> str:
         f"| Symbols scanned | {r.scanned_symbols_count} |\n"
         f"| Passed | {r.candidate_count_passed} |\n"
         f"| Rejected | {r.candidate_count_rejected} |\n"
+        f"{liquidity_row}"
         f"| Selected | {selected_str} |\n"
         f"\n### Top Candidates{top_table}\n"
+        f"{group_table}"
     )
 
 

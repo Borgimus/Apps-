@@ -54,6 +54,7 @@ class CandidateScore:
     rejected_reasons: List[str]     # why rejected (empty if passing)
     is_rejected: bool
     metrics: SymbolMetrics
+    universe_group: Optional[str] = None
 
 
 class CandidateScorer:
@@ -65,8 +66,15 @@ class CandidateScorer:
         scores = scorer.score_all(metrics_list)
     """
 
-    def __init__(self, min_scan_score: float = 40.0):
+    def __init__(
+        self,
+        min_scan_score: float = 40.0,
+        min_underlying_price: float = 0.0,
+        min_underlying_avg_volume: int = 0,
+    ):
         self._min_score = min_scan_score
+        self._min_underlying_price = min_underlying_price
+        self._min_underlying_avg_volume = min_underlying_avg_volume
 
     def score_all(self, metrics_list: List[SymbolMetrics]) -> List[CandidateScore]:
         candidates = [self._score_one(m) for m in metrics_list]
@@ -92,6 +100,10 @@ class CandidateScorer:
             rejections.append("atr_too_small")
         if m.price <= 0:
             rejections.append("invalid_price")
+        if self._min_underlying_price > 0 and 0 < m.price < self._min_underlying_price:
+            rejections.append("price_too_low")
+        if self._min_underlying_avg_volume > 0 and m.avg_volume_20d < self._min_underlying_avg_volume:
+            rejections.append("insufficient_underlying_volume")
 
         # ── Signal direction ───────────────────────────────────────────────────
         signal_type = self._determine_signal(m)
@@ -188,6 +200,7 @@ class CandidateScorer:
             rejected_reasons=rejections,
             is_rejected=is_rejected,
             metrics=m,
+            universe_group=m.universe_group,
         )
 
     @staticmethod

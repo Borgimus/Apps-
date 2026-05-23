@@ -81,7 +81,8 @@ class TestPaperEvaluationModeConfig:
     def test_defaults_to_false(self, monkeypatch):
         monkeypatch.delenv("PAPER_EVALUATION_MODE", raising=False)
         from app.config.settings import Settings
-        s = Settings()
+        # Pass _env_file=None to bypass .env so we test the code-level default
+        s = Settings(_env_file=None)
         assert s.paper_evaluation_mode is False
 
     def test_enabled_via_env(self, monkeypatch):

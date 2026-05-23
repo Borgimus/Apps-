@@ -47,7 +47,7 @@ def _yaml_get(*keys, default=None):
 
 
 class RiskSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="RISK_", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="RISK_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     max_risk_per_trade: float = _yaml_get("risk", "max_risk_per_trade", default=0.01)
     max_trades_per_day: int = _yaml_get("risk", "max_trades_per_day", default=3)
@@ -65,7 +65,7 @@ class RiskSettings(BaseSettings):
 
 
 class OptionsSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="OPTIONS_", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="OPTIONS_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     preferred_dte: List[int] = _yaml_get("options", "preferred_dte", default=[0, 1, 2])
     delta_target_min: float = _yaml_get("options", "delta_target_min", default=0.35)
@@ -81,7 +81,7 @@ class OptionsSettings(BaseSettings):
 
 
 class PositionSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="POSITION_", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="POSITION_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     stop_loss_pct: float = _yaml_get("position", "stop_loss_pct", default=0.50)
     take_profit_pct: float = _yaml_get("position", "take_profit_pct", default=1.00)
@@ -92,7 +92,7 @@ class PositionSettings(BaseSettings):
 
 
 class UniverseSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="UNIVERSE_", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="UNIVERSE_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     mode: str = _yaml_get("universe", "mode", default="manual")
     file: str = _yaml_get("universe", "file", default="./config/ticker_universe.yaml")
@@ -125,7 +125,7 @@ class UniverseSettings(BaseSettings):
 
 
 class BacktestSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="BACKTEST_", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="BACKTEST_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     output_dir: str = _yaml_get("backtesting", "output_dir", default="./backtest_results")
     default_start: str = _yaml_get("backtesting", "default_start", default="2023-01-01")

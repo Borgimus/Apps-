@@ -916,6 +916,38 @@ async def _run_universe_scan(
             ("REJECTED: " + ", ".join(c.rejected_reasons)) if c.is_rejected else ("reasons: " + ", ".join(c.reason_codes[:3])),
         )
 
+    # ── Persist scan results to DB (always — even during STANDBY) ────────────
+    # Persisted before STANDBY/fallback returns so every scan cycle has a DB record.
+    if journal:
+        try:
+            for c in candidates:
+                row = DBScanResult(
+                    session_date=session_date,
+                    symbol=c.symbol,
+                    score=c.score,
+                    signal_type=c.signal_type,
+                    reason_codes=_json.dumps(c.reason_codes),
+                    rejected_reasons=_json.dumps(c.rejected_reasons),
+                    is_rejected=c.is_rejected,
+                    selected=False,  # updated below for confirmed symbols
+                    atr_pct=c.metrics.atr_pct,
+                    rvol=c.metrics.rvol,
+                    rsi=c.metrics.rsi,
+                    vwap=c.metrics.vwap,
+                    price=c.metrics.price,
+                    price_vs_vwap=c.metrics.price_vs_vwap,
+                    gap_pct=c.metrics.gap_pct,
+                    trend=c.metrics.trend,
+                    ma_compression=c.metrics.ma_compression,
+                    has_earnings=c.metrics.has_earnings_today,
+                    universe_group=c.universe_group,
+                )
+                journal._db.add(row)
+            await journal.commit()
+            logger.debug("Persisted %d scan result(s) to DB", len(candidates))
+        except Exception as exc:
+            logger.warning("Failed to persist scan results: %s", exc)
+
     # ── STANDBY guard ─────────────────────────────────────────────────────────
     # When every candidate is rejected, block CLI fallback unless explicitly
     # allowed AND the rvol gate passes.
@@ -998,35 +1030,20 @@ async def _run_universe_scan(
     confirmed_syms = [cc.symbol for cc in confirmed[:max_sym]]
     logger.info("AlpacaConfirmer: %d confirmed symbols: %s", len(confirmed_syms), confirmed_syms)
 
-    # Persist scan results to DB
-    if journal:
+    # Mark confirmed symbols as selected in already-persisted DB rows
+    if journal and confirmed_syms:
         try:
-            for c in candidates:
-                row = DBScanResult(
-                    session_date=session_date,
-                    symbol=c.symbol,
-                    score=c.score,
-                    signal_type=c.signal_type,
-                    reason_codes=_json.dumps(c.reason_codes),
-                    rejected_reasons=_json.dumps(c.rejected_reasons),
-                    is_rejected=c.is_rejected,
-                    selected=c.symbol in confirmed_syms,
-                    atr_pct=c.metrics.atr_pct,
-                    rvol=c.metrics.rvol,
-                    rsi=c.metrics.rsi,
-                    vwap=c.metrics.vwap,
-                    price=c.metrics.price,
-                    price_vs_vwap=c.metrics.price_vs_vwap,
-                    gap_pct=c.metrics.gap_pct,
-                    trend=c.metrics.trend,
-                    ma_compression=c.metrics.ma_compression,
-                    has_earnings=c.metrics.has_earnings_today,
-                    universe_group=c.universe_group,
-                )
-                journal._db.add(row)
+            from sqlalchemy import update
+            from app.api.models import DBScanResult as _DBScanResult
+            await journal._db.execute(
+                update(_DBScanResult)
+                .where(_DBScanResult.session_date == session_date)
+                .where(_DBScanResult.symbol.in_(confirmed_syms))
+                .values(selected=True)
+            )
             await journal.commit()
         except Exception as exc:
-            logger.warning("Failed to persist scan results: %s", exc)
+            logger.warning("Failed to update selected flags: %s", exc)
 
     # Update in-memory scan store (for dashboard)
     if scan_store is not None:

@@ -18,6 +18,7 @@ import logging
 from datetime import date, datetime
 from decimal import Decimal
 from typing import List, Optional
+from zoneinfo import ZoneInfo
 
 import httpx
 
@@ -350,6 +351,15 @@ class AlpacaBroker(BrokerInterface):
         for c in resp.json().get("option_contracts", []):
             exps.add(date.fromisoformat(c["expiration_date"]))
         return sorted(exps)
+
+    async def is_market_session_today(self) -> bool:
+        """Return True if today is a scheduled trading session per Alpaca's calendar."""
+        today = datetime.now(tz=ZoneInfo("America/New_York")).date().isoformat()
+        resp = await self._client.get(
+            "/v2/calendar", params={"start": today, "end": today}
+        )
+        resp.raise_for_status()
+        return len(resp.json()) > 0
 
     async def close(self):
         await self._client.aclose()

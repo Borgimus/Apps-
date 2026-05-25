@@ -156,7 +156,7 @@ class TestPreSessionChecks:
 
     def test_market_day_is_advisory(self):
         from app.evaluation.pre_session import _check_market_day
-        r = _check_market_day()
+        r = _run(_check_market_day(broker=None))
         assert r.required is False
 
     def test_broker_reachable_passes_for_paper_account(self):

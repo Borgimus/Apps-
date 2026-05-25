@@ -65,7 +65,7 @@ async def run_pre_session_checks(
 
     checks.append(_check_paper_mode(settings))
     checks.append(_check_kill_switch_inactive(settings))
-    checks.append(_check_market_day())
+    checks.append(await _check_market_day(broker))
     checks.append(await _check_broker_reachable(broker))
     checks.append(await _check_db_writable(db_session))
     checks.append(_check_logs_writable(settings))
@@ -109,18 +109,39 @@ def _check_kill_switch_inactive(settings) -> CheckResult:
     )
 
 
-def _check_market_day() -> CheckResult:
+async def _check_market_day(broker=None) -> CheckResult:
     now = datetime.now(tz=_ET)
-    is_weekday = now.weekday() < 5
+    day_label = now.strftime("%A %Y-%m-%d")
+    # Fast path: weekends are never trading days
+    if now.weekday() >= 5:
+        return CheckResult(
+            name="market_day",
+            passed=False,
+            message=f"Today is {now.strftime('%A')} — market closed (weekend)",
+            required=False,
+        )
+    # Weekday: query the broker calendar to catch US market holidays
+    if broker is not None and hasattr(broker, "is_market_session_today"):
+        try:
+            is_session = await broker.is_market_session_today()
+            return CheckResult(
+                name="market_day",
+                passed=is_session,
+                message=(
+                    f"Today is {day_label} — trading day"
+                    if is_session
+                    else f"Today is {day_label} — market closed (holiday)"
+                ),
+                required=False,
+            )
+        except Exception:
+            pass  # fall through to weekday-only check on API error
+    # Fallback: weekday heuristic (no holiday awareness)
     return CheckResult(
         name="market_day",
-        passed=is_weekday,
-        message=(
-            f"Today is {now.strftime('%A %Y-%m-%d')} — trading day"
-            if is_weekday
-            else f"Today is {now.strftime('%A')} — market closed (weekend)"
-        ),
-        required=False,  # advisory: allow weekend dry-runs
+        passed=True,
+        message=f"Today is {day_label} — trading day (calendar check skipped)",
+        required=False,
     )
 
 

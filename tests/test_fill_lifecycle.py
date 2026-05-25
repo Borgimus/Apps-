@@ -750,13 +750,13 @@ class TestRealisticFillTestModeSettings:
     def test_entry_limit_price_mode_default(self, monkeypatch):
         monkeypatch.delenv("OPTIONS_ENTRY_LIMIT_PRICE_MODE", raising=False)
         from app.config.settings import OptionsSettings
-        s = OptionsSettings()
+        s = OptionsSettings(_env_file=None)
         assert s.entry_limit_price_mode == "mid"
 
     def test_exit_limit_price_mode_default(self, monkeypatch):
         monkeypatch.delenv("OPTIONS_EXIT_LIMIT_PRICE_MODE", raising=False)
         from app.config.settings import OptionsSettings
-        s = OptionsSettings()
+        s = OptionsSettings(_env_file=None)
         assert s.exit_limit_price_mode == "mid"
 
     def test_entry_marketable_offset_pct_default(self, monkeypatch):

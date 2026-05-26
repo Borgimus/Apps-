@@ -1,0 +1,337 @@
+{
+  "report_meta": {
+    "date": "2026-05-26",
+    "generated_at": "2026-05-26T11:19:00-04:00",
+    "type": "diagnostics_readonly",
+    "no_trades_placed": true,
+    "no_config_changed": true
+  },
+  "strategy_config": {
+    "strategy_id": "rsi_trend",
+    "class": "RSITrendStrategy",
+    "file": "app/strategies/rsi_trend_strategy.py",
+    "deployed_params": {
+      "rsi_period": 14,
+      "rsi_oversold": 35,
+      "rsi_overbought": 65,
+      "trend_ema_period": 20,
+      "source": "session_runner.py line 1130 (hardcoded, overrides config.yaml)"
+    },
+    "config_yaml_params": {
+      "rsi_period": 14,
+      "rsi_oversold": 35,
+      "rsi_overbought": 65,
+      "trend_ema_period": 50,
+      "source": "config.yaml lines 106-112",
+      "note": "EMA(50) in config is NOT used — session_runner hardcodes EMA(20)"
+    },
+    "bars_required": {
+      "formula": "max(rsi_period, trend_ema_period) + 5",
+      "deployed_value": 25,
+      "config_value_if_used": 55,
+      "code_location": "rsi_trend_strategy.py line 52"
+    },
+    "ema_window_deployed": 20,
+    "rsi_window": 14,
+    "rsi_implementation": "EWM with com=period-1, adjust=False (Wilder smoothing)",
+    "ema_implementation": "EWM with span=period, adjust=False",
+    "insufficient_bars_warning_location": "strategy_base.py:validate_bars() lines 93-97",
+    "insufficient_bars_message_format": "Insufficient bars (%d < %d) for rsi_trend",
+    "signal_logic": {
+      "long_entry": "rsi[i-1] < 35 AND rsi[i] >= 35 AND close[i] > ema[i]",
+      "short_entry": "rsi[i-1] > 65 AND rsi[i] <= 65 AND close[i] < ema[i]",
+      "scan_mode": "batch - iterates all bars each poll cycle"
+    },
+    "scanner_bar_source": {
+      "file": "yfinance_scanner.py line 129",
+      "call": "ticker.history(period='2d', interval='5m', auto_adjust=True)",
+      "interval": "5m",
+      "period": "2d",
+      "note": "Only today's bars used for intraday signals; bar count grows by 1 every 5 minutes"
+    }
+  },
+  "readiness_timing": {
+    "note": "Ready time = 09:30 + (min_bars - 1) * bar_interval_minutes",
+    "five_min_resolution": {
+      "vwap_reclaim": {
+        "min_bars": 7,
+        "earliest_possible_et": "10:00",
+        "delay_from_open_minutes": 30
+      },
+      "orb": {
+        "min_bars": 17,
+        "earliest_possible_et": "10:50",
+        "delay_from_open_minutes": 80
+      },
+      "rsi_trend_ema20_deployed": {
+        "min_bars": 25,
+        "earliest_possible_et": "11:30",
+        "delay_from_open_minutes": 120
+      },
+      "rsi_trend_ema50_config": {
+        "min_bars": 55,
+        "earliest_possible_et": "14:00",
+        "delay_from_open_minutes": 270,
+        "note": "Config value only — not deployed"
+      }
+    },
+    "one_min_resolution": {
+      "vwap_reclaim": {
+        "min_bars": 7,
+        "earliest_possible_et": "09:36",
+        "delay_from_open_minutes": 6
+      },
+      "orb": {
+        "min_bars": 17,
+        "earliest_possible_et": "09:46",
+        "delay_from_open_minutes": 16
+      },
+      "rsi_trend_ema20_deployed": {
+        "min_bars": 25,
+        "earliest_possible_et": "09:54",
+        "delay_from_open_minutes": 24
+      }
+    },
+    "today_snow_actual": {
+      "session_started_et": "10:03",
+      "snow_confirmed_et": "10:33",
+      "bars_at_confirmation": 13,
+      "additional_bars_needed": 12,
+      "additional_time_needed_minutes": 60,
+      "projected_readiness_et": "11:33",
+      "actual_session_end_et": "11:19",
+      "bars_at_session_end": 22,
+      "strategy_ever_ready": false,
+      "reason": "Session ended with 22 bars, 3 short of required 25"
+    }
+  },
+  "today_snow_analysis": {
+    "symbol": "SNOW",
+    "date": "2026-05-26",
+    "confirmed_candidate": true,
+    "confirmation_time_et": "10:33:53",
+    "option_at_confirmation": "SNOW260529C00190000",
+    "spread_at_confirmation_pct": 8.18,
+    "spread_at_11_04_pct": 3.67,
+    "price_at_open_930": 177.66,
+    "price_at_snow_confirmed_1033": 177.40,
+    "price_at_structural_rsi_ready_1130": 178.39,
+    "price_at_session_end_1119": 178.90,
+    "day_high": 181.27,
+    "day_high_time_et": "10:00",
+    "day_low": 174.55,
+    "day_low_time_et": "09:35",
+    "total_day_range": 6.72,
+    "avg_5min_bar_range_atr": 0.95,
+    "move_before_structural_ready": {
+      "upward_peak": 3.61,
+      "upward_peak_pct": 2.03,
+      "downward_trough": -3.11,
+      "downward_trough_pct": -1.75,
+      "range_spanned": 6.72
+    },
+    "move_after_structural_ready": {
+      "upward_peak": 1.84,
+      "upward_peak_pct": 1.03,
+      "downward_trough": -0.02,
+      "downward_trough_pct": -0.01,
+      "range_available": 2.37
+    },
+    "pct_total_range_consumed_before_ready": 100.0,
+    "pct_upward_move_consumed_before_ready": 100.0,
+    "pct_downward_move_consumed_before_ready": 100.0,
+    "rsi_signal_that_existed_but_blocked": {
+      "time_et": "10:36",
+      "rsi_prev": 33.0,
+      "rsi_now": 36.4,
+      "price": 177.98,
+      "ema20": 177.78,
+      "condition": "rsi crossed up from oversold AND price above EMA",
+      "would_have_been": "LONG",
+      "blocked_by": "insufficient_bars (14 < 25)"
+    }
+  },
+  "multi_session_insufficient_bars": {
+    "2026-05-26": {
+      "symbol": "SNOW",
+      "range_observed": "13 to 22",
+      "threshold": 25,
+      "ever_cleared": false
+    },
+    "2026-05-25": {
+      "note": "No symbols confirmed, no insufficient_bars warnings for any strategy in trading context"
+    },
+    "2026-05-23": {
+      "note": "Weekend session, no symbols confirmed, no strategy warnings"
+    },
+    "2026-05-12": {
+      "note": "Session started 9:36 ET with fallback to manual symbols, trades placed via fallback. RSI_trend not monitored in logs for that session independently."
+    }
+  },
+  "strategy_comparison_today": {
+    "symbol": "SNOW",
+    "five_min_bars": [
+      {
+        "strategy": "VWAP_Reclaim",
+        "min_bars": 7,
+        "ready_time_et": "10:00",
+        "snow_price_at_ready": 179.21,
+        "move_from_open": 1.55,
+        "move_pct": 0.87
+      },
+      {
+        "strategy": "ORB",
+        "min_bars": 17,
+        "ready_time_et": "10:50",
+        "snow_price_at_ready": 180.00,
+        "move_from_open": 2.34,
+        "move_pct": 1.31
+      },
+      {
+        "strategy": "RSI_trend_EMA20",
+        "min_bars": 25,
+        "ready_time_et": "11:30",
+        "snow_price_at_ready": 178.39,
+        "move_from_open": 0.73,
+        "move_pct": 0.41
+      }
+    ],
+    "one_min_bars_hypothetical": [
+      {
+        "strategy": "VWAP_Reclaim",
+        "min_bars": 7,
+        "ready_time_et": "09:36",
+        "snow_price_at_ready": 174.69,
+        "move_from_open": -2.94
+      },
+      {
+        "strategy": "ORB",
+        "min_bars": 17,
+        "ready_time_et": "09:46",
+        "snow_price_at_ready": 177.90,
+        "move_from_open": 0.26
+      },
+      {
+        "strategy": "RSI_trend_EMA20",
+        "min_bars": 25,
+        "ready_time_et": "09:54",
+        "snow_price_at_ready": 178.38,
+        "move_from_open": 0.75
+      }
+    ]
+  },
+  "hypothesis_verdicts": {
+    "H1": {
+      "hypothesis": "RSI_trend becomes eligible after the highest-quality momentum window has already passed.",
+      "verdict": "SUPPORTED",
+      "confidence": "high",
+      "evidence": [
+        "Day high occurred at 10:00 ET, 90 minutes before structural readiness (11:30 ET)",
+        "Day low occurred at 09:35 ET, 115 minutes before structural readiness",
+        "100% of total intraday range consumed before 11:30 ET",
+        "Post-readiness range available: 2.37 vs pre-readiness range: 6.72",
+        "This is a structural constraint, not incidental — applies every session"
+      ]
+    },
+    "H2": {
+      "hypothesis": "Options spread deterioration increases materially before RSI_trend entries.",
+      "verdict": "INCONCLUSIVE",
+      "confidence": "low",
+      "evidence": [
+        "SNOW spread was 8.18% at 10:33 ET (near system max of 10%)",
+        "SNOW spread improved to 3.67% by 11:04 ET",
+        "Single data point — insufficient for systematic claim",
+        "Directionally: if RSI_trend were ready at 10:33, spread cost would have been higher",
+        "Multi-session spread tracking needed"
+      ]
+    },
+    "H3": {
+      "hypothesis": "RSI_trend is more suitable for trend continuation / midday continuation than opening momentum.",
+      "verdict": "SUPPORTED",
+      "confidence": "medium",
+      "evidence": [
+        "Two-hour structural warmup excludes opening momentum by design",
+        "RSI(14) oversold/overbought crossover logic detects exhaustion/bounce, not breakouts",
+        "EMA trend filter requires established trend — not useful at open before trend forms",
+        "Post-readiness SNOW RSI was 36-48, never crossed 35/65 thresholds — no signal even when ready",
+        "Strategy architecture is textbook mean-reversion/continuation, not momentum-entry"
+      ]
+    },
+    "H4": {
+      "hypothesis": "RSI_trend may perform better as a confirmation filter rather than primary trigger.",
+      "verdict": "INCONCLUSIVE",
+      "confidence": "low",
+      "evidence": [
+        "RSI + EMA is commonly used as secondary confirmation in multi-factor systems",
+        "Today's RSI values (36-48) were aligned with scanner LONG signal — consistent with filter role",
+        "No backtest data available to quantify filter vs primary trigger comparison",
+        "Would require architectural change: current logic requires RSI threshold crossing, not just trend alignment"
+      ]
+    }
+  },
+  "structural_latency_sources": [
+    {
+      "id": "L1",
+      "type": "structural",
+      "name": "Minimum bars requirement",
+      "description": "min_rows = max(rsi_period, trend_ema_period) + 5 = 25 at deployed settings",
+      "code_location": "rsi_trend_strategy.py:52, strategy_base.py:93-97",
+      "impact": "120-minute warmup at 5-min bars from first bar; strategy produces no signals before this"
+    },
+    {
+      "id": "L2",
+      "type": "structural",
+      "name": "Batch re-evaluation each poll cycle",
+      "description": "generate_signals() iterates range(1, len(bars)) on every 60s poll — no incremental state",
+      "code_location": "rsi_trend_strategy.py:68",
+      "impact": "Binary gate — 0 signals until bar 25, no partial readiness"
+    },
+    {
+      "id": "L3",
+      "type": "structural",
+      "name": "5-minute bar interval",
+      "description": "Scanner uses interval='5m' for all intraday data; bar count increments by 1 every 5 minutes",
+      "code_location": "yfinance_scanner.py:129",
+      "impact": "Multiplies bar count delay by 5x vs 1-min resolution; makes RSI_trend ready 2h after open"
+    },
+    {
+      "id": "L4",
+      "type": "structural_minor",
+      "name": "EWM RSI initialization noise",
+      "description": "RSI uses EWM com=13 which requires many bars to converge; +5 buffer compensates partially",
+      "code_location": "rsi_trend_strategy.py:28-35",
+      "impact": "Minor — early RSI values are less reliable but this is mitigated by the bar count gate"
+    },
+    {
+      "id": "L5",
+      "type": "incidental",
+      "name": "Session start delay",
+      "description": "Today's session started at 10:03 ET instead of 9:30 ET",
+      "impact": "Incidental — did not change structural minimum (11:30 ET). Did prevent early bar accumulation."
+    },
+    {
+      "id": "L6",
+      "type": "incidental",
+      "name": "Symbol confirmation delay",
+      "description": "SNOW not confirmed until 10:33 ET (63 min after open, 30 min after session start)",
+      "impact": "Incidental — pushed actual readiness from structural 11:30 to operational 11:33; session ended at 11:19"
+    },
+    {
+      "id": "L7",
+      "type": "operational_risk",
+      "name": "Config vs runtime EMA period discrepancy",
+      "description": "config.yaml specifies trend_ema_period=50 (min_rows=55), session_runner.py hardcodes trend_ema_period=20 (min_rows=25)",
+      "code_location": "session_runner.py:1130 vs config.yaml:112",
+      "impact": "EMA(50) config has no effect. If intended, it would require 55 bars = ~270 min delay = strategy never fires intraday."
+    }
+  ],
+  "observations": [
+    "RSI_trend has not produced a single signal across 5 observed sessions (2026-05-11 through 2026-05-26). Combined causes: (1) bar warmup rarely completed, (2) when bars are sufficient, RSI does not cross the 35/65 thresholds.",
+    "The only session where trades occurred (2026-05-12) used a fallback symbol list — RSI_trend was not the trigger; the scan logic defaulted to manual watchlist without RSI strategy evaluation.",
+    "Today's SNOW RSI dipped to 33.0 at 10:36 ET — below the 35 oversold threshold — and was trending up. This is exactly the LONG entry condition RSI_trend is designed to catch. It was blocked purely by the bar count (14 < 25).",
+    "ORB reached its bar threshold (~10:50 ET) but also produced 0 signals today. The opening-range high may have already been set before the ORB range period was complete.",
+    "At 5-min resolution, the order of readiness (VWAP < ORB < RSI_trend) is inversely correlated with the quality of the momentum opportunity: VWAP can act early, RSI_trend acts last when momentum is exhausted.",
+    "The scanner uses daily RSI (from daily_df) for scoring, which showed SNOW RSI=80 — flagged as extreme but still passed with score=40 (ATR + trend_up). The daily RSI=80 (overbought) is at odds with the intraday RSI=33-48 seen at the bar level. These are different time frames and both valid.",
+    "SNOW was the only symbol to pass the scanner on 2026-05-26. All other 26 symbols were rejected for low_volume_chop (rvol < 0.5). The top-scored symbols (MSFT, GOOGL, AVGO, NET at score=70) all failed the rvol filter."
+  ]
+}

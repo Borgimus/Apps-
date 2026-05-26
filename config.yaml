@@ -110,6 +110,8 @@ strategies:
     rsi_oversold: 35
     rsi_overbought: 65
     trend_ema_period: 50
+    bar_interval: "5m"
+    mode: standard
 
   ma_compression:
     enabled: true

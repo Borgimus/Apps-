@@ -80,6 +80,24 @@ class StrategyBase(abc.ABC):
         Returns list of Signal (may be empty).
         """
 
+    @property
+    def min_bars_required(self) -> int:
+        """Minimum bars needed before this strategy can generate signals."""
+        return 2
+
+    def get_readiness_info(self, bars: pd.DataFrame) -> dict:
+        """Return readiness diagnostics for this strategy."""
+        n = len(bars) if bars is not None and not bars.empty else 0
+        required = self.min_bars_required
+        ready = n >= required
+        return {
+            "strategy_id": self.strategy_id,
+            "min_bars_required": required,
+            "bars_available": n,
+            "ready": ready,
+            "reason": "sufficient bars" if ready else f"need {required - n} more bars",
+        }
+
     def validate_bars(self, bars: pd.DataFrame, min_rows: int = 2) -> bool:
         """Return True if bars are sufficient to run this strategy."""
         required = {"open", "high", "low", "close", "volume"}

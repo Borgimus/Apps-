@@ -621,6 +621,8 @@ def create_app(
             "scanner_standby": _scan_store.get("standby", False),
             "standby_reason": _scan_store.get("standby_reason", None),
             "enabled_groups": _scan_store.get("enabled_groups", []),
+            # ── Strategy configuration ─────────────────────────────────────
+            "strategy_configs": _scan_store.get("strategy_configs", []),
         }
 
     # ── Trade journal ──────────────────────────────────────────────────────

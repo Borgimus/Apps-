@@ -34,8 +34,12 @@ class OpeningRangeBreakoutStrategy(StrategyBase):
         self._min_range_pts: float = self.params.get("min_range_pts", 0.5)
         self._volume_confirmation: bool = self.params.get("volume_confirmation", True)
 
+    @property
+    def min_bars_required(self) -> int:
+        return self._range_minutes + 2
+
     def generate_signals(self, bars: pd.DataFrame, symbol: str) -> List[Signal]:
-        if not self.validate_bars(bars, min_rows=self._range_minutes + 2):
+        if not self.validate_bars(bars, min_rows=self.min_bars_required):
             return []
 
         bars = bars.copy()

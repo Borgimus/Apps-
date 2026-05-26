@@ -371,3 +371,32 @@ Evidence:
 ---
 
 *Report generated from: `/home/user/Apps-/app/strategies/rsi_trend_strategy.py`, `/home/user/Apps-/app/strategies/strategy_base.py`, `/home/user/Apps-/app/scanning/yfinance_scanner.py`, `/home/user/Apps-/scripts/session_runner.py`, `/home/user/Apps-/logs/session_2026-05-26.log`, and live yfinance data for 2026-05-26.*
+
+---
+
+## Addendum — 2026-05-26: Config Integrity Fix
+
+**Finding:** Prior live sessions (including 2026-05-26) ran RSI_trend with `trend_ema_period=20` (hardcoded
+in `scripts/session_runner.py` line 1130), not the `trend_ema_period=50` documented in `config.yaml`. This
+discrepancy meant:
+
+- Runtime `min_bars_required` = max(14, 20) + 5 = **25 bars** (~2h05m at 5-min bars, ready ~11:35 ET)
+- Configured `min_bars_required` = max(14, 50) + 5 = **55 bars** (~4h35m at 5-min bars, ready ~14:05 ET)
+
+The analysis in this report was based on the *configured* EMA 50. The actual runtime behavior used the
+**lower** EMA 20 threshold. Despite this, RSI_trend produced no signals during the observed sessions —
+confirming that the strategy's non-firing was not purely a warmup issue. Both thresholds put the earliest
+ready time after the morning momentum window.
+
+**Fix applied (2026-05-26):**
+- `RSITrendSettings` class added to `app/config/settings.py` with `env_prefix="RSI_TREND_"`
+- Hardcoded `trend_ema_period=20` removed from `scripts/session_runner.py`; strategy now reads from
+  `settings.rsi_trend` (which reads `config.yaml` → `.env` → defaults in that priority order)
+- Active RSI_trend parameters logged at session startup via `logger.info("RSITrendStrategy config | ...")`
+- `min_bars_required` property added to all strategy classes; exposed in dashboard `/session/state` as
+  `strategy_configs`
+- `bar_interval: "5m"` and `mode: standard` added to `config.yaml` under `strategies.rsi_trend`
+- `RSI_TREND_BAR_INTERVAL` and `RSI_TREND_MODE` env vars now respected
+
+**Future sessions:** RSI_trend runtime parameters will be logged at startup. Cross-check the log line
+`RSITrendStrategy config | trend_ema_period=...` to confirm the active value matches `config.yaml`.

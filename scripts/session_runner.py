@@ -1124,11 +1124,39 @@ async def run_session(args: argparse.Namespace):
         "delta_target_min": settings.options.delta_target_min,
         "delta_target_max": settings.options.delta_target_max,
     })
+    _rsi_cfg = settings.rsi_trend
+    _rsi_mode = _rsi_cfg.mode
+    if _rsi_mode == "fast_intraday_diagnostic":
+        if settings.live_trading_enabled:
+            logger.error(
+                "RSITrendStrategy: fast_intraday_diagnostic mode requires paper trading — "
+                "reverting to standard"
+            )
+            _rsi_mode = "standard"
+        else:
+            logger.warning(
+                "RSITrendStrategy: fast_intraday_diagnostic mode is EXPERIMENTAL (paper only)"
+            )
+
     strategies = [
         OpeningRangeBreakoutStrategy(params={"range_minutes": 15, "min_range_pts": 0.5, "volume_confirmation": True}),
         VWAPReclaimStrategy(params={"proximity_pct": 0.002, "confirmation_bars": 2}),
-        RSITrendStrategy(params={"rsi_period": 14, "rsi_oversold": 35, "trend_ema_period": 20}),
+        RSITrendStrategy(params={
+            "rsi_period": _rsi_cfg.rsi_period,
+            "rsi_oversold": _rsi_cfg.rsi_oversold,
+            "rsi_overbought": _rsi_cfg.rsi_overbought,
+            "trend_ema_period": _rsi_cfg.trend_ema_period,
+            "bar_interval": _rsi_cfg.bar_interval,
+            "mode": _rsi_mode,
+        }),
     ]
+    logger.info(
+        "RSITrendStrategy config | rsi_period=%d | rsi_oversold=%.1f | rsi_overbought=%.1f | "
+        "trend_ema_period=%d | min_bars_required=%d | bar_interval=%s | mode=%s",
+        _rsi_cfg.rsi_period, _rsi_cfg.rsi_oversold, _rsi_cfg.rsi_overbought,
+        _rsi_cfg.trend_ema_period, strategies[2].min_bars_required,
+        _rsi_cfg.bar_interval, _rsi_mode,
+    )
 
     # ── Runtime stats (for health report) ────────────────────────────────────
     api_errors: int = 0
@@ -1276,6 +1304,14 @@ async def run_session(args: argparse.Namespace):
 
     # Publish initial active_symbols list to shared scan_store for dashboard
     _scan_store["active_symbols"] = list(active_symbols)
+    _scan_store["strategy_configs"] = [
+        {
+            "strategy_id": s.strategy_id,
+            "name": s.name,
+            "min_bars_required": s.min_bars_required,
+        }
+        for s in strategies
+    ]
 
     cycle = 0
     eod_liquidated = False

@@ -36,8 +36,12 @@ class VWAPReclaimStrategy(StrategyBase):
         self._proximity_pct: float = self.params.get("proximity_pct", 0.002)
         self._confirmation_bars: int = self.params.get("confirmation_bars", 2)
 
+    @property
+    def min_bars_required(self) -> int:
+        return self._confirmation_bars + 5
+
     def generate_signals(self, bars: pd.DataFrame, symbol: str) -> List[Signal]:
-        if not self.validate_bars(bars, min_rows=self._confirmation_bars + 5):
+        if not self.validate_bars(bars, min_rows=self.min_bars_required):
             return []
 
         bars = bars.copy()

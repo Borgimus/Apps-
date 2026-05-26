@@ -124,6 +124,19 @@ class UniverseSettings(BaseSettings):
     max_per_group: int = _yaml_get("universe", "max_per_group", default=15)
 
 
+class RSITrendSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="RSI_TREND_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    enabled: bool = _yaml_get("strategies", "rsi_trend", "enabled", default=True)
+    rsi_period: int = _yaml_get("strategies", "rsi_trend", "rsi_period", default=14)
+    rsi_oversold: float = _yaml_get("strategies", "rsi_trend", "rsi_oversold", default=35.0)
+    rsi_overbought: float = _yaml_get("strategies", "rsi_trend", "rsi_overbought", default=65.0)
+    trend_ema_period: int = _yaml_get("strategies", "rsi_trend", "trend_ema_period", default=50)
+    bar_interval: str = _yaml_get("strategies", "rsi_trend", "bar_interval", default="5m")
+    # Allowed: "standard" | "fast_intraday_diagnostic" (paper-only, disabled by default)
+    mode: str = _yaml_get("strategies", "rsi_trend", "mode", default="standard")
+
+
 class BacktestSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="BACKTEST_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
@@ -191,6 +204,7 @@ class Settings(BaseSettings):
     backtesting: BacktestSettings = BacktestSettings()
     position: PositionSettings = PositionSettings()
     universe: UniverseSettings = UniverseSettings()
+    rsi_trend: RSITrendSettings = RSITrendSettings()
 
     # ── Paper evaluation mode ─────────────────────────────────────────────────
     # When enabled: paper-only session with pre/post checklists, daily reports,

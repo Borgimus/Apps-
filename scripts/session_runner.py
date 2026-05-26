@@ -91,6 +91,37 @@ def _is_stale(fetched_at: Optional[datetime], max_age_secs: int = 60) -> bool:
     return age > max_age_secs
 
 
+# ── Strategy readiness (clock-based, no bar fetch) ────────────────────────────
+
+def _compute_strategy_readiness(strategies: list, now_et: datetime) -> list:
+    """
+    Estimate strategy readiness from the clock position relative to market open.
+    Assumes 5-min bars (one bar per 5 minutes starting at 9:30 ET).
+    No bar data is fetched — pure clock math.
+    """
+    market_open = now_et.replace(hour=9, minute=30, second=0, microsecond=0)
+    bars_elapsed = 0
+    if now_et >= market_open:
+        mins_since_open = int((now_et - market_open).total_seconds() / 60)
+        bars_elapsed = mins_since_open // 5
+
+    result = []
+    for s in strategies:
+        min_b = s.min_bars_required
+        earliest_et = market_open + timedelta(minutes=min_b * 5)
+        ready = bars_elapsed >= min_b
+        result.append({
+            "strategy_id": s.strategy_id,
+            "name": s.name,
+            "min_bars_required": min_b,
+            "bars_elapsed_since_open": bars_elapsed,
+            "ready": ready,
+            "earliest_ready_time_et": earliest_et.strftime("%H:%M"),
+            "bars_short": max(0, min_b - bars_elapsed),
+        })
+    return result
+
+
 # ── Position monitor (update + exit) ─────────────────────────────────────────
 
 async def monitor_positions(
@@ -1312,6 +1343,7 @@ async def run_session(args: argparse.Namespace):
         }
         for s in strategies
     ]
+    _scan_store["strategy_readiness"] = _compute_strategy_readiness(strategies, datetime.now(tz=ET))
 
     cycle = 0
     eod_liquidated = False
@@ -1361,6 +1393,9 @@ async def run_session(args: argparse.Namespace):
                 data={"cycle": cycle, "positions": len(pm.open_positions()), "pnl": float(risk.daily_pnl)},
             )
             await journal.commit()
+
+        # Update clock-based strategy readiness for dashboard
+        _scan_store["strategy_readiness"] = _compute_strategy_readiness(strategies, now)
 
         # EOD liquidation (before scanning for new entries)
         if now >= eod_time and not eod_liquidated:

@@ -121,6 +121,15 @@ class DailyReport:
     # Exit spread warnings
     exit_spread_warning_count: int = 0
 
+    # Signal-to-trade bridge diagnostics (permissive entry mode)
+    bridge_entries_count: int = 0
+    bridge_traded_count: int = 0
+    bridge_blocked_count: int = 0
+    bridge_skipped_count: int = 0
+    bridge_by_strategy: Dict[str, Dict[str, int]] = field(default_factory=dict)
+    bridge_top_blocked_reasons: List[str] = field(default_factory=list)
+    sample_size_warning: Optional[str] = None
+
     # Auto-generated notes
     notes: List[str] = field(default_factory=list)
     recommendations: List[str] = field(default_factory=list)
@@ -412,6 +421,47 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
             ss.avg_loss = sum(strat_losses) / len(strat_losses)
         report.by_strategy.append(ss)
 
+    # ── Signal bridge diagnostics (permissive entry mode) ─────────────────────
+    try:
+        from app.api.models import DBSignalBridge
+        from collections import Counter as _Counter
+        bridge_rows = (
+            await db_session.execute(
+                select(DBSignalBridge).where(DBSignalBridge.session_date == session_date)
+            )
+        ).scalars().all()
+        if bridge_rows:
+            report.bridge_entries_count = len(bridge_rows)
+            report.bridge_traded_count = sum(1 for r in bridge_rows if r.final_decision == "traded")
+            report.bridge_blocked_count = sum(1 for r in bridge_rows if r.final_decision == "blocked")
+            report.bridge_skipped_count = sum(1 for r in bridge_rows if r.final_decision == "skipped")
+
+            by_strat: Dict[str, Dict[str, int]] = {}
+            for r in bridge_rows:
+                sid = r.strategy_id or "unknown"
+                if sid not in by_strat:
+                    by_strat[sid] = {"traded": 0, "blocked": 0, "skipped": 0}
+                dec = r.final_decision or "blocked"
+                by_strat[sid][dec] = by_strat[sid].get(dec, 0) + 1
+            report.bridge_by_strategy = by_strat
+
+            blocked_reasons = [
+                r.exact_block_reason for r in bridge_rows
+                if r.final_decision == "blocked" and r.exact_block_reason
+            ]
+            top_reasons = [reason for reason, _ in _Counter(blocked_reasons).most_common(5)]
+            report.bridge_top_blocked_reasons = top_reasons
+    except Exception:
+        pass  # DBSignalBridge may not exist in older DBs
+
+    # ── Sample-size warning ────────────────────────────────────────────────────
+    if report.trades_filled < 30:
+        report.sample_size_warning = (
+            f"Sample size too small for statistical conclusions "
+            f"({report.trades_filled} fill(s) this session). "
+            f"Win rate and PnL metrics require 30+ trades to be meaningful."
+        )
+
     # ── Notes & recommendations ───────────────────────────────────────────────
     report.notes, report.recommendations = _generate_notes(report)
 
@@ -576,6 +626,43 @@ def _scan_pipeline_section(r: DailyReport) -> str:
     )
 
 
+def _bridge_section(r: DailyReport) -> str:
+    if r.bridge_entries_count == 0:
+        return ""
+    strat_rows = ""
+    for sid, counts in sorted(r.bridge_by_strategy.items()):
+        traded = counts.get("traded", 0)
+        blocked = counts.get("blocked", 0)
+        skipped = counts.get("skipped", 0)
+        strat_rows += f"| {sid} | {traded} | {blocked} | {skipped} |\n"
+    strat_table = (
+        "\n### By Strategy\n\n"
+        "| Strategy | Traded | Blocked | Skipped |\n"
+        "|---|---|---|---|\n"
+        f"{strat_rows}"
+    ) if strat_rows else ""
+
+    reasons_md = ""
+    if r.bridge_top_blocked_reasons:
+        reasons_md = "\n**Top block reasons:** " + " · ".join(r.bridge_top_blocked_reasons) + "\n"
+
+    sample_warn = ""
+    if r.sample_size_warning:
+        sample_warn = f"\n> **Warning:** {r.sample_size_warning}\n"
+
+    return (
+        f"\n## Signal Bridge Diagnostics\n\n"
+        f"{sample_warn}"
+        f"| Metric | Value |\n|---|---|\n"
+        f"| Signals evaluated | {r.bridge_entries_count} |\n"
+        f"| Traded | {r.bridge_traded_count} |\n"
+        f"| Blocked | {r.bridge_blocked_count} |\n"
+        f"| Skipped (dedup/cooldown) | {r.bridge_skipped_count} |\n"
+        f"{strat_table}"
+        f"{reasons_md}"
+    )
+
+
 def _pnl_by_symbol_section(r: DailyReport) -> str:
     if not r.pnl_by_symbol:
         return ""
@@ -668,7 +755,7 @@ def to_markdown(report: DailyReport) -> str:
 | Take-profit exits | {f"{r.take_profit_hit_pct:.1%}" if r.take_profit_hit_pct is not None else "n/a"} |
 | EOD exits | {f"{r.eod_exit_pct:.1%}" if r.eod_exit_pct is not None else "n/a"} |
 
-{_fill_mode_table(r)}{_cancel_reason_table(r)}
+{_fill_mode_table(r)}{_cancel_reason_table(r)}{_bridge_section(r)}
 
 ## System Health
 

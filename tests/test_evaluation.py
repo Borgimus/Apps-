@@ -116,6 +116,7 @@ class TestPaperEvaluationModeConfig:
     def test_eval_false_and_live_true_is_allowed(self, monkeypatch):
         monkeypatch.setenv("PAPER_EVALUATION_MODE", "false")
         monkeypatch.setenv("LIVE_TRADING_ENABLED", "true")
+        monkeypatch.setenv("PAPER_EVAL_PERMISSIVE_ENTRY_MODE", "false")
         import warnings
         from app.config.settings import Settings
         with warnings.catch_warnings():

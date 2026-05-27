@@ -206,6 +206,13 @@ class Settings(BaseSettings):
     universe: UniverseSettings = UniverseSettings()
     rsi_trend: RSITrendSettings = RSITrendSettings()
 
+    # ── Paper evaluation permissive entry mode ────────────────────────────────
+    # When true: single qualifying strategy signal can enter if scanner, liquidity,
+    # spread, and risk gates all pass.  Requires paper_evaluation_mode=true and
+    # live_trading_enabled=false.  Adds signal-to-trade bridge diagnostics and
+    # deterministic signal ranking.  No effect on existing behavior when false.
+    paper_eval_permissive_entry_mode: bool = False
+
     # ── Paper evaluation mode ─────────────────────────────────────────────────
     # When enabled: paper-only session with pre/post checklists, daily reports,
     # and a cumulative ledger.  Incompatible with live_trading_enabled=true.
@@ -227,6 +234,15 @@ class Settings(BaseSettings):
             raise ValueError(
                 "paper_evaluation_mode and live_trading_enabled cannot both be true."
             )
+        if self.paper_eval_permissive_entry_mode:
+            if self.live_trading_enabled:
+                raise ValueError(
+                    "paper_eval_permissive_entry_mode cannot be used with live_trading_enabled=true."
+                )
+            if not self.paper_evaluation_mode:
+                raise ValueError(
+                    "paper_eval_permissive_entry_mode requires paper_evaluation_mode=true."
+                )
         return self
 
     @field_validator("live_trading_enabled", mode="before")

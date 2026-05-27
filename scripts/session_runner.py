@@ -469,6 +469,7 @@ async def scan_and_place(
     store=None,
     session_date: str = "",
     alert_service=None,
+    scan_store: Optional[dict] = None,
 ) -> int:
     """Return number of orders placed (or would-be placed in dry-run)."""
     from app.brokers.broker_interface import OrderRequest, OrderSide, OrderType
@@ -507,6 +508,70 @@ async def scan_and_place(
         logger.info("REALISTIC_FILL_TEST_MODE: skipping non-SPY symbol %s", symbol)
         return 0
 
+    # ── Permissive entry mode — quality scoring + deterministic ranking ────────
+    _permissive = getattr(settings, "paper_eval_permissive_entry_mode", False)
+    _bridge_entries: list = []
+
+    if _permissive:
+        from app.strategies.signal_quality import compute_signal_quality_score
+
+        # Build scanner context lookup for this symbol (rvol, score, universe_group)
+        _scan_candidates: list[dict] = []
+        if scan_store:
+            _scan_candidates = scan_store.get("candidates") or []
+        _cand_ctx = next(
+            (c for c in _scan_candidates if c.get("symbol") == symbol), {}
+        )
+        _scanner_score = _cand_ctx.get("score")
+        _scanner_approved = not _cand_ctx.get("is_rejected", True) if _cand_ctx else None
+        _rvol = _cand_ctx.get("rvol")
+        _universe_group = _cand_ctx.get("universe_group")
+
+        # Per-direction confluence count (number of strategies agreeing on each direction)
+        _dir_counts: dict = {}
+        for _s in actionable:
+            _dir_counts[_s.direction] = _dir_counts.get(_s.direction, 0) + 1
+
+        # Compute quality scores and signal ages
+        _scored: list[tuple] = []
+        for _s in actionable:
+            _quality = compute_signal_quality_score(_s, bars)
+            _sig_ts = _s.timestamp
+            if hasattr(_sig_ts, "astimezone"):
+                from zoneinfo import ZoneInfo as _ZI
+                _sig_ts_utc = _sig_ts.astimezone(_ZI("UTC"))
+                _now_utc = now.astimezone(_ZI("UTC"))
+            else:
+                _sig_ts_utc = _sig_ts
+                _now_utc = now
+            _age_secs = abs((_now_utc - _sig_ts_utc).total_seconds())
+            _confluence = _dir_counts.get(_s.direction, 1)
+            _scored.append((_s, _quality, _age_secs, _confluence))
+
+        # Rank: scanner_score↓, quality↓, rvol↓, age↑, confluence↓
+        _rv = _rvol or 0.0
+        _ss = _scanner_score or 0.0
+        _scored.sort(
+            key=lambda x: (-_ss, -x[1], -_rv, x[2], -x[3])
+        )
+        actionable = [x[0] for x in _scored]
+        _sig_meta: dict = {id(x[0]): (x[1], x[2], x[3]) for x in _scored}
+
+        # RSI_trend readiness logging (informational; never blocks entry)
+        for _strat in strategies:
+            if getattr(_strat, "strategy_id", "") == "rsi_trend":
+                _ri = _strat.get_readiness_info(bars)
+                if _ri["ready"]:
+                    logger.info(
+                        "[bridge:%s] rsi_trend ready: %s", symbol, _ri["reason"]
+                    )
+                else:
+                    logger.info(
+                        "[bridge:%s] rsi_trend not-ready (advisory only): %s",
+                        symbol, _ri["reason"],
+                    )
+                break
+
     placed = 0
     for sig in actionable:
         # Only act on signals from the current session
@@ -520,17 +585,51 @@ async def scan_and_place(
         if sig_ts_et.date() < now.date():
             continue
 
+        # ── Bridge entry scaffold (permissive mode) ───────────────────────────
+        _bridge: Optional[object] = None
+        if _permissive:
+            from app.trading.bridge_diagnostics import BridgeEntry as _BE
+            _qscore, _age_s, _conf = _sig_meta.get(id(sig), (0.0, 0.0, 1))
+            _bridge = _BE(
+                session_date=session_date,
+                timestamp=now,
+                symbol=symbol,
+                strategy_id=sig.strategy_id,
+                signal_direction=sig.direction.value,
+                signal_age_seconds=_age_s,
+                universe_group=_universe_group,
+                scanner_score=_scanner_score,
+                scanner_approved=_scanner_approved,
+                signal_quality_score=_qscore,
+                confluence_count=_conf,
+                rvol=_rvol,
+                rvol_threshold=None,
+                reconciliation_passed=True,
+            )
+            _bridge_entries.append(_bridge)
+
         # Dedup — also block if there is a pending-but-unfilled order
         if pm.has_position_for_symbol(symbol):
             logger.debug("Dedup: position already open for %s", symbol)
+            if _bridge is not None:
+                _bridge.position_limit_passed = False
+                _bridge.final_decision = "skipped"
+                _bridge.exact_block_reason = "position_already_open"
             continue
         if fill_tracker and fill_tracker.has_pending_for_symbol(symbol):
             logger.debug("Dedup: pending order already registered for %s", symbol)
+            if _bridge is not None:
+                _bridge.position_limit_passed = False
+                _bridge.final_decision = "skipped"
+                _bridge.exact_block_reason = "pending_order_exists"
             continue
 
         # Cooldown
         if pm.is_in_cooldown(now):
             logger.info("Cooldown active — skipping %s signal", symbol)
+            if _bridge is not None:
+                _bridge.final_decision = "skipped"
+                _bridge.exact_block_reason = "cooldown_after_loss"
             if journal:
                 await journal.record_rejection(
                     strategy_id=sig.strategy_id,
@@ -581,7 +680,33 @@ async def scan_and_place(
 
         # Liquidity filter
         contract = liq_filter.select_contract(chain, sig)
+        if _bridge is not None and contract is not None:
+            _bridge.option_contract = contract.option_symbol
+            _bid = float(contract.bid)
+            _ask = float(contract.ask)
+            _bridge.bid = _bid
+            _bridge.ask = _ask
+            _opt_vol = getattr(contract, "volume", None)
+            _opt_oi = getattr(contract, "open_interest", None)
+            _bridge.spread_threshold = float(liq_filter._max_spread_pct)
+            _bridge.option_volume_threshold = liq_filter._min_vol
+            _bridge.open_interest_threshold = liq_filter._min_oi
+            _bridge.option_volume = int(_opt_vol) if _opt_vol is not None else None
+            _bridge.open_interest = int(_opt_oi) if _opt_oi is not None else None
+            _mid_price = (_bid + _ask) / 2 if (_bid + _ask) > 0 else None
+            if _mid_price:
+                _bridge.spread_pct = (_ask - _bid) / _mid_price
+            _bridge.spread_passed = (
+                _bridge.spread_pct is not None
+                and _bridge.spread_pct <= float(liq_filter._max_spread_pct)
+            )
+            _bridge.liquidity_passed = True
         if contract is None:
+            if _bridge is not None:
+                _bridge.liquidity_passed = False
+                _bridge.spread_passed = None
+                _bridge.final_decision = "blocked"
+                _bridge.exact_block_reason = "liquidity_filter_no_contract"
             if journal:
                 await journal.record_rejection(
                     strategy_id=sig.strategy_id,
@@ -662,9 +787,14 @@ async def scan_and_place(
             contract=contract,
             now=now,
         )
+        if _bridge is not None:
+            _bridge.risk_passed = risk_result.passed
         if not risk_result.passed:
             reason_str = "; ".join(risk_result.messages)
             logger.info("Risk rejected %s: %s", symbol, reason_str)
+            if _bridge is not None:
+                _bridge.final_decision = "blocked"
+                _bridge.exact_block_reason = f"risk: {reason_str}"
             if journal:
                 await journal.record_rejection(
                     strategy_id=sig.strategy_id,
@@ -697,6 +827,8 @@ async def scan_and_place(
                 "DRY RUN: would place %s %s limit=%.2f",
                 sig.direction.value, contract.option_symbol, float(limit_price),
             )
+            if _bridge is not None:
+                _bridge.final_decision = "traded"
             placed += 1
             continue
 
@@ -844,7 +976,17 @@ async def scan_and_place(
                     quantity=request.quantity,
                     journal_id=journal_id,
                 )
+        if _bridge is not None:
+            _bridge.final_decision = "traded"
         placed += 1
+
+    # ── Persist bridge diagnostics ────────────────────────────────────────────
+    if _permissive and _bridge_entries and journal:
+        try:
+            from app.trading.bridge_diagnostics import persist_bridge_entries as _pbe
+            await _pbe(_bridge_entries, journal._db)
+        except Exception as _exc:
+            logger.warning("Bridge diagnostics persist error: %s", _exc)
 
     return placed
 
@@ -1007,6 +1149,7 @@ async def _run_universe_scan(
                 "is_rejected": c.is_rejected,
                 "reason_codes": c.reason_codes,
                 "rejected_reasons": c.rejected_reasons,
+                "rvol": getattr(c.metrics, "rvol", None),
             }
             for c in candidates
         ]
@@ -1095,6 +1238,7 @@ async def _run_universe_scan(
                 "reason_codes": c.reason_codes,
                 "rejected_reasons": c.rejected_reasons,
                 "universe_group": c.universe_group,
+                "rvol": getattr(c.metrics, "rvol", None),
             }
             for c in candidates
         ]
@@ -1530,6 +1674,7 @@ async def run_session(args: argparse.Namespace):
                     store=store,
                     session_date=today_str,
                     alert_service=alert_service,
+                    scan_store=_scan_store,
                 )
                 if placed > 0:
                     symbols_traded_today.add(symbol)

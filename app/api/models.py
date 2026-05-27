@@ -48,6 +48,8 @@ async def _migrate_schema(conn) -> None:
         ("trade_journal", "exit_spread_pct",    "FLOAT"),
         ("trade_journal", "limit_price_mode",   "VARCHAR(32)"),
         ("scan_results",  "universe_group",     "VARCHAR(32)"),
+        ("signal_bridge", "confluence_count",   "INTEGER"),
+        ("signal_bridge", "reconciliation_passed", "BOOLEAN"),
     ]
     for table, col, col_type in migrations:
         try:
@@ -283,6 +285,64 @@ class DBScanResult(Base):
     has_earnings = Column(Boolean)
     universe_group = Column(String(32))                  # e.g. "core_etfs", "mega_cap"
     scanned_at = Column(DateTime, server_default=func.now(), index=True)
+    created_at = Column(DateTime, server_default=func.now())
+
+
+class DBSignalBridge(Base):
+    """
+    Signal-to-trade bridge diagnostic.
+
+    Written for every signal evaluated when PAPER_EVAL_PERMISSIVE_ENTRY_MODE is
+    enabled.  Records actual gate values vs thresholds so every trade and every
+    blocked signal is fully explained.
+    """
+    __tablename__ = "signal_bridge"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    session_date = Column(String(10), index=True)
+    timestamp = Column(DateTime, nullable=False, index=True)
+
+    # Signal identity
+    symbol = Column(String(16), nullable=False, index=True)
+    universe_group = Column(String(32))
+    strategy_id = Column(String(64), nullable=False, index=True)
+    signal_direction = Column(String(16))
+    signal_age_seconds = Column(Float)
+
+    # Scanner context (from universe scan result for today)
+    scanner_score = Column(Float)
+    scanner_approved = Column(Boolean)
+
+    # Signal quality
+    signal_quality_score = Column(Float)
+    confluence_count = Column(Integer, default=1)
+
+    # Option contract (populated once liquidity filter selects a contract)
+    option_contract = Column(String(64))
+    bid = Column(Float)
+    ask = Column(Float)
+    spread_pct = Column(Float)
+    spread_threshold = Column(Float)
+
+    # Liquidity metrics — actual value vs threshold (not just pass/fail)
+    rvol = Column(Float)
+    rvol_threshold = Column(Float)
+    option_volume = Column(Integer)
+    option_volume_threshold = Column(Integer)
+    open_interest = Column(Integer)
+    open_interest_threshold = Column(Integer)
+
+    # Gate results
+    liquidity_passed = Column(Boolean)
+    spread_passed = Column(Boolean)
+    risk_passed = Column(Boolean)
+    reconciliation_passed = Column(Boolean, default=True)
+    position_limit_passed = Column(Boolean, default=True)
+
+    # Final decision
+    final_decision = Column(String(16))   # traded | blocked | skipped
+    exact_block_reason = Column(Text)
+
     created_at = Column(DateTime, server_default=func.now())
 
 

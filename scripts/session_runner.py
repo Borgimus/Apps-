@@ -557,6 +557,16 @@ async def scan_and_place(
         actionable = [x[0] for x in _scored]
         _sig_meta: dict = {id(x[0]): (x[1], x[2], x[3]) for x in _scored}
 
+        # RSI_trend: diagnostic only in permissive mode — log readiness, never trade
+        _rsi_diagnostic: list = []
+        _tradeable: list = []
+        for _s in actionable:
+            if _s.strategy_id == "rsi_trend":
+                _rsi_diagnostic.append(_s)
+            else:
+                _tradeable.append(_s)
+        actionable = _tradeable
+
         # RSI_trend readiness logging (informational; never blocks entry)
         for _strat in strategies:
             if getattr(_strat, "strategy_id", "") == "rsi_trend":
@@ -571,6 +581,29 @@ async def scan_and_place(
                         symbol, _ri["reason"],
                     )
                 break
+
+    # ── Create bridge stubs for RSI_trend diagnostic signals ─────────────────
+    if _permissive and _rsi_diagnostic:
+        from app.trading.bridge_diagnostics import BridgeEntry as _BE
+        for _rs in _rsi_diagnostic:
+            _qscore_r, _age_r, _conf_r = _sig_meta.get(id(_rs), (0.0, 0.0, 1))
+            _rb = _BE(
+                session_date=session_date,
+                timestamp=now,
+                symbol=symbol,
+                strategy_id=_rs.strategy_id,
+                signal_direction=_rs.direction.value,
+                signal_age_seconds=_age_r,
+                universe_group=_universe_group,
+                scanner_score=_scanner_score,
+                scanner_approved=_scanner_approved,
+                signal_quality_score=_qscore_r,
+                confluence_count=_conf_r,
+                rvol=_rvol,
+                final_decision="skipped",
+                exact_block_reason="rsi_trend_diagnostic_only",
+            )
+            _bridge_entries.append(_rb)
 
     placed = 0
     for sig in actionable:

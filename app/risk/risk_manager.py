@@ -75,12 +75,33 @@ class RiskCheckResult:
 class RiskManager:
     """
     Stateful risk manager.  Must be instantiated once per trading session
-    and re-used so that daily counters (trades, P&L) are maintained correctly.
+    and re-used so that daily counters (entries, P&L) are maintained correctly.
+
+    Entry counting semantics
+    ────────────────────────
+    max_trades_per_day is treated as max NEW ENTRIES per day.
+    Exits (trailing_stop, stop_loss, EOD) are never counted against this limit
+    and are never blocked by it.
+
+    The check uses:
+        entries_today + pending_entries >= max_trades_per_day
+
+    pending_entries prevents order spam: a slot is reserved the moment an entry
+    order is accepted by the broker and released only when the fill is confirmed
+    or the order is cancelled/rejected.
+
+    Lifecycle:
+        record_entry_pending()  — order accepted by broker
+        record_entry_filled()   — fill confirmed by FillTracker
+        record_entry_cancelled()— order cancelled or rejected (frees slot)
+        record_exit(pnl)        — position closed; for PnL tracking only
     """
 
     def __init__(self, settings: Settings | None = None):
         self._s = settings or get_settings()
-        self._trades_today: int = 0
+        self._entries_today: int = 0     # confirmed filled entries
+        self._pending_entries: int = 0   # placed but not yet filled/cancelled
+        self._exits_today: int = 0       # closed positions (reporting only)
         self._daily_pnl: Decimal = Decimal("0")
         self._session_date: Optional[date] = None
         self._starting_equity: Optional[Decimal] = None
@@ -95,19 +116,61 @@ class RiskManager:
                 "RiskManager: new session %s | starting_equity=%.2f", today, equity
             )
             self._session_date = today
-            self._trades_today = 0
+            self._entries_today = 0
+            self._pending_entries = 0
+            self._exits_today = 0
             self._daily_pnl = Decimal("0")
             self._starting_equity = equity
 
-    def record_trade(self, pnl: Decimal = Decimal("0")):
-        """Call when an order is filled to track daily counters."""
-        self._trades_today += 1
+    # ── Entry / exit recording ────────────────────────────────────────────────
+
+    def record_entry_pending(self):
+        """Call when an entry order is accepted by the broker (before fill confirmation)."""
+        self._pending_entries += 1
+        logger.info(
+            "RiskManager: entry pending | entries=%d pending=%d exits=%d",
+            self._entries_today, self._pending_entries, self._exits_today,
+        )
+
+    def record_entry_filled(self):
+        """Call when a pending entry order is confirmed filled by the broker."""
+        self._pending_entries = max(0, self._pending_entries - 1)
+        self._entries_today += 1
+        logger.info(
+            "RiskManager: entry filled | entries=%d pending=%d exits=%d",
+            self._entries_today, self._pending_entries, self._exits_today,
+        )
+
+    def record_entry_cancelled(self):
+        """Call when a pending entry order is cancelled or rejected without filling."""
+        self._pending_entries = max(0, self._pending_entries - 1)
+        logger.info(
+            "RiskManager: entry cancelled | entries=%d pending=%d exits=%d",
+            self._entries_today, self._pending_entries, self._exits_today,
+        )
+
+    def record_exit(self, pnl: Decimal = Decimal("0")):
+        """
+        Call when a position is closed (trailing_stop, stop_loss, take_profit, EOD).
+        Never counts against the entry limit. Updates PnL for daily-loss tracking.
+        """
+        self._exits_today += 1
         self._daily_pnl += pnl
         logger.info(
-            "RiskManager: trade recorded | trades_today=%d | daily_pnl=%.2f",
-            self._trades_today,
-            self._daily_pnl,
+            "RiskManager: exit recorded | entries=%d exits=%d daily_pnl=%.2f",
+            self._entries_today, self._exits_today, float(self._daily_pnl),
         )
+
+    def record_trade(self, pnl: Decimal = Decimal("0")):
+        """
+        Deprecated. Use record_entry_pending() for new entries, record_exit(pnl) for closes.
+        Kept for backward compatibility: calls record_entry_pending() when pnl=0,
+        or record_exit(pnl) when pnl is non-zero (legacy exit callers).
+        """
+        if pnl != Decimal("0"):
+            self.record_exit(pnl)
+        else:
+            self.record_entry_pending()
 
     # ── Main check ────────────────────────────────────────────────────────────
 
@@ -208,10 +271,11 @@ class RiskManager:
             )
 
     def _check_max_trades_per_day(self, result: RiskCheckResult):
-        if self._trades_today >= self._s.risk.max_trades_per_day:
+        capacity_used = self._entries_today + self._pending_entries
+        if capacity_used >= self._s.risk.max_trades_per_day:
             result.add_failure(
                 RiskCheck.MAX_TRADES_PER_DAY,
-                f"Max trades per day reached: {self._trades_today}/{self._s.risk.max_trades_per_day}",
+                f"Max entries per day reached: {capacity_used}/{self._s.risk.max_trades_per_day}",
             )
 
     def _check_daily_loss(self, result: RiskCheckResult, equity: Decimal):
@@ -298,8 +362,24 @@ class RiskManager:
     # ── Utility ───────────────────────────────────────────────────────────────
 
     @property
+    def entries_today(self) -> int:
+        """Number of entry orders confirmed filled today."""
+        return self._entries_today
+
+    @property
+    def pending_entries(self) -> int:
+        """Entry orders placed with the broker but not yet filled or cancelled."""
+        return self._pending_entries
+
+    @property
+    def exits_today(self) -> int:
+        """Number of positions closed today (for reporting; never blocks entries)."""
+        return self._exits_today
+
+    @property
     def trades_today(self) -> int:
-        return self._trades_today
+        """Backward-compat alias for entries_today (filled entries only)."""
+        return self._entries_today
 
     @property
     def daily_pnl(self) -> Decimal:

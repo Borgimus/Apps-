@@ -58,7 +58,7 @@ def _make_risk_manager(
 
     rm = RiskManager(settings)
     # Inject pre-loaded state
-    rm._trades_today = trades_today
+    rm._entries_today = trades_today
     rm._daily_pnl = Decimal(str(daily_pnl))
     rm._starting_equity = Decimal(str(starting_equity))
     rm._session_date = _NOW.date()
@@ -107,7 +107,7 @@ class TestTradesPerDayCap:
             now=_NOW,
         )
         assert not result.passed
-        assert any("max trades" in m.lower() for m in result.messages)
+        assert any("max entries" in m.lower() or "max trades" in m.lower() for m in result.messages)
 
     def test_cap_not_reached_allows_order(self):
         """RiskManager allows an order when trades_today < max_trades_per_day."""
@@ -424,6 +424,9 @@ class TestDashboardLimitVisibility:
         rm = MagicMock()
         rm.daily_pnl = 0.0
         rm.trades_today = 1
+        rm.entries_today = 1
+        rm.pending_entries = 0
+        rm.exits_today = 0
         rm._session_date = None
         pm = MagicMock()
         pm.open_positions.return_value = []
@@ -452,6 +455,9 @@ class TestDashboardLimitVisibility:
 
             # Trade limit fields
             assert data["trades_today"] == 1
+            assert data["entries_today"] == 1
+            assert data["pending_entries"] == 0
+            assert data["exits_today"] == 0
             assert data["max_trades_per_day"] == 3
             assert data["trades_remaining"] == 2
 

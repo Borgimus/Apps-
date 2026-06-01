@@ -116,7 +116,7 @@ def test_max_trades_per_day(mock_option_contract):
 
     # Fill to the limit
     for _ in range(3):
-        rm.record_trade()
+        rm.record_entry_pending()
 
     result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=SAFE_NOW)
     assert not result.passed
@@ -126,7 +126,7 @@ def test_max_trades_per_day(mock_option_contract):
 def test_under_max_trades_passes(mock_option_contract):
     rm = RiskManager(_make_settings())
     rm.start_session(EQUITY)
-    rm.record_trade()
+    rm.record_entry_pending()
 
     result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=SAFE_NOW)
     assert RiskCheck.MAX_TRADES_PER_DAY not in result.failed_checks
@@ -138,7 +138,7 @@ def test_max_daily_loss(mock_option_contract):
     rm = RiskManager(_make_settings())
     rm.start_session(EQUITY)
     # Record a loss exceeding 2% of $100,000 = $2,000
-    rm.record_trade(pnl=Decimal("-2500"))
+    rm.record_exit(pnl=Decimal("-2500"))
 
     result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=SAFE_NOW)
     assert not result.passed
@@ -148,7 +148,7 @@ def test_max_daily_loss(mock_option_contract):
 def test_within_daily_loss_passes(mock_option_contract):
     rm = RiskManager(_make_settings())
     rm.start_session(EQUITY)
-    rm.record_trade(pnl=Decimal("-500"))  # only 0.5% loss
+    rm.record_exit(pnl=Decimal("-500"))  # only 0.5% loss
 
     result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=SAFE_NOW)
     assert RiskCheck.MAX_DAILY_LOSS not in result.failed_checks

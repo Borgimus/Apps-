@@ -233,7 +233,7 @@ class FillTracker:
                     "FillTracker: order %s %s — removing",
                     order_id[:8], status.value,
                 )
-                await self._handle_dead(order_id, pending, status.value, pm, journal)
+                await self._handle_dead(order_id, pending, status.value, pm, journal, risk)
 
             else:
                 # Still pending (NEW, ACCEPTED, etc.)
@@ -336,6 +336,8 @@ class FillTracker:
                     pos.entry_price = fill_price
                 logger.warning("FillTracker: position already open for %s — updated entry price", pending.option_symbol)
 
+            if risk is not None:
+                risk.record_entry_filled()
             del self._pending[order_id]
             self._last_status.pop(order_id, None)
             return 1
@@ -363,6 +365,7 @@ class FillTracker:
         reason: str,
         pm,
         journal,
+        risk=None,
     ):
         """Handle cancelled / rejected / expired / stale order."""
         # Remove phantom position if it was opened optimistically before fill confirmation
@@ -372,6 +375,9 @@ class FillTracker:
                 pending.option_symbol, reason,
             )
             pm._positions.pop(pending.option_symbol, None)
+
+        if risk is not None:
+            risk.record_entry_cancelled()
 
         if journal and pending.journal_id:
             await journal.record_cancellation(

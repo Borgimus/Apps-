@@ -240,7 +240,7 @@ async def monitor_positions(
                         pos.option_symbol, _exit_exc,
                     )
                 pm_pos = pm.close(pos.option_symbol, current_price, pnl)
-                risk.record_trade(Decimal(str(pnl)))
+                risk.record_exit(Decimal(str(pnl)))
                 if pos.journal_id and journal:
                     await journal.record_exit(
                         journal_id=pos.journal_id,
@@ -385,7 +385,7 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
                     pos.option_symbol, _eod_exc,
                 )
             pm.close(pos.option_symbol, exit_price, pnl)
-            risk.record_trade(Decimal(str(pnl)))
+            risk.record_exit(Decimal(str(pnl)))
             if pos.journal_id and journal:
                 await journal.record_exit(
                     journal_id=pos.journal_id,
@@ -968,7 +968,7 @@ async def scan_and_place(
         if order is None:
             continue
 
-        risk.record_trade()
+        risk.record_entry_pending()
         if entries_placed is not None:
             entries_placed[sig.strategy_id] = entries_placed.get(sig.strategy_id, 0) + 1
         logger.info(
@@ -1599,14 +1599,14 @@ async def run_session(args: argparse.Namespace):
             logger.info("Market closed — ending session")
             break
 
-        logger.info("[cycle %d] %s ET | positions=%d | trades=%d",
-                    cycle, now.strftime("%H:%M:%S"), len(pm.open_positions()), risk.trades_today)
+        logger.info("[cycle %d] %s ET | positions=%d | entries=%d",
+                    cycle, now.strftime("%H:%M:%S"), len(pm.open_positions()), risk.entries_today)
 
         # Heartbeat log
         if journal:
             await journal.log_event(
                 event="heartbeat",
-                message=f"cycle={cycle} positions={len(pm.open_positions())} trades={risk.trades_today}",
+                message=f"cycle={cycle} positions={len(pm.open_positions())} entries={risk.entries_today}",
                 data={"cycle": cycle, "positions": len(pm.open_positions()), "pnl": float(risk.daily_pnl)},
             )
             await journal.commit()

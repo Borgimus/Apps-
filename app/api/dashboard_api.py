@@ -94,7 +94,10 @@ class StatusResponse(BaseModel):
     broker: str
     kill_switch_active: bool
     session_date: Optional[str]
-    trades_today: int
+    trades_today: int          # backward-compat alias for entries_today
+    entries_today: int
+    pending_entries: int
+    exits_today: int
     daily_pnl: float
 
 
@@ -303,12 +306,16 @@ def create_app(
     @app.get("/status", response_model=StatusResponse)
     async def status():
         rm = _risk_manager
+        entries = rm.entries_today if rm else 0
         return StatusResponse(
             live_trading_enabled=settings.live_trading_enabled,
             broker=settings.broker,
             kill_switch_active=settings.is_kill_switch_active(),
             session_date=str(rm._session_date) if rm and rm._session_date else None,
-            trades_today=rm.trades_today if rm else 0,
+            trades_today=entries,
+            entries_today=entries,
+            pending_entries=rm.pending_entries if rm else 0,
+            exits_today=rm.exits_today if rm else 0,
             daily_pnl=float(rm.daily_pnl) if rm else 0.0,
         )
 
@@ -412,8 +419,14 @@ def create_app(
                 .limit(20)
             )
         ).scalars().all()
+        entries = rm.entries_today if rm else 0
+        pending = rm.pending_entries if rm else 0
         return {
-            "trades_today": rm.trades_today if rm else 0,
+            "trades_today": entries,
+            "entries_today": entries,
+            "pending_entries": pending,
+            "exits_today": rm.exits_today if rm else 0,
+            "trades_remaining": max(0, settings.risk.max_trades_per_day - (entries + pending)),
             "daily_pnl": float(rm.daily_pnl) if rm else 0.0,
             "kill_switch_active": settings.is_kill_switch_active(),
             "max_trades_per_day": settings.risk.max_trades_per_day,
@@ -586,7 +599,9 @@ def create_app(
                 pending_count = 0
 
         daily_pnl = float(rm.daily_pnl) if rm else 0.0
-        trades_today = rm.trades_today if rm else 0
+        entries_today = rm.entries_today if rm else 0
+        pending_entries = rm.pending_entries if rm else 0
+        exits_today = rm.exits_today if rm else 0
         max_trades = settings.risk.max_trades_per_day
 
         _uni = settings.universe
@@ -601,9 +616,14 @@ def create_app(
             "paper_evaluation_mode": settings.paper_evaluation_mode,
             "kill_switch_active": settings.is_kill_switch_active(),
             # ── Trade counts ───────────────────────────────────────────────
-            "trades_today": trades_today,
+            "trades_today": entries_today,       # backward-compat alias
+            "entries_today": entries_today,
+            "pending_entries": pending_entries,
+            "exits_today": exits_today,
+            "round_trips_completed": min(entries_today, exits_today),
+            "orders_submitted": entries_today + pending_entries,
             "max_trades_per_day": max_trades,
-            "trades_remaining": max(0, max_trades - trades_today),
+            "trades_remaining": max(0, max_trades - (entries_today + pending_entries)),
             # ── PnL ────────────────────────────────────────────────────────
             "daily_pnl": daily_pnl,
             "unrealized_pnl_total": round(unrealized_total, 2),

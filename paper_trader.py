@@ -290,7 +290,7 @@ class PaperTrader:
         # Submit order
         try:
             order_result = await self._broker.place_option_order(request)
-            self._risk.record_trade()
+            self._risk.record_entry_pending()
             logger.info(
                 "Order submitted: %s | %s | qty=%d | price=%.2f",
                 order_result.order_id,

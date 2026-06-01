@@ -233,3 +233,35 @@ on 2026-05-29, assuming the ORB slot reservation feature had also not yet been a
 | Were ORB signals evaluated on merit? | No — all 77 ORB blocks were pure risk-counter blocks |
 | Docstring alignment? | No — docstring says "at fill" but entry is counted at placement |
 | Most likely design intent | Entry-only counting (possibly at fill) — exits were not intended to consume slots |
+
+---
+
+## Historical Note — Fix Applied 2026-06-01
+
+The semantics described in this document (exits consuming entry capacity) were corrected in commit 
+on branch `claude/options-trading-research-system-TIU0p`.
+
+**Changes made:**
+- `RiskManager._trades_today` replaced with three counters: `_entries_today`, `_pending_entries`, `_exits_today`
+- New methods: `record_entry_pending()`, `record_entry_filled()`, `record_entry_cancelled()`, `record_exit(pnl)`
+- `record_trade()` kept as deprecated backward-compat alias
+- `_check_max_trades_per_day()` uses `entries_today + pending_entries >= max_trades_per_day`
+- `session_runner.py` exit paths changed from `record_trade(pnl)` → `record_exit(pnl)`
+- `session_runner.py` entry placement changed from `record_trade()` → `record_entry_pending()`
+- `FillTracker._handle_fill()` now calls `risk.record_entry_filled()` on confirmed fills
+- `FillTracker._handle_dead()` now calls `risk.record_entry_cancelled()` on cancel/reject/expire
+
+**Effective capacity after fix:**
+With `max_trades_per_day=3`: **3 entries** (not 2 as before).
+Each entry reservation is freed either by a fill confirmation (promoting to `entries_today`)
+or by a cancellation (decrementing `pending_entries`).
+
+**What the 2026-05-29 session would have looked like under the fixed semantics:**
+- SNOW entry(10:34)→entries_today=1, SNOW exit→exits_today=1 (no counter effect on entries)
+- MSFT entry(11:04)→entries_today=2
+- MSFT exit→exits_today=2 (no counter effect on entries)
+- ORB signals from 12:04+ → entries_today=2, capacity_used=2 < 3 → **ALLOWED**
+- One ORB trade could have been placed before the session ended
+
+This confirms the original blocking of ORB was entirely an artifact of the counter bug, not a
+reflection of ORB's actual signal quality or strategy viability.

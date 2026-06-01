@@ -244,7 +244,7 @@ class TestStandbyGuard:
 
             app_instance = dash_mod.create_app(
                 broker=MagicMock(),
-                risk_manager=MagicMock(daily_pnl=0.0, trades_today=0, _session_date=None),
+                risk_manager=MagicMock(daily_pnl=0.0, trades_today=0, entries_today=0, pending_entries=0, exits_today=0, _session_date=None),
                 position_manager=MagicMock(open_positions=MagicMock(return_value=[]), to_dict_list=MagicMock(return_value=[])),
                 fill_tracker=MagicMock(count=MagicMock(return_value=0)),
                 scan_results_store=dash_mod._scan_store,

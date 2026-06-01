@@ -180,9 +180,20 @@ class TestFullOrderPipeline:
     async def test_daily_trade_counter_increments(self):
         rm = RiskManager()
         rm.start_session(EQUITY)
-        assert rm.trades_today == 0
-        rm.record_trade()
-        assert rm.trades_today == 1
-        rm.record_trade(pnl=Decimal("150"))
-        assert rm.trades_today == 2
+        assert rm.entries_today == 0
+        assert rm.pending_entries == 0
+
+        # Entry lifecycle: pending → filled
+        rm.record_entry_pending()
+        assert rm.pending_entries == 1
+        assert rm.entries_today == 0
+        rm.record_entry_filled()
+        assert rm.pending_entries == 0
+        assert rm.entries_today == 1
+        assert rm.trades_today == 1  # backward-compat alias
+
+        # Exit updates PnL but does not increment entries
+        rm.record_exit(pnl=Decimal("150"))
+        assert rm.entries_today == 1
+        assert rm.exits_today == 1
         assert rm.daily_pnl == Decimal("150")

@@ -344,7 +344,7 @@ async def process_signal(
             lambda: broker.place_option_order(request),
             label="place_option_order",
         )
-        risk.record_trade()
+        risk.record_entry_pending()
         _ok(f"  Order      : {order.order_id[:8]}... | "
             f"status={order.status.value} | limit=${limit_price}")
 

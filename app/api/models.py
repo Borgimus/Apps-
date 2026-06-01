@@ -48,8 +48,16 @@ async def _migrate_schema(conn) -> None:
         ("trade_journal", "exit_spread_pct",    "FLOAT"),
         ("trade_journal", "limit_price_mode",   "VARCHAR(32)"),
         ("scan_results",  "universe_group",     "VARCHAR(32)"),
-        ("signal_bridge", "confluence_count",   "INTEGER"),
-        ("signal_bridge", "reconciliation_passed", "BOOLEAN"),
+        ("signal_bridge", "confluence_count",             "INTEGER"),
+        ("signal_bridge", "reconciliation_passed",         "BOOLEAN"),
+        ("signal_bridge", "underlying_price_at_signal",    "FLOAT"),
+        ("signal_bridge", "orb_slot_reserved",             "BOOLEAN"),
+        ("signal_bridge", "orb_fwd_price_5m",              "FLOAT"),
+        ("signal_bridge", "orb_fwd_price_15m",             "FLOAT"),
+        ("signal_bridge", "orb_fwd_price_30m",             "FLOAT"),
+        ("signal_bridge", "orb_fwd_pct_5m",                "FLOAT"),
+        ("signal_bridge", "orb_fwd_pct_15m",               "FLOAT"),
+        ("signal_bridge", "orb_fwd_pct_30m",               "FLOAT"),
     ]
     for table, col, col_type in migrations:
         try:
@@ -338,6 +346,20 @@ class DBSignalBridge(Base):
     risk_passed = Column(Boolean)
     reconciliation_passed = Column(Boolean, default=True)
     position_limit_passed = Column(Boolean, default=True)
+
+    # Underlying price at signal time (for ORB forward performance)
+    underlying_price_at_signal = Column(Float)
+
+    # ORB slot reservation flag (True when this signal was evaluated while ORB reserve was active)
+    orb_slot_reserved = Column(Boolean, default=False)
+
+    # ORB forward performance (filled post-session via compute_orb_forward_performance)
+    orb_fwd_price_5m = Column(Float)
+    orb_fwd_price_15m = Column(Float)
+    orb_fwd_price_30m = Column(Float)
+    orb_fwd_pct_5m = Column(Float)
+    orb_fwd_pct_15m = Column(Float)
+    orb_fwd_pct_30m = Column(Float)
 
     # Final decision
     final_decision = Column(String(16))   # traded | blocked | skipped

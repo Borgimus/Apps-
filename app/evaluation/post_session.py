@@ -167,6 +167,16 @@ async def _build_and_save_report(db_session, settings, today: str, alert_service
             build_daily_report, send_summary_alert, to_json, to_markdown,
         )
 
+        # Compute ORB forward performance before building the report so that
+        # orb_fwd_* columns are populated when the report queries signal_bridge.
+        if getattr(settings, "paper_eval_permissive_entry_mode", False):
+            try:
+                from app.evaluation.orb_forward_performance import compute_orb_forward_performance
+                fwd_updated = await compute_orb_forward_performance(db_session, today)
+                logger.info("Post-session: ORB forward performance: %d rows updated", fwd_updated)
+            except Exception as exc:
+                logger.warning("Post-session: ORB forward performance failed: %s", exc)
+
         report = await build_daily_report(db_session, today, settings)
 
         # Determine output dir

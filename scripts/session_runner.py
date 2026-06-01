@@ -470,6 +470,7 @@ async def scan_and_place(
     session_date: str = "",
     alert_service=None,
     scan_store: Optional[dict] = None,
+    entries_placed: Optional[dict] = None,
 ) -> int:
     """Return number of orders placed (or would-be placed in dry-run)."""
     from app.brokers.broker_interface import OrderRequest, OrderSide, OrderType
@@ -582,6 +583,29 @@ async def scan_and_place(
                     )
                 break
 
+        # ── ORB slot reservation (before orb_slot_reserve_until ET) ──────────
+        # If non-ORB entries used >= (max_trades_per_day - 1), reserve remaining
+        # slots for ORB only.  Non-ORB signals still get bridge stubs (decision=skipped,
+        # reason=orb_slot_reserved) so they appear in the diagnostic report.
+        _orb_slot_active = False
+        _orb_reserve_until_str = getattr(settings, "orb_slot_reserve_until", "11:30")
+        try:
+            _orb_h, _orb_m = map(int, _orb_reserve_until_str.split(":"))
+            _orb_reserve_dt = now.replace(hour=_orb_h, minute=_orb_m, second=0, microsecond=0)
+            if now < _orb_reserve_dt:
+                _non_orb = sum(v for k, v in (entries_placed or {}).items() if k != "orb")
+                _max_ent = settings.risk.max_trades_per_day
+                if _non_orb >= _max_ent - 1:
+                    _orb_slot_active = True
+                    logger.info(
+                        "ORB slot reserved (non_orb_entries=%d >= %d, time=%s < %s): "
+                        "non-ORB signals will be skipped",
+                        _non_orb, _max_ent - 1,
+                        now.strftime("%H:%M"), _orb_reserve_until_str,
+                    )
+        except Exception:
+            pass
+
     # ── Create bridge stubs for RSI_trend diagnostic signals ─────────────────
     if _permissive and _rsi_diagnostic:
         from app.trading.bridge_diagnostics import BridgeEntry as _BE
@@ -638,8 +662,21 @@ async def scan_and_place(
                 rvol=_rvol,
                 rvol_threshold=None,
                 reconciliation_passed=True,
+                underlying_price_at_signal=float(sig.price) if sig.price else None,
+                orb_slot_reserved=_orb_slot_active,
             )
             _bridge_entries.append(_bridge)
+
+        # ORB slot reservation: skip non-ORB signals when slot is reserved
+        if _permissive and _orb_slot_active and sig.strategy_id != "orb":
+            logger.info(
+                "ORB slot reserved — skipping %s/%s signal",
+                symbol, sig.strategy_id,
+            )
+            if _bridge is not None:
+                _bridge.final_decision = "skipped"
+                _bridge.exact_block_reason = "orb_slot_reserved"
+            continue
 
         # Dedup — also block if there is a pending-but-unfilled order
         if pm.has_position_for_symbol(symbol):
@@ -932,6 +969,8 @@ async def scan_and_place(
             continue
 
         risk.record_trade()
+        if entries_placed is not None:
+            entries_placed[sig.strategy_id] = entries_placed.get(sig.strategy_id, 0) + 1
         logger.info(
             "Order placed: %s | %s | limit=%.2f | status=%s",
             order.order_id[:8], used_contract.option_symbol, float(limit_price), order.status.value,
@@ -1526,6 +1565,7 @@ async def run_session(args: argparse.Namespace):
     eod_liquidated = False
     session_placed = 0
     kill_switch_alerted = False
+    _entries_placed: dict = {}   # {strategy_id: count} — entries only (not exits)
 
     # ── Main polling loop ─────────────────────────────────────────────────────
     while not _shutdown_requested:
@@ -1708,6 +1748,7 @@ async def run_session(args: argparse.Namespace):
                     session_date=today_str,
                     alert_service=alert_service,
                     scan_store=_scan_store,
+                    entries_placed=_entries_placed,
                 )
                 if placed > 0:
                     symbols_traded_today.add(symbol)

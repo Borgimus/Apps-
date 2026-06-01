@@ -213,6 +213,12 @@ class Settings(BaseSettings):
     # deterministic signal ranking.  No effect on existing behavior when false.
     paper_eval_permissive_entry_mode: bool = False
 
+    # ── ORB slot reservation ──────────────────────────────────────────────────
+    # Before this ET time, if non-ORB entries used ≥ (max_trades_per_day − 1),
+    # remaining entry slots are reserved for ORB signals only.
+    # Active only when paper_eval_permissive_entry_mode=true.
+    orb_slot_reserve_until: str = "11:30"
+
     # ── Paper evaluation mode ─────────────────────────────────────────────────
     # When enabled: paper-only session with pre/post checklists, daily reports,
     # and a cumulative ledger.  Incompatible with live_trading_enabled=true.

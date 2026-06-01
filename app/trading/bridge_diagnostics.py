@@ -57,6 +57,20 @@ class BridgeEntry:
     reconciliation_passed: bool = True
     position_limit_passed: bool = True
 
+    # Underlying price at signal time (for ORB forward performance)
+    underlying_price_at_signal: Optional[float] = None
+
+    # ORB slot reservation flag
+    orb_slot_reserved: bool = False
+
+    # ORB forward performance (filled post-session)
+    orb_fwd_price_5m: Optional[float] = None
+    orb_fwd_price_15m: Optional[float] = None
+    orb_fwd_price_30m: Optional[float] = None
+    orb_fwd_pct_5m: Optional[float] = None
+    orb_fwd_pct_15m: Optional[float] = None
+    orb_fwd_pct_30m: Optional[float] = None
+
     # Final decision
     final_decision: str = "blocked"   # traded | blocked | skipped
     exact_block_reason: Optional[str] = None
@@ -97,6 +111,8 @@ async def persist_bridge_entries(entries: list[BridgeEntry], db_session) -> None
                 risk_passed=e.risk_passed,
                 reconciliation_passed=e.reconciliation_passed,
                 position_limit_passed=e.position_limit_passed,
+                underlying_price_at_signal=e.underlying_price_at_signal,
+                orb_slot_reserved=e.orb_slot_reserved,
                 final_decision=e.final_decision,
                 exact_block_reason=e.exact_block_reason,
             )

@@ -130,6 +130,23 @@ class DailyReport:
     bridge_top_blocked_reasons: List[str] = field(default_factory=list)
     sample_size_warning: Optional[str] = None
 
+    # ── ORB evaluation (permissive entry mode) ────────────────────────────────
+    orb_signals_total: int = 0
+    orb_signals_traded: int = 0
+    orb_signals_blocked: int = 0
+    orb_signals_skipped: int = 0
+    orb_quality_distribution: Dict[str, int] = field(default_factory=dict)   # "0"-"4" → count
+    orb_slot_reserved_events: int = 0    # non-ORB signals skipped due to ORB reservation
+    orb_actual_pnl: Optional[float] = None
+    orb_avg_quality: Optional[float] = None
+    orb_top_blocked_reasons: List[str] = field(default_factory=list)
+    # Forward performance averages (across all ORB signals with fwd data)
+    orb_avg_fwd_pct_5m: Optional[float] = None
+    orb_avg_fwd_pct_15m: Optional[float] = None
+    orb_avg_fwd_pct_30m: Optional[float] = None
+    # Per-strategy actual PnL (for vs-VWAP comparison)
+    pnl_by_strategy: Dict[str, float] = field(default_factory=dict)
+
     # Auto-generated notes
     notes: List[str] = field(default_factory=list)
     recommendations: List[str] = field(default_factory=list)
@@ -451,8 +468,76 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
             ]
             top_reasons = [reason for reason, _ in _Counter(blocked_reasons).most_common(5)]
             report.bridge_top_blocked_reasons = top_reasons
+
+            # ── ORB-specific diagnostics ──────────────────────────────────────
+            orb_rows = [r for r in bridge_rows if r.strategy_id == "orb"]
+            report.orb_signals_total = len(orb_rows)
+            report.orb_signals_traded = sum(1 for r in orb_rows if r.final_decision == "traded")
+            report.orb_signals_blocked = sum(1 for r in orb_rows if r.final_decision == "blocked")
+            report.orb_signals_skipped = sum(1 for r in orb_rows if r.final_decision == "skipped")
+
+            # ORB slot reservation events (non-ORB signals skipped due to reservation)
+            report.orb_slot_reserved_events = sum(
+                1 for r in bridge_rows
+                if getattr(r, "orb_slot_reserved", False)
+                and r.strategy_id != "orb"
+                and r.final_decision == "skipped"
+                and r.exact_block_reason == "orb_slot_reserved"
+            )
+
+            # Quality distribution
+            qual_dist: Dict[str, int] = {}
+            qual_scores = [r.signal_quality_score for r in orb_rows if r.signal_quality_score is not None]
+            for qs in qual_scores:
+                key = str(int(qs))
+                qual_dist[key] = qual_dist.get(key, 0) + 1
+            report.orb_quality_distribution = qual_dist
+            if qual_scores:
+                report.orb_avg_quality = round(sum(qual_scores) / len(qual_scores), 2)
+
+            # ORB blocked reasons
+            orb_blocked_reasons = [
+                r.exact_block_reason for r in orb_rows
+                if r.final_decision in ("blocked", "skipped") and r.exact_block_reason
+            ]
+            report.orb_top_blocked_reasons = [
+                reason for reason, _ in _Counter(orb_blocked_reasons).most_common(5)
+            ]
+
+            # ORB forward performance averages
+            fwd_5 = [r.orb_fwd_pct_5m for r in orb_rows if getattr(r, "orb_fwd_pct_5m", None) is not None]
+            fwd_15 = [r.orb_fwd_pct_15m for r in orb_rows if getattr(r, "orb_fwd_pct_15m", None) is not None]
+            fwd_30 = [r.orb_fwd_pct_30m for r in orb_rows if getattr(r, "orb_fwd_pct_30m", None) is not None]
+            if fwd_5:
+                report.orb_avg_fwd_pct_5m = round(sum(fwd_5) / len(fwd_5), 4)
+            if fwd_15:
+                report.orb_avg_fwd_pct_15m = round(sum(fwd_15) / len(fwd_15), 4)
+            if fwd_30:
+                report.orb_avg_fwd_pct_30m = round(sum(fwd_30) / len(fwd_30), 4)
+
     except Exception:
         pass  # DBSignalBridge may not exist in older DBs
+
+    # ── Per-strategy PnL (for ORB vs VWAP comparison) ────────────────────────
+    try:
+        from app.api.models import DBTradeJournal as _TJ
+        strat_pnl: Dict[str, float] = {}
+        all_fills = (
+            await db_session.execute(
+                select(_TJ).where(
+                    _TJ.session_date == session_date,
+                    _TJ.fill_price.is_not(None),
+                    _TJ.realized_pnl.is_not(None),
+                )
+            )
+        ).scalars().all()
+        for t in all_fills:
+            sid = t.strategy_id or "unknown"
+            strat_pnl[sid] = strat_pnl.get(sid, 0.0) + float(t.realized_pnl or 0)
+        report.pnl_by_strategy = strat_pnl
+        report.orb_actual_pnl = strat_pnl.get("orb")
+    except Exception:
+        pass
 
     # ── Sample-size warning ────────────────────────────────────────────────────
     if report.trades_filled < 30:
@@ -684,6 +769,66 @@ def _pnl_by_symbol_section(r: DailyReport) -> str:
     )
 
 
+def _orb_section(r: DailyReport) -> str:
+    if r.orb_signals_total == 0:
+        return ""
+
+    # Quality distribution
+    qual_rows = ""
+    for score in sorted(r.orb_quality_distribution.keys()):
+        qual_rows += f"| {score}/4 | {r.orb_quality_distribution[score]} |\n"
+    qual_table = (
+        "\n### ORB Quality Distribution\n\n"
+        "| Quality Score | Count |\n|---|---|\n"
+        f"{qual_rows}"
+    ) if qual_rows else ""
+
+    # Forward performance
+    fwd_md = ""
+    if any(v is not None for v in [r.orb_avg_fwd_pct_5m, r.orb_avg_fwd_pct_15m, r.orb_avg_fwd_pct_30m]):
+        def _fmtpct(v):
+            return f"{v:+.2%}" if v is not None else "n/a"
+        fwd_md = (
+            "\n### ORB Forward Performance (avg, direction-adjusted)\n\n"
+            "| Horizon | Avg Return |\n|---|---|\n"
+            f"| +5 min | {_fmtpct(r.orb_avg_fwd_pct_5m)} |\n"
+            f"| +15 min | {_fmtpct(r.orb_avg_fwd_pct_15m)} |\n"
+            f"| +30 min | {_fmtpct(r.orb_avg_fwd_pct_30m)} |\n"
+        )
+
+    # ORB vs VWAP
+    orb_pnl_str = f"${r.orb_actual_pnl:.2f}" if r.orb_actual_pnl is not None else "no fills"
+    vwap_pnl = r.pnl_by_strategy.get("vwap_reclaim")
+    vwap_pnl_str = f"${vwap_pnl:.2f}" if vwap_pnl is not None else "no fills"
+
+    blocked_md = ""
+    if r.orb_top_blocked_reasons:
+        blocked_md = "\n**Top ORB block reasons:** " + " · ".join(r.orb_top_blocked_reasons) + "\n"
+
+    reservation_md = (
+        f"| ORB slot reserved events | {r.orb_slot_reserved_events} |\n"
+        if r.orb_slot_reserved_events > 0 else ""
+    )
+
+    return (
+        f"\n## ORB Evaluation\n\n"
+        f"| Metric | Value |\n|---|---|\n"
+        f"| ORB signals total | {r.orb_signals_total} |\n"
+        f"| Traded | {r.orb_signals_traded} |\n"
+        f"| Blocked | {r.orb_signals_blocked} |\n"
+        f"| Skipped (dedup/cooldown/reserve) | {r.orb_signals_skipped} |\n"
+        f"| Avg quality score | {r.orb_avg_quality if r.orb_avg_quality is not None else 'n/a'}/4 |\n"
+        f"{reservation_md}"
+        f"\n### ORB vs VWAP Actual PnL\n\n"
+        f"| Strategy | PnL |\n|---|---|\n"
+        f"| orb | {orb_pnl_str} |\n"
+        f"| vwap_reclaim | {vwap_pnl_str} |\n"
+        f"{qual_table}"
+        f"{fwd_md}"
+        f"{blocked_md}"
+    )
+
+
 def to_json(report: DailyReport) -> str:
     return json.dumps(asdict(report), indent=2, default=str)
 
@@ -755,7 +900,7 @@ def to_markdown(report: DailyReport) -> str:
 | Take-profit exits | {f"{r.take_profit_hit_pct:.1%}" if r.take_profit_hit_pct is not None else "n/a"} |
 | EOD exits | {f"{r.eod_exit_pct:.1%}" if r.eod_exit_pct is not None else "n/a"} |
 
-{_fill_mode_table(r)}{_cancel_reason_table(r)}{_bridge_section(r)}
+{_fill_mode_table(r)}{_cancel_reason_table(r)}{_bridge_section(r)}{_orb_section(r)}
 
 ## System Health
 

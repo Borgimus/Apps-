@@ -1,0 +1,333 @@
+{
+  "generated_at": "2026-06-01T15:10:38Z",
+  "data_scope": {
+    "sessions": [
+      "2026-05-11",
+      "2026-05-12",
+      "2026-05-23",
+      "2026-05-25",
+      "2026-05-26",
+      "2026-05-29"
+    ],
+    "bridge_active_sessions": [
+      "2026-05-29"
+    ],
+    "total_bridge_rows": 852,
+    "total_executed_trades": 3,
+    "critical_limitation": "Signal bridge diagnostics (quality scores, scanner scores, gate-level pass/fail) only exist for 2026-05-29. Earlier sessions produced trade_journal records but no per-signal bridge data. ORB orb_fwd_* columns are NULL for all existing rows (feature added after session ran). Total real strategy executions: N=3. All results are descriptive, not statistically significant."
+  },
+  "sessions": [
+    {
+      "date": "2026-05-11",
+      "had_bridge": false,
+      "traded": 1,
+      "pnl": 2.0,
+      "note": "fill_lifecycle_test only; no real strategy activity"
+    },
+    {
+      "date": "2026-05-12",
+      "had_bridge": false,
+      "traded": 1,
+      "pnl": -109.5,
+      "note": "RSI_trend 1 trade (MSFT short); bridge not yet active"
+    },
+    {
+      "date": "2026-05-23",
+      "had_bridge": false,
+      "traded": 0,
+      "pnl": 0.0,
+      "note": "Scanner standby; no executions"
+    },
+    {
+      "date": "2026-05-25",
+      "had_bridge": false,
+      "traded": 0,
+      "pnl": 0.0,
+      "note": "Scanner standby; no executions"
+    },
+    {
+      "date": "2026-05-26",
+      "had_bridge": false,
+      "traded": 0,
+      "pnl": 0.0,
+      "note": "Scanner standby; SNOW briefly passed, no execution"
+    },
+    {
+      "date": "2026-05-29",
+      "had_bridge": true,
+      "traded": 2,
+      "pnl": -40.5,
+      "note": "First PAPER_EVAL_PERMISSIVE_ENTRY_MODE session; 2 VWAP trades"
+    }
+  ],
+  "signal_statistics": {
+    "orb": {
+      "total": 103,
+      "traded": 0,
+      "blocked": 77,
+      "skipped": 26,
+      "trade_rate_pct": 0.0
+    },
+    "rsi_trend": {
+      "total": 639,
+      "traded": 0,
+      "blocked": 0,
+      "skipped": 639,
+      "trade_rate_pct": 0.0
+    },
+    "vwap_reclaim": {
+      "total": 110,
+      "traded": 2,
+      "blocked": 78,
+      "skipped": 30,
+      "trade_rate_pct": 1.82
+    }
+  },
+  "quality_score_analysis": {
+    "orb": {
+      "3": {
+        "by_decision": {
+          "blocked": 77,
+          "skipped": 26
+        },
+        "total": 103
+      }
+    },
+    "rsi_trend": {
+      "0": {
+        "by_decision": {
+          "skipped": 639
+        },
+        "total": 639
+      }
+    },
+    "vwap_reclaim": {
+      "1": {
+        "by_decision": {
+          "blocked": 29,
+          "skipped": 30
+        },
+        "total": 59
+      },
+      "2": {
+        "by_decision": {
+          "blocked": 49,
+          "traded": 1
+        },
+        "total": 50
+      },
+      "3": {
+        "by_decision": {
+          "traded": 1
+        },
+        "total": 1
+      }
+    }
+  },
+  "orb_forward_performance_by_quality": {
+    "3": {
+      "signal_quality_score": 3.0,
+      "n": 103,
+      "n_with_fwd": 0,
+      "avg_fwd_5m": null,
+      "avg_fwd_15m": null,
+      "avg_fwd_30m": null
+    }
+  },
+  "scanner_score_analysis": {
+    "rsi_trend": {
+      "40-59": {
+        "n": 537,
+        "n_with_fwd": 0,
+        "avg_fwd_pct_5m": null,
+        "avg_fwd_pct_15m": null,
+        "avg_fwd_pct_30m": null
+      },
+      "60-79": {
+        "n": 102,
+        "n_with_fwd": 0,
+        "avg_fwd_pct_5m": null,
+        "avg_fwd_pct_15m": null,
+        "avg_fwd_pct_30m": null
+      }
+    },
+    "vwap_reclaim": {
+      "40-59": {
+        "n": 59,
+        "n_with_fwd": 0,
+        "avg_fwd_pct_5m": null,
+        "avg_fwd_pct_15m": null,
+        "avg_fwd_pct_30m": null
+      },
+      "60-79": {
+        "n": 51,
+        "n_with_fwd": 0,
+        "avg_fwd_pct_5m": null,
+        "avg_fwd_pct_15m": null,
+        "avg_fwd_pct_30m": null
+      }
+    },
+    "orb": {
+      "40-59": {
+        "n": 54,
+        "n_with_fwd": 0,
+        "avg_fwd_pct_5m": null,
+        "avg_fwd_pct_15m": null,
+        "avg_fwd_pct_30m": null
+      },
+      "60-79": {
+        "n": 49,
+        "n_with_fwd": 0,
+        "avg_fwd_pct_5m": null,
+        "avg_fwd_pct_15m": null,
+        "avg_fwd_pct_30m": null
+      }
+    }
+  },
+  "execution_analysis": {
+    "rsi_trend": {
+      "n": 1,
+      "n_win": 0,
+      "n_loss": 1,
+      "win_rate": 0.0,
+      "total_pnl": -109.5,
+      "avg_pnl": -109.5,
+      "avg_win": null,
+      "avg_loss": -109.5,
+      "avg_fill_latency_secs": 62.7,
+      "avg_entry_spread_pct": 0.0925,
+      "avg_exit_spread_pct": 0.1642,
+      "avg_hold_duration_secs": 1688.0
+    },
+    "vwap_reclaim": {
+      "n": 2,
+      "n_win": 0,
+      "n_loss": 2,
+      "win_rate": 0.0,
+      "total_pnl": -40.5,
+      "avg_pnl": -20.25,
+      "avg_win": null,
+      "avg_loss": -20.25,
+      "avg_fill_latency_secs": 64.3,
+      "avg_entry_spread_pct": 0.0815,
+      "avg_exit_spread_pct": 0.2037,
+      "avg_hold_duration_secs": 77.0
+    }
+  },
+  "individual_trades": [
+    {
+      "session_date": "2026-05-12",
+      "strategy_id": "rsi_trend",
+      "underlying_symbol": "MSFT",
+      "signal_direction": "short",
+      "fill_price": 6.15,
+      "exit_price": 5.055,
+      "quantity": 1,
+      "realized_pnl": -109.50000000000006,
+      "time_to_fill_secs": 62.672984,
+      "spread_pct": 0.09251471825063078,
+      "exit_spread_pct": 0.16419386745796244,
+      "hold_duration_secs": 1688.023911,
+      "exit_reason": "trailing_stop",
+      "slippage": -0.08000000000000007,
+      "status": "closed"
+    },
+    {
+      "session_date": "2026-05-29",
+      "strategy_id": "vwap_reclaim",
+      "underlying_symbol": "SNOW",
+      "signal_direction": "long",
+      "fill_price": 1.04,
+      "exit_price": 0.725,
+      "quantity": 1,
+      "realized_pnl": -31.500000000000007,
+      "time_to_fill_secs": 94.536135,
+      "spread_pct": 0.08294930875576037,
+      "exit_spread_pct": 0.28965517241379307,
+      "hold_duration_secs": 91.174055,
+      "exit_reason": "trailing_stop",
+      "slippage": -0.08999999999999986,
+      "status": "closed"
+    },
+    {
+      "session_date": "2026-05-29",
+      "strategy_id": "vwap_reclaim",
+      "underlying_symbol": "MSFT",
+      "signal_direction": "long",
+      "fill_price": 0.26,
+      "exit_price": 0.17,
+      "quantity": 1,
+      "realized_pnl": -9.0,
+      "time_to_fill_secs": 34.059973,
+      "spread_pct": 0.08,
+      "exit_spread_pct": 0.11764705882352937,
+      "hold_duration_secs": 61.983792,
+      "exit_reason": "trailing_stop",
+      "slippage": 0.0,
+      "status": "closed"
+    }
+  ],
+  "gate_analysis": {
+    "orb": {
+      "total_blocked": 77,
+      "blocked_by_risk_only": 76,
+      "blocked_reasons": {
+        "risk: Max trades per day reached: 4/3": 75,
+        "risk: Max trades per day reached: 3/3": 2
+      },
+      "skipped_reasons": {
+        "cooldown_after_loss": 26
+      }
+    },
+    "rsi_trend": {
+      "total_blocked": 0,
+      "blocked_by_risk_only": 0,
+      "blocked_reasons": {},
+      "skipped_reasons": {
+        "rsi_trend_diagnostic_only": 639
+      }
+    },
+    "vwap_reclaim": {
+      "total_blocked": 78,
+      "blocked_by_risk_only": 78,
+      "blocked_reasons": {
+        "risk: Max trades per day reached: 4/3": 74,
+        "risk: Max trades per day reached: 3/3": 3,
+        "risk: Max trades per day reached: 4/3; Trade cost $3066.00 exceeds max risk $998.22 and cannot be reduced to 1 contract": 1
+      },
+      "skipped_reasons": {
+        "cooldown_after_loss": 30
+      }
+    }
+  },
+  "predictive_value_assessment": {
+    "quality_score": {
+      "orb": {
+        "verdict": "INDETERMINATE",
+        "reason": "All 103 ORB bridge rows have quality_score=3. No variation exists \u2014 cannot test whether score predicts outcomes. Additionally, 0 ORB trades were executed, so no actual outcome data."
+      },
+      "vwap_reclaim": {
+        "verdict": "INDETERMINATE",
+        "reason": "Quality distribution: 1\u219259 rows (0 traded), 2\u219250 rows (1 traded), 3\u21921 row (1 traded). Both traded signals had quality >= 2. However N=2 executions is insufficient to assess predictive value. Both resulted in losses."
+      },
+      "rsi_trend": {
+        "verdict": "NOT APPLICABLE",
+        "reason": "RSI_trend is permanently in diagnostic-only mode. All 639 rows have quality_score=0 and final_decision=skipped. No execution data exists."
+      }
+    },
+    "scanner_score": {
+      "orb": {
+        "verdict": "INDETERMINATE",
+        "reason": "Scores range 40-79 (no 0-39 or 80+ data). No forward performance data (orb_fwd_* NULL for all rows). No executions to compare outcomes against."
+      },
+      "vwap_reclaim": {
+        "verdict": "INDETERMINATE",
+        "reason": "Both executed trades had scanner_score=60. Blocked DIA signals had scanner_score=53. Higher score (60 vs 53) did not predict better outcome \u2014 both executed trades lost. N=2 is not sufficient to assess predictive value."
+      },
+      "rsi_trend": {
+        "verdict": "NOT APPLICABLE",
+        "reason": "No executions. All signals skipped as diagnostic_only."
+      }
+    }
+  }
+}

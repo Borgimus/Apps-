@@ -1,0 +1,553 @@
+{
+  "meta": {
+    "sessions": [
+      "2026-05-29",
+      "2026-06-02"
+    ],
+    "unique_signals": 11,
+    "bridge_total_rows": 218,
+    "poll_interval_observed_secs": 30,
+    "poll_interval_default_secs": 300,
+    "scanner_cadence_actual_min": 30,
+    "rvol_rejection_threshold": 0.5,
+    "symbols_per_scan_observed": 27,
+    "scanner_wall_time_est_secs": "3\u201310 (concurrent per asyncio.gather)",
+    "scan_interval_config": {
+      "parameter": "UNIVERSE_SCAN_INTERVAL_MINUTES",
+      "default": 30,
+      "file": "app/config/settings.py:104",
+      "checked_at": "session_runner.py:1683",
+      "git_origin": "e3e374f Sprint 7 (2026-05-11)"
+    }
+  },
+  "scan_cycles": {
+    "2026-05-29": [
+      "09:33",
+      "10:03",
+      "10:34",
+      "11:04",
+      "11:34",
+      "12:04"
+    ],
+    "2026-06-02": [
+      "09:50",
+      "09:50",
+      "10:20",
+      "10:51",
+      "11:21",
+      "11:51",
+      "12:21"
+    ]
+  },
+  "scan_cycle_stats": {
+    "2026-05-29": [
+      {
+        "scanned_at": "2026-05-29 13:33:43",
+        "total": 27,
+        "passed": 0
+      },
+      {
+        "scanned_at": "2026-05-29 14:03:48",
+        "total": 27,
+        "passed": 1
+      },
+      {
+        "scanned_at": "2026-05-29 14:34:03",
+        "total": 27,
+        "passed": 2
+      },
+      {
+        "scanned_at": "2026-05-29 15:04:21",
+        "total": 27,
+        "passed": 4
+      },
+      {
+        "scanned_at": "2026-05-29 15:34:38",
+        "total": 27,
+        "passed": 5
+      },
+      {
+        "scanned_at": "2026-05-29 16:04:55",
+        "total": 27,
+        "passed": 7
+      }
+    ],
+    "2026-06-02": [
+      {
+        "scanned_at": "2026-06-02 13:50:51",
+        "total": 1,
+        "passed": 0
+      },
+      {
+        "scanned_at": "2026-06-02 13:50:52",
+        "total": 26,
+        "passed": 0
+      },
+      {
+        "scanned_at": "2026-06-02 14:20:56",
+        "total": 27,
+        "passed": 2
+      },
+      {
+        "scanned_at": "2026-06-02 14:51:10",
+        "total": 27,
+        "passed": 1
+      },
+      {
+        "scanned_at": "2026-06-02 15:21:19",
+        "total": 27,
+        "passed": 6
+      },
+      {
+        "scanned_at": "2026-06-02 15:51:40",
+        "total": 27,
+        "passed": 8
+      },
+      {
+        "scanned_at": "2026-06-02 16:21:53",
+        "total": 27,
+        "passed": 10
+      }
+    ]
+  },
+  "api_impact": {
+    "yfinance_calls_per_scan": {
+      "per_symbol": 3,
+      "per_cycle_at_27_symbols": 81,
+      "concurrency": "asyncio.gather + run_in_executor"
+    },
+    "alpaca_calls_per_scan": {
+      "per_confirmed_symbol": 2,
+      "confirmed_per_cycle_range": "0\u201310",
+      "observed_avg": "3\u20135"
+    },
+    "db_rows_per_scan": 27,
+    "cadence_30m": {
+      "scans_per_session": "6\u20137",
+      "yfinance_per_session": "486\u2013567",
+      "alpaca_per_session_est": "18\u201335",
+      "db_rows_per_session": "162\u2013189"
+    },
+    "cadence_15m": {
+      "scans_per_session": "13",
+      "yfinance_per_session": "1053",
+      "alpaca_per_session_est": "39\u201365",
+      "db_rows_per_session": "351"
+    },
+    "cadence_5m": {
+      "scans_per_session": "78",
+      "yfinance_per_session": "6318",
+      "alpaca_per_session_est": "234\u2013390",
+      "db_rows_per_session": "2106"
+    },
+    "cadence_per_bar": {
+      "note": "bar_interval=5m; equivalent to 5m cadence",
+      "scans_per_session": "78",
+      "yfinance_per_session": "6318",
+      "alpaca_per_session_est": "234\u2013390",
+      "db_rows_per_session": "2106"
+    },
+    "alpaca_rate_limit": "200 req/min (paper). 5m cadence peak: 2 Alpaca calls/min. Within limits.",
+    "yfinance_note": "Unofficial Yahoo Finance scraping. No documented rate limit. 6318 calls/day at 5m cadence is high."
+  },
+  "signals": [
+    {
+      "session": "2026-05-29",
+      "symbol": "SNOW",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "quality": 3.0,
+      "decision": "traded",
+      "bar_close_et": "10:15",
+      "actual_first_eval_et": "10:34",
+      "actual_age_min": 19.0,
+      "sim": {
+        "30m": {
+          "hypothetical_eval_et": "10:33",
+          "age_min": 18.7,
+          "age_reduction_vs_actual_min": 0.3,
+          "rvol_at_sim_scan": 0.432,
+          "still_rejected_at_sim_scan": true
+        },
+        "15m": {
+          "hypothetical_eval_et": "10:18",
+          "age_min": 3.7,
+          "age_reduction_vs_actual_min": 15.3,
+          "rvol_at_sim_scan": 0.432,
+          "still_rejected_at_sim_scan": true
+        },
+        "5m": {
+          "hypothetical_eval_et": "10:18",
+          "age_min": 3.7,
+          "age_reduction_vs_actual_min": 15.3,
+          "rvol_at_sim_scan": 0.432,
+          "still_rejected_at_sim_scan": true
+        }
+      }
+    },
+    {
+      "session": "2026-05-29",
+      "symbol": "DIA",
+      "strategy": "orb",
+      "direction": "long",
+      "quality": 3.0,
+      "decision": "blocked",
+      "bar_close_et": "10:50",
+      "actual_first_eval_et": "11:04",
+      "actual_age_min": 14.3,
+      "sim": {
+        "30m": {
+          "hypothetical_eval_et": "11:03",
+          "age_min": 13.7,
+          "age_reduction_vs_actual_min": 0.6,
+          "rvol_at_sim_scan": 0.375,
+          "still_rejected_at_sim_scan": true
+        },
+        "15m": {
+          "hypothetical_eval_et": "11:03",
+          "age_min": 13.7,
+          "age_reduction_vs_actual_min": 0.6,
+          "rvol_at_sim_scan": 0.375,
+          "still_rejected_at_sim_scan": true
+        },
+        "5m": {
+          "hypothetical_eval_et": "10:53",
+          "age_min": 3.7,
+          "age_reduction_vs_actual_min": 10.6,
+          "rvol_at_sim_scan": 0.375,
+          "still_rejected_at_sim_scan": true
+        }
+      }
+    },
+    {
+      "session": "2026-05-29",
+      "symbol": "DIA",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "quality": 1.0,
+      "decision": "blocked",
+      "bar_close_et": "10:05",
+      "actual_first_eval_et": "11:04",
+      "actual_age_min": 59.3,
+      "sim": {
+        "30m": {
+          "hypothetical_eval_et": "10:33",
+          "age_min": 28.7,
+          "age_reduction_vs_actual_min": 30.6,
+          "rvol_at_sim_scan": 0.257,
+          "still_rejected_at_sim_scan": true
+        },
+        "15m": {
+          "hypothetical_eval_et": "10:18",
+          "age_min": 13.7,
+          "age_reduction_vs_actual_min": 45.6,
+          "rvol_at_sim_scan": 0.257,
+          "still_rejected_at_sim_scan": true
+        },
+        "5m": {
+          "hypothetical_eval_et": "10:08",
+          "age_min": 3.7,
+          "age_reduction_vs_actual_min": 55.6,
+          "rvol_at_sim_scan": 0.257,
+          "still_rejected_at_sim_scan": true
+        }
+      }
+    },
+    {
+      "session": "2026-05-29",
+      "symbol": "MSFT",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "quality": 2.0,
+      "decision": "traded",
+      "bar_close_et": "10:25",
+      "actual_first_eval_et": "11:04",
+      "actual_age_min": 39.3,
+      "sim": {
+        "30m": {
+          "hypothetical_eval_et": "10:33",
+          "age_min": 8.7,
+          "age_reduction_vs_actual_min": 30.6,
+          "rvol_at_sim_scan": 0.316,
+          "still_rejected_at_sim_scan": true
+        },
+        "15m": {
+          "hypothetical_eval_et": "10:33",
+          "age_min": 8.7,
+          "age_reduction_vs_actual_min": 30.6,
+          "rvol_at_sim_scan": 0.316,
+          "still_rejected_at_sim_scan": true
+        },
+        "5m": {
+          "hypothetical_eval_et": "10:28",
+          "age_min": 3.7,
+          "age_reduction_vs_actual_min": 35.6,
+          "rvol_at_sim_scan": 0.316,
+          "still_rejected_at_sim_scan": true
+        }
+      }
+    },
+    {
+      "session": "2026-05-29",
+      "symbol": "MSTR",
+      "strategy": "orb",
+      "direction": "long",
+      "quality": 3.0,
+      "decision": "blocked",
+      "bar_close_et": "11:05",
+      "actual_first_eval_et": "12:04",
+      "actual_age_min": 59.9,
+      "sim": {
+        "30m": {
+          "hypothetical_eval_et": "11:33",
+          "age_min": 28.7,
+          "age_reduction_vs_actual_min": 31.2,
+          "rvol_at_sim_scan": 0.278,
+          "still_rejected_at_sim_scan": true
+        },
+        "15m": {
+          "hypothetical_eval_et": "11:18",
+          "age_min": 13.7,
+          "age_reduction_vs_actual_min": 46.2,
+          "rvol_at_sim_scan": 0.278,
+          "still_rejected_at_sim_scan": true
+        },
+        "5m": {
+          "hypothetical_eval_et": "11:08",
+          "age_min": 3.7,
+          "age_reduction_vs_actual_min": 56.2,
+          "rvol_at_sim_scan": 0.278,
+          "still_rejected_at_sim_scan": true
+        }
+      }
+    },
+    {
+      "session": "2026-05-29",
+      "symbol": "MSTR",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "quality": 2.0,
+      "decision": "blocked",
+      "bar_close_et": "10:15",
+      "actual_first_eval_et": "12:04",
+      "actual_age_min": 109.9,
+      "sim": {
+        "30m": {
+          "hypothetical_eval_et": "10:33",
+          "age_min": 18.7,
+          "age_reduction_vs_actual_min": 91.2,
+          "rvol_at_sim_scan": 0.119,
+          "still_rejected_at_sim_scan": true
+        },
+        "15m": {
+          "hypothetical_eval_et": "10:18",
+          "age_min": 3.7,
+          "age_reduction_vs_actual_min": 106.2,
+          "rvol_at_sim_scan": 0.119,
+          "still_rejected_at_sim_scan": true
+        },
+        "5m": {
+          "hypothetical_eval_et": "10:18",
+          "age_min": 3.7,
+          "age_reduction_vs_actual_min": 106.2,
+          "rvol_at_sim_scan": 0.119,
+          "still_rejected_at_sim_scan": true
+        }
+      }
+    },
+    {
+      "session": "2026-06-02",
+      "symbol": "DIA",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "quality": 2.0,
+      "decision": "skipped",
+      "bar_close_et": "10:40",
+      "actual_first_eval_et": "11:21",
+      "actual_age_min": 41.3,
+      "sim": {
+        "30m": {
+          "hypothetical_eval_et": "10:50",
+          "age_min": 10.8,
+          "age_reduction_vs_actual_min": 30.5,
+          "rvol_at_sim_scan": 0.514,
+          "still_rejected_at_sim_scan": true
+        },
+        "15m": {
+          "hypothetical_eval_et": "10:50",
+          "age_min": 10.8,
+          "age_reduction_vs_actual_min": 30.5,
+          "rvol_at_sim_scan": 0.514,
+          "still_rejected_at_sim_scan": true
+        },
+        "5m": {
+          "hypothetical_eval_et": "10:40",
+          "age_min": 0.8,
+          "age_reduction_vs_actual_min": 40.5,
+          "rvol_at_sim_scan": 0.514,
+          "still_rejected_at_sim_scan": true
+        }
+      }
+    },
+    {
+      "session": "2026-06-02",
+      "symbol": "DIA",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "quality": 4.0,
+      "decision": "traded",
+      "bar_close_et": "09:45",
+      "actual_first_eval_et": "11:21",
+      "actual_age_min": 96.3,
+      "sim": {
+        "30m": {
+          "hypothetical_eval_et": "09:50",
+          "age_min": 5.8,
+          "age_reduction_vs_actual_min": 90.5,
+          "rvol_at_sim_scan": null,
+          "still_rejected_at_sim_scan": true
+        },
+        "15m": {
+          "hypothetical_eval_et": "09:50",
+          "age_min": 5.8,
+          "age_reduction_vs_actual_min": 90.5,
+          "rvol_at_sim_scan": null,
+          "still_rejected_at_sim_scan": true
+        },
+        "5m": {
+          "hypothetical_eval_et": "09:50",
+          "age_min": 5.8,
+          "age_reduction_vs_actual_min": 90.5,
+          "rvol_at_sim_scan": null,
+          "still_rejected_at_sim_scan": true
+        }
+      }
+    },
+    {
+      "session": "2026-06-02",
+      "symbol": "COIN",
+      "strategy": "orb",
+      "direction": "short",
+      "quality": 2.0,
+      "decision": "skipped",
+      "bar_close_et": "10:25",
+      "actual_first_eval_et": "11:51",
+      "actual_age_min": 86.6,
+      "sim": {
+        "30m": {
+          "hypothetical_eval_et": "10:50",
+          "age_min": 25.9,
+          "age_reduction_vs_actual_min": 60.7,
+          "rvol_at_sim_scan": 0.221,
+          "still_rejected_at_sim_scan": true
+        },
+        "15m": {
+          "hypothetical_eval_et": "10:35",
+          "age_min": 10.8,
+          "age_reduction_vs_actual_min": 75.8,
+          "rvol_at_sim_scan": 0.221,
+          "still_rejected_at_sim_scan": true
+        },
+        "5m": {
+          "hypothetical_eval_et": "10:25",
+          "age_min": 0.8,
+          "age_reduction_vs_actual_min": 85.8,
+          "rvol_at_sim_scan": 0.221,
+          "still_rejected_at_sim_scan": true
+        }
+      }
+    },
+    {
+      "session": "2026-06-02",
+      "symbol": "COIN",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "quality": 3.0,
+      "decision": "traded",
+      "bar_close_et": "09:50",
+      "actual_first_eval_et": "11:51",
+      "actual_age_min": 121.6,
+      "sim": {
+        "30m": {
+          "hypothetical_eval_et": "09:50",
+          "age_min": 0.8,
+          "age_reduction_vs_actual_min": 120.8,
+          "rvol_at_sim_scan": null,
+          "still_rejected_at_sim_scan": true
+        },
+        "15m": {
+          "hypothetical_eval_et": "09:50",
+          "age_min": 0.8,
+          "age_reduction_vs_actual_min": 120.8,
+          "rvol_at_sim_scan": null,
+          "still_rejected_at_sim_scan": true
+        },
+        "5m": {
+          "hypothetical_eval_et": "09:50",
+          "age_min": 0.8,
+          "age_reduction_vs_actual_min": 120.8,
+          "rvol_at_sim_scan": null,
+          "still_rejected_at_sim_scan": true
+        }
+      }
+    },
+    {
+      "session": "2026-06-02",
+      "symbol": "META",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "quality": 2.0,
+      "decision": "traded",
+      "bar_close_et": "10:15",
+      "actual_first_eval_et": "11:51",
+      "actual_age_min": 96.6,
+      "sim": {
+        "30m": {
+          "hypothetical_eval_et": "10:20",
+          "age_min": 5.8,
+          "age_reduction_vs_actual_min": 90.8,
+          "rvol_at_sim_scan": 0.208,
+          "still_rejected_at_sim_scan": true
+        },
+        "15m": {
+          "hypothetical_eval_et": "10:20",
+          "age_min": 5.8,
+          "age_reduction_vs_actual_min": 90.8,
+          "rvol_at_sim_scan": 0.208,
+          "still_rejected_at_sim_scan": true
+        },
+        "5m": {
+          "hypothetical_eval_et": "10:15",
+          "age_min": 0.8,
+          "age_reduction_vs_actual_min": 95.8,
+          "rvol_at_sim_scan": 0.208,
+          "still_rejected_at_sim_scan": true
+        }
+      }
+    }
+  ],
+  "aggregate_30m": {
+    "actual_avg_min": 67.6,
+    "sim_avg_min": 15.1,
+    "sim_median_min": 13.7,
+    "sim_max_min": 28.7,
+    "still_standby_constrained": 11,
+    "note": "11/11 signals would still be rvol-rejected at the hypothetical first 30m scan (rvol < 0.5 threshold)"
+  },
+  "aggregate_15m": {
+    "actual_avg_min": 67.6,
+    "sim_avg_min": 8.3,
+    "sim_median_min": 8.7,
+    "sim_max_min": 13.7,
+    "still_standby_constrained": 11,
+    "note": "11/11 signals would still be rvol-rejected at the hypothetical first 15m scan (rvol < 0.5 threshold)"
+  },
+  "aggregate_5m": {
+    "actual_avg_min": 67.6,
+    "sim_avg_min": 2.8,
+    "sim_median_min": 3.7,
+    "sim_max_min": 5.8,
+    "still_standby_constrained": 11,
+    "note": "11/11 signals would still be rvol-rejected at the hypothetical first 5m scan (rvol < 0.5 threshold)"
+  }
+}

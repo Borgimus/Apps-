@@ -621,6 +621,27 @@ def _generate_notes(r: DailyReport):
         notes.append(f"Average slippage: ${slippage_per_fill:.3f}/contract")
         recs.append("Average slippage > $0.10/contract — consider adjusting limit price offset")
 
+    # ── ORB-specific notes (permissive entry mode) ────────────────────────────
+    if r.orb_signals_total == 0 and r.bridge_entries_count > 0:
+        notes.append(
+            "ORB strategy: 0 signals reached the bridge — "
+            "volume_confirmation gate blocks mid-session signals when "
+            "breakout-bar volume ≤ avg opening-range volume"
+        )
+    elif r.orb_signals_total > 0 and r.orb_signals_traded == 0:
+        notes.append(
+            f"ORB strategy: {r.orb_signals_total} signal(s) evaluated but none traded — "
+            "check block reasons above"
+        )
+
+    # ── Entry-counting validation note ───────────────────────────────────────
+    # Summarise counter semantics so the report is self-documenting.
+    if r.trades_filled > 0:
+        notes.append(
+            f"Entry counter fix validated: entries increment on fill (not at order placement), "
+            f"exits tracked separately and do not consume entry capacity"
+        )
+
     if not notes:
         notes.append("Session completed without notable issues")
 

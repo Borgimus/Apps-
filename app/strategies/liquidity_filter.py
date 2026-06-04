@@ -34,6 +34,14 @@ class LiquidityFilter:
         self._max_spread_pct: float = params.get("max_spread_pct", 0.10)
         self._delta_min: float = params.get("delta_target_min", 0.35)
         self._delta_max: float = params.get("delta_target_max", 0.45)
+        # Optional cost cap: skip contracts whose ask * 100 exceeds this value.
+        # Prevents deep-ITM contracts (e.g. delta=N/A, bid~$79) from being
+        # selected and then rejected every cycle by the risk manager.
+        self._max_contract_cost: Optional[float] = params.get("max_contract_cost", None)
+
+    def set_max_contract_cost(self, max_cost: float) -> None:
+        """Update the per-contract cost ceiling (call after equity is known)."""
+        self._max_contract_cost = max_cost
 
     def select_contract(
         self,
@@ -112,6 +120,17 @@ class LiquidityFilter:
 
         if contract.ask <= 0:
             reasons.append("zero ask")
+
+        # Reject deeply ITM contracts: delta=None with ask * 100 above the cost cap.
+        # These have unmeasurable greeks and would always be rejected by risk anyway.
+        if (
+            contract.delta is None
+            and self._max_contract_cost is not None
+            and float(contract.ask) * 100 > self._max_contract_cost
+        ):
+            reasons.append(
+                f"delta=N/A and cost ${float(contract.ask) * 100:.0f} > cap ${self._max_contract_cost:.0f}"
+            )
 
         if reasons:
             logger.debug(

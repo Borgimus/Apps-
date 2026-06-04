@@ -1,7 +1,7 @@
 {
   "version": "1",
   "created_at": "2026-05-11T12:07:54.394379",
-  "last_updated": "2026-06-03T16:37:16.272407",
+  "last_updated": "2026-06-04T16:49:18.795311",
   "sessions": [
     {
       "date": "2026-05-11",
@@ -376,16 +376,110 @@
         "Max entries per day reached": 13,
         "cooldown_after_loss": 1
       }
+    },
+    {
+      "date": "2026-06-04",
+      "total_trades": 2,
+      "wins": 0,
+      "losses": 2,
+      "realized_pnl": -468.0,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 468.0,
+      "slippage_total": -0.07000000000000028,
+      "spread_cost_total": 31.000000000000007,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 3,
+      "trades_filled": 2,
+      "trades_cancelled": 1,
+      "trades_rejected": 70,
+      "by_strategy": {
+        "vwap_reclaim": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -468.0
+        }
+      },
+      "by_entry_hour": {
+        "10:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -122.0
+        },
+        "12:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -346.0
+        }
+      },
+      "by_delta_bucket": {
+        "target (0.40-0.50)": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -468.0
+        }
+      },
+      "by_spread_bucket": {
+        "moderate (5-10%)": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -468.0
+        }
+      },
+      "reject_reasons": {
+        "Trade cost $7957.00 exceeds max risk $995.38 and cannot be reduc": 5,
+        "Trade cost $7917.00 exceeds max risk $995.38 and cannot be reduc": 4,
+        "Trade cost $7728.00 exceeds max risk $995.38 and cannot be reduc": 2,
+        "Trade cost $7731.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7661.00 exceeds max risk $995.38 and cannot be reduc": 3,
+        "Trade cost $7872.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7916.00 exceeds max risk $995.38 and cannot be reduc": 4,
+        "Trade cost $7928.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7805.00 exceeds max risk $995.38 and cannot be reduc": 3,
+        "Trade cost $7654.00 exceeds max risk $995.38 and cannot be reduc": 3,
+        "Trade cost $7795.00 exceeds max risk $995.38 and cannot be reduc": 2,
+        "Trade cost $7747.00 exceeds max risk $995.38 and cannot be reduc": 5,
+        "Trade cost $7729.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7869.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7836.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7698.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7808.00 exceeds max risk $995.38 and cannot be reduc": 7,
+        "Trade cost $7866.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7906.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7822.00 exceeds max risk $995.38 and cannot be reduc": 3,
+        "Trade cost $7873.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7670.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7854.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7943.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7879.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7711.00 exceeds max risk $995.38 and cannot be reduc": 2,
+        "Trade cost $7758.00 exceeds max risk $995.38 and cannot be reduc": 2,
+        "Trade cost $7784.00 exceeds max risk $995.38 and cannot be reduc": 2,
+        "Trade cost $7749.00 exceeds max risk $995.38 and cannot be reduc": 1,
+        "Trade cost $7745.00 exceeds max risk $995.18 and cannot be reduc": 1,
+        "Trade cost $7724.00 exceeds max risk $995.13 and cannot be reduc": 1,
+        "Trade cost $7758.00 exceeds max risk $994.88 and cannot be reduc": 1,
+        "Trade cost $7682.00 exceeds max risk $994.88 and cannot be reduc": 1,
+        "Trade cost $7875.00 exceeds max risk $994.38 and cannot be reduc": 1,
+        "Trade cost $7875.00 exceeds max risk $994.58 and cannot be reduc": 1,
+        "Trade cost $7786.00 exceeds max risk $994.73 and cannot be reduc": 1,
+        "Trade cost $7717.00 exceeds max risk $994.58 and cannot be reduc": 1
+      }
     }
   ],
   "cumulative": {
-    "trading_days": 8,
-    "total_trades": 8,
-    "total_pnl": -288.5,
-    "expectancy": -36.06,
-    "win_rate": 0.25,
-    "profit_factor": 0.01,
-    "max_drawdown": 290.5,
+    "trading_days": 9,
+    "total_trades": 10,
+    "total_pnl": -756.5,
+    "expectancy": -75.65,
+    "win_rate": 0.2,
+    "profit_factor": 0.0,
+    "max_drawdown": 554.5,
     "pnl_by_strategy": {
       "fill_lifecycle_test": {
         "trades": 1,
@@ -412,18 +506,18 @@
         "pnl": -109.5
       },
       "vwap_reclaim": {
-        "trades": 6,
+        "trades": 8,
         "wins": 1,
-        "losses": 5,
-        "pnl": -181.0
+        "losses": 7,
+        "pnl": -445.0
       }
     },
     "pnl_by_entry_hour": {
       "12:00": {
-        "trades": 2,
+        "trades": 3,
         "wins": 1,
-        "losses": 1,
-        "pnl": -10.0
+        "losses": 2,
+        "pnl": -152.0
       },
       "09:00": {
         "trades": 1,
@@ -432,10 +526,10 @@
         "pnl": -109.5
       },
       "10:00": {
-        "trades": 1,
+        "trades": 2,
         "wins": 0,
-        "losses": 1,
-        "pnl": -31.5
+        "losses": 2,
+        "pnl": -153.5
       },
       "11:00": {
         "trades": 4,
@@ -458,18 +552,18 @@
         "pnl": -188.0
       },
       "target (0.40-0.50)": {
-        "trades": 1,
+        "trades": 3,
         "wins": 0,
-        "losses": 1,
-        "pnl": -50.0
+        "losses": 3,
+        "pnl": -314.0
       }
     },
     "pnl_by_spread_bucket": {
       "moderate (5-10%)": {
-        "trades": 7,
+        "trades": 9,
         "wins": 2,
-        "losses": 5,
-        "pnl": -238.5
+        "losses": 7,
+        "pnl": -502.5
       },
       "tight (<5%)": {
         "trades": 1,
@@ -483,7 +577,44 @@
       "cooldown_after_loss": 132,
       "Max trades per day reached": 155,
       "Trade cost $1106.00 exceeds max risk $996.80 and cannot be reduc": 1,
-      "Max entries per day reached": 13
+      "Max entries per day reached": 13,
+      "Trade cost $7957.00 exceeds max risk $995.38 and cannot be reduc": 5,
+      "Trade cost $7917.00 exceeds max risk $995.38 and cannot be reduc": 4,
+      "Trade cost $7728.00 exceeds max risk $995.38 and cannot be reduc": 2,
+      "Trade cost $7731.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7661.00 exceeds max risk $995.38 and cannot be reduc": 3,
+      "Trade cost $7872.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7916.00 exceeds max risk $995.38 and cannot be reduc": 4,
+      "Trade cost $7928.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7805.00 exceeds max risk $995.38 and cannot be reduc": 3,
+      "Trade cost $7654.00 exceeds max risk $995.38 and cannot be reduc": 3,
+      "Trade cost $7795.00 exceeds max risk $995.38 and cannot be reduc": 2,
+      "Trade cost $7747.00 exceeds max risk $995.38 and cannot be reduc": 5,
+      "Trade cost $7729.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7869.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7836.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7698.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7808.00 exceeds max risk $995.38 and cannot be reduc": 7,
+      "Trade cost $7866.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7906.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7822.00 exceeds max risk $995.38 and cannot be reduc": 3,
+      "Trade cost $7873.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7670.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7854.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7943.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7879.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7711.00 exceeds max risk $995.38 and cannot be reduc": 2,
+      "Trade cost $7758.00 exceeds max risk $995.38 and cannot be reduc": 2,
+      "Trade cost $7784.00 exceeds max risk $995.38 and cannot be reduc": 2,
+      "Trade cost $7749.00 exceeds max risk $995.38 and cannot be reduc": 1,
+      "Trade cost $7745.00 exceeds max risk $995.18 and cannot be reduc": 1,
+      "Trade cost $7724.00 exceeds max risk $995.13 and cannot be reduc": 1,
+      "Trade cost $7758.00 exceeds max risk $994.88 and cannot be reduc": 1,
+      "Trade cost $7682.00 exceeds max risk $994.88 and cannot be reduc": 1,
+      "Trade cost $7875.00 exceeds max risk $994.38 and cannot be reduc": 1,
+      "Trade cost $7875.00 exceeds max risk $994.58 and cannot be reduc": 1,
+      "Trade cost $7786.00 exceeds max risk $994.73 and cannot be reduc": 1,
+      "Trade cost $7717.00 exceeds max risk $994.58 and cannot be reduc": 1
     }
   }
 }

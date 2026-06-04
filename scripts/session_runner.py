@@ -216,7 +216,31 @@ async def monitor_positions(
                     OrderRequest as _OReq,
                     OrderSide as _OSide,
                     OrderType as _OType,
+                    OrderStatus as _OStatus,
                 )
+
+                # Cancel any existing open sell order for this symbol (Bug D fix).
+                # Alpaca returns 403 if we place a new sell while one is already open.
+                try:
+                    _open_orders = await broker.get_orders(status=None, limit=50)
+                    for _o in _open_orders:
+                        if (
+                            _o.option_symbol == pos.option_symbol
+                            and _o.side == _OSide.SELL_TO_CLOSE
+                            and _o.status not in (_OStatus.FILLED, _OStatus.CANCELLED, _OStatus.REJECTED)
+                        ):
+                            logger.warning(
+                                "Cancelling stale exit order %s for %s (limit=%.4f) "
+                                "before placing fresh exit at current bid",
+                                _o.order_id[:8], pos.option_symbol, float(_o.limit_price),
+                            )
+                            await broker.cancel_order(_o.order_id)
+                except Exception as _chk_exc:
+                    logger.warning(
+                        "Could not check/cancel existing exit orders for %s: %s — proceeding",
+                        pos.option_symbol, _chk_exc,
+                    )
+
                 _exit_lp = Decimal(str(round(
                     _exit_bid if (_exit_bid or 0) > 0 else current_price * 0.98, 2
                 )))
@@ -1476,6 +1500,11 @@ async def run_session(args: argparse.Namespace):
         acct = await _retry(broker.get_account, label="get_account")
         risk.start_session(acct.equity)
         logger.info("Account: equity=%.2f paper=%s", float(acct.equity), acct.is_paper)
+        # Update liquidity filter cost cap now that equity is known (Bug fix: prevents
+        # deep-ITM contracts with delta=N/A being selected and rejected every cycle).
+        liq_filter.set_max_contract_cost(
+            float(acct.equity) * settings.risk.max_risk_per_trade
+        )
         await alert_service.send(
             AlertEvent.SESSION_STARTED,
             f"Paper session started | equity={float(acct.equity):.2f} | symbols={args.symbols}",
@@ -1635,9 +1664,23 @@ async def run_session(args: argparse.Namespace):
                 f"EOD liquidation: closed {n_pos} position(s)",
                 data={"positions_closed": n_pos, "daily_pnl": float(risk.daily_pnl)},
             )
-            # Don't scan for new entries after EOD
-            await asyncio.sleep(args.poll)
-            continue
+            # Wait up to 5 minutes for any pending EOD exit orders to fill,
+            # then exit the loop (Bug E fix — previously the loop ran indefinitely).
+            _eod_deadline = now + timedelta(minutes=5)
+            while fill_tracker.count() > 0 and datetime.now(tz=ET) < _eod_deadline:
+                await asyncio.sleep(args.poll)
+                _poll_now = datetime.now(tz=ET)
+                try:
+                    await fill_tracker.poll(broker, pm, journal, _poll_now, risk)
+                except Exception as _eod_poll_exc:
+                    logger.warning("EOD fill poll error: %s", _eod_poll_exc)
+            if fill_tracker.count() > 0:
+                logger.warning(
+                    "EOD: %d order(s) still pending after 5-min wait — exiting anyway",
+                    fill_tracker.count(),
+                )
+            logger.info("EOD complete — exiting session loop")
+            break
 
         # Poll pending orders for fills / cancellations
         if fill_tracker.count() > 0:

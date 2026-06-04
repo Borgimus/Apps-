@@ -1,0 +1,45 @@
+{
+  "session_date": "2026-06-04",
+  "generated_at": "2026-06-04T12:49:18.628327-04:00",
+  "api_errors": 0,
+  "reconciliation_warnings": [
+    "Untracked broker order 8f1efd31 (META260605C00645000) status=new",
+    "Untracked broker order 8f1efd31 (META260605C00645000) status=new",
+    "Untracked broker order 8f1efd31 (META260605C00645000) status=new"
+  ],
+  "trades": {
+    "total_closed": 2,
+    "wins": 0,
+    "losses": 2,
+    "win_rate": 0.0,
+    "still_open": 0,
+    "rejected": 70,
+    "cancelled": 1
+  },
+  "realized_pnl": -264.0,
+  "unrealized_pnl": 0,
+  "avg_win": 0.0,
+  "avg_loss": -132.0,
+  "max_drawdown": 0.0,
+  "orders": {
+    "submitted": 3,
+    "filled": 2,
+    "partial_fills": 0,
+    "cancelled": 1,
+    "stale_cancels": 1,
+    "rejected": 70,
+    "status_breakdown": {
+      "filled": 2,
+      "cancelled": 1
+    }
+  },
+  "by_strategy": {
+    "vwap_reclaim": {
+      "trades": 2,
+      "wins": 0,
+      "losses": 2,
+      "pnl": -264.0,
+      "win_rate": 0.0
+    }
+  }
+}

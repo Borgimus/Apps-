@@ -183,11 +183,48 @@ class FillTracker:
                     "FillTracker: stale order %s (%.0f min) — cancelling",
                     order_id[:8], age_min,
                 )
+                _cancel_failed = False
                 try:
                     await broker.cancel_order(order_id)
                 except Exception as exc:
-                    logger.warning("Cancel failed for %s: %s", order_id[:8], exc)
-                await self._handle_dead(order_id, pending, "stale_cancelled", pm, journal)
+                    logger.warning(
+                        "FillTracker: cancel failed for %s: %s — re-checking order status",
+                        order_id[:8], exc,
+                    )
+                    _cancel_failed = True
+
+                if _cancel_failed:
+                    # Cancel rejected (HTTP 422 = order already in terminal state).
+                    # Re-fetch to distinguish filled vs cancelled at broker before
+                    # deciding whether to route to _handle_fill or _handle_dead.
+                    try:
+                        _recheck = await broker.get_order_status(order_id)
+                        if _recheck.status == OrderStatus.FILLED:
+                            logger.info(
+                                "FillTracker: %s filled before stale cancel — routing to fill handler",
+                                order_id[:8],
+                            )
+                            fills += await self._handle_fill(
+                                order_id, pending, _recheck, pm, journal, now, risk, partial=False
+                            )
+                            continue
+                        elif _recheck.status == OrderStatus.PARTIALLY_FILLED:
+                            logger.info(
+                                "FillTracker: %s partially filled before stale cancel — routing to partial fill handler",
+                                order_id[:8],
+                            )
+                            fills += await self._handle_fill(
+                                order_id, pending, _recheck, pm, journal, now, risk, partial=True
+                            )
+                            continue
+                        # else: confirmed non-filled terminal state; fall through to _handle_dead
+                    except Exception as _recheck_exc:
+                        logger.warning(
+                            "FillTracker: status re-check failed for %s: %s — treating as stale_cancelled",
+                            order_id[:8], _recheck_exc,
+                        )
+
+                await self._handle_dead(order_id, pending, "stale_cancelled", pm, journal, risk)
                 continue
 
             # ── Fetch latest status from broker ───────────────────────────────

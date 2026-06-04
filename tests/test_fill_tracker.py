@@ -356,3 +356,283 @@ class TestBrokerFailure:
 
         assert fills == 0
         assert ft.count() == 1  # still tracked; will retry next cycle
+
+
+# ── Bug A + B: stale-cancel risk counter and 422 fill recovery ────────────────
+#
+# Regression suite for the 2026-06-03 AMZN / COIN / NVDA scenarios:
+#   Bug A: stale cancel path was missing the `risk` argument to _handle_dead(),
+#          so record_entry_cancelled() was never called → _pending_entries leaked,
+#          eventually falsely triggering max_entries (3/3) for COIN and NVDA.
+#   Bug B: when broker returns 422 on cancel (order already filled), FillTracker
+#          was calling _handle_dead("stale_cancelled") without re-checking status,
+#          silently dropping the fill → orphan position until Reconciler ran.
+
+
+def _make_risk():
+    """Risk mock that tracks record_entry_cancelled / record_entry_filled calls."""
+    risk = MagicMock()
+    risk.record_entry_cancelled = MagicMock()
+    risk.record_entry_filled = MagicMock()
+    return risk
+
+
+def _make_stale_broker():
+    """Broker where cancel succeeds and status is still NEW (normal stale path)."""
+    broker = MagicMock()
+    broker.cancel_order = AsyncMock()
+    broker.get_order_status = AsyncMock(return_value=MagicMock(
+        status=OrderStatus.NEW, filled_quantity=0, filled_price=None,
+    ))
+    return broker
+
+
+class TestStaleOrderRiskIntegration:
+    """
+    Bug A: stale-cancel path must pass risk so pending_entries decrements.
+    Bug B: 422 on cancel must re-fetch and route to _handle_fill if filled.
+    """
+
+    # ── Bug A ─────────────────────────────────────────────────────────────────
+
+    @pytest.mark.asyncio
+    async def test_stale_cancel_calls_record_entry_cancelled(self):
+        """Stale cancel must decrement pending_entries via record_entry_cancelled."""
+        ft = FillTracker(max_age_minutes=1)
+        _register(ft, "STALE-A", placed_at=datetime.now() - timedelta(minutes=5))
+
+        broker = _make_stale_broker()
+        pm = _make_pm()
+        journal = _make_journal()
+        risk = _make_risk()
+
+        await ft.poll(broker, pm, journal, datetime.now(), risk=risk)
+
+        risk.record_entry_cancelled.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_two_stale_cancels_both_decrement_pending(self):
+        """
+        Reproduces the COIN/NVDA blockage: SMH + AMZN stale-cancelled but
+        pending_entries never decremented → false 3/3 cap.
+        Both cancels must call record_entry_cancelled so the slots are freed.
+        """
+        ft = FillTracker(max_age_minutes=1)
+        old = datetime.now() - timedelta(minutes=5)
+        _register(ft, "SMH-306", placed_at=old)
+
+        # Register second order with different symbol to avoid duplicate detection
+        ft.register(
+            order_id="AMZN-307",
+            journal_id=43,
+            option_symbol="AMZN260603P00247500",
+            symbol="AMZN",
+            strategy_id="orb",
+            direction="SHORT",
+            quantity=1,
+            limit_price=0.21,
+            placed_at=old,
+        )
+
+        broker = _make_stale_broker()
+        pm = _make_pm()
+        journal = _make_journal()
+        risk = _make_risk()
+
+        await ft.poll(broker, pm, journal, datetime.now(), risk=risk)
+
+        assert risk.record_entry_cancelled.call_count == 2
+        assert ft.count() == 0
+
+    @pytest.mark.asyncio
+    async def test_stale_cancel_removes_from_pending(self):
+        """After stale cancel, order must be removed from pending regardless of risk."""
+        ft = FillTracker(max_age_minutes=1)
+        _register(ft, "STALE-REM", placed_at=datetime.now() - timedelta(minutes=5))
+
+        await ft.poll(_make_stale_broker(), _make_pm(), _make_journal(), datetime.now(), risk=_make_risk())
+
+        assert ft.count() == 0
+
+    # ── Bug B ─────────────────────────────────────────────────────────────────
+
+    @pytest.mark.asyncio
+    async def test_cancel_422_routes_to_fill_handler(self):
+        """
+        Reproduces the 2026-06-03 AMZN scenario:
+        - Order placed at 11:37, filled at 11:39:02
+        - Stale cancel fires at 11:39:09 (7 seconds after fill)
+        - Broker returns 422 (order already filled)
+        - FillTracker must detect fill via re-check and call _handle_fill,
+          NOT _handle_dead.
+        """
+        ft = FillTracker(max_age_minutes=1)
+        _register(ft, "AMZN-422", placed_at=datetime.now() - timedelta(minutes=5))
+
+        fill_resp = MagicMock()
+        fill_resp.status = OrderStatus.FILLED
+        fill_resp.filled_quantity = 1
+        fill_resp.filled_price = 0.21
+
+        broker = MagicMock()
+        broker.cancel_order = AsyncMock(side_effect=RuntimeError("HTTP 422: order already filled"))
+        broker.get_order_status = AsyncMock(return_value=fill_resp)
+
+        pm = _make_pm()
+        journal = _make_journal()
+        risk = _make_risk()
+
+        fills = await ft.poll(broker, pm, journal, datetime.now(), risk=risk)
+
+        # Must detect fill
+        assert fills == 1
+        pm.open.assert_called_once()
+        kw = pm.open.call_args.kwargs
+        assert kw["entry_price"] == pytest.approx(0.21)
+        assert kw["option_symbol"] == "SPY240102C00450000"
+
+        # Must record fill in journal, NOT cancellation
+        journal.record_fill.assert_awaited_once()
+        journal.record_cancellation.assert_not_awaited()
+
+        # Must call record_entry_filled, NOT record_entry_cancelled
+        risk.record_entry_filled.assert_called_once()
+        risk.record_entry_cancelled.assert_not_called()
+
+        # Order removed from pending
+        assert ft.count() == 0
+
+    @pytest.mark.asyncio
+    async def test_cancel_422_partial_fill_routes_to_partial_handler(self):
+        """Partial fill after 422 must call _handle_fill with partial=True."""
+        ft = FillTracker(max_age_minutes=1)
+        _register(ft, "PART-422", placed_at=datetime.now() - timedelta(minutes=5))
+
+        partial_resp = MagicMock()
+        partial_resp.status = OrderStatus.PARTIALLY_FILLED
+        partial_resp.filled_quantity = 1
+        partial_resp.filled_price = 0.21
+
+        broker = MagicMock()
+        broker.cancel_order = AsyncMock(side_effect=RuntimeError("HTTP 422"))
+        broker.get_order_status = AsyncMock(return_value=partial_resp)
+
+        pm = _make_pm()
+        journal = _make_journal()
+
+        fills = await ft.poll(broker, pm, journal, datetime.now())
+
+        assert fills == 1
+        pm.open.assert_called_once()
+        # Stays in pending for remainder
+        assert ft.count() == 1
+
+    @pytest.mark.asyncio
+    async def test_cancel_422_recheck_failure_falls_back_to_dead(self):
+        """If both cancel AND re-check status fail, treat as stale_cancelled (safe fallback)."""
+        ft = FillTracker(max_age_minutes=1)
+        _register(ft, "DBLF-422", placed_at=datetime.now() - timedelta(minutes=5))
+
+        broker = MagicMock()
+        broker.cancel_order = AsyncMock(side_effect=RuntimeError("HTTP 422"))
+        broker.get_order_status = AsyncMock(side_effect=RuntimeError("network timeout"))
+
+        pm = _make_pm()
+        journal = _make_journal()
+        risk = _make_risk()
+
+        fills = await ft.poll(broker, pm, journal, datetime.now(), risk=risk)
+
+        # Falls back to dead
+        assert fills == 0
+        journal.record_cancellation.assert_awaited_once()
+        kw = journal.record_cancellation.call_args.kwargs
+        assert "stale" in kw["reason"]
+        # Slot must still be freed
+        risk.record_entry_cancelled.assert_called_once()
+        assert ft.count() == 0
+
+    @pytest.mark.asyncio
+    async def test_cancel_422_confirmed_dead_routes_to_dead(self):
+        """If re-check confirms CANCELLED state (not filled), use _handle_dead normally."""
+        ft = FillTracker(max_age_minutes=1)
+        _register(ft, "CONF-DEAD", placed_at=datetime.now() - timedelta(minutes=5))
+
+        dead_resp = MagicMock()
+        dead_resp.status = OrderStatus.CANCELLED
+        dead_resp.filled_quantity = 0
+        dead_resp.filled_price = None
+
+        broker = MagicMock()
+        broker.cancel_order = AsyncMock(side_effect=RuntimeError("HTTP 422"))
+        broker.get_order_status = AsyncMock(return_value=dead_resp)
+
+        pm = _make_pm()
+        journal = _make_journal()
+        risk = _make_risk()
+
+        fills = await ft.poll(broker, pm, journal, datetime.now(), risk=risk)
+
+        assert fills == 0
+        journal.record_cancellation.assert_awaited_once()
+        pm.open.assert_not_called()
+        risk.record_entry_cancelled.assert_called_once()
+        assert ft.count() == 0
+
+    @pytest.mark.asyncio
+    async def test_amzn_scenario_no_orphan_position(self):
+        """
+        Full 2026-06-03 AMZN scenario end-to-end:
+        1. AMZN order placed (pending=1)
+        2. Order fills at broker before stale timeout
+        3. Stale cancel fires 7 seconds later → 422
+        4. Re-check confirms FILLED
+        5. _handle_fill called → position opened, journal filled, pending=0
+        6. No orphan: position_manager.open() called exactly once
+        7. No journal cancellation recorded
+        """
+        ft = FillTracker(max_age_minutes=1)
+        ft.register(
+            order_id="AMZN-260603",
+            journal_id=307,
+            option_symbol="AMZN260603P00247500",
+            symbol="AMZN",
+            strategy_id="orb",
+            direction="SHORT",
+            quantity=1,
+            limit_price=0.21,
+            placed_at=datetime.now() - timedelta(minutes=2),
+        )
+
+        fill_resp = MagicMock()
+        fill_resp.status = OrderStatus.FILLED
+        fill_resp.filled_quantity = 1
+        fill_resp.filled_price = 0.21
+
+        broker = MagicMock()
+        broker.cancel_order = AsyncMock(side_effect=RuntimeError("HTTP 422: unprocessable entity"))
+        broker.get_order_status = AsyncMock(return_value=fill_resp)
+
+        pm = _make_pm()
+        journal = _make_journal()
+        risk = _make_risk()
+
+        fills = await ft.poll(broker, pm, journal, datetime.now(), risk=risk)
+
+        # Fill recorded
+        assert fills == 1
+        assert ft.count() == 0
+        assert ft.has_pending_for_symbol("AMZN") is False
+
+        # Position opened once with correct entry price
+        pm.open.assert_called_once()
+        assert pm.open.call_args.kwargs["entry_price"] == pytest.approx(0.21)
+        assert pm.open.call_args.kwargs["strategy_id"] == "orb"
+
+        # Journal fill recorded, cancellation NOT recorded
+        journal.record_fill.assert_awaited_once()
+        journal.record_cancellation.assert_not_awaited()
+
+        # Risk: filled not cancelled
+        risk.record_entry_filled.assert_called_once()
+        risk.record_entry_cancelled.assert_not_called()

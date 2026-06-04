@@ -158,11 +158,16 @@ async def monitor_positions(
         reason = pm.should_exit(pos.option_symbol, current_price, now)
 
         if reason:
-            pnl = (current_price - pos.entry_price) * 100 * pos.quantity
+            # Exit limit orders are placed at bid; use bid as the accounting price
+            # so P&L reflects realistic execution rather than the midpoint.
+            _exit_price_pnl = (
+                _exit_bid if (_exit_bid is not None and _exit_bid > 0) else current_price
+            )
+            pnl = (_exit_price_pnl - pos.entry_price) * 100 * pos.quantity
             hold_secs = (now - pos.entry_time).total_seconds()
             logger.info(
                 "Position exit | %s | reason=%s | price=%.4f | pnl=%.2f",
-                pos.option_symbol, reason, current_price, pnl,
+                pos.option_symbol, reason, _exit_price_pnl, pnl,
             )
 
             # ── Exit spread awareness ──────────────────────────────────────
@@ -239,13 +244,13 @@ async def monitor_positions(
                         "Exit order placement failed for %s: %s — position closed locally only",
                         pos.option_symbol, _exit_exc,
                     )
-                pm_pos = pm.close(pos.option_symbol, current_price, pnl)
+                pm_pos = pm.close(pos.option_symbol, _exit_price_pnl, pnl)
                 risk.record_exit(Decimal(str(pnl)))
                 if pos.journal_id and journal:
                     await journal.record_exit(
                         journal_id=pos.journal_id,
                         exit_time=now,
-                        exit_price=current_price,
+                        exit_price=_exit_price_pnl,
                         exit_reason=reason,
                         realized_pnl=pnl,
                         hold_duration_secs=hold_secs,
@@ -295,9 +300,11 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
                 lambda p=pos: broker.get_option_quote(p.option_symbol),
                 label=f"eod_quote({pos.option_symbol})",
             )
-            exit_price = float(quote.mid) if float(quote.mid) > 0 else pos.entry_price
             _eod_bid_pre = float(quote.bid) if float(quote.bid) > 0 else None
             _eod_ask_pre = float(quote.ask) if float(quote.ask) > 0 else None
+            # Use bid as exit price (EOD limit placed at bid); fall back to mid if bid unavailable.
+            _eod_mid = float(quote.mid) if float(quote.mid) > 0 else 0.0
+            exit_price = _eod_bid_pre if _eod_bid_pre else (_eod_mid if _eod_mid > 0 else pos.entry_price)
         except Exception:
             exit_price = pos.entry_price
             _eod_bid_pre = None

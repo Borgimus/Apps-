@@ -1,7 +1,7 @@
 {
   "version": "1",
   "created_at": "2026-05-11T12:07:54.394379",
-  "last_updated": "2026-06-04T16:49:18.795311",
+  "last_updated": "2026-06-05T16:32:29.197661+00:00",
   "sessions": [
     {
       "date": "2026-05-11",
@@ -479,22 +479,86 @@
         "Trade cost $7717.00 exceeds max risk $994.58 and cannot be reduc": 1
       },
       "data_clean": false
+    },
+    {
+      "date": "2026-06-05",
+      "total_trades": 3,
+      "wins": 1,
+      "losses": 2,
+      "realized_pnl": 2.0000000000000036,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 11.000000000000007,
+      "slippage_total": -0.0399999999999999,
+      "spread_cost_total": 5.999999999999993,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 4,
+      "trades_filled": 3,
+      "trades_cancelled": 1,
+      "trades_rejected": 62,
+      "by_strategy": {
+        "orb": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 13.00000000000001
+        },
+        "vwap_reclaim": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -11.000000000000007
+        }
+      },
+      "by_entry_hour": {
+        "11:00": {
+          "trades": 3,
+          "wins": 1,
+          "losses": 2,
+          "pnl": 2.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 3,
+          "wins": 1,
+          "losses": 2,
+          "pnl": 2.0
+        }
+      },
+      "by_spread_bucket": {
+        "moderate (5-10%)": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "pnl": 10.0
+        },
+        "tight (<5%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -8.0
+        }
+      },
+      "reject_reasons": {
+        "liquidity_filter_no_contract": 1,
+        "cooldown_after_loss": 32,
+        "Max entries per day reached": 29
+      },
+      "data_clean": true
     }
   ],
   "cumulative": {
-    "trading_days": 9,
-    "total_trades": 10,
-    "total_pnl": -756.5,
-    "expectancy": -75.65,
-    "win_rate": 0.2,
-    "profit_factor": 0.0,
-    "max_drawdown": 554.5,
+    "trading_days": 10,
+    "total_trades": 13,
+    "total_pnl": -754.5,
+    "win_rate": 0.2308,
     "pnl_by_strategy": {
       "fill_lifecycle_test": {
         "trades": 1,
         "wins": 1,
         "losses": 0,
-        "pnl": 2.0
+        "pnl": 2.0000000000000018
       },
       "paper_smoke_test": {
         "trades": 0,
@@ -503,127 +567,23 @@
         "pnl": 0.0
       },
       "orb": {
-        "trades": 0,
-        "wins": 0,
+        "trades": 1,
+        "wins": 1,
         "losses": 0,
-        "pnl": 0.0
+        "pnl": 13.00000000000001
       },
       "rsi_trend": {
         "trades": 1,
         "wins": 0,
         "losses": 1,
-        "pnl": -109.5
+        "pnl": -109.50000000000006
       },
       "vwap_reclaim": {
-        "trades": 8,
+        "trades": 10,
         "wins": 1,
-        "losses": 7,
-        "pnl": -445.0
+        "losses": 9,
+        "pnl": -660.0
       }
-    },
-    "pnl_by_entry_hour": {
-      "12:00": {
-        "trades": 3,
-        "wins": 1,
-        "losses": 2,
-        "pnl": -152.0
-      },
-      "09:00": {
-        "trades": 1,
-        "wins": 0,
-        "losses": 1,
-        "pnl": -109.5
-      },
-      "10:00": {
-        "trades": 2,
-        "wins": 0,
-        "losses": 2,
-        "pnl": -153.5
-      },
-      "11:00": {
-        "trades": 4,
-        "wins": 1,
-        "losses": 3,
-        "pnl": -137.5
-      }
-    },
-    "pnl_by_delta_bucket": {
-      "unknown": {
-        "trades": 4,
-        "wins": 1,
-        "losses": 3,
-        "pnl": -50.5
-      },
-      "low (<0.30)": {
-        "trades": 3,
-        "wins": 1,
-        "losses": 2,
-        "pnl": -188.0
-      },
-      "target (0.40-0.50)": {
-        "trades": 3,
-        "wins": 0,
-        "losses": 3,
-        "pnl": -314.0
-      }
-    },
-    "pnl_by_spread_bucket": {
-      "moderate (5-10%)": {
-        "trades": 9,
-        "wins": 2,
-        "losses": 7,
-        "pnl": -502.5
-      },
-      "tight (<5%)": {
-        "trades": 1,
-        "wins": 0,
-        "losses": 1,
-        "pnl": -50.0
-      }
-    },
-    "reject_counts_by_reason": {
-      "No trades in first 15 min after open (until 09": 9,
-      "cooldown_after_loss": 132,
-      "Max trades per day reached": 155,
-      "Trade cost $1106.00 exceeds max risk $996.80 and cannot be reduc": 1,
-      "Max entries per day reached": 13,
-      "Trade cost $7957.00 exceeds max risk $995.38 and cannot be reduc": 5,
-      "Trade cost $7917.00 exceeds max risk $995.38 and cannot be reduc": 4,
-      "Trade cost $7728.00 exceeds max risk $995.38 and cannot be reduc": 2,
-      "Trade cost $7731.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7661.00 exceeds max risk $995.38 and cannot be reduc": 3,
-      "Trade cost $7872.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7916.00 exceeds max risk $995.38 and cannot be reduc": 4,
-      "Trade cost $7928.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7805.00 exceeds max risk $995.38 and cannot be reduc": 3,
-      "Trade cost $7654.00 exceeds max risk $995.38 and cannot be reduc": 3,
-      "Trade cost $7795.00 exceeds max risk $995.38 and cannot be reduc": 2,
-      "Trade cost $7747.00 exceeds max risk $995.38 and cannot be reduc": 5,
-      "Trade cost $7729.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7869.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7836.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7698.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7808.00 exceeds max risk $995.38 and cannot be reduc": 7,
-      "Trade cost $7866.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7906.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7822.00 exceeds max risk $995.38 and cannot be reduc": 3,
-      "Trade cost $7873.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7670.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7854.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7943.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7879.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7711.00 exceeds max risk $995.38 and cannot be reduc": 2,
-      "Trade cost $7758.00 exceeds max risk $995.38 and cannot be reduc": 2,
-      "Trade cost $7784.00 exceeds max risk $995.38 and cannot be reduc": 2,
-      "Trade cost $7749.00 exceeds max risk $995.38 and cannot be reduc": 1,
-      "Trade cost $7745.00 exceeds max risk $995.18 and cannot be reduc": 1,
-      "Trade cost $7724.00 exceeds max risk $995.13 and cannot be reduc": 1,
-      "Trade cost $7758.00 exceeds max risk $994.88 and cannot be reduc": 1,
-      "Trade cost $7682.00 exceeds max risk $994.88 and cannot be reduc": 1,
-      "Trade cost $7875.00 exceeds max risk $994.38 and cannot be reduc": 1,
-      "Trade cost $7875.00 exceeds max risk $994.58 and cannot be reduc": 1,
-      "Trade cost $7786.00 exceeds max risk $994.73 and cannot be reduc": 1,
-      "Trade cost $7717.00 exceeds max risk $994.58 and cannot be reduc": 1
     }
   },
   "data_quality": {
@@ -640,14 +600,6 @@
       "2026-06-04"
     ],
     "boundary_commit": "79d8681",
-    "fixes_included": [
-      "Bug A: stale cancel risk arg (d2935c9)",
-      "Bug B: 422 cancel drops fill (d2935c9)",
-      "Bug C: exit P&L uses midpoint not bid (79d8681)",
-      "Bug D: duplicate exit 403 loop (79d8681)",
-      "Bug E: session does not terminate after EOD (79d8681)",
-      "LiquidityFilter: delta=N/A deep-ITM cost cap (79d8681)"
-    ],
-    "notes": "Sessions before clean_sessions_from are retained for infrastructure debugging but excluded from performance analysis. See evaluation/post_fix_eval_protocol.md for details."
+    "notes": "Sessions before clean_sessions_from retained for infrastructure debugging only. Use data_clean=true sessions for performance conclusions."
   }
 }

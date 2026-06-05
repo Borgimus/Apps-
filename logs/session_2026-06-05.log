@@ -1,0 +1,1259 @@
+2026-06-05T15:03:49 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-05T15:04:02 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-05T15:04:02 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-05T15:04:02 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-05T15:04:02 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-05T15:04:02 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-06-05  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-06-05T15:04:03 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-05T15:04:03 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-05T15:04:03 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Friday 2026-06-05 — trading day
+2026-06-05T15:04:03 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-05T15:04:03 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-05T15:04:03 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-05T15:04:03 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-05T15:04:03 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-05T15:04:03 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: No prior session log today — first run of the day
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Friday 2026-06-05 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-06-05T15:04:03 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Friday 2026-06-05 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-06-05T15:04:03 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-05T15:04:03 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-05 | starting_equity=99191.86
+2026-06-05T15:04:03 | INFO     | session_runner | Account: equity=99191.86 paper=True
+2026-06-05T15:04:03 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-05T15:04:03 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-05T15:04:03 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T15:04:03 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T15:04:03 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T15:04:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T15:04:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T15:04:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T15:04:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T15:04:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T15:04:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T15:04:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T15:04:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T15:04:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T15:04:05 | INFO     | session_runner | Scan: 2 passed, 25 rejected
+2026-06-05T15:04:05 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.60% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:04:05 | INFO     | session_runner |   MSTR    score=52.0  signal=SHORT    reasons: atr=9.09% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:04:05 | INFO     | session_runner |   XLY     score=62.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-05T15:04:05 | INFO     | session_runner |   MSFT    score=62.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-05T15:04:05 | INFO     | session_runner |   NVDA    score=62.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-05T15:04:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00395000 | delta=N/A | spread_pct=0.098 | OI=2417 | vol=7878
+2026-06-05T15:04:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00395000 | exp=2026-06-05 | spread=9.84% | OI=2417 | vol=7878
+2026-06-05T15:04:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00117000 | delta=N/A | spread_pct=0.038 | OI=1277 | vol=3209
+2026-06-05T15:04:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00117000 | exp=2026-06-05 | spread=3.77% | OI=1277 | vol=3209
+2026-06-05T15:04:06 | INFO     | session_runner | AlpacaConfirmer: 2 confirmed symbols: ['AVGO', 'MSTR']
+2026-06-05T15:04:06 | INFO     | session_runner | Active symbols from scan: ['AVGO', 'MSTR']
+2026-06-05T15:04:06 | INFO     | session_runner | [cycle 1] 11:04:06 ET | positions=0 | entries=0
+2026-06-05T15:04:06 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-05T15:04:06 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:04:06 | INFO     | session_runner | [bridge:MSTR] rsi_trend ready: sufficient bars
+2026-06-05T15:04:07 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00119000 | delta=N/A | spread_pct=0.088 | OI=248 | vol=4548
+2026-06-05T15:04:07 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN MSTR260605P00119000 | APPROVED | qty=1 | risk=$118.00
+2026-06-05T15:04:07 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'MSTR260605P00119000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '1.18', 'order_class': 'simple'}
+2026-06-05T15:04:07 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=1 exits=0
+2026-06-05T15:04:07 | INFO     | session_runner | Order placed: a5ac13e9 | MSTR260605P00119000 | limit=1.18 | status=pending_new
+2026-06-05T15:04:07 | INFO     | app.trading.trade_journal | Journal entry 396: short MSTR260605P00119000 @ 1.1800
+2026-06-05T15:04:07 | INFO     | app.trading.fill_tracker | FillTracker registered a5ac13e9 | MSTR260605P00119000 | limit=1.1800
+2026-06-05T15:04:37 | INFO     | session_runner | [cycle 2] 11:04:37 ET | positions=0 | entries=0
+2026-06-05T15:04:37 | INFO     | app.trading.fill_tracker | FillTracker: FILL a5ac13e9 @ 1.1800 (1/1 contracts)
+2026-06-05T15:04:37 | INFO     | app.trading.trade_journal | Journal fill 396: filled=1 @ 1.1800 ttf=32s
+2026-06-05T15:04:37 | INFO     | app.trading.position_manager | Position opened | MSTR260605P00119000 | entry=1.1800 | qty=1
+2026-06-05T15:04:37 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=1 pending=0 exits=0
+2026-06-05T15:04:37 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-06-05T15:04:38 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:05:08 | INFO     | session_runner | [cycle 3] 11:05:08 ET | positions=1 | entries=1
+2026-06-05T15:05:08 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:05:38 | INFO     | session_runner | [cycle 4] 11:05:38 ET | positions=1 | entries=1
+2026-06-05T15:05:38 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:06:08 | INFO     | session_runner | [cycle 5] 11:06:08 ET | positions=1 | entries=1
+2026-06-05T15:06:09 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:06:39 | INFO     | session_runner | [cycle 6] 11:06:39 ET | positions=1 | entries=1
+2026-06-05T15:06:39 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:07:09 | INFO     | session_runner | [cycle 7] 11:07:09 ET | positions=1 | entries=1
+2026-06-05T15:07:09 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:07:39 | INFO     | session_runner | [cycle 8] 11:07:39 ET | positions=1 | entries=1
+2026-06-05T15:07:40 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:08:10 | INFO     | session_runner | [cycle 9] 11:08:10 ET | positions=1 | entries=1
+2026-06-05T15:08:10 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:08:40 | INFO     | session_runner | [cycle 10] 11:08:40 ET | positions=1 | entries=1
+2026-06-05T15:08:40 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:09:11 | INFO     | session_runner | [cycle 11] 11:09:11 ET | positions=1 | entries=1
+2026-06-05T15:09:11 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T15:09:11 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T15:09:11 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T15:09:11 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T15:09:11 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T15:09:11 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T15:09:11 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T15:09:11 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T15:09:11 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T15:09:11 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T15:09:11 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T15:09:11 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T15:09:12 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T15:09:12 | INFO     | session_runner | Scan: 3 passed, 24 rejected
+2026-06-05T15:09:12 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.60% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:09:12 | INFO     | session_runner |   MSTR    score=52.0  signal=SHORT    reasons: atr=9.13% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:09:12 | INFO     | session_runner |   COIN    score=40.0  signal=SHORT    reasons: atr=7.18% (wide-range), near_orb_level, trend_sideways
+2026-06-05T15:09:12 | INFO     | session_runner |   XLY     score=62.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-05T15:09:12 | INFO     | session_runner |   MSFT    score=62.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-05T15:09:13 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00119000 | delta=N/A | spread_pct=0.061 | OI=248 | vol=5076
+2026-06-05T15:09:13 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00119000 | exp=2026-06-05 | spread=6.06% | OI=248 | vol=5076
+2026-06-05T15:09:13 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected COIN260605P00152500 | delta=N/A | spread_pct=0.078 | OI=536 | vol=4918
+2026-06-05T15:09:13 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed COIN | COIN260605P00152500 | exp=2026-06-05 | spread=7.79% | OI=536 | vol=4918
+2026-06-05T15:09:13 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00390000 | delta=N/A | spread_pct=0.062 | OI=4055 | vol=7590
+2026-06-05T15:09:13 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00390000 | exp=2026-06-05 | spread=6.25% | OI=4055 | vol=7590
+2026-06-05T15:09:13 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['AVGO', 'MSTR', 'COIN']
+2026-06-05T15:09:13 | INFO     | session_runner | Re-scan updated active symbols: ['AVGO', 'MSTR', 'COIN']
+2026-06-05T15:09:13 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:09:13 | INFO     | session_runner | [bridge:COIN] rsi_trend ready: sufficient bars
+2026-06-05T15:09:13 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected COIN260605P00152500 | delta=N/A | spread_pct=0.035 | OI=536 | vol=4918
+2026-06-05T15:09:13 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN COIN260605P00152500 | APPROVED | qty=1 | risk=$116.00
+2026-06-05T15:09:13 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'COIN260605P00152500', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '1.16', 'order_class': 'simple'}
+2026-06-05T15:09:13 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=1 pending=1 exits=0
+2026-06-05T15:09:13 | INFO     | session_runner | Order placed: c499567c | COIN260605P00152500 | limit=1.16 | status=pending_new
+2026-06-05T15:09:13 | INFO     | app.trading.trade_journal | Journal entry 397: short COIN260605P00152500 @ 1.1600
+2026-06-05T15:09:13 | INFO     | app.trading.fill_tracker | FillTracker registered c499567c | COIN260605P00152500 | limit=1.1600
+2026-06-05T15:09:44 | INFO     | session_runner | [cycle 12] 11:09:44 ET | positions=1 | entries=1
+2026-06-05T15:09:44 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:10:14 | INFO     | session_runner | [cycle 13] 11:10:14 ET | positions=1 | entries=1
+2026-06-05T15:10:14 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:10:44 | INFO     | session_runner | [cycle 14] 11:10:44 ET | positions=1 | entries=1
+2026-06-05T15:10:45 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:11:15 | INFO     | session_runner | [cycle 15] 11:11:15 ET | positions=1 | entries=1
+2026-06-05T15:11:15 | WARNING  | app.trading.fill_tracker | FillTracker: stale order c499567c (2 min) — cancelling
+2026-06-05T15:11:15 | INFO     | app.brokers.alpaca_broker | Order cancelled | order_id=c499567c-729a-4a44-94f2-315ffcc0303d
+2026-06-05T15:11:15 | INFO     | app.risk.risk_manager | RiskManager: entry cancelled | entries=1 pending=0 exits=0
+2026-06-05T15:11:15 | INFO     | app.trading.trade_journal | Journal cancellation 397: stale_cancelled
+2026-06-05T15:11:15 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:11:45 | INFO     | session_runner | [cycle 16] 11:11:45 ET | positions=1 | entries=1
+2026-06-05T15:11:46 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:12:16 | INFO     | session_runner | [cycle 17] 11:12:16 ET | positions=1 | entries=1
+2026-06-05T15:12:16 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:12:46 | INFO     | session_runner | [cycle 18] 11:12:46 ET | positions=1 | entries=1
+2026-06-05T15:12:46 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:13:16 | INFO     | session_runner | [cycle 19] 11:13:16 ET | positions=1 | entries=1
+2026-06-05T15:13:16 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:13:46 | INFO     | session_runner | [cycle 20] 11:13:46 ET | positions=1 | entries=1
+2026-06-05T15:13:47 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:14:17 | INFO     | session_runner | [cycle 21] 11:14:17 ET | positions=1 | entries=1
+2026-06-05T15:14:17 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-05T15:14:17 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T15:14:17 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T15:14:17 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T15:14:17 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T15:14:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T15:14:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T15:14:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T15:14:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T15:14:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T15:14:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T15:14:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T15:14:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T15:14:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T15:14:18 | INFO     | session_runner | Scan: 4 passed, 23 rejected
+2026-06-05T15:14:18 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.60% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:14:18 | INFO     | session_runner |   COIN    score=52.0  signal=SHORT    reasons: atr=7.20% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:14:18 | INFO     | session_runner |   MSTR    score=52.0  signal=SHORT    reasons: atr=9.16% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:14:18 | INFO     | session_runner |   QQQ     score=48.0  signal=SHORT    reasons: atr=1.49% (good range), orb_breakdown, rsi=45 (healthy)
+2026-06-05T15:14:18 | INFO     | session_runner |   XLY     score=62.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-05T15:14:19 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00392500 | delta=N/A | spread_pct=0.029 | OI=967 | vol=3529
+2026-06-05T15:14:19 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00392500 | exp=2026-06-05 | spread=2.86% | OI=967 | vol=3529
+2026-06-05T15:14:19 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00117000 | delta=N/A | spread_pct=0.065 | OI=1277 | vol=3365
+2026-06-05T15:14:19 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00117000 | exp=2026-06-05 | spread=6.54% | OI=1277 | vol=3365
+2026-06-05T15:14:19 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected COIN260605P00150000 | delta=N/A | spread_pct=0.078 | OI=1518 | vol=7571
+2026-06-05T15:14:19 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed COIN | COIN260605P00150000 | exp=2026-06-05 | spread=7.84% | OI=1518 | vol=7571
+2026-06-05T15:14:19 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00710000 | delta=N/A | spread_pct=0.095 | OI=6831 | vol=10225
+2026-06-05T15:14:19 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00710000 | exp=2026-06-05 | spread=9.52% | OI=6831 | vol=10225
+2026-06-05T15:14:19 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['AVGO', 'COIN', 'MSTR']
+2026-06-05T15:14:19 | INFO     | session_runner | Re-scan updated active symbols: ['AVGO', 'COIN', 'MSTR']
+2026-06-05T15:14:19 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:14:49 | INFO     | session_runner | [cycle 22] 11:14:49 ET | positions=1 | entries=1
+2026-06-05T15:14:50 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:15:20 | INFO     | session_runner | [cycle 23] 11:15:20 ET | positions=1 | entries=1
+2026-06-05T15:15:20 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:15:50 | INFO     | session_runner | [cycle 24] 11:15:50 ET | positions=1 | entries=1
+2026-06-05T15:15:50 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:16:20 | INFO     | session_runner | [cycle 25] 11:16:20 ET | positions=1 | entries=1
+2026-06-05T15:16:21 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:16:51 | INFO     | session_runner | [cycle 26] 11:16:51 ET | positions=1 | entries=1
+2026-06-05T15:16:51 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:17:21 | INFO     | session_runner | [cycle 27] 11:17:21 ET | positions=1 | entries=1
+2026-06-05T15:17:21 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:17:51 | INFO     | session_runner | [cycle 28] 11:17:51 ET | positions=1 | entries=1
+2026-06-05T15:17:52 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:18:22 | INFO     | session_runner | [cycle 29] 11:18:22 ET | positions=1 | entries=1
+2026-06-05T15:18:22 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:18:52 | INFO     | session_runner | [cycle 30] 11:18:52 ET | positions=1 | entries=1
+2026-06-05T15:18:52 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:19:22 | INFO     | session_runner | [cycle 31] 11:19:22 ET | positions=1 | entries=1
+2026-06-05T15:19:22 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T15:19:22 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T15:19:22 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T15:19:22 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T15:19:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T15:19:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T15:19:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T15:19:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T15:19:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T15:19:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T15:19:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T15:19:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T15:19:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T15:19:24 | INFO     | session_runner | Scan: 4 passed, 23 rejected
+2026-06-05T15:19:24 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.61% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:19:24 | INFO     | session_runner |   COIN    score=52.0  signal=SHORT    reasons: atr=7.20% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:19:24 | INFO     | session_runner |   MSTR    score=52.0  signal=SHORT    reasons: atr=9.15% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:19:24 | INFO     | session_runner |   QQQ     score=48.0  signal=SHORT    reasons: atr=1.49% (good range), orb_breakdown, rsi=45 (healthy)
+2026-06-05T15:19:24 | INFO     | session_runner |   META    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-05T15:19:24 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected COIN260605P00150000 | delta=N/A | spread_pct=0.061 | OI=1518 | vol=7654
+2026-06-05T15:19:24 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed COIN | COIN260605P00150000 | exp=2026-06-05 | spread=6.06% | OI=1518 | vol=7654
+2026-06-05T15:19:24 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00116000 | delta=N/A | spread_pct=0.042 | OI=587 | vol=2367
+2026-06-05T15:19:24 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00116000 | exp=2026-06-05 | spread=4.17% | OI=587 | vol=2367
+2026-06-05T15:19:25 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00390000 | delta=N/A | spread_pct=0.074 | OI=4055 | vol=8073
+2026-06-05T15:19:25 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00390000 | exp=2026-06-05 | spread=7.41% | OI=4055 | vol=8073
+2026-06-05T15:19:25 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00712000 | delta=N/A | spread_pct=0.080 | OI=1822 | vol=9605
+2026-06-05T15:19:25 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00712000 | exp=2026-06-05 | spread=8.00% | OI=1822 | vol=9605
+2026-06-05T15:19:25 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['AVGO', 'COIN', 'MSTR']
+2026-06-05T15:19:25 | INFO     | session_runner | Re-scan updated active symbols: ['AVGO', 'COIN', 'MSTR']
+2026-06-05T15:19:25 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:19:55 | INFO     | session_runner | [cycle 32] 11:19:55 ET | positions=1 | entries=1
+2026-06-05T15:19:55 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:20:25 | INFO     | session_runner | [cycle 33] 11:20:25 ET | positions=1 | entries=1
+2026-06-05T15:20:25 | INFO     | session_runner | Position exit | MSTR260605P00119000 | reason=trailing_stop | price=1.3100 | pnl=13.00
+2026-06-05T15:20:25 | WARNING  | session_runner | Exit spread warning | MSTR260605P00119000 | spread_pct=0.129 > max=0.100 | bid=1.3100 ask=1.4900 | reason=trailing_stop
+2026-06-05T15:20:25 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'MSTR260605P00119000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '1.31', 'order_class': 'simple'}
+2026-06-05T15:20:25 | INFO     | session_runner | Exit order placed | MSTR260605P00119000 | limit=1.3100 | order_id=7cb33dbf-e048-4d76-a50a-9dcae9cc277c
+2026-06-05T15:20:25 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=1 exits=1 daily_pnl=13.00
+2026-06-05T15:20:25 | INFO     | app.trading.trade_journal | Journal exit 396: reason=trailing_stop pnl=13.00 hold=948s
+2026-06-05T15:20:25 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-06-05T15:20:25 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:20:55 | INFO     | session_runner | [cycle 34] 11:20:55 ET | positions=0 | entries=1
+2026-06-05T15:20:56 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:21:26 | INFO     | session_runner | [cycle 35] 11:21:26 ET | positions=0 | entries=1
+2026-06-05T15:21:26 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:21:56 | INFO     | session_runner | [cycle 36] 11:21:56 ET | positions=0 | entries=1
+2026-06-05T15:21:56 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:22:26 | INFO     | session_runner | [cycle 37] 11:22:26 ET | positions=0 | entries=1
+2026-06-05T15:22:26 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:22:56 | INFO     | session_runner | [cycle 38] 11:22:56 ET | positions=0 | entries=1
+2026-06-05T15:22:57 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:23:27 | INFO     | session_runner | [cycle 39] 11:23:27 ET | positions=0 | entries=1
+2026-06-05T15:23:27 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:23:57 | INFO     | session_runner | [cycle 40] 11:23:57 ET | positions=0 | entries=1
+2026-06-05T15:23:57 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:24:27 | INFO     | session_runner | [cycle 41] 11:24:27 ET | positions=0 | entries=1
+2026-06-05T15:24:27 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-05T15:24:27 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T15:24:27 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T15:24:27 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T15:24:27 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T15:24:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T15:24:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T15:24:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T15:24:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T15:24:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T15:24:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T15:24:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T15:24:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T15:24:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T15:24:29 | INFO     | session_runner | Scan: 7 passed, 20 rejected
+2026-06-05T15:24:29 | INFO     | session_runner |   QQQ     score=62.0  signal=SHORT    reasons: atr=1.51% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:24:29 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.64% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:24:29 | INFO     | session_runner |   XLK     score=55.0  signal=SHORT    reasons: atr=2.64% (wide-range), orb_breakdown, rsi=48 (healthy)
+2026-06-05T15:24:29 | INFO     | session_runner |   SMH     score=55.0  signal=SHORT    reasons: atr=4.05% (wide-range), orb_breakdown, rsi=48 (healthy)
+2026-06-05T15:24:29 | INFO     | session_runner |   COIN    score=52.0  signal=SHORT    reasons: atr=7.24% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:24:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected COIN260605P00148000 | delta=N/A | spread_pct=0.030 | OI=145 | vol=425
+2026-06-05T15:24:30 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed COIN | COIN260605P00148000 | exp=2026-06-05 | spread=2.99% | OI=145 | vol=425
+2026-06-05T15:24:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLK SignalDirection.SHORT | total_candidates=108
+2026-06-05T15:24:30 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLK (signal=SHORT)
+2026-06-05T15:24:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00116000 | delta=N/A | spread_pct=0.081 | OI=587 | vol=2376
+2026-06-05T15:24:30 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00116000 | exp=2026-06-05 | spread=8.13% | OI=587 | vol=2376
+2026-06-05T15:24:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SMH260605P00595000 | delta=N/A | spread_pct=0.091 | OI=1113 | vol=2224
+2026-06-05T15:24:30 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SMH | SMH260605P00595000 | exp=2026-06-05 | spread=9.07% | OI=1113 | vol=2224
+2026-06-05T15:24:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00390000 | delta=N/A | spread_pct=0.100 | OI=4055 | vol=8289
+2026-06-05T15:24:30 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00390000 | exp=2026-06-05 | spread=10.00% | OI=4055 | vol=8289
+2026-06-05T15:24:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00708000 | delta=N/A | spread_pct=0.087 | OI=3059 | vol=3313
+2026-06-05T15:24:30 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00708000 | exp=2026-06-05 | spread=8.70% | OI=3059 | vol=3313
+2026-06-05T15:24:30 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'AVGO', 'SMH']
+2026-06-05T15:24:30 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'AVGO', 'SMH']
+2026-06-05T15:24:30 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-06-05T15:24:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00708000 | delta=N/A | spread_pct=0.087 | OI=3059 | vol=3313
+2026-06-05T15:24:31 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN QQQ260605P00708000 | APPROVED | qty=1 | risk=$12.00
+2026-06-05T15:24:31 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'QQQ260605P00708000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.12', 'order_class': 'simple'}
+2026-06-05T15:24:31 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=1 pending=1 exits=1
+2026-06-05T15:24:31 | INFO     | session_runner | Order placed: a84a11b9 | QQQ260605P00708000 | limit=0.12 | status=pending_new
+2026-06-05T15:24:31 | INFO     | app.trading.trade_journal | Journal entry 398: short QQQ260605P00708000 @ 0.1200
+2026-06-05T15:24:31 | INFO     | app.trading.fill_tracker | FillTracker registered a84a11b9 | QQQ260605P00708000 | limit=0.1200
+2026-06-05T15:24:31 | INFO     | session_runner | Max symbols traded per day (3) reached
+2026-06-05T15:25:01 | INFO     | session_runner | [cycle 42] 11:25:01 ET | positions=0 | entries=1
+2026-06-05T15:25:01 | INFO     | app.trading.fill_tracker | FillTracker: FILL a84a11b9 @ 0.1000 (1/1 contracts)
+2026-06-05T15:25:01 | INFO     | app.trading.trade_journal | Journal fill 398: filled=1 @ 0.1000 ttf=34s
+2026-06-05T15:25:01 | INFO     | app.trading.position_manager | Position opened | QQQ260605P00708000 | entry=0.1000 | qty=1
+2026-06-05T15:25:01 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=2 pending=0 exits=1
+2026-06-05T15:25:01 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-06-05T15:25:01 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:25:01 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:25:02 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for SMH SignalDirection.SHORT | total_candidates=177
+2026-06-05T15:25:02 | INFO     | app.trading.trade_journal | Journal rejection 399: SMH — liquidity_filter_no_contract
+2026-06-05T15:25:32 | INFO     | session_runner | [cycle 43] 11:25:32 ET | positions=1 | entries=2
+2026-06-05T15:25:32 | INFO     | session_runner | Position exit | QQQ260605P00708000 | reason=trailing_stop | price=0.0700 | pnl=-3.00
+2026-06-05T15:25:32 | WARNING  | session_runner | Exit spread warning | QQQ260605P00708000 | spread_pct=0.133 > max=0.100 | bid=0.0700 ask=0.0800 | reason=trailing_stop
+2026-06-05T15:25:32 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'QQQ260605P00708000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.07', 'order_class': 'simple'}
+2026-06-05T15:25:32 | INFO     | session_runner | Exit order placed | QQQ260605P00708000 | limit=0.0700 | order_id=ead28241-d882-4201-9714-dad81174b5fd
+2026-06-05T15:25:32 | INFO     | app.trading.position_manager | Loss recorded on QQQ260605P00708000 (pnl=-3.00) — cooldown active for 15 min
+2026-06-05T15:25:32 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=2 exits=2 daily_pnl=10.00
+2026-06-05T15:25:32 | INFO     | app.trading.trade_journal | Journal exit 398: reason=trailing_stop pnl=-3.00 hold=31s
+2026-06-05T15:25:32 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-06-05T15:25:32 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:25:32 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:25:32 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:25:32 | INFO     | app.trading.trade_journal | Journal rejection 400: SMH — cooldown_after_loss
+2026-06-05T15:26:02 | INFO     | session_runner | [cycle 44] 11:26:02 ET | positions=0 | entries=2
+2026-06-05T15:26:03 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:26:03 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:26:03 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:26:03 | INFO     | app.trading.trade_journal | Journal rejection 401: SMH — cooldown_after_loss
+2026-06-05T15:26:33 | INFO     | session_runner | [cycle 45] 11:26:33 ET | positions=0 | entries=2
+2026-06-05T15:26:33 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:26:33 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:26:33 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:26:33 | INFO     | app.trading.trade_journal | Journal rejection 402: SMH — cooldown_after_loss
+2026-06-05T15:27:03 | INFO     | session_runner | [cycle 46] 11:27:03 ET | positions=0 | entries=2
+2026-06-05T15:27:03 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:27:04 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:27:04 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:27:04 | INFO     | app.trading.trade_journal | Journal rejection 403: SMH — cooldown_after_loss
+2026-06-05T15:27:34 | INFO     | session_runner | [cycle 47] 11:27:34 ET | positions=0 | entries=2
+2026-06-05T15:27:34 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:27:34 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:27:34 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:27:34 | INFO     | app.trading.trade_journal | Journal rejection 404: SMH — cooldown_after_loss
+2026-06-05T15:28:04 | INFO     | session_runner | [cycle 48] 11:28:04 ET | positions=0 | entries=2
+2026-06-05T15:28:04 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:28:04 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:28:04 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:28:04 | INFO     | app.trading.trade_journal | Journal rejection 405: SMH — cooldown_after_loss
+2026-06-05T15:28:34 | INFO     | session_runner | [cycle 49] 11:28:34 ET | positions=0 | entries=2
+2026-06-05T15:28:35 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:28:35 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:28:35 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:28:35 | INFO     | app.trading.trade_journal | Journal rejection 406: SMH — cooldown_after_loss
+2026-06-05T15:29:05 | INFO     | session_runner | [cycle 50] 11:29:05 ET | positions=0 | entries=2
+2026-06-05T15:29:05 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:29:05 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:29:05 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:29:05 | INFO     | app.trading.trade_journal | Journal rejection 407: SMH — cooldown_after_loss
+2026-06-05T15:29:35 | INFO     | session_runner | [cycle 51] 11:29:35 ET | positions=0 | entries=2
+2026-06-05T15:29:35 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T15:29:35 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T15:29:35 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T15:29:35 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T15:29:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T15:29:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T15:29:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T15:29:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T15:29:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T15:29:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T15:29:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T15:29:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T15:29:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T15:29:37 | INFO     | session_runner | Scan: 7 passed, 20 rejected
+2026-06-05T15:29:37 | INFO     | session_runner |   QQQ     score=62.0  signal=SHORT    reasons: atr=1.51% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:29:37 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.63% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:29:37 | INFO     | session_runner |   XLK     score=55.0  signal=SHORT    reasons: atr=2.64% (wide-range), orb_breakdown, rsi=48 (healthy)
+2026-06-05T15:29:37 | INFO     | session_runner |   SMH     score=55.0  signal=SHORT    reasons: atr=4.05% (wide-range), orb_breakdown, rsi=48 (healthy)
+2026-06-05T15:29:37 | INFO     | session_runner |   COIN    score=52.0  signal=SHORT    reasons: atr=7.24% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:29:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected COIN260605P00152500 | delta=N/A | spread_pct=0.031 | OI=536 | vol=5373
+2026-06-05T15:29:37 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed COIN | COIN260605P00152500 | exp=2026-06-05 | spread=3.13% | OI=536 | vol=5373
+2026-06-05T15:29:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00115000 | delta=N/A | spread_pct=0.080 | OI=5313 | vol=47620
+2026-06-05T15:29:37 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00115000 | exp=2026-06-05 | spread=8.00% | OI=5313 | vol=47620
+2026-06-05T15:29:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLK SignalDirection.SHORT | total_candidates=108
+2026-06-05T15:29:37 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLK (signal=SHORT)
+2026-06-05T15:29:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SMH260605P00622500 | delta=N/A | spread_pct=0.092 | OI=1503 | vol=182
+2026-06-05T15:29:37 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SMH | SMH260605P00622500 | exp=2026-06-05 | spread=9.24% | OI=1503 | vol=182
+2026-06-05T15:29:38 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00395000 | delta=N/A | spread_pct=0.034 | OI=2417 | vol=8901
+2026-06-05T15:29:38 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00395000 | exp=2026-06-05 | spread=3.44% | OI=2417 | vol=8901
+2026-06-05T15:29:38 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00708000 | delta=N/A | spread_pct=0.095 | OI=3059 | vol=3570
+2026-06-05T15:29:38 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00708000 | exp=2026-06-05 | spread=9.52% | OI=3059 | vol=3570
+2026-06-05T15:29:38 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'AVGO', 'SMH']
+2026-06-05T15:29:38 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'AVGO', 'SMH']
+2026-06-05T15:29:38 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:29:38 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:29:38 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:29:38 | INFO     | app.trading.trade_journal | Journal rejection 408: SMH — cooldown_after_loss
+2026-06-05T15:30:08 | INFO     | session_runner | [cycle 52] 11:30:08 ET | positions=0 | entries=2
+2026-06-05T15:30:08 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:30:08 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:30:08 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:30:08 | INFO     | app.trading.trade_journal | Journal rejection 409: SMH — cooldown_after_loss
+2026-06-05T15:30:38 | INFO     | session_runner | [cycle 53] 11:30:38 ET | positions=0 | entries=2
+2026-06-05T15:30:38 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:30:39 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:30:39 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:30:39 | INFO     | app.trading.trade_journal | Journal rejection 410: SMH — cooldown_after_loss
+2026-06-05T15:31:09 | INFO     | session_runner | [cycle 54] 11:31:09 ET | positions=0 | entries=2
+2026-06-05T15:31:09 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:31:09 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:31:09 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:31:09 | INFO     | app.trading.trade_journal | Journal rejection 411: SMH — cooldown_after_loss
+2026-06-05T15:31:39 | INFO     | session_runner | [cycle 55] 11:31:39 ET | positions=0 | entries=2
+2026-06-05T15:31:39 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:31:40 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:31:40 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:31:40 | INFO     | app.trading.trade_journal | Journal rejection 412: SMH — cooldown_after_loss
+2026-06-05T15:32:10 | INFO     | session_runner | [cycle 56] 11:32:10 ET | positions=0 | entries=2
+2026-06-05T15:32:10 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:32:10 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:32:10 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:32:10 | INFO     | app.trading.trade_journal | Journal rejection 413: SMH — cooldown_after_loss
+2026-06-05T15:32:40 | INFO     | session_runner | [cycle 57] 11:32:40 ET | positions=0 | entries=2
+2026-06-05T15:32:40 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:32:40 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:32:40 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:32:40 | INFO     | app.trading.trade_journal | Journal rejection 414: SMH — cooldown_after_loss
+2026-06-05T15:33:10 | INFO     | session_runner | [cycle 58] 11:33:10 ET | positions=0 | entries=2
+2026-06-05T15:33:10 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:33:11 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:33:11 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:33:11 | INFO     | app.trading.trade_journal | Journal rejection 415: SMH — cooldown_after_loss
+2026-06-05T15:33:41 | INFO     | session_runner | [cycle 59] 11:33:41 ET | positions=0 | entries=2
+2026-06-05T15:33:41 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:33:41 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:33:41 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:33:41 | INFO     | app.trading.trade_journal | Journal rejection 416: SMH — cooldown_after_loss
+2026-06-05T15:34:11 | INFO     | session_runner | [cycle 60] 11:34:11 ET | positions=0 | entries=2
+2026-06-05T15:34:11 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:34:12 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:34:12 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:34:12 | INFO     | app.trading.trade_journal | Journal rejection 417: SMH — cooldown_after_loss
+2026-06-05T15:34:42 | INFO     | session_runner | [cycle 61] 11:34:42 ET | positions=0 | entries=2
+2026-06-05T15:34:42 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-05T15:34:42 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T15:34:42 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T15:34:42 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T15:34:42 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T15:34:42 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T15:34:42 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T15:34:42 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T15:34:42 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T15:34:42 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T15:34:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T15:34:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T15:34:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T15:34:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T15:34:44 | INFO     | session_runner | Scan: 7 passed, 20 rejected
+2026-06-05T15:34:44 | INFO     | session_runner |   QQQ     score=62.0  signal=SHORT    reasons: atr=1.51% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:34:44 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.68% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:34:44 | INFO     | session_runner |   XLK     score=55.0  signal=SHORT    reasons: atr=2.64% (wide-range), orb_breakdown, rsi=48 (healthy)
+2026-06-05T15:34:44 | INFO     | session_runner |   SMH     score=55.0  signal=SHORT    reasons: atr=4.05% (wide-range), orb_breakdown, rsi=48 (healthy)
+2026-06-05T15:34:44 | INFO     | session_runner |   COIN    score=52.0  signal=SHORT    reasons: atr=7.30% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:34:44 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected COIN260605P00150000 | delta=N/A | spread_pct=0.023 | OI=1518 | vol=7974
+2026-06-05T15:34:44 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed COIN | COIN260605P00150000 | exp=2026-06-05 | spread=2.27% | OI=1518 | vol=7974
+2026-06-05T15:34:44 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00115000 | delta=N/A | spread_pct=0.034 | OI=5313 | vol=47914
+2026-06-05T15:34:44 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00115000 | exp=2026-06-05 | spread=3.45% | OI=5313 | vol=47914
+2026-06-05T15:34:44 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00392500 | delta=N/A | spread_pct=0.082 | OI=967 | vol=3824
+2026-06-05T15:34:44 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00392500 | exp=2026-06-05 | spread=8.20% | OI=967 | vol=3824
+2026-06-05T15:34:44 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SMH260605P00625000 | delta=N/A | spread_pct=0.099 | OI=1120 | vol=263
+2026-06-05T15:34:44 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SMH | SMH260605P00625000 | exp=2026-06-05 | spread=9.91% | OI=1120 | vol=263
+2026-06-05T15:34:45 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00708000 | delta=N/A | spread_pct=0.095 | OI=3059 | vol=3622
+2026-06-05T15:34:45 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00708000 | exp=2026-06-05 | spread=9.52% | OI=3059 | vol=3622
+2026-06-05T15:34:45 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLK SignalDirection.SHORT | total_candidates=108
+2026-06-05T15:34:45 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLK (signal=SHORT)
+2026-06-05T15:34:45 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'AVGO', 'SMH']
+2026-06-05T15:34:45 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'AVGO', 'SMH']
+2026-06-05T15:34:45 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:34:45 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:34:45 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:34:45 | INFO     | app.trading.trade_journal | Journal rejection 418: SMH — cooldown_after_loss
+2026-06-05T15:35:15 | INFO     | session_runner | [cycle 62] 11:35:15 ET | positions=0 | entries=2
+2026-06-05T15:35:16 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:35:16 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:35:16 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:35:16 | INFO     | app.trading.trade_journal | Journal rejection 419: SMH — cooldown_after_loss
+2026-06-05T15:35:46 | INFO     | session_runner | [cycle 63] 11:35:46 ET | positions=0 | entries=2
+2026-06-05T15:35:46 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:35:46 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:35:46 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:35:46 | INFO     | app.trading.trade_journal | Journal rejection 420: SMH — cooldown_after_loss
+2026-06-05T15:36:16 | INFO     | session_runner | [cycle 64] 11:36:16 ET | positions=0 | entries=2
+2026-06-05T15:36:16 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:36:17 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:36:17 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:36:17 | INFO     | app.trading.trade_journal | Journal rejection 421: SMH — cooldown_after_loss
+2026-06-05T15:36:47 | INFO     | session_runner | [cycle 65] 11:36:47 ET | positions=0 | entries=2
+2026-06-05T15:36:47 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:36:47 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:36:47 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:36:47 | INFO     | app.trading.trade_journal | Journal rejection 422: SMH — cooldown_after_loss
+2026-06-05T15:37:17 | INFO     | session_runner | [cycle 66] 11:37:17 ET | positions=0 | entries=2
+2026-06-05T15:37:17 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:37:17 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:37:17 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:37:17 | INFO     | app.trading.trade_journal | Journal rejection 423: SMH — cooldown_after_loss
+2026-06-05T15:37:47 | INFO     | session_runner | [cycle 67] 11:37:47 ET | positions=0 | entries=2
+2026-06-05T15:37:48 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:37:48 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:37:48 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:37:48 | INFO     | app.trading.trade_journal | Journal rejection 424: SMH — cooldown_after_loss
+2026-06-05T15:38:18 | INFO     | session_runner | [cycle 68] 11:38:18 ET | positions=0 | entries=2
+2026-06-05T15:38:18 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:38:18 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:38:18 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:38:18 | INFO     | app.trading.trade_journal | Journal rejection 425: SMH — cooldown_after_loss
+2026-06-05T15:38:48 | INFO     | session_runner | [cycle 69] 11:38:48 ET | positions=0 | entries=2
+2026-06-05T15:38:49 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:38:49 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:38:49 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:38:49 | INFO     | app.trading.trade_journal | Journal rejection 426: SMH — cooldown_after_loss
+2026-06-05T15:39:19 | INFO     | session_runner | [cycle 70] 11:39:19 ET | positions=0 | entries=2
+2026-06-05T15:39:19 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:39:19 | INFO     | session_runner | [bridge:SMH] rsi_trend ready: sufficient bars
+2026-06-05T15:39:19 | INFO     | session_runner | Cooldown active — skipping SMH signal
+2026-06-05T15:39:19 | INFO     | app.trading.trade_journal | Journal rejection 427: SMH — cooldown_after_loss
+2026-06-05T15:39:49 | INFO     | session_runner | [cycle 71] 11:39:49 ET | positions=0 | entries=2
+2026-06-05T15:39:49 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T15:39:49 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T15:39:49 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T15:39:49 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T15:39:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T15:39:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T15:39:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T15:39:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T15:39:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T15:39:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T15:39:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T15:39:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T15:39:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T15:39:51 | INFO     | session_runner | Scan: 8 passed, 19 rejected
+2026-06-05T15:39:51 | INFO     | session_runner |   QQQ     score=62.0  signal=SHORT    reasons: atr=1.54% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:39:51 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.71% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:39:51 | INFO     | session_runner |   IWM     score=55.0  signal=SHORT    reasons: atr=1.75% (wide-range), orb_breakdown, rsi=47 (healthy)
+2026-06-05T15:39:51 | INFO     | session_runner |   XLK     score=55.0  signal=SHORT    reasons: atr=2.69% (wide-range), orb_breakdown, rsi=47 (healthy)
+2026-06-05T15:39:51 | INFO     | session_runner |   SMH     score=55.0  signal=SHORT    reasons: atr=4.11% (wide-range), orb_breakdown, rsi=47 (healthy)
+2026-06-05T15:39:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected COIN260605P00150000 | delta=N/A | spread_pct=0.055 | OI=1518 | vol=8408
+2026-06-05T15:39:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed COIN | COIN260605P00150000 | exp=2026-06-05 | spread=5.49% | OI=1518 | vol=8408
+2026-06-05T15:39:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLK SignalDirection.SHORT | total_candidates=108
+2026-06-05T15:39:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLK (signal=SHORT)
+2026-06-05T15:39:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SMH260605P00620000 | delta=N/A | spread_pct=0.091 | OI=1641 | vol=566
+2026-06-05T15:39:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SMH | SMH260605P00620000 | exp=2026-06-05 | spread=9.12% | OI=1641 | vol=566
+2026-06-05T15:39:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260605P00283000 | delta=N/A | spread_pct=0.080 | OI=1952 | vol=7397
+2026-06-05T15:39:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260605P00283000 | exp=2026-06-05 | spread=8.00% | OI=1952 | vol=7397
+2026-06-05T15:39:52 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00390000 | delta=N/A | spread_pct=0.098 | OI=4055 | vol=8955
+2026-06-05T15:39:52 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00390000 | exp=2026-06-05 | spread=9.79% | OI=4055 | vol=8955
+2026-06-05T15:39:52 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00708000 | delta=N/A | spread_pct=0.080 | OI=3059 | vol=3650
+2026-06-05T15:39:52 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00708000 | exp=2026-06-05 | spread=8.00% | OI=3059 | vol=3650
+2026-06-05T15:39:52 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'AVGO', 'IWM']
+2026-06-05T15:39:52 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'AVGO', 'IWM']
+2026-06-05T15:39:52 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:39:52 | INFO     | session_runner | [bridge:IWM] rsi_trend ready: sufficient bars
+2026-06-05T15:39:52 | INFO     | session_runner | Cooldown active — skipping IWM signal
+2026-06-05T15:39:52 | INFO     | app.trading.trade_journal | Journal rejection 428: IWM — cooldown_after_loss
+2026-06-05T15:39:52 | INFO     | session_runner | Cooldown active — skipping IWM signal
+2026-06-05T15:39:52 | INFO     | app.trading.trade_journal | Journal rejection 429: IWM — cooldown_after_loss
+2026-06-05T15:40:23 | INFO     | session_runner | [cycle 72] 11:40:23 ET | positions=0 | entries=2
+2026-06-05T15:40:23 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:40:23 | INFO     | session_runner | [bridge:IWM] rsi_trend ready: sufficient bars
+2026-06-05T15:40:23 | INFO     | session_runner | Cooldown active — skipping IWM signal
+2026-06-05T15:40:23 | INFO     | app.trading.trade_journal | Journal rejection 430: IWM — cooldown_after_loss
+2026-06-05T15:40:23 | INFO     | session_runner | Cooldown active — skipping IWM signal
+2026-06-05T15:40:23 | INFO     | app.trading.trade_journal | Journal rejection 431: IWM — cooldown_after_loss
+2026-06-05T15:40:53 | INFO     | session_runner | [cycle 73] 11:40:53 ET | positions=0 | entries=2
+2026-06-05T15:40:53 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:40:53 | INFO     | session_runner | [bridge:IWM] rsi_trend ready: sufficient bars
+2026-06-05T15:40:54 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260605P00285000 | delta=N/A | spread_pct=0.017 | OI=8701 | vol=53912
+2026-06-05T15:40:54 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN IWM260605P00285000 | APPROVED | qty=1 | risk=$58.00
+2026-06-05T15:40:54 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'IWM260605P00285000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.58', 'order_class': 'simple'}
+2026-06-05T15:40:54 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=2 pending=1 exits=2
+2026-06-05T15:40:54 | INFO     | session_runner | Order placed: 73199bc6 | IWM260605P00285000 | limit=0.58 | status=pending_new
+2026-06-05T15:40:54 | INFO     | app.trading.trade_journal | Journal entry 432: short IWM260605P00285000 @ 0.5800
+2026-06-05T15:40:54 | INFO     | app.trading.fill_tracker | FillTracker registered 73199bc6 | IWM260605P00285000 | limit=0.5800
+2026-06-05T15:40:54 | INFO     | session_runner | Max symbols traded per day (3) reached
+2026-06-05T15:41:24 | INFO     | session_runner | [cycle 74] 11:41:24 ET | positions=0 | entries=2
+2026-06-05T15:41:24 | INFO     | app.trading.fill_tracker | FillTracker: FILL 73199bc6 @ 0.5600 (1/1 contracts)
+2026-06-05T15:41:24 | INFO     | app.trading.trade_journal | Journal fill 432: filled=1 @ 0.5600 ttf=31s
+2026-06-05T15:41:24 | INFO     | app.trading.position_manager | Position opened | IWM260605P00285000 | entry=0.5600 | qty=1
+2026-06-05T15:41:24 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=3 pending=0 exits=2
+2026-06-05T15:41:24 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-06-05T15:41:24 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:41:54 | INFO     | session_runner | [cycle 75] 11:41:54 ET | positions=1 | entries=3
+2026-06-05T15:41:55 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:42:25 | INFO     | session_runner | [cycle 76] 11:42:25 ET | positions=1 | entries=3
+2026-06-05T15:42:25 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:42:55 | INFO     | session_runner | [cycle 77] 11:42:55 ET | positions=1 | entries=3
+2026-06-05T15:42:55 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:43:25 | INFO     | session_runner | [cycle 78] 11:43:25 ET | positions=1 | entries=3
+2026-06-05T15:43:26 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:43:56 | INFO     | session_runner | [cycle 79] 11:43:56 ET | positions=1 | entries=3
+2026-06-05T15:43:56 | INFO     | session_runner | Position exit | IWM260605P00285000 | reason=trailing_stop | price=0.4800 | pnl=-8.00
+2026-06-05T15:43:56 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'IWM260605P00285000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.48', 'order_class': 'simple'}
+2026-06-05T15:43:56 | INFO     | session_runner | Exit order placed | IWM260605P00285000 | limit=0.4800 | order_id=bd0cea04-be3a-4d80-810b-4973178693e9
+2026-06-05T15:43:56 | INFO     | app.trading.position_manager | Loss recorded on IWM260605P00285000 (pnl=-8.00) — cooldown active for 15 min
+2026-06-05T15:43:56 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=3 exits=3 daily_pnl=2.00
+2026-06-05T15:43:56 | INFO     | app.trading.trade_journal | Journal exit 432: reason=trailing_stop pnl=-8.00 hold=152s
+2026-06-05T15:43:56 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-06-05T15:43:56 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:44:26 | INFO     | session_runner | [cycle 80] 11:44:26 ET | positions=0 | entries=3
+2026-06-05T15:44:26 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:44:56 | INFO     | session_runner | [cycle 81] 11:44:56 ET | positions=0 | entries=3
+2026-06-05T15:44:56 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-05T15:44:56 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T15:44:56 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T15:44:56 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T15:44:56 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T15:44:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T15:44:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T15:44:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T15:44:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T15:44:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T15:44:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T15:44:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T15:44:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T15:44:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T15:44:58 | INFO     | session_runner | Scan: 8 passed, 19 rejected
+2026-06-05T15:44:58 | INFO     | session_runner |   QQQ     score=62.0  signal=SHORT    reasons: atr=1.55% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:44:58 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.73% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:44:58 | INFO     | session_runner |   MSTR    score=57.0  signal=SHORT    reasons: rvol=1.04x (normal), atr=9.47% (wide-range), orb_breakdown
+2026-06-05T15:44:58 | INFO     | session_runner |   IWM     score=55.0  signal=SHORT    reasons: atr=1.76% (wide-range), orb_breakdown, rsi=47 (healthy)
+2026-06-05T15:44:58 | INFO     | session_runner |   XLK     score=55.0  signal=SHORT    reasons: atr=2.70% (wide-range), orb_breakdown, rsi=47 (healthy)
+2026-06-05T15:44:59 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00116000 | delta=N/A | spread_pct=0.091 | OI=587 | vol=2576
+2026-06-05T15:44:59 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00116000 | exp=2026-06-05 | spread=9.14% | OI=587 | vol=2576
+2026-06-05T15:44:59 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260605P00283000 | delta=N/A | spread_pct=0.061 | OI=1952 | vol=7485
+2026-06-05T15:44:59 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260605P00283000 | exp=2026-06-05 | spread=6.06% | OI=1952 | vol=7485
+2026-06-05T15:44:59 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLK SignalDirection.SHORT | total_candidates=108
+2026-06-05T15:44:59 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLK (signal=SHORT)
+2026-06-05T15:44:59 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SMH260605P00550000 | delta=N/A | spread_pct=0.065 | OI=76147 | vol=751
+2026-06-05T15:44:59 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SMH | SMH260605P00550000 | exp=2026-06-05 | spread=6.45% | OI=76147 | vol=751
+2026-06-05T15:44:59 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00709000 | delta=N/A | spread_pct=0.069 | OI=1090 | vol=7391
+2026-06-05T15:44:59 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00709000 | exp=2026-06-05 | spread=6.90% | OI=1090 | vol=7391
+2026-06-05T15:44:59 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00387500 | delta=N/A | spread_pct=0.047 | OI=1239 | vol=3205
+2026-06-05T15:44:59 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00387500 | exp=2026-06-05 | spread=4.65% | OI=1239 | vol=3205
+2026-06-05T15:44:59 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'AVGO', 'MSTR']
+2026-06-05T15:44:59 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'AVGO', 'MSTR']
+2026-06-05T15:44:59 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:45:29 | INFO     | session_runner | [cycle 82] 11:45:29 ET | positions=0 | entries=3
+2026-06-05T15:45:29 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:45:59 | INFO     | session_runner | [cycle 83] 11:45:59 ET | positions=0 | entries=3
+2026-06-05T15:45:59 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:46:29 | INFO     | session_runner | [cycle 84] 11:46:29 ET | positions=0 | entries=3
+2026-06-05T15:46:30 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:47:00 | INFO     | session_runner | [cycle 85] 11:47:00 ET | positions=0 | entries=3
+2026-06-05T15:47:00 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:47:30 | INFO     | session_runner | [cycle 86] 11:47:30 ET | positions=0 | entries=3
+2026-06-05T15:47:30 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:48:00 | INFO     | session_runner | [cycle 87] 11:48:00 ET | positions=0 | entries=3
+2026-06-05T15:48:00 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:48:30 | INFO     | session_runner | [cycle 88] 11:48:30 ET | positions=0 | entries=3
+2026-06-05T15:48:31 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:49:01 | INFO     | session_runner | [cycle 89] 11:49:01 ET | positions=0 | entries=3
+2026-06-05T15:49:01 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:49:31 | INFO     | session_runner | [cycle 90] 11:49:31 ET | positions=0 | entries=3
+2026-06-05T15:49:31 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:50:01 | INFO     | session_runner | [cycle 91] 11:50:01 ET | positions=0 | entries=3
+2026-06-05T15:50:01 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T15:50:01 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T15:50:01 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T15:50:01 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T15:50:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T15:50:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T15:50:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T15:50:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T15:50:02 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T15:50:02 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T15:50:02 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T15:50:02 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T15:50:02 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T15:50:03 | INFO     | session_runner | Scan: 9 passed, 18 rejected
+2026-06-05T15:50:03 | INFO     | session_runner |   QQQ     score=62.0  signal=SHORT    reasons: atr=1.55% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:50:03 | INFO     | session_runner |   TSLA    score=57.0  signal=SHORT    reasons: atr=3.84% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:50:03 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.72% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:50:03 | INFO     | session_runner |   MSTR    score=57.0  signal=SHORT    reasons: rvol=1.06x (normal), atr=9.47% (wide-range), orb_breakdown
+2026-06-05T15:50:03 | INFO     | session_runner |   IWM     score=55.0  signal=SHORT    reasons: atr=1.76% (wide-range), orb_breakdown, rsi=47 (healthy)
+2026-06-05T15:50:03 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00116000 | delta=N/A | spread_pct=0.097 | OI=587 | vol=2629
+2026-06-05T15:50:03 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00116000 | exp=2026-06-05 | spread=9.73% | OI=587 | vol=2629
+2026-06-05T15:50:03 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLK SignalDirection.SHORT | total_candidates=108
+2026-06-05T15:50:03 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLK (signal=SHORT)
+2026-06-05T15:50:04 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00395000 | delta=N/A | spread_pct=0.086 | OI=2417 | vol=10655
+2026-06-05T15:50:04 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00395000 | exp=2026-06-05 | spread=8.58% | OI=2417 | vol=10655
+2026-06-05T15:50:04 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260605P00282500 | delta=N/A | spread_pct=0.074 | OI=2710 | vol=1316
+2026-06-05T15:50:04 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260605P00282500 | exp=2026-06-05 | spread=7.41% | OI=2710 | vol=1316
+2026-06-05T15:50:04 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected TSLA260605P00392500 | delta=N/A | spread_pct=0.047 | OI=2514 | vol=12143
+2026-06-05T15:50:04 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed TSLA | TSLA260605P00392500 | exp=2026-06-05 | spread=4.65% | OI=2514 | vol=12143
+2026-06-05T15:50:04 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00707000 | delta=N/A | spread_pct=0.074 | OI=24187 | vol=4860
+2026-06-05T15:50:04 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00707000 | exp=2026-06-05 | spread=7.41% | OI=24187 | vol=4860
+2026-06-05T15:50:04 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'TSLA', 'AVGO']
+2026-06-05T15:50:04 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'TSLA', 'AVGO']
+2026-06-05T15:50:04 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:50:04 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:50:34 | INFO     | session_runner | [cycle 92] 11:50:34 ET | positions=0 | entries=3
+2026-06-05T15:50:34 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:50:35 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:51:05 | INFO     | session_runner | [cycle 93] 11:51:05 ET | positions=0 | entries=3
+2026-06-05T15:51:05 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:51:05 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:51:35 | INFO     | session_runner | [cycle 94] 11:51:35 ET | positions=0 | entries=3
+2026-06-05T15:51:35 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:51:35 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:52:05 | INFO     | session_runner | [cycle 95] 11:52:05 ET | positions=0 | entries=3
+2026-06-05T15:52:05 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:52:06 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:52:36 | INFO     | session_runner | [cycle 96] 11:52:36 ET | positions=0 | entries=3
+2026-06-05T15:52:36 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:52:36 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:53:06 | INFO     | session_runner | [cycle 97] 11:53:06 ET | positions=0 | entries=3
+2026-06-05T15:53:06 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:53:06 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:53:36 | INFO     | session_runner | [cycle 98] 11:53:36 ET | positions=0 | entries=3
+2026-06-05T15:53:37 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:53:37 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:54:07 | INFO     | session_runner | [cycle 99] 11:54:07 ET | positions=0 | entries=3
+2026-06-05T15:54:07 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:54:07 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:54:37 | INFO     | session_runner | [cycle 100] 11:54:37 ET | positions=0 | entries=3
+2026-06-05T15:54:37 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:54:38 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:55:08 | INFO     | session_runner | [cycle 101] 11:55:08 ET | positions=0 | entries=3
+2026-06-05T15:55:09 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-05T15:55:09 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T15:55:09 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T15:55:09 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T15:55:09 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T15:55:10 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T15:55:10 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T15:55:10 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T15:55:10 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T15:55:10 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T15:55:11 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T15:55:11 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T15:55:11 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T15:55:11 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T15:55:11 | INFO     | session_runner | Scan: 9 passed, 18 rejected
+2026-06-05T15:55:11 | INFO     | session_runner |   QQQ     score=62.0  signal=SHORT    reasons: atr=1.55% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:55:11 | INFO     | session_runner |   TSLA    score=57.0  signal=SHORT    reasons: atr=3.84% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:55:11 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.72% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T15:55:11 | INFO     | session_runner |   MSTR    score=57.0  signal=SHORT    reasons: rvol=1.08x (normal), atr=9.47% (wide-range), orb_breakdown
+2026-06-05T15:55:11 | INFO     | session_runner |   IWM     score=55.0  signal=SHORT    reasons: atr=1.76% (wide-range), orb_breakdown, rsi=47 (healthy)
+2026-06-05T15:55:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLK SignalDirection.SHORT | total_candidates=108
+2026-06-05T15:55:12 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLK (signal=SHORT)
+2026-06-05T15:55:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260605P00283000 | delta=N/A | spread_pct=0.074 | OI=1952 | vol=11515
+2026-06-05T15:55:12 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260605P00283000 | exp=2026-06-05 | spread=7.41% | OI=1952 | vol=11515
+2026-06-05T15:55:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00115000 | delta=N/A | spread_pct=0.015 | OI=5313 | vol=54474
+2026-06-05T15:55:12 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00115000 | exp=2026-06-05 | spread=1.48% | OI=5313 | vol=54474
+2026-06-05T15:55:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00407500 | delta=N/A | spread_pct=0.043 | OI=559 | vol=911
+2026-06-05T15:55:12 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00407500 | exp=2026-06-05 | spread=4.30% | OI=559 | vol=911
+2026-06-05T15:55:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected TSLA260605P00397500 | delta=N/A | spread_pct=0.025 | OI=1423 | vol=21722
+2026-06-05T15:55:12 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed TSLA | TSLA260605P00397500 | exp=2026-06-05 | spread=2.53% | OI=1423 | vol=21722
+2026-06-05T15:55:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00708000 | delta=N/A | spread_pct=0.065 | OI=3059 | vol=3829
+2026-06-05T15:55:12 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00708000 | exp=2026-06-05 | spread=6.45% | OI=3059 | vol=3829
+2026-06-05T15:55:12 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'TSLA', 'AVGO']
+2026-06-05T15:55:12 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'TSLA', 'AVGO']
+2026-06-05T15:55:12 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:55:13 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:55:43 | INFO     | session_runner | [cycle 102] 11:55:43 ET | positions=0 | entries=3
+2026-06-05T15:55:43 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:55:43 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:56:13 | INFO     | session_runner | [cycle 103] 11:56:13 ET | positions=0 | entries=3
+2026-06-05T15:56:13 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:56:13 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:56:44 | INFO     | session_runner | [cycle 104] 11:56:44 ET | positions=0 | entries=3
+2026-06-05T15:56:44 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:56:45 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:57:15 | INFO     | session_runner | [cycle 105] 11:57:15 ET | positions=0 | entries=3
+2026-06-05T15:57:15 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:57:15 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:57:45 | INFO     | session_runner | [cycle 106] 11:57:45 ET | positions=0 | entries=3
+2026-06-05T15:57:45 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:57:45 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:58:15 | INFO     | session_runner | [cycle 107] 11:58:15 ET | positions=0 | entries=3
+2026-06-05T15:58:16 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:58:16 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:58:46 | INFO     | session_runner | [cycle 108] 11:58:46 ET | positions=0 | entries=3
+2026-06-05T15:58:46 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:58:46 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:59:16 | INFO     | session_runner | [cycle 109] 11:59:16 ET | positions=0 | entries=3
+2026-06-05T15:59:16 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:59:17 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T15:59:47 | INFO     | session_runner | [cycle 110] 11:59:47 ET | positions=0 | entries=3
+2026-06-05T15:59:47 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T15:59:47 | INFO     | session_runner | [bridge:AVGO] rsi_trend ready: sufficient bars
+2026-06-05T16:00:17 | INFO     | session_runner | [cycle 111] 12:00:17 ET | positions=0 | entries=3
+2026-06-05T16:00:17 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T16:00:17 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T16:00:17 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T16:00:17 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T16:00:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T16:00:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T16:00:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T16:00:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T16:00:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T16:00:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T16:00:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T16:00:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T16:00:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T16:00:19 | INFO     | session_runner | Scan: 10 passed, 17 rejected
+2026-06-05T16:00:19 | INFO     | session_runner |   QQQ     score=62.0  signal=SHORT    reasons: atr=1.55% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:00:19 | INFO     | session_runner |   TSLA    score=57.0  signal=SHORT    reasons: atr=3.84% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:00:19 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.73% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:00:19 | INFO     | session_runner |   MSTR    score=57.0  signal=SHORT    reasons: rvol=1.09x (normal), atr=9.52% (wide-range), orb_breakdown
+2026-06-05T16:00:19 | INFO     | session_runner |   IWM     score=55.0  signal=SHORT    reasons: atr=1.76% (wide-range), orb_breakdown, rsi=47 (healthy)
+2026-06-05T16:00:19 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for IWM SignalDirection.SHORT | total_candidates=114
+2026-06-05T16:00:19 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for IWM (signal=SHORT)
+2026-06-05T16:00:19 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for QQQ SignalDirection.SHORT | total_candidates=312
+2026-06-05T16:00:19 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for QQQ (signal=SHORT)
+2026-06-05T16:00:19 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for AVGO SignalDirection.SHORT | total_candidates=160
+2026-06-05T16:00:19 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for AVGO (signal=SHORT)
+2026-06-05T16:00:20 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLK SignalDirection.SHORT | total_candidates=108
+2026-06-05T16:00:20 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLK (signal=SHORT)
+2026-06-05T16:00:20 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for TSLA SignalDirection.SHORT | total_candidates=166
+2026-06-05T16:00:20 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for TSLA (signal=SHORT)
+2026-06-05T16:00:20 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00115000 | delta=N/A | spread_pct=0.063 | OI=5313 | vol=58539
+2026-06-05T16:00:20 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00115000 | exp=2026-06-05 | spread=6.29% | OI=5313 | vol=58539
+2026-06-05T16:00:20 | INFO     | session_runner | AlpacaConfirmer: 1 confirmed symbols: ['MSTR']
+2026-06-05T16:00:20 | INFO     | session_runner | Re-scan updated active symbols: ['MSTR']
+2026-06-05T16:00:50 | INFO     | session_runner | [cycle 112] 12:00:50 ET | positions=0 | entries=3
+2026-06-05T16:01:20 | INFO     | session_runner | [cycle 113] 12:01:20 ET | positions=0 | entries=3
+2026-06-05T16:01:50 | INFO     | session_runner | [cycle 114] 12:01:50 ET | positions=0 | entries=3
+2026-06-05T16:02:20 | INFO     | session_runner | [cycle 115] 12:02:20 ET | positions=0 | entries=3
+2026-06-05T16:02:50 | INFO     | session_runner | [cycle 116] 12:02:50 ET | positions=0 | entries=3
+2026-06-05T16:03:20 | INFO     | session_runner | [cycle 117] 12:03:20 ET | positions=0 | entries=3
+2026-06-05T16:03:50 | INFO     | session_runner | [cycle 118] 12:03:50 ET | positions=0 | entries=3
+2026-06-05T16:04:20 | INFO     | session_runner | [cycle 119] 12:04:20 ET | positions=0 | entries=3
+2026-06-05T16:04:50 | INFO     | session_runner | [cycle 120] 12:04:50 ET | positions=0 | entries=3
+2026-06-05T16:05:20 | INFO     | session_runner | [cycle 121] 12:05:20 ET | positions=0 | entries=3
+2026-06-05T16:05:20 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-05T16:05:20 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T16:05:20 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T16:05:20 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T16:05:20 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T16:05:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T16:05:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T16:05:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T16:05:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T16:05:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T16:05:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T16:05:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T16:05:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T16:05:22 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T16:05:22 | INFO     | session_runner | Scan: 11 passed, 16 rejected
+2026-06-05T16:05:22 | INFO     | session_runner |   QQQ     score=62.0  signal=SHORT    reasons: atr=1.56% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:05:22 | INFO     | session_runner |   IWM     score=62.0  signal=SHORT    reasons: atr=1.77% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:05:22 | INFO     | session_runner |   TSLA    score=57.0  signal=SHORT    reasons: atr=3.88% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:05:22 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.81% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:05:22 | INFO     | session_runner |   MSTR    score=57.0  signal=SHORT    reasons: rvol=1.11x (normal), atr=9.54% (wide-range), orb_breakdown
+2026-06-05T16:05:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260605P00282000 | delta=N/A | spread_pct=0.074 | OI=4292 | vol=10681
+2026-06-05T16:05:23 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260605P00282000 | exp=2026-06-05 | spread=7.41% | OI=4292 | vol=10681
+2026-06-05T16:05:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLK SignalDirection.SHORT | total_candidates=108
+2026-06-05T16:05:23 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLK (signal=SHORT)
+2026-06-05T16:05:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00385000 | delta=N/A | spread_pct=0.065 | OI=2541 | vol=3118
+2026-06-05T16:05:23 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00385000 | exp=2026-06-05 | spread=6.45% | OI=2541 | vol=3118
+2026-06-05T16:05:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected TSLA260605P00392500 | delta=N/A | spread_pct=0.057 | OI=2514 | vol=14296
+2026-06-05T16:05:23 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed TSLA | TSLA260605P00392500 | exp=2026-06-05 | spread=5.71% | OI=2514 | vol=14296
+2026-06-05T16:05:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00116000 | delta=N/A | spread_pct=0.031 | OI=587 | vol=6126
+2026-06-05T16:05:23 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00116000 | exp=2026-06-05 | spread=3.05% | OI=587 | vol=6126
+2026-06-05T16:05:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00705000 | delta=N/A | spread_pct=0.049 | OI=7966 | vol=6402
+2026-06-05T16:05:23 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00705000 | exp=2026-06-05 | spread=4.88% | OI=7966 | vol=6402
+2026-06-05T16:05:23 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'IWM', 'TSLA']
+2026-06-05T16:05:23 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'IWM', 'TSLA']
+2026-06-05T16:05:23 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:05:53 | INFO     | session_runner | [cycle 122] 12:05:53 ET | positions=0 | entries=3
+2026-06-05T16:05:53 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:06:23 | INFO     | session_runner | [cycle 123] 12:06:23 ET | positions=0 | entries=3
+2026-06-05T16:06:24 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:06:54 | INFO     | session_runner | [cycle 124] 12:06:54 ET | positions=0 | entries=3
+2026-06-05T16:06:54 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:07:24 | INFO     | session_runner | [cycle 125] 12:07:24 ET | positions=0 | entries=3
+2026-06-05T16:07:24 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:07:54 | INFO     | session_runner | [cycle 126] 12:07:54 ET | positions=0 | entries=3
+2026-06-05T16:07:54 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:08:24 | INFO     | session_runner | [cycle 127] 12:08:24 ET | positions=0 | entries=3
+2026-06-05T16:08:24 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:08:54 | INFO     | session_runner | [cycle 128] 12:08:54 ET | positions=0 | entries=3
+2026-06-05T16:08:55 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:09:25 | INFO     | session_runner | [cycle 129] 12:09:25 ET | positions=0 | entries=3
+2026-06-05T16:09:25 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:09:55 | INFO     | session_runner | [cycle 130] 12:09:55 ET | positions=0 | entries=3
+2026-06-05T16:09:55 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:10:25 | INFO     | session_runner | [cycle 131] 12:10:25 ET | positions=0 | entries=3
+2026-06-05T16:10:25 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T16:10:25 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T16:10:25 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T16:10:25 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T16:10:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T16:10:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T16:10:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T16:10:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T16:10:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T16:10:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T16:10:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T16:10:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T16:10:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T16:10:27 | INFO     | session_runner | Scan: 12 passed, 15 rejected
+2026-06-05T16:10:27 | INFO     | session_runner |   QQQ     score=62.0  signal=SHORT    reasons: atr=1.57% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:10:27 | INFO     | session_runner |   IWM     score=62.0  signal=SHORT    reasons: atr=1.79% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:10:27 | INFO     | session_runner |   TSLA    score=57.0  signal=SHORT    reasons: atr=3.89% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:10:27 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.81% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:10:27 | INFO     | session_runner |   MSTR    score=57.0  signal=SHORT    reasons: rvol=1.13x (normal), atr=9.55% (wide-range), orb_breakdown
+2026-06-05T16:10:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00115000 | delta=N/A | spread_pct=0.030 | OI=5313 | vol=60790
+2026-06-05T16:10:27 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00115000 | exp=2026-06-05 | spread=3.05% | OI=5313 | vol=60790
+2026-06-05T16:10:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260605P00283000 | delta=N/A | spread_pct=0.038 | OI=1952 | vol=16775
+2026-06-05T16:10:27 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260605P00283000 | exp=2026-06-05 | spread=3.77% | OI=1952 | vol=16775
+2026-06-05T16:10:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected TSLA260605P00392500 | delta=N/A | spread_pct=0.026 | OI=2514 | vol=14514
+2026-06-05T16:10:27 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed TSLA | TSLA260605P00392500 | exp=2026-06-05 | spread=2.60% | OI=2514 | vol=14514
+2026-06-05T16:10:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLK SignalDirection.SHORT | total_candidates=108
+2026-06-05T16:10:27 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLK (signal=SHORT)
+2026-06-05T16:10:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00390000 | delta=N/A | spread_pct=0.038 | OI=4055 | vol=10593
+2026-06-05T16:10:27 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00390000 | exp=2026-06-05 | spread=3.77% | OI=4055 | vol=10593
+2026-06-05T16:10:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00705000 | delta=N/A | spread_pct=0.039 | OI=7966 | vol=6483
+2026-06-05T16:10:27 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00705000 | exp=2026-06-05 | spread=3.92% | OI=7966 | vol=6483
+2026-06-05T16:10:27 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'IWM', 'TSLA']
+2026-06-05T16:10:27 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'IWM', 'TSLA']
+2026-06-05T16:10:28 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:10:58 | INFO     | session_runner | [cycle 132] 12:10:58 ET | positions=0 | entries=3
+2026-06-05T16:10:58 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:11:28 | INFO     | session_runner | [cycle 133] 12:11:28 ET | positions=0 | entries=3
+2026-06-05T16:11:28 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:11:58 | INFO     | session_runner | [cycle 134] 12:11:58 ET | positions=0 | entries=3
+2026-06-05T16:11:58 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:12:28 | INFO     | session_runner | [cycle 135] 12:12:28 ET | positions=0 | entries=3
+2026-06-05T16:12:28 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:12:58 | INFO     | session_runner | [cycle 136] 12:12:58 ET | positions=0 | entries=3
+2026-06-05T16:12:59 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:13:29 | INFO     | session_runner | [cycle 137] 12:13:29 ET | positions=0 | entries=3
+2026-06-05T16:13:29 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:13:59 | INFO     | session_runner | [cycle 138] 12:13:59 ET | positions=0 | entries=3
+2026-06-05T16:13:59 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:14:29 | INFO     | session_runner | [cycle 139] 12:14:29 ET | positions=0 | entries=3
+2026-06-05T16:14:29 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:14:59 | INFO     | session_runner | [cycle 140] 12:14:59 ET | positions=0 | entries=3
+2026-06-05T16:14:59 | INFO     | session_runner | [bridge:TSLA] rsi_trend ready: sufficient bars
+2026-06-05T16:15:29 | INFO     | session_runner | [cycle 141] 12:15:29 ET | positions=0 | entries=3
+2026-06-05T16:15:30 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-05T16:15:30 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T16:15:30 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T16:15:30 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T16:15:30 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T16:15:30 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T16:15:30 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T16:15:30 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T16:15:30 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T16:15:30 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T16:15:30 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T16:15:30 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T16:15:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T16:15:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T16:15:32 | INFO     | session_runner | Scan: 13 passed, 14 rejected
+2026-06-05T16:15:32 | INFO     | session_runner |   QQQ     score=62.0  signal=SHORT    reasons: atr=1.57% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:15:32 | INFO     | session_runner |   IWM     score=62.0  signal=SHORT    reasons: atr=1.79% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:15:32 | INFO     | session_runner |   NVDA    score=62.0  signal=SHORT    reasons: atr=4.30% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:15:32 | INFO     | session_runner |   TSLA    score=57.0  signal=SHORT    reasons: atr=3.90% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:15:32 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.82% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:15:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00210000 | delta=N/A | spread_pct=0.022 | OI=22960 | vol=176115
+2026-06-05T16:15:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed NVDA | NVDA260605P00210000 | exp=2026-06-05 | spread=2.17% | OI=22960 | vol=176115
+2026-06-05T16:15:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00116000 | delta=N/A | spread_pct=0.071 | OI=587 | vol=6472
+2026-06-05T16:15:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00116000 | exp=2026-06-05 | spread=7.06% | OI=587 | vol=6472
+2026-06-05T16:15:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260605P00282000 | delta=N/A | spread_pct=0.069 | OI=4292 | vol=10706
+2026-06-05T16:15:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260605P00282000 | exp=2026-06-05 | spread=6.90% | OI=4292 | vol=10706
+2026-06-05T16:15:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected TSLA260605P00392500 | delta=N/A | spread_pct=0.025 | OI=2514 | vol=14761
+2026-06-05T16:15:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed TSLA | TSLA260605P00392500 | exp=2026-06-05 | spread=2.53% | OI=2514 | vol=14761
+2026-06-05T16:15:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00390000 | delta=N/A | spread_pct=0.038 | OI=4055 | vol=10806
+2026-06-05T16:15:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00390000 | exp=2026-06-05 | spread=3.85% | OI=4055 | vol=10806
+2026-06-05T16:15:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00705000 | delta=N/A | spread_pct=0.051 | OI=7966 | vol=6547
+2026-06-05T16:15:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00705000 | exp=2026-06-05 | spread=5.13% | OI=7966 | vol=6547
+2026-06-05T16:15:32 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'IWM', 'NVDA']
+2026-06-05T16:15:32 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'IWM', 'NVDA']
+2026-06-05T16:15:32 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:15:33 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00207500 | delta=N/A | spread_pct=0.087 | OI=8338 | vol=116916
+2026-06-05T16:15:33 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00207500 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:15:33 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:15:33 | INFO     | app.trading.trade_journal | Journal rejection 433: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:16:03 | INFO     | session_runner | [cycle 142] 12:16:03 ET | positions=0 | entries=3
+2026-06-05T16:16:03 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:16:03 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.074 | OI=22818 | vol=59092
+2026-06-05T16:16:04 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:16:04 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:16:04 | INFO     | app.trading.trade_journal | Journal rejection 434: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:16:34 | INFO     | session_runner | [cycle 143] 12:16:34 ET | positions=0 | entries=3
+2026-06-05T16:16:34 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:16:34 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00207500 | delta=N/A | spread_pct=0.028 | OI=8338 | vol=118063
+2026-06-05T16:16:34 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00207500 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:16:34 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:16:34 | INFO     | app.trading.trade_journal | Journal rejection 435: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:17:04 | INFO     | session_runner | [cycle 144] 12:17:04 ET | positions=0 | entries=3
+2026-06-05T16:17:04 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:17:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.074 | OI=22818 | vol=59950
+2026-06-05T16:17:05 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:17:05 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:17:05 | INFO     | app.trading.trade_journal | Journal rejection 436: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:17:35 | INFO     | session_runner | [cycle 145] 12:17:35 ET | positions=0 | entries=3
+2026-06-05T16:17:35 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:17:36 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00207500 | delta=N/A | spread_pct=0.014 | OI=8338 | vol=119528
+2026-06-05T16:17:36 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00207500 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:17:36 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:17:36 | INFO     | app.trading.trade_journal | Journal rejection 437: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:18:06 | INFO     | session_runner | [cycle 146] 12:18:06 ET | positions=0 | entries=3
+2026-06-05T16:18:06 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:18:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.061 | OI=22818 | vol=60402
+2026-06-05T16:18:06 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:18:06 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:18:06 | INFO     | app.trading.trade_journal | Journal rejection 438: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:18:36 | INFO     | session_runner | [cycle 147] 12:18:36 ET | positions=0 | entries=3
+2026-06-05T16:18:37 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:18:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.057 | OI=22818 | vol=60402
+2026-06-05T16:18:37 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:18:37 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:18:37 | INFO     | app.trading.trade_journal | Journal rejection 439: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:19:07 | INFO     | session_runner | [cycle 148] 12:19:07 ET | positions=0 | entries=3
+2026-06-05T16:19:08 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:19:08 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00207500 | delta=N/A | spread_pct=0.013 | OI=8338 | vol=121028
+2026-06-05T16:19:08 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00207500 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:19:08 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:19:08 | INFO     | app.trading.trade_journal | Journal rejection 440: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:19:38 | INFO     | session_runner | [cycle 149] 12:19:38 ET | positions=0 | entries=3
+2026-06-05T16:19:38 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:19:39 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.054 | OI=22818 | vol=60505
+2026-06-05T16:19:39 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:19:39 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:19:39 | INFO     | app.trading.trade_journal | Journal rejection 441: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:20:09 | INFO     | session_runner | [cycle 150] 12:20:09 ET | positions=0 | entries=3
+2026-06-05T16:20:09 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:20:10 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.065 | OI=22818 | vol=61151
+2026-06-05T16:20:10 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:20:10 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:20:10 | INFO     | app.trading.trade_journal | Journal rejection 442: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:20:40 | INFO     | session_runner | [cycle 151] 12:20:40 ET | positions=0 | entries=3
+2026-06-05T16:20:40 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T16:20:40 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T16:20:40 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T16:20:40 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T16:20:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T16:20:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T16:20:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T16:20:41 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T16:20:41 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T16:20:41 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T16:20:41 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T16:20:41 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T16:20:41 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T16:20:42 | INFO     | session_runner | Scan: 14 passed, 13 rejected
+2026-06-05T16:20:42 | INFO     | session_runner |   QQQ     score=62.0  signal=SHORT    reasons: atr=1.59% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:20:42 | INFO     | session_runner |   IWM     score=62.0  signal=SHORT    reasons: atr=1.80% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:20:42 | INFO     | session_runner |   NVDA    score=62.0  signal=SHORT    reasons: atr=4.31% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:20:42 | INFO     | session_runner |   TSLA    score=57.0  signal=SHORT    reasons: atr=3.93% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:20:42 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.87% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:20:42 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00207500 | delta=N/A | spread_pct=0.015 | OI=8338 | vol=122262
+2026-06-05T16:20:42 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed NVDA | NVDA260605P00207500 | exp=2026-06-05 | spread=1.46% | OI=8338 | vol=122262
+2026-06-05T16:20:42 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260605P00282500 | delta=N/A | spread_pct=0.041 | OI=2710 | vol=1952
+2026-06-05T16:20:42 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260605P00282500 | exp=2026-06-05 | spread=4.08% | OI=2710 | vol=1952
+2026-06-05T16:20:42 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00114000 | delta=N/A | spread_pct=0.034 | OI=460 | vol=3371
+2026-06-05T16:20:42 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00114000 | exp=2026-06-05 | spread=3.39% | OI=460 | vol=3371
+2026-06-05T16:20:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00385000 | delta=N/A | spread_pct=0.061 | OI=2541 | vol=3380
+2026-06-05T16:20:43 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00385000 | exp=2026-06-05 | spread=6.06% | OI=2541 | vol=3380
+2026-06-05T16:20:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected TSLA260605P00392500 | delta=N/A | spread_pct=0.023 | OI=2514 | vol=15501
+2026-06-05T16:20:43 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed TSLA | TSLA260605P00392500 | exp=2026-06-05 | spread=2.30% | OI=2514 | vol=15501
+2026-06-05T16:20:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00704000 | delta=N/A | spread_pct=0.038 | OI=913 | vol=8187
+2026-06-05T16:20:43 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00704000 | exp=2026-06-05 | spread=3.77% | OI=913 | vol=8187
+2026-06-05T16:20:43 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'IWM', 'NVDA']
+2026-06-05T16:20:43 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'IWM', 'NVDA']
+2026-06-05T16:20:43 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:20:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00207500 | delta=N/A | spread_pct=0.070 | OI=8338 | vol=122262
+2026-06-05T16:20:43 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00207500 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:20:43 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:20:43 | INFO     | app.trading.trade_journal | Journal rejection 443: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:21:13 | INFO     | session_runner | [cycle 152] 12:21:13 ET | positions=0 | entries=3
+2026-06-05T16:21:13 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:21:14 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.069 | OI=22818 | vol=62146
+2026-06-05T16:21:14 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:21:14 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:21:14 | INFO     | app.trading.trade_journal | Journal rejection 444: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:21:44 | INFO     | session_runner | [cycle 153] 12:21:44 ET | positions=0 | entries=3
+2026-06-05T16:21:44 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:21:44 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.057 | OI=22818 | vol=62146
+2026-06-05T16:21:44 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:21:44 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:21:44 | INFO     | app.trading.trade_journal | Journal rejection 445: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:22:15 | INFO     | session_runner | [cycle 154] 12:22:15 ET | positions=0 | entries=3
+2026-06-05T16:22:15 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:22:15 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.087 | OI=22818 | vol=62618
+2026-06-05T16:22:15 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:22:15 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:22:15 | INFO     | app.trading.trade_journal | Journal rejection 446: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:22:45 | INFO     | session_runner | [cycle 155] 12:22:45 ET | positions=0 | entries=3
+2026-06-05T16:22:45 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:22:46 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.069 | OI=22818 | vol=62618
+2026-06-05T16:22:46 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:22:46 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:22:46 | INFO     | app.trading.trade_journal | Journal rejection 447: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:23:16 | INFO     | session_runner | [cycle 156] 12:23:16 ET | positions=0 | entries=3
+2026-06-05T16:23:16 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:23:16 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00207500 | delta=N/A | spread_pct=0.020 | OI=8338 | vol=127360
+2026-06-05T16:23:16 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00207500 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:23:16 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:23:16 | INFO     | app.trading.trade_journal | Journal rejection 448: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:23:46 | INFO     | session_runner | [cycle 157] 12:23:46 ET | positions=0 | entries=3
+2026-06-05T16:23:47 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:23:47 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00210000 | delta=N/A | spread_pct=0.025 | OI=22960 | vol=179096
+2026-06-05T16:23:47 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00210000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:23:47 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:23:47 | INFO     | app.trading.trade_journal | Journal rejection 449: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:24:17 | INFO     | session_runner | [cycle 158] 12:24:17 ET | positions=0 | entries=3
+2026-06-05T16:24:17 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:24:18 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.074 | OI=22818 | vol=63847
+2026-06-05T16:24:18 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:24:18 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:24:18 | INFO     | app.trading.trade_journal | Journal rejection 450: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:24:48 | INFO     | session_runner | [cycle 159] 12:24:48 ET | positions=0 | entries=3
+2026-06-05T16:24:48 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:24:48 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00207500 | delta=N/A | spread_pct=0.022 | OI=8338 | vol=128392
+2026-06-05T16:24:48 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00207500 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:24:48 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:24:48 | INFO     | app.trading.trade_journal | Journal rejection 451: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:25:18 | INFO     | session_runner | [cycle 160] 12:25:18 ET | positions=0 | entries=3
+2026-06-05T16:25:19 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:25:19 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00207500 | delta=N/A | spread_pct=0.024 | OI=8338 | vol=130567
+2026-06-05T16:25:19 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00207500 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:25:19 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:25:19 | INFO     | app.trading.trade_journal | Journal rejection 452: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:25:49 | INFO     | session_runner | [cycle 161] 12:25:49 ET | positions=0 | entries=3
+2026-06-05T16:25:49 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-05T16:25:49 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-05T16:25:49 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-05T16:25:49 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-05T16:25:49 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-05T16:25:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-05T16:25:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-05T16:25:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-05T16:25:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-05T16:25:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-05T16:25:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-05T16:25:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-05T16:25:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-05T16:25:50 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-05T16:25:51 | INFO     | session_runner | Scan: 14 passed, 13 rejected
+2026-06-05T16:25:51 | INFO     | session_runner |   QQQ     score=62.0  signal=SHORT    reasons: atr=1.59% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:25:51 | INFO     | session_runner |   IWM     score=62.0  signal=SHORT    reasons: atr=1.80% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:25:51 | INFO     | session_runner |   NVDA    score=62.0  signal=SHORT    reasons: atr=4.29% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:25:51 | INFO     | session_runner |   TSLA    score=57.0  signal=SHORT    reasons: atr=3.91% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:25:51 | INFO     | session_runner |   AVGO    score=57.0  signal=SHORT    reasons: atr=6.84% (wide-range), orb_breakdown, trend_sideways
+2026-06-05T16:25:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260605P00282500 | delta=N/A | spread_pct=0.054 | OI=2710 | vol=2099
+2026-06-05T16:25:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260605P00282500 | exp=2026-06-05 | spread=5.41% | OI=2710 | vol=2099
+2026-06-05T16:25:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00210000 | delta=N/A | spread_pct=0.038 | OI=22960 | vol=180239
+2026-06-05T16:25:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed NVDA | NVDA260605P00210000 | exp=2026-06-05 | spread=3.82% | OI=22960 | vol=180239
+2026-06-05T16:25:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSTR260605P00118000 | delta=N/A | spread_pct=0.052 | OI=486 | vol=7943
+2026-06-05T16:25:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSTR | MSTR260605P00118000 | exp=2026-06-05 | spread=5.22% | OI=486 | vol=7943
+2026-06-05T16:25:52 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AVGO260605P00387500 | delta=N/A | spread_pct=0.027 | OI=1239 | vol=3543
+2026-06-05T16:25:52 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AVGO | AVGO260605P00387500 | exp=2026-06-05 | spread=2.74% | OI=1239 | vol=3543
+2026-06-05T16:25:52 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected TSLA260605P00392500 | delta=N/A | spread_pct=0.044 | OI=2514 | vol=16708
+2026-06-05T16:25:52 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed TSLA | TSLA260605P00392500 | exp=2026-06-05 | spread=4.44% | OI=2514 | vol=16708
+2026-06-05T16:25:52 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260605P00705000 | delta=N/A | spread_pct=0.044 | OI=7966 | vol=7223
+2026-06-05T16:25:52 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260605P00705000 | exp=2026-06-05 | spread=4.44% | OI=7966 | vol=7223
+2026-06-05T16:25:52 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'IWM', 'NVDA']
+2026-06-05T16:25:52 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'IWM', 'NVDA']
+2026-06-05T16:25:52 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:25:52 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00210000 | delta=N/A | spread_pct=0.038 | OI=22960 | vol=180239
+2026-06-05T16:25:52 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00210000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:25:52 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:25:52 | INFO     | app.trading.trade_journal | Journal rejection 453: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:26:22 | INFO     | session_runner | [cycle 162] 12:26:22 ET | positions=0 | entries=3
+2026-06-05T16:26:22 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:26:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00207500 | delta=N/A | spread_pct=0.025 | OI=8338 | vol=131124
+2026-06-05T16:26:23 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00207500 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:26:23 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:26:23 | INFO     | app.trading.trade_journal | Journal rejection 454: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:26:53 | INFO     | session_runner | [cycle 163] 12:26:53 ET | positions=0 | entries=3
+2026-06-05T16:26:53 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:26:53 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00207500 | delta=N/A | spread_pct=0.025 | OI=8338 | vol=131124
+2026-06-05T16:26:53 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00207500 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:26:53 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:26:53 | INFO     | app.trading.trade_journal | Journal rejection 455: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:27:23 | INFO     | session_runner | [cycle 164] 12:27:23 ET | positions=0 | entries=3
+2026-06-05T16:27:24 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:27:24 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.087 | OI=22818 | vol=65562
+2026-06-05T16:27:24 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:27:24 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:27:24 | INFO     | app.trading.trade_journal | Journal rejection 456: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:27:54 | INFO     | session_runner | [cycle 165] 12:27:54 ET | positions=0 | entries=3
+2026-06-05T16:27:54 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:27:55 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.087 | OI=22818 | vol=65562
+2026-06-05T16:27:55 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:27:55 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:27:55 | INFO     | app.trading.trade_journal | Journal rejection 457: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:28:25 | INFO     | session_runner | [cycle 166] 12:28:25 ET | positions=0 | entries=3
+2026-06-05T16:28:25 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:28:25 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.080 | OI=22818 | vol=66256
+2026-06-05T16:28:25 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:28:25 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:28:25 | INFO     | app.trading.trade_journal | Journal rejection 458: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:28:55 | INFO     | session_runner | [cycle 167] 12:28:55 ET | positions=0 | entries=3
+2026-06-05T16:28:56 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:28:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00207500 | delta=N/A | spread_pct=0.022 | OI=8338 | vol=133514
+2026-06-05T16:28:56 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00207500 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:28:56 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:28:56 | INFO     | app.trading.trade_journal | Journal rejection 459: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:29:26 | INFO     | session_runner | [cycle 168] 12:29:26 ET | positions=0 | entries=3
+2026-06-05T16:29:26 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:29:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00205000 | delta=N/A | spread_pct=0.080 | OI=22818 | vol=66726
+2026-06-05T16:29:27 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00205000 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:29:27 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:29:27 | INFO     | app.trading.trade_journal | Journal rejection 460: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:29:57 | INFO     | session_runner | [cycle 169] 12:29:57 ET | positions=0 | entries=3
+2026-06-05T16:29:57 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-06-05T16:29:57 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260605P00207500 | delta=N/A | spread_pct=0.020 | OI=8338 | vol=134088
+2026-06-05T16:29:57 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN NVDA260605P00207500 | REJECTED | Max entries per day reached: 3/3
+2026-06-05T16:29:57 | INFO     | session_runner | Risk rejected NVDA: Max entries per day reached: 3/3
+2026-06-05T16:29:57 | INFO     | app.trading.trade_journal | Journal rejection 461: NVDA — Max entries per day reached: 3/3
+2026-06-05T16:30:27 | INFO     | session_runner | [cycle 170] 12:30:27 ET | positions=0 | entries=3
+2026-06-05T16:30:27 | WARNING  | session_runner | EOD time reached — cancelling pending orders and liquidating all positions
+2026-06-05T16:30:27 | INFO     | session_runner | EOD complete — exiting session loop
+2026-06-05T16:30:27 | INFO     | session_runner | Shutdown: 0 position(s) open, 0 order(s) pending
+2026-06-05T16:30:27 | INFO     | session_runner | Health report: {"session_date": "2026-06-05", "generated_at": "2026-06-05T12:30:27.915193-04:00", "api_errors": 0, "reconciliation_warnings": [], "trades": {"total_closed": 3, "wins": 1, "losses": 2, "win_rate": 0.3333, "still_open": 0, "rejected": 62, "cancelled": 1}, "realized_pnl": 2.0, "unrealized_pnl": 0, "avg_win": 13.0, "avg_loss": -5.5, "max_drawdown": 0.8462, "orders": {"submitted": 4, "filled": 3, "partial_fills": 0, "cancelled": 1, "stale_cancels": 1, "rejected": 62, "status_breakdown": {"filled": 3, "cancelled": 1}}, "by_strategy": {"orb": {"trades": 1, "wins": 1, "losses": 0, "pnl": 13.0, "win_rate": 1.0}, "vwap_reclaim": {"trades": 2, "wins": 0, "losses": 2, "pnl": -11.0, "win_rate": 0.0}}}
+2026-06-05T16:30:27 | INFO     | session_runner | Health report written to logs/session_2026-06-05.json
+2026-06-05T16:30:28 | INFO     | app.evaluation.orb_forward_performance | ORB forward performance: updated 2/2 rows for 2026-06-05
+2026-06-05T16:30:28 | INFO     | app.evaluation.post_session | Post-session: ORB forward performance: 2 rows updated
+2026-06-05T16:30:28 | INFO     | app.evaluation.post_session | Post-session: evaluation report saved → evaluation/reports/2026-06-05.json
+2026-06-05T16:30:28 | WARNING  | app.evaluation.ledger | Skipping malformed ledger entry: LedgerEntry.__init__() got an unexpected keyword argument 'data_clean'
+2026-06-05T16:30:28 | WARNING  | app.evaluation.ledger | Skipping malformed ledger entry: LedgerEntry.__init__() got an unexpected keyword argument 'data_clean'
+2026-06-05T16:30:28 | WARNING  | app.evaluation.ledger | Skipping malformed ledger entry: LedgerEntry.__init__() got an unexpected keyword argument 'data_clean'
+2026-06-05T16:30:28 | WARNING  | app.evaluation.ledger | Skipping malformed ledger entry: LedgerEntry.__init__() got an unexpected keyword argument 'data_clean'
+2026-06-05T16:30:28 | WARNING  | app.evaluation.ledger | Skipping malformed ledger entry: LedgerEntry.__init__() got an unexpected keyword argument 'data_clean'
+2026-06-05T16:30:28 | WARNING  | app.evaluation.ledger | Skipping malformed ledger entry: LedgerEntry.__init__() got an unexpected keyword argument 'data_clean'
+2026-06-05T16:30:28 | WARNING  | app.evaluation.ledger | Skipping malformed ledger entry: LedgerEntry.__init__() got an unexpected keyword argument 'data_clean'
+2026-06-05T16:30:28 | WARNING  | app.evaluation.ledger | Skipping malformed ledger entry: LedgerEntry.__init__() got an unexpected keyword argument 'data_clean'
+2026-06-05T16:30:28 | WARNING  | app.evaluation.ledger | Skipping malformed ledger entry: LedgerEntry.__init__() got an unexpected keyword argument 'data_clean'
+2026-06-05T16:30:28 | INFO     | app.evaluation.ledger | Evaluation ledger saved to evaluation/ledger.json (1 session(s))
+2026-06-05T16:30:28 | INFO     | app.evaluation.post_session | Post-session complete | date=2026-06-05 | cancelled=0 | report=evaluation/reports/2026-06-05.json | ledger=True
+2026-06-05T16:30:28 | INFO     | session_runner | Post-session evaluation | report=evaluation/reports/2026-06-05.json | ledger_updated=True | errors=none
+2026-06-05T16:30:28 | INFO     | session_runner | Session complete | cycles=170 | placed=2 | pnl=2.00
+
+  Session complete — 170 cycles | 2 orders | P&L $2.00
+

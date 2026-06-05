@@ -57,7 +57,8 @@
           "pnl": 2.0
         }
       },
-      "reject_reasons": {}
+      "reject_reasons": {},
+      "data_clean": false
     },
     {
       "date": "2026-05-12",
@@ -122,7 +123,8 @@
       "reject_reasons": {
         "No trades in first 15 min after open (until 09": 9,
         "cooldown_after_loss": 75
-      }
+      },
+      "data_clean": false
     },
     {
       "date": "2026-05-23",
@@ -144,7 +146,8 @@
       "by_entry_hour": {},
       "by_delta_bucket": {},
       "by_spread_bucket": {},
-      "reject_reasons": {}
+      "reject_reasons": {},
+      "data_clean": false
     },
     {
       "date": "2026-05-25",
@@ -166,7 +169,8 @@
       "by_entry_hour": {},
       "by_delta_bucket": {},
       "by_spread_bucket": {},
-      "reject_reasons": {}
+      "reject_reasons": {},
+      "data_clean": false
     },
     {
       "date": "2026-05-26",
@@ -188,7 +192,8 @@
       "by_entry_hour": {},
       "by_delta_bucket": {},
       "by_spread_bucket": {},
-      "reject_reasons": {}
+      "reject_reasons": {},
+      "data_clean": false
     },
     {
       "date": "2026-05-29",
@@ -253,7 +258,8 @@
       "reject_reasons": {
         "Max trades per day reached": 155,
         "cooldown_after_loss": 56
-      }
+      },
+      "data_clean": false
     },
     {
       "date": "2026-06-02",
@@ -315,7 +321,8 @@
           "pnl": -50.0
         }
       },
-      "reject_reasons": {}
+      "reject_reasons": {},
+      "data_clean": false
     },
     {
       "date": "2026-06-03",
@@ -375,7 +382,8 @@
         "Trade cost $1106.00 exceeds max risk $996.80 and cannot be reduc": 1,
         "Max entries per day reached": 13,
         "cooldown_after_loss": 1
-      }
+      },
+      "data_clean": false
     },
     {
       "date": "2026-06-04",
@@ -469,7 +477,8 @@
         "Trade cost $7875.00 exceeds max risk $994.58 and cannot be reduc": 1,
         "Trade cost $7786.00 exceeds max risk $994.73 and cannot be reduc": 1,
         "Trade cost $7717.00 exceeds max risk $994.58 and cannot be reduc": 1
-      }
+      },
+      "data_clean": false
     }
   ],
   "cumulative": {
@@ -616,5 +625,29 @@
       "Trade cost $7786.00 exceeds max risk $994.73 and cannot be reduc": 1,
       "Trade cost $7717.00 exceeds max risk $994.58 and cannot be reduc": 1
     }
+  },
+  "data_quality": {
+    "clean_sessions_from": "2026-06-05",
+    "contaminated_sessions": [
+      "2026-05-11",
+      "2026-05-12",
+      "2026-05-23",
+      "2026-05-25",
+      "2026-05-26",
+      "2026-05-29",
+      "2026-06-02",
+      "2026-06-03",
+      "2026-06-04"
+    ],
+    "boundary_commit": "79d8681",
+    "fixes_included": [
+      "Bug A: stale cancel risk arg (d2935c9)",
+      "Bug B: 422 cancel drops fill (d2935c9)",
+      "Bug C: exit P&L uses midpoint not bid (79d8681)",
+      "Bug D: duplicate exit 403 loop (79d8681)",
+      "Bug E: session does not terminate after EOD (79d8681)",
+      "LiquidityFilter: delta=N/A deep-ITM cost cap (79d8681)"
+    ],
+    "notes": "Sessions before clean_sessions_from are retained for infrastructure debugging but excluded from performance analysis. See evaluation/post_fix_eval_protocol.md for details."
   }
 }

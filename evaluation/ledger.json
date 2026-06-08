@@ -1,7 +1,7 @@
 {
   "version": "1",
   "created_at": "2026-05-11T12:07:54.394379",
-  "last_updated": "2026-06-05T16:32:29.197661+00:00",
+  "last_updated": "2026-06-08T16:31:56.930532+00:00",
   "sessions": [
     {
       "date": "2026-05-11",
@@ -546,13 +546,69 @@
         "Max entries per day reached": 29
       },
       "data_clean": true
+    },
+    {
+      "date": "2026-06-08",
+      "total_trades": 2,
+      "wins": 0,
+      "losses": 2,
+      "realized_pnl": -9.0,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 9.0,
+      "slippage_total": -0.04,
+      "spread_cost_total": 0.0,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 2,
+      "trades_filled": 2,
+      "trades_cancelled": 0,
+      "trades_rejected": 302,
+      "by_strategy": {
+        "vwap_reclaim": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -9.0
+        }
+      },
+      "by_entry_hour": {
+        "11:00": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -9.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -9.0
+        }
+      },
+      "by_spread_bucket": {
+        "tight (<5%)": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -9.0
+        }
+      },
+      "reject_reasons": {
+        "rsi_trend_diagnostic_only": 232,
+        "liquidity_filter_no_contract": 190,
+        "cooldown_after_loss": 112,
+        "pending_order_exists": 1
+      },
+      "data_clean": true
     }
   ],
   "cumulative": {
-    "trading_days": 10,
-    "total_trades": 13,
-    "total_pnl": -754.5,
-    "win_rate": 0.2308,
+    "trading_days": 11,
+    "total_trades": 15,
+    "total_pnl": -763.5,
+    "win_rate": 0.2,
     "pnl_by_strategy": {
       "fill_lifecycle_test": {
         "trades": 1,
@@ -579,10 +635,10 @@
         "pnl": -109.50000000000006
       },
       "vwap_reclaim": {
-        "trades": 10,
+        "trades": 12,
         "wins": 1,
-        "losses": 9,
-        "pnl": -660.0
+        "losses": 11,
+        "pnl": -669.0
       }
     }
   },

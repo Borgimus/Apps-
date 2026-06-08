@@ -803,11 +803,12 @@ async def scan_and_place(
             )
             _bridge.liquidity_passed = True
         if contract is None:
+            _liq_block_reason = liq_filter.classify_no_contract_reason(chain, sig)
             if _bridge is not None:
                 _bridge.liquidity_passed = False
                 _bridge.spread_passed = None
                 _bridge.final_decision = "blocked"
-                _bridge.exact_block_reason = "liquidity_filter_no_contract"
+                _bridge.exact_block_reason = _liq_block_reason
             if journal:
                 await journal.record_rejection(
                     strategy_id=sig.strategy_id,
@@ -815,7 +816,7 @@ async def scan_and_place(
                     underlying_symbol=symbol,
                     underlying_price=sig.price,
                     option_symbol=None,
-                    rejection_reason="liquidity_filter_no_contract",
+                    rejection_reason=_liq_block_reason,
                     entry_time=now,
                 )
                 await journal.commit()
@@ -1102,6 +1103,7 @@ async def _run_universe_scan(
     journal,
     session_date: str,
     scan_store: Optional[dict] = None,
+    max_contract_cost: Optional[float] = None,
 ) -> Optional[List[str]]:
     """
     Run the scanning pipeline and return a ranked list of confirmed symbols.
@@ -1302,6 +1304,8 @@ async def _run_universe_scan(
 
     # Alpaca confirmation
     confirmer = AlpacaConfirmer(broker, settings)
+    if max_contract_cost is not None:
+        confirmer.set_max_contract_cost(max_contract_cost)
     confirmed = await confirmer.confirm_all(passed[:max_sym * 2])  # over-sample, then cap
 
     confirmed_syms = [cc.symbol for cc in confirmed[:max_sym]]
@@ -1502,9 +1506,8 @@ async def run_session(args: argparse.Namespace):
         logger.info("Account: equity=%.2f paper=%s", float(acct.equity), acct.is_paper)
         # Update liquidity filter cost cap now that equity is known (Bug fix: prevents
         # deep-ITM contracts with delta=N/A being selected and rejected every cycle).
-        liq_filter.set_max_contract_cost(
-            float(acct.equity) * settings.risk.max_risk_per_trade
-        )
+        _max_contract_cost = float(acct.equity) * settings.risk.max_risk_per_trade
+        liq_filter.set_max_contract_cost(_max_contract_cost)
         await alert_service.send(
             AlertEvent.SESSION_STARTED,
             f"Paper session started | equity={float(acct.equity):.2f} | symbols={args.symbols}",
@@ -1560,6 +1563,7 @@ async def run_session(args: argparse.Namespace):
                 journal=journal,
                 session_date=today_str,
                 scan_store=_scan_store,
+                max_contract_cost=_max_contract_cost,
             )
             if scanned is None:
                 logger.warning(
@@ -1741,6 +1745,7 @@ async def run_session(args: argparse.Namespace):
                     journal=journal,
                     session_date=today_str,
                     scan_store=_scan_store,
+                    max_contract_cost=_max_contract_cost,
                 )
                 if rescanned is None:
                     logger.warning(

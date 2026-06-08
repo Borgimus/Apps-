@@ -141,6 +141,29 @@ class LiquidityFilter:
             return False
         return True
 
+    def classify_no_contract_reason(self, chain: OptionChain, signal: Signal) -> str:
+        """
+        Classify why select_contract returned None.
+
+        Returns 'liquidity_cost_cap' when one or more contracts pass OI/volume/spread
+        but are blocked by the per-contract cost ceiling (delta=None, ask*100 > cap).
+        Returns 'liquidity_filter_no_contract' for all other cases.
+        """
+        if self._max_contract_cost is None:
+            return "liquidity_filter_no_contract"
+
+        candidates = chain.calls if signal.direction == SignalDirection.LONG else chain.puts
+        for c in candidates:
+            passes_basic = (
+                c.open_interest >= self._min_oi
+                and c.volume >= self._min_vol
+                and c.spread_pct <= self._max_spread_pct
+                and c.ask > 0
+            )
+            if passes_basic and c.delta is None and float(c.ask) * 100 > self._max_contract_cost:
+                return "liquidity_cost_cap"
+        return "liquidity_filter_no_contract"
+
     def filter_chain(self, chain: OptionChain) -> OptionChain:
         """Return a new chain with only liquid contracts."""
         from dataclasses import replace

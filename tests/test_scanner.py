@@ -740,3 +740,245 @@ class TestDashboardScanEndpoint:
         assert r.status_code == 200
         data = r.json()
         assert "live" in data
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 9. Confirmer / Bridge cost-cap alignment regression tests
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _xlk_like_chain() -> OptionChain:
+    """Deep-ITM call at $115 strike, XLK underlying ~$220, no greeks (paper broker)."""
+    from decimal import Decimal
+    c = OptionContract(
+        symbol="XLK",
+        option_symbol="XLK260612C00115000",
+        expiration=_TODAY,
+        strike=Decimal("115.00"),
+        option_type="call",
+        bid=Decimal("104.80"),
+        ask=Decimal("105.30"),
+        last=Decimal("105.05"),
+        volume=511,
+        open_interest=411,
+        implied_volatility=0.15,
+        delta=None,
+    )
+    return OptionChain(
+        symbol="XLK",
+        expiration=_TODAY,
+        underlying_price=Decimal("220.00"),
+        calls=[c],
+        puts=[],
+        fetched_at=datetime.now(tz=ET),
+    )
+
+
+class TestConfirmerCostCap:
+    """Regression tests for Confirmer / Bridge LiquidityFilter cost-cap alignment."""
+
+    def _make_settings(self):
+        s = MagicMock()
+        s.risk.min_open_interest = 100
+        s.risk.min_volume = 50
+        s.risk.max_spread_pct = 0.10
+        s.options.delta_target_min = 0.35
+        s.options.delta_target_max = 0.45
+        s.options.preferred_dte = [0, 1, 2]
+        return s
+
+    def test_confirmer_approves_xlk_without_cost_cap(self):
+        """Baseline: confirmer with no cost cap approves deep-ITM contract (old bug)."""
+        from app.scanning.alpaca_confirmer import AlpacaConfirmer
+
+        settings = self._make_settings()
+        broker = MagicMock()
+        broker.get_available_expirations = AsyncMock(return_value=[_TODAY])
+        broker.get_option_chain = AsyncMock(return_value=_xlk_like_chain())
+
+        candidate = CandidateScore(
+            symbol="XLK", score=65.0, signal_type="LONG",
+            reason_codes=[], rejected_reasons=[], is_rejected=False,
+            metrics=_metrics("XLK", price=220.0),
+        )
+        confirmer = AlpacaConfirmer(broker, settings)
+        result = asyncio.get_event_loop().run_until_complete(confirmer.confirm(candidate))
+        assert result is not None, "Without cost cap, deep-ITM contract passes (baseline)"
+
+    def test_confirmer_rejects_xlk_after_cost_cap_set(self):
+        """After set_max_contract_cost(), Confirmer rejects deep-ITM delta=None contract."""
+        from app.scanning.alpaca_confirmer import AlpacaConfirmer
+
+        settings = self._make_settings()
+        broker = MagicMock()
+        broker.get_available_expirations = AsyncMock(return_value=[_TODAY])
+        broker.get_option_chain = AsyncMock(return_value=_xlk_like_chain())
+
+        candidate = CandidateScore(
+            symbol="XLK", score=65.0, signal_type="LONG",
+            reason_codes=[], rejected_reasons=[], is_rejected=False,
+            metrics=_metrics("XLK", price=220.0),
+        )
+        confirmer = AlpacaConfirmer(broker, settings)
+        confirmer.set_max_contract_cost(991.98)
+        result = asyncio.get_event_loop().run_until_complete(confirmer.confirm(candidate))
+        assert result is None, "Deep-ITM contract must be rejected after cost cap set"
+
+    def test_confirmer_and_bridge_agree_on_xlk_rejection(self):
+        """Confirmer and LiquidityFilter (bridge) reach identical decision when both have cost cap."""
+        from app.scanning.alpaca_confirmer import AlpacaConfirmer
+        from app.strategies.liquidity_filter import LiquidityFilter
+        from app.strategies.strategy_base import Signal, SignalDirection
+
+        settings = self._make_settings()
+        max_cost = 991.98
+        chain = _xlk_like_chain()
+
+        broker = MagicMock()
+        broker.get_available_expirations = AsyncMock(return_value=[_TODAY])
+        broker.get_option_chain = AsyncMock(return_value=chain)
+
+        candidate = CandidateScore(
+            symbol="XLK", score=65.0, signal_type="LONG",
+            reason_codes=[], rejected_reasons=[], is_rejected=False,
+            metrics=_metrics("XLK", price=220.0),
+        )
+        confirmer = AlpacaConfirmer(broker, settings)
+        confirmer.set_max_contract_cost(max_cost)
+        confirmer_result = asyncio.get_event_loop().run_until_complete(confirmer.confirm(candidate))
+
+        liq = LiquidityFilter({
+            "min_open_interest": 100, "min_volume": 50, "max_spread_pct": 0.10,
+            "delta_target_min": 0.35, "delta_target_max": 0.45,
+        })
+        liq.set_max_contract_cost(max_cost)
+        sig = Signal(
+            strategy_id="test", symbol="XLK", direction=SignalDirection.LONG,
+            timestamp=datetime.now(tz=ET), price=220.0,
+        )
+        bridge_contract = liq.select_contract(chain, sig)
+
+        assert confirmer_result is None, "Confirmer must reject XLK"
+        assert bridge_contract is None, "Bridge must reject XLK"
+
+    def test_delta_none_high_ask_rejected_by_cost_cap(self):
+        """LiquidityFilter rejects when delta=None and ask*100 > max_contract_cost."""
+        from app.strategies.liquidity_filter import LiquidityFilter
+        from app.strategies.strategy_base import Signal, SignalDirection
+
+        liq = LiquidityFilter({
+            "min_open_interest": 100, "min_volume": 50, "max_spread_pct": 0.10,
+            "delta_target_min": 0.35, "delta_target_max": 0.45,
+        })
+        liq.set_max_contract_cost(991.98)
+
+        sig = Signal(
+            strategy_id="test", symbol="XLK", direction=SignalDirection.LONG,
+            timestamp=datetime.now(tz=ET), price=220.0,
+        )
+        assert liq.select_contract(_xlk_like_chain(), sig) is None
+
+    def test_otm_contract_passes_despite_cost_cap(self):
+        """OTM contract with reasonable ask is not blocked by cost cap."""
+        from decimal import Decimal
+        from app.strategies.liquidity_filter import LiquidityFilter
+        from app.strategies.strategy_base import Signal, SignalDirection
+
+        liq = LiquidityFilter({
+            "min_open_interest": 100, "min_volume": 50, "max_spread_pct": 0.10,
+            "delta_target_min": 0.35, "delta_target_max": 0.45,
+        })
+        liq.set_max_contract_cost(991.98)
+
+        # ask=2.10 → ask*100=$210 << $991.98
+        c = _contract("QQQ", strike=450.0, bid=2.00, ask=2.10, oi=5000, vol=2000, delta=None)
+        chain = OptionChain(
+            symbol="QQQ",
+            expiration=_TODAY,
+            underlying_price=Decimal("440.00"),
+            calls=[c],
+            puts=[],
+            fetched_at=datetime.now(tz=ET),
+        )
+        sig = Signal(
+            strategy_id="test", symbol="QQQ", direction=SignalDirection.LONG,
+            timestamp=datetime.now(tz=ET), price=440.0,
+        )
+        assert liq.select_contract(chain, sig) is not None
+
+    def test_repeated_xlk_confirm_reject_loop_eliminated(self):
+        """After cost cap aligned, XLK is rejected at Confirmer; SPY still confirms."""
+        from app.scanning.alpaca_confirmer import AlpacaConfirmer
+        from decimal import Decimal
+
+        settings = self._make_settings()
+        max_cost = 991.98
+
+        spy_chain = OptionChain(
+            symbol="SPY",
+            expiration=_TODAY,
+            underlying_price=Decimal("550.00"),
+            calls=[_contract("SPY", strike=550.0, bid=2.00, ask=2.10, oi=5000, vol=2000, delta=0.40)],
+            puts=[],
+            fetched_at=datetime.now(tz=ET),
+        )
+
+        async def _get_chain(symbol, exp):
+            return _xlk_like_chain() if symbol == "XLK" else spy_chain
+
+        broker = MagicMock()
+        broker.get_available_expirations = AsyncMock(return_value=[_TODAY])
+        broker.get_option_chain = AsyncMock(side_effect=_get_chain)
+
+        candidates = [
+            CandidateScore(
+                symbol="XLK", score=65.0, signal_type="LONG",
+                reason_codes=[], rejected_reasons=[], is_rejected=False,
+                metrics=_metrics("XLK", price=220.0),
+            ),
+            CandidateScore(
+                symbol="SPY", score=75.0, signal_type="LONG",
+                reason_codes=[], rejected_reasons=[], is_rejected=False,
+                metrics=_metrics("SPY"),
+            ),
+        ]
+        confirmer = AlpacaConfirmer(broker, settings)
+        confirmer.set_max_contract_cost(max_cost)
+        results = asyncio.get_event_loop().run_until_complete(confirmer.confirm_all(candidates))
+
+        confirmed = [r.symbol for r in results]
+        assert "XLK" not in confirmed, "XLK must be blocked by cost cap at Confirmer"
+        assert "SPY" in confirmed, "SPY must still confirm normally"
+
+    def test_classify_no_contract_reason_cost_cap(self):
+        """classify_no_contract_reason returns 'liquidity_cost_cap' for XLK-like chain."""
+        from app.strategies.liquidity_filter import LiquidityFilter
+        from app.strategies.strategy_base import Signal, SignalDirection
+
+        liq = LiquidityFilter({
+            "min_open_interest": 100, "min_volume": 50, "max_spread_pct": 0.10,
+            "delta_target_min": 0.35, "delta_target_max": 0.45,
+        })
+        liq.set_max_contract_cost(991.98)
+        sig = Signal(
+            strategy_id="test", symbol="XLK", direction=SignalDirection.LONG,
+            timestamp=datetime.now(tz=ET), price=220.0,
+        )
+        reason = liq.classify_no_contract_reason(_xlk_like_chain(), sig)
+        assert reason == "liquidity_cost_cap"
+
+    def test_classify_no_contract_reason_generic(self):
+        """classify_no_contract_reason returns generic reason when no cost cap is set."""
+        from app.strategies.liquidity_filter import LiquidityFilter
+        from app.strategies.strategy_base import Signal, SignalDirection
+
+        liq = LiquidityFilter({
+            "min_open_interest": 100, "min_volume": 50, "max_spread_pct": 0.10,
+            "delta_target_min": 0.35, "delta_target_max": 0.45,
+        })
+        # No cost cap set — even XLK-like chain returns generic reason
+        sig = Signal(
+            strategy_id="test", symbol="XLK", direction=SignalDirection.LONG,
+            timestamp=datetime.now(tz=ET), price=220.0,
+        )
+        reason = liq.classify_no_contract_reason(_xlk_like_chain(), sig)
+        assert reason == "liquidity_filter_no_contract"

@@ -74,6 +74,10 @@ class AlpacaConfirmer:
             "delta_target_max":  settings.options.delta_target_max,
         })
 
+    def set_max_contract_cost(self, max_cost: float) -> None:
+        """Forward cost cap to internal liquidity filter (call after equity is known)."""
+        self._liq_filter.set_max_contract_cost(max_cost)
+
     async def confirm(self, candidate: CandidateScore) -> Optional[ConfirmedCandidate]:
         """
         Confirm a candidate via Alpaca.
@@ -136,6 +140,23 @@ class AlpacaConfirmer:
         )
         contract = self._liq_filter.select_contract(chain, dummy_signal)
         if contract is None:
+            _max_cost = self._liq_filter._max_contract_cost
+            if _max_cost is not None:
+                _candidates = chain.calls if direction == SignalDirection.LONG else chain.puts
+                for _c in _candidates:
+                    if (
+                        _c.delta is None
+                        and float(_c.ask) * 100 > _max_cost
+                        and _c.open_interest >= self._settings.risk.min_open_interest
+                        and _c.volume >= self._settings.risk.min_volume
+                        and _c.spread_pct <= self._settings.risk.max_spread_pct
+                    ):
+                        logger.info(
+                            "AlpacaConfirmer: liquidity_rejected_cost_cap | symbol=%s | "
+                            "option_symbol=%s | ask=%.2f | ask_x_100=%.0f | max_contract_cost=%.0f",
+                            symbol, _c.option_symbol,
+                            float(_c.ask), float(_c.ask) * 100, _max_cost,
+                        )
             logger.info(
                 "AlpacaConfirmer: no liquid contract for %s (signal=%s)", symbol, candidate.signal_type
             )

@@ -92,6 +92,8 @@ class CandidateScorer:
         # ── Hard rejections ────────────────────────────────────────────────────
         if m.errors:
             rejections.append("data_fetch_error")
+        if getattr(m, "is_data_stale", False):
+            rejections.append("scanner_data_stale")
         if m.has_earnings_today:
             rejections.append("earnings_today")
         if m.rvol < 0.5:

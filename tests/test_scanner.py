@@ -982,3 +982,410 @@ class TestConfirmerCostCap:
         )
         reason = liq.classify_no_contract_reason(_xlk_like_chain(), sig)
         assert reason == "liquidity_filter_no_contract"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 10. Scanner data freshness and price-source integrity
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestYFinanceScannerFreshness:
+    """
+    Verify that price comes from intraday bars (not daily close), ORB and
+    VWAP comparisons use the intraday close, and stale data is detected and
+    rejected.
+    """
+
+    _ET = ZoneInfo("America/New_York")
+    _UTC = ZoneInfo("UTC")
+
+    def _make_intraday_df(
+        self,
+        today: date,
+        latest_close: float,
+        n_bars: int = 6,
+        bar_start_utc: Optional[datetime] = None,
+    ):
+        """
+        Build a minimal 5-min DataFrame for today.
+
+        Bars start at 09:30 ET (13:30 UTC) by default.
+        The last bar's close is `latest_close`.
+        """
+        import pandas as pd
+        if bar_start_utc is None:
+            bar_start_utc = datetime(today.year, today.month, today.day, 13, 30, tzinfo=self._UTC)
+        timestamps = [bar_start_utc + timedelta(minutes=5 * i) for i in range(n_bars)]
+        closes = [latest_close - 1.0] * (n_bars - 1) + [latest_close]
+        return pd.DataFrame(
+            {
+                "open":   [c - 0.2 for c in closes],
+                "high":   [c + 0.5 for c in closes],
+                "low":    [c - 0.5 for c in closes],
+                "close":  closes,
+                "volume": [100_000] * n_bars,
+            },
+            index=pd.DatetimeIndex(timestamps, tz="UTC"),
+        )
+
+    # ------------------------------------------------------------------
+    # Price source
+    # ------------------------------------------------------------------
+
+    def test_intraday_close_returned_as_latest_bar_price(self):
+        """_compute_intraday returns the latest bar close, not any external value."""
+        import pandas as pd
+        today = date(2026, 6, 10)
+        now_et = datetime(2026, 6, 10, 11, 0, tzinfo=self._ET)
+        expected_close = 420.0
+
+        intra_df = self._make_intraday_df(today, latest_close=expected_close)
+        scanner = YFinanceScanner()
+        result = scanner._compute_intraday(intra_df, today, now_et)
+        latest_bar_close = result[0]
+
+        assert latest_bar_close is not None
+        assert latest_bar_close == pytest.approx(expected_close, abs=0.01), (
+            "latest intraday close must be returned from _compute_intraday"
+        )
+
+    def test_daily_close_not_used_as_current_price(self):
+        """
+        When intraday bars are available, price must equal the intraday close,
+        not the daily bar close (previous_close).
+        """
+        # Construct SymbolMetrics directly with different price and previous_close.
+        # In production _compute_metrics sets price=intraday_close, previous_close=daily_close.
+        m = SymbolMetrics(
+            symbol="SPY",
+            price=420.0,           # intraday close
+            previous_close=550.0,  # yesterday's daily close — must NOT equal price
+            price_source="intraday_close",
+            atr=5.0, atr_pct=0.012, rvol=2.0, rsi=52.0,
+            vwap=419.0, price_vs_vwap="above",
+            opening_range_high=421.0, opening_range_low=418.0,
+            is_orb_breakout=False, is_orb_breakdown=False,
+            trend="up", ma_compression=False, gap_pct=0.005,
+            volatility_5d=0.15, has_earnings_today=False,
+            volume_today=50_000_000, avg_volume_20d=25_000_000.0,
+        )
+        assert m.price != m.previous_close, (
+            "current price must not equal previous_close when intraday data is available"
+        )
+        assert m.price_source == "intraday_close"
+        assert m.previous_close == 550.0
+
+    def test_previous_close_field_accessible(self):
+        """previous_close is stored separately and equals the daily bar close."""
+        m = SymbolMetrics(
+            symbol="QQQ",
+            price=412.0,
+            previous_close=450.0,
+            price_source="intraday_close",
+            atr=4.0, atr_pct=0.010, rvol=1.8, rsi=48.0,
+            vwap=411.0, price_vs_vwap="above",
+            opening_range_high=413.0, opening_range_low=410.0,
+            is_orb_breakout=False, is_orb_breakdown=False,
+            trend="sideways", ma_compression=False, gap_pct=0.002,
+            volatility_5d=0.12, has_earnings_today=False,
+            volume_today=30_000_000, avg_volume_20d=20_000_000.0,
+        )
+        assert m.previous_close == 450.0
+        assert m.price == 412.0
+        assert m.previous_close != m.price
+
+    # ------------------------------------------------------------------
+    # ORB correctness
+    # ------------------------------------------------------------------
+
+    def test_orb_breakout_uses_intraday_close(self):
+        """
+        ORB breakout must be True when latest intraday close > ORB high.
+        The comparison must use the intraday close, not any externally supplied price.
+        """
+        import pandas as pd
+        today = date(2026, 6, 10)
+        now_et = datetime(2026, 6, 10, 11, 30, tzinfo=self._ET)
+
+        # ORB window: bars 0-5 (09:30–10:00 ET), high of that window ≈ 411
+        # Later bars push close to 425, well above ORB high
+        open_utc = datetime(2026, 6, 10, 13, 30, tzinfo=self._UTC)
+        times = [open_utc + timedelta(minutes=5 * i) for i in range(10)]
+        closes = [405, 407, 408, 409, 410, 411, 414, 418, 422, 425]
+        highs  = [c + 1 for c in closes]
+        lows   = [c - 1 for c in closes]
+        df = pd.DataFrame(
+            {
+                "open":   [c - 0.2 for c in closes],
+                "high":   highs, "low": lows, "close": closes,
+                "volume": [100_000] * 10,
+            },
+            index=pd.DatetimeIndex(times, tz="UTC"),
+        )
+
+        scanner = YFinanceScanner()
+        result = scanner._compute_intraday(df, today, now_et)
+        latest_price, _, _, _, orb_high, orb_low, is_breakout, is_breakdown = result
+
+        assert latest_price == pytest.approx(425.0, abs=0.01)
+        assert orb_high < latest_price, "ORB high must be below latest close for breakout"
+        assert is_breakout is True
+        assert is_breakdown is False
+
+    def test_no_orb_breakout_when_price_below_orb_high(self):
+        """is_orb_breakout must be False when latest close is below ORB high."""
+        import pandas as pd
+        today = date(2026, 6, 10)
+        now_et = datetime(2026, 6, 10, 10, 45, tzinfo=self._ET)
+
+        open_utc = datetime(2026, 6, 10, 13, 30, tzinfo=self._UTC)
+        times = [open_utc + timedelta(minutes=5 * i) for i in range(6)]
+        closes = [405, 408, 412, 410, 407, 404]  # ORB high ≈ 413, falls back to 404
+        highs  = [c + 1 for c in closes]
+        lows   = [c - 1 for c in closes]
+        df = pd.DataFrame(
+            {
+                "open":  [c - 0.2 for c in closes],
+                "high":  highs, "low": lows, "close": closes,
+                "volume": [100_000] * 6,
+            },
+            index=pd.DatetimeIndex(times, tz="UTC"),
+        )
+
+        scanner = YFinanceScanner()
+        result = scanner._compute_intraday(df, today, now_et)
+        latest_price, _, _, _, orb_high, _, is_breakout, _ = result
+
+        assert latest_price == pytest.approx(404.0, abs=0.01)
+        assert latest_price < orb_high
+        assert is_breakout is False
+
+    # ------------------------------------------------------------------
+    # VWAP correctness
+    # ------------------------------------------------------------------
+
+    def test_price_vs_vwap_uses_intraday_close(self):
+        """
+        price_vs_vwap must be 'above' when the latest intraday close is above
+        the VWAP computed from today's bars.
+        """
+        import pandas as pd
+        today = date(2026, 6, 10)
+        now_et = datetime(2026, 6, 10, 11, 0, tzinfo=self._ET)
+
+        open_utc = datetime(2026, 6, 10, 13, 30, tzinfo=self._UTC)
+        times = [open_utc + timedelta(minutes=5 * i) for i in range(5)]
+        # First four bars cluster near 410, last bar jumps to 425 — VWAP stays well below 425
+        df = pd.DataFrame(
+            {
+                "open":   [409.0, 409.5, 410.0, 410.5, 424.5],
+                "high":   [410.0, 410.5, 411.0, 411.5, 426.0],
+                "low":    [408.0, 408.5, 409.0, 409.5, 423.0],
+                "close":  [409.5, 410.0, 410.5, 411.0, 425.0],
+                "volume": [100_000, 100_000, 100_000, 100_000, 100_000],
+            },
+            index=pd.DatetimeIndex(times, tz="UTC"),
+        )
+
+        scanner = YFinanceScanner()
+        result = scanner._compute_intraday(df, today, now_et)
+        latest_price, _, vwap, price_vs_vwap, *_ = result
+
+        assert latest_price == pytest.approx(425.0, abs=0.01)
+        assert vwap < latest_price, f"VWAP {vwap:.2f} must be below latest close {latest_price:.2f}"
+        assert price_vs_vwap == "above", f"Expected 'above', got {price_vs_vwap!r}"
+
+    def test_price_vs_vwap_below_when_close_below_vwap(self):
+        """price_vs_vwap must be 'below' when latest intraday close drops under VWAP."""
+        import pandas as pd
+        today = date(2026, 6, 10)
+        now_et = datetime(2026, 6, 10, 11, 0, tzinfo=self._ET)
+
+        open_utc = datetime(2026, 6, 10, 13, 30, tzinfo=self._UTC)
+        times = [open_utc + timedelta(minutes=5 * i) for i in range(5)]
+        # Start high, sell off hard — VWAP stays above the final bar
+        df = pd.DataFrame(
+            {
+                "open":   [425.0, 424.5, 420.0, 415.0, 395.5],
+                "high":   [426.0, 425.0, 421.0, 416.0, 397.0],
+                "low":    [423.0, 422.0, 418.0, 413.0, 394.0],
+                "close":  [424.5, 423.0, 419.0, 414.0, 395.0],
+                "volume": [100_000, 100_000, 100_000, 100_000, 100_000],
+            },
+            index=pd.DatetimeIndex(times, tz="UTC"),
+        )
+
+        scanner = YFinanceScanner()
+        result = scanner._compute_intraday(df, today, now_et)
+        latest_price, _, vwap, price_vs_vwap, *_ = result
+
+        assert latest_price == pytest.approx(395.0, abs=0.01)
+        assert vwap > latest_price, f"VWAP {vwap:.2f} must be above latest close {latest_price:.2f}"
+        assert price_vs_vwap == "below", f"Expected 'below', got {price_vs_vwap!r}"
+
+    # ------------------------------------------------------------------
+    # Timestamp tracking
+    # ------------------------------------------------------------------
+
+    def test_latest_bar_timestamp_differs_from_fetch_time(self):
+        """
+        latest_bar_ts_et returned by _compute_intraday must equal the bar's
+        actual timestamp, not the time of the fetch call.
+        """
+        import pandas as pd
+        today = date(2026, 6, 10)
+        now_et = datetime(2026, 6, 10, 11, 0, tzinfo=self._ET)
+
+        # Single bar at 10:25 ET (14:25 UTC) — 35 minutes before now_et
+        bar_ts_utc = datetime(2026, 6, 10, 14, 25, tzinfo=self._UTC)
+        df = pd.DataFrame(
+            {"open": [419.0], "high": [421.0], "low": [418.0], "close": [420.0], "volume": [100_000]},
+            index=pd.DatetimeIndex([bar_ts_utc]),
+        )
+
+        scanner = YFinanceScanner()
+        result = scanner._compute_intraday(df, today, now_et)
+        _, latest_bar_ts_et, *_ = result
+
+        assert latest_bar_ts_et is not None
+        expected_et = bar_ts_utc.astimezone(self._ET)
+        diff_seconds = abs((latest_bar_ts_et - expected_et).total_seconds())
+        assert diff_seconds < 60, (
+            f"latest_bar_ts_et {latest_bar_ts_et} must match bar timestamp {expected_et}"
+        )
+        # Must not equal the fetch time
+        assert abs((latest_bar_ts_et - now_et).total_seconds()) > 30, (
+            "latest_bar_ts_et must not equal the fetch call time"
+        )
+
+    def test_fetched_at_and_bar_timestamp_are_independent(self):
+        """
+        fetched_at on SymbolMetrics records the scan call time.
+        latest_intraday_bar_timestamp records when the last data bar was.
+        They must be independently set.
+        """
+        now_et = datetime(2026, 6, 10, 11, 0, tzinfo=self._ET)
+        bar_ts_et = datetime(2026, 6, 10, 9, 35, tzinfo=self._ET)  # 85 min before fetch
+
+        m = SymbolMetrics(
+            symbol="SPY",
+            price=420.0, previous_close=550.0, price_source="intraday_close",
+            atr=5.0, atr_pct=0.012, rvol=2.0, rsi=52.0,
+            vwap=419.0, price_vs_vwap="above",
+            opening_range_high=421.0, opening_range_low=418.0,
+            is_orb_breakout=False, is_orb_breakdown=False,
+            trend="up", ma_compression=False, gap_pct=0.005,
+            volatility_5d=0.15, has_earnings_today=False,
+            volume_today=50_000_000, avg_volume_20d=25_000_000.0,
+            fetched_at=now_et,
+            latest_intraday_bar_timestamp=bar_ts_et,
+            intraday_data_age_seconds=(now_et - bar_ts_et).total_seconds(),
+        )
+
+        assert m.fetched_at == now_et
+        assert m.latest_intraday_bar_timestamp == bar_ts_et
+        assert m.fetched_at != m.latest_intraday_bar_timestamp
+        assert m.intraday_data_age_seconds == pytest.approx(85 * 60, abs=1)
+
+    # ------------------------------------------------------------------
+    # Staleness gate
+    # ------------------------------------------------------------------
+
+    def test_stale_intraday_triggers_scanner_data_stale_rejection(self):
+        """
+        CandidateScorer must reject symbols with is_data_stale=True
+        and include 'scanner_data_stale' in rejected_reasons.
+        """
+        from app.scanning.candidate_scorer import CandidateScorer
+
+        scorer = CandidateScorer()
+        base = _metrics()
+        stale_m = SymbolMetrics(
+            symbol=base.symbol,
+            price=base.price, previous_close=base.price * 1.02,
+            price_source="intraday_close",
+            atr=base.atr, atr_pct=base.atr_pct,
+            rvol=base.rvol, rsi=base.rsi,
+            vwap=base.vwap, price_vs_vwap=base.price_vs_vwap,
+            opening_range_high=base.opening_range_high,
+            opening_range_low=base.opening_range_low,
+            is_orb_breakout=base.is_orb_breakout,
+            is_orb_breakdown=base.is_orb_breakdown,
+            trend=base.trend, ma_compression=base.ma_compression,
+            gap_pct=base.gap_pct, volatility_5d=base.volatility_5d,
+            has_earnings_today=base.has_earnings_today,
+            volume_today=base.volume_today, avg_volume_20d=base.avg_volume_20d,
+            is_data_stale=True,
+            intraday_data_age_seconds=5400.0,  # 90 minutes — well beyond 20-min threshold
+        )
+        c = scorer.score_one(stale_m)
+        assert c.is_rejected
+        assert "scanner_data_stale" in c.rejected_reasons
+
+    def test_fresh_intraday_not_rejected_for_staleness(self):
+        """
+        Symbols with is_data_stale=False must not receive scanner_data_stale rejection.
+        """
+        from app.scanning.candidate_scorer import CandidateScorer
+
+        scorer = CandidateScorer()
+        m = _metrics()  # is_data_stale defaults to False
+        assert not m.is_data_stale
+        c = scorer.score_one(m)
+        assert "scanner_data_stale" not in c.rejected_reasons
+
+    def test_staleness_threshold_in_scanner(self):
+        """
+        YFinanceScanner with a tight threshold marks a bar from 25 min ago as stale.
+        A bar from 5 min ago on the same threshold is not stale.
+        """
+        import pandas as pd
+        today = date(2026, 6, 10)
+        now_et = datetime(2026, 6, 10, 11, 0, tzinfo=self._ET)
+
+        # Bar from 25 minutes ago (14:35 UTC = 10:35 ET)
+        bar_25min_ago_utc = datetime(2026, 6, 10, 14, 35, tzinfo=self._UTC)  # 10:35 ET
+        df_old = pd.DataFrame(
+            {"open": [419.0], "high": [421.0], "low": [418.0], "close": [420.0], "volume": [100_000]},
+            index=pd.DatetimeIndex([bar_25min_ago_utc]),
+        )
+
+        # Bar from 5 minutes ago (14:55 UTC = 10:55 ET)
+        bar_5min_ago_utc = datetime(2026, 6, 10, 14, 55, tzinfo=self._UTC)   # 10:55 ET
+        df_fresh = pd.DataFrame(
+            {"open": [419.0], "high": [421.0], "low": [418.0], "close": [420.0], "volume": [100_000]},
+            index=pd.DatetimeIndex([bar_5min_ago_utc]),
+        )
+
+        scanner = YFinanceScanner(max_intraday_data_age_seconds=1200)  # 20 min threshold
+
+        _, ts_old, *_ = scanner._compute_intraday(df_old, today, now_et)
+        _, ts_fresh, *_ = scanner._compute_intraday(df_fresh, today, now_et)
+
+        age_old = (now_et - ts_old).total_seconds()
+        age_fresh = (now_et - ts_fresh).total_seconds()
+
+        assert age_old > 1200, f"25-min-old bar should be stale (age={age_old:.0f}s)"
+        assert age_fresh < 1200, f"5-min-old bar should be fresh (age={age_fresh:.0f}s)"
+
+    def test_no_intraday_bars_is_stale(self):
+        """
+        When no intraday bars exist for today, _compute_intraday returns None for
+        the price and timestamp, and the scanner must mark the symbol stale.
+        """
+        import pandas as pd
+        today = date(2026, 6, 10)
+        now_et = datetime(2026, 6, 10, 11, 0, tzinfo=self._ET)
+
+        # DataFrame with only yesterday's bars
+        yesterday_utc = datetime(2026, 6, 9, 14, 30, tzinfo=self._UTC)
+        df_yesterday = pd.DataFrame(
+            {"open": [418.0], "high": [421.0], "low": [417.0], "close": [420.0], "volume": [100_000]},
+            index=pd.DatetimeIndex([yesterday_utc]),
+        )
+
+        scanner = YFinanceScanner()
+        result = scanner._compute_intraday(df_yesterday, today, now_et)
+        latest_price, latest_ts, *_ = result
+
+        assert latest_price is None, "No bars for today → latest_price must be None"
+        assert latest_ts is None, "No bars for today → latest_ts must be None"

@@ -61,6 +61,7 @@ class LedgerEntry:
     by_spread_bucket: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     reject_reasons: Dict[str, int] = field(default_factory=dict)
     data_clean: bool = False
+    notes: Optional[str] = None
 
 
 # ── Ledger class ──────────────────────────────────────────────────────────────

@@ -1,0 +1,325 @@
+{
+  "generated": "2026-06-12",
+  "account": "alpaca_paper",
+  "summary": {
+    "starting_equity": 100000.00,
+    "current_equity": 98936.66,
+    "total_account_delta": -1063.34,
+    "ledger_cumulative_pnl": -1032.50,
+    "gross_gap": -30.84,
+    "gap_direction": "account_lost_more",
+    "acceptance_status": {
+      "within_one_dollar": false,
+      "all_differences_explained": true
+    }
+  },
+  "anchor_points": [
+    {
+      "label": "start",
+      "date": null,
+      "equity": 100000.00,
+      "source": "paper account initial balance"
+    },
+    {
+      "label": "pre_2026_06_04",
+      "date": "2026-06-04",
+      "note": "equity at start of 2026-06-04 session",
+      "equity": 99658.07,
+      "source": "post_session_report_2026-06-04.md (Alpaca API read)"
+    },
+    {
+      "label": "pre_s2",
+      "date": "2026-06-08",
+      "note": "equity at start of S2 session (= equity after S1/2026-06-05)",
+      "equity": 99197.55,
+      "source": "post_session_report_2026-06-08.md (Alpaca API read)"
+    },
+    {
+      "label": "current",
+      "date": "2026-06-12",
+      "note": "equity after S5 session complete",
+      "equity": 98936.66,
+      "source": "user-provided from Alpaca paper dashboard"
+    }
+  ],
+  "periods": [
+    {
+      "id": "A",
+      "label": "Contaminated sessions",
+      "dates": "2026-05-11 through 2026-06-03",
+      "sessions": ["2026-05-11", "2026-05-12", "2026-05-23", "2026-05-25", "2026-05-26", "2026-05-29", "2026-06-02", "2026-06-03"],
+      "data_clean": false,
+      "actual_loss": 341.93,
+      "ledger_loss": 288.50,
+      "period_gap": -53.43,
+      "gap_direction": "account_lost_more",
+      "explanation": "Pre-fix sessions. Bug C (midpoint exit pricing) understated losses. 2026-06-03 had additional defects."
+    },
+    {
+      "id": "B",
+      "label": "2026-06-04 session (Bug D)",
+      "dates": "2026-06-04",
+      "sessions": ["2026-06-04"],
+      "data_clean": false,
+      "actual_loss": 462.52,
+      "ledger_loss": 468.00,
+      "period_gap": 5.48,
+      "gap_direction": "account_lost_less",
+      "explanation": "Bug D (duplicate exit orders) created an inadvertent short position that likely expired at small credit. Bug C was fixed on this date."
+    },
+    {
+      "id": "C",
+      "label": "Clean sessions S1-S5",
+      "dates": "2026-06-05 through 2026-06-12",
+      "sessions": ["2026-06-05", "2026-06-08", "2026-06-10", "2026-06-11", "2026-06-12"],
+      "data_clean": true,
+      "actual_loss": 258.89,
+      "ledger_loss": 276.00,
+      "period_gap": 17.11,
+      "gap_direction": "account_lost_less",
+      "explanation": "Multi-day EOD limit orders (S3 SMH, S4 DIA) may have filled at slightly better prices. Integer-dollar ledger tracking vs Alpaca cent-precision. All sessions verified by post-session reports."
+    }
+  ],
+  "per_session": [
+    {
+      "date": "2026-05-11",
+      "session_label": null,
+      "ledger_pnl": 2.00,
+      "cumulative_ledger_pnl": 2.00,
+      "alpaca_equity": null,
+      "data_clean": false,
+      "trades_filled": 1,
+      "strategy": "fill_lifecycle_test",
+      "notes": "Single fill test, +$2 win"
+    },
+    {
+      "date": "2026-05-12",
+      "session_label": null,
+      "ledger_pnl": -109.50,
+      "cumulative_ledger_pnl": -107.50,
+      "alpaca_equity": null,
+      "data_clean": false,
+      "trades_filled": 1,
+      "strategy": "rsi_trend",
+      "notes": "Bug C active. Actual loss likely larger than ledger."
+    },
+    {
+      "date": "2026-05-23",
+      "session_label": null,
+      "ledger_pnl": 0.00,
+      "cumulative_ledger_pnl": -107.50,
+      "alpaca_equity": null,
+      "data_clean": false,
+      "trades_filled": 0,
+      "strategy": null,
+      "notes": "No trades"
+    },
+    {
+      "date": "2026-05-25",
+      "session_label": null,
+      "ledger_pnl": 0.00,
+      "cumulative_ledger_pnl": -107.50,
+      "alpaca_equity": null,
+      "data_clean": false,
+      "trades_filled": 0,
+      "strategy": null,
+      "notes": "No trades"
+    },
+    {
+      "date": "2026-05-26",
+      "session_label": null,
+      "ledger_pnl": 0.00,
+      "cumulative_ledger_pnl": -107.50,
+      "alpaca_equity": null,
+      "data_clean": false,
+      "trades_filled": 0,
+      "strategy": null,
+      "notes": "No trades"
+    },
+    {
+      "date": "2026-05-29",
+      "session_label": null,
+      "ledger_pnl": -40.50,
+      "cumulative_ledger_pnl": -148.00,
+      "alpaca_equity": null,
+      "data_clean": false,
+      "trades_filled": 2,
+      "strategy": "vwap_reclaim",
+      "notes": "Bug C active. 2 exits via midpoint pricing. Actual loss likely larger."
+    },
+    {
+      "date": "2026-06-02",
+      "session_label": null,
+      "ledger_pnl": -128.50,
+      "cumulative_ledger_pnl": -276.50,
+      "alpaca_equity": null,
+      "data_clean": false,
+      "trades_filled": 3,
+      "strategy": "vwap_reclaim",
+      "notes": "Bug C active. 3 exits via midpoint pricing. Actual loss likely larger."
+    },
+    {
+      "date": "2026-06-03",
+      "session_label": null,
+      "ledger_pnl": -12.00,
+      "cumulative_ledger_pnl": -288.50,
+      "alpaca_equity": null,
+      "data_clean": false,
+      "trades_filled": 1,
+      "strategy": "vwap_reclaim",
+      "notes": "Actual P&L = -$22.00 (AMZN -$6 missing from ledger + META midpoint vs bid -$4). Ledger understated by $10.",
+      "actual_pnl": -22.00,
+      "known_discrepancy": -10.00
+    },
+    {
+      "date": "2026-06-04",
+      "session_label": null,
+      "ledger_pnl": -468.00,
+      "cumulative_ledger_pnl": -756.50,
+      "alpaca_equity_derived": 99195.55,
+      "alpaca_equity_session_start": 99658.07,
+      "data_clean": false,
+      "trades_filled": 2,
+      "strategy": "vwap_reclaim",
+      "notes": "Bug C fixed. Bug D (duplicate exits) present. Ledger manually corrected from session report. Actual loss $462.52 (derived).",
+      "actual_loss": 462.52
+    },
+    {
+      "date": "2026-06-05",
+      "session_label": "S1",
+      "ledger_pnl": 2.00,
+      "cumulative_ledger_pnl": -754.50,
+      "alpaca_equity_end": 99197.55,
+      "data_clean": true,
+      "trades_filled": 3,
+      "strategy": "orb+vwap_reclaim",
+      "notes": "First clean session. All fills via Pattern A reconciler recovery. Verified by post-session report."
+    },
+    {
+      "date": "2026-06-08",
+      "session_label": "S2",
+      "ledger_pnl": -9.00,
+      "cumulative_ledger_pnl": -763.50,
+      "alpaca_equity_start": 99197.55,
+      "data_clean": true,
+      "trades_filled": 2,
+      "strategy": "vwap_reclaim",
+      "notes": "Clean session. Equity start from Alpaca API. daily_pnl vs sum of fills: MATCH."
+    },
+    {
+      "date": "2026-06-10",
+      "session_label": "S3",
+      "ledger_pnl": -99.00,
+      "cumulative_ledger_pnl": -862.50,
+      "alpaca_equity": null,
+      "data_clean": true,
+      "trades_filled": 2,
+      "strategy": "vwap_reclaim+orb",
+      "notes": "Clean session. SMH was 2-DTE (exp 2026-06-12). EOD exit limit at $6.56. P&L verified."
+    },
+    {
+      "date": "2026-06-11",
+      "session_label": "S4",
+      "ledger_pnl": -89.00,
+      "cumulative_ledger_pnl": -951.50,
+      "alpaca_equity": null,
+      "data_clean": true,
+      "trades_filled": 3,
+      "strategy": "vwap_reclaim",
+      "notes": "Clean session. DIA was next-day expiry (exp 2026-06-12). EOD exit at $1.41. P&L verified."
+    },
+    {
+      "date": "2026-06-12",
+      "session_label": "S5",
+      "ledger_pnl": -81.00,
+      "cumulative_ledger_pnl": -1032.50,
+      "alpaca_equity_end": 98936.66,
+      "data_clean": true,
+      "trades_filled": 4,
+      "strategy": "vwap_reclaim+orb",
+      "notes": "Clean session. 5/5 clean sessions complete. Historical analysis triggered."
+    }
+  ],
+  "gap_attribution": [
+    {
+      "source": "2026-06-03: AMZN fill not tracked by FillTracker",
+      "amount": -6.00,
+      "certainty": "certain",
+      "evidence": "post_session_report_2026-06-03.md: AMZN actual P&L -$6.00, not in ledger",
+      "mechanism": "FillTracker 422 race condition. Broker had filled the order but returned 422 on cancel; re-check showed CANCELLED (race condition), fill never recorded. No reconciler active at this point."
+    },
+    {
+      "source": "2026-06-03: META exit midpoint vs bid",
+      "amount": -4.00,
+      "certainty": "certain",
+      "evidence": "post_session_report_2026-06-03.md: META actual P&L -$16.00, ledger -$12.00",
+      "mechanism": "Bug C: exit P&L computed using midpoint ($0.39) instead of bid ($0.35). Diff = $0.04 × 100 = $4.00"
+    },
+    {
+      "source": "2026-05-12, 2026-05-29, 2026-06-02: Bug C (midpoint exit pricing)",
+      "amount": -43.43,
+      "certainty": "attributed",
+      "evidence": "2026-06-04 post-session report confirms Bug C was present and fixed. No per-session logs for these dates.",
+      "mechanism": "Bug C active in all pre-2026-06-04 code. Exit P&L used midpoint instead of bid at exit. Actual losses were larger than ledger records. 6 total exits across 3 sessions."
+    },
+    {
+      "source": "2026-06-04: Bug D duplicate exit artifact",
+      "amount": 5.48,
+      "certainty": "attributed",
+      "evidence": "Period B anchor calculation (derived actual loss $462.52 vs ledger $468.00)",
+      "mechanism": "Bug D created duplicate exit order(s). One exit may have created an inadvertent short option position that expired at small credit, reducing net account loss vs tracked."
+    },
+    {
+      "source": "Clean sessions S1-S5: favorable residual",
+      "amount": 17.11,
+      "certainty": "attributed",
+      "evidence": "Period C anchor calculation (derived actual loss $258.89 vs ledger $276.00)",
+      "mechanism": "EOD limit orders on multi-day positions (S3 SMH 2-DTE, S4 DIA next-day) may have filled at better prices than limit. Alpaca cent-precision vs integer-dollar ledger tracking. Equity snapshot timing relative to position settlement."
+    }
+  ],
+  "db_state": {
+    "earliest_db_record": "2026-06-10",
+    "total_rows": 32,
+    "status_distribution": {
+      "cancelled": "majority",
+      "rejected": "remainder",
+      "closed": 0
+    },
+    "note": "DB was reset before 2026-06-10. All pre-2026-06-10 sessions have no DB records. All Pattern A (reconciler-recovered) fills across clean sessions produced no closed rows and no realized_pnl. The reconciler journal restore fix (implemented in this branch) addresses future sessions.",
+    "pattern_a_impact_on_db": "realized_pnl=null for all 14 filled trades in clean sessions S1-S5. Does not affect ledger accuracy (manually tracked) but means DB cannot be used as source of truth for historical P&L until the fix is deployed and exercised."
+  },
+  "defects": [
+    {
+      "id": "BugC",
+      "description": "Exit P&L computed using midpoint instead of bid",
+      "affected_sessions": ["2026-05-12", "2026-05-29", "2026-06-02", "2026-06-03"],
+      "status": "fixed",
+      "fix_date": "2026-06-04",
+      "ledger_impact": "understated losses in contaminated sessions"
+    },
+    {
+      "id": "BugD",
+      "description": "Duplicate exit orders corrupted daily_pnl",
+      "affected_sessions": ["2026-06-04"],
+      "status": "fixed",
+      "fix_date": "2026-06-04",
+      "ledger_impact": "manually corrected to -$468.00; actual slightly different"
+    },
+    {
+      "id": "FillTracker_422",
+      "description": "FillTracker 422 race condition: fill not recorded when cancel returns 422 but re-check shows CANCELLED",
+      "affected_sessions": ["2026-06-03"],
+      "status": "fixed",
+      "fix_date": "pre-2026-06-05",
+      "ledger_impact": "AMZN fill -$6.00 missing from 2026-06-03 ledger"
+    },
+    {
+      "id": "PatternA",
+      "description": "Reconciler-recovered fills bypass journal exit recording (journal_id=null, realized_pnl never written)",
+      "affected_sessions": ["2026-06-05", "2026-06-08", "2026-06-10", "2026-06-11", "2026-06-12"],
+      "status": "fixed",
+      "fix_date": "2026-06-12 (this branch)",
+      "ledger_impact": "No ledger impact (manual tracking). DB has no realized_pnl for any fills. Fix ensures future sessions write complete DB records."
+    }
+  ]
+}

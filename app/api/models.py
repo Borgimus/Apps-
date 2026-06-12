@@ -47,6 +47,10 @@ async def _migrate_schema(conn) -> None:
         ("trade_journal", "exit_ask",           "FLOAT"),
         ("trade_journal", "exit_spread_pct",    "FLOAT"),
         ("trade_journal", "limit_price_mode",   "VARCHAR(32)"),
+        ("trade_journal", "peak_price",         "FLOAT"),
+        ("trade_journal", "trough_price",       "FLOAT"),
+        ("trade_journal", "mfe",                "FLOAT"),
+        ("trade_journal", "mae",                "FLOAT"),
         ("scan_results",  "universe_group",     "VARCHAR(32)"),
         ("signal_bridge", "confluence_count",             "INTEGER"),
         ("signal_bridge", "reconciliation_passed",         "BOOLEAN"),
@@ -209,6 +213,12 @@ class DBTradeJournal(Base):
 
     # Rejection
     rejection_reason = Column(Text)
+
+    # MFE / MAE (maximum favourable / adverse excursion, in dollars, ×100 per contract)
+    peak_price = Column(Float)                        # highest option price seen while open
+    trough_price = Column(Float)                      # lowest option price seen while open
+    mfe = Column(Float)                               # (peak_price - entry_price) × 100 × qty
+    mae = Column(Float)                               # (trough_price - entry_price) × 100 × qty
 
     # Market context tags (optional JSON blob)
     regime_tags = Column(Text)                       # e.g. '{"vix":"high","trend":"up"}'

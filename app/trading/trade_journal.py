@@ -15,7 +15,7 @@ from __future__ import annotations
 import json
 import logging
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 from zoneinfo import ZoneInfo
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -110,6 +110,10 @@ class TradeJournal:
         filled_quantity: Optional[int] = None,
         exit_bid: Optional[float] = None,
         exit_ask: Optional[float] = None,
+        peak_price: Optional[float] = None,
+        trough_price: Optional[float] = None,
+        mfe: Optional[float] = None,
+        mae: Optional[float] = None,
     ):
         """Update an open entry with exit details and mark it closed."""
         row = await self._db.get(DBTradeJournal, journal_id)
@@ -136,6 +140,14 @@ class TradeJournal:
         if exit_bid is not None and exit_ask is not None:
             mid = (exit_bid + exit_ask) / 2
             row.exit_spread_pct = (exit_ask - exit_bid) / mid if mid > 0 else None
+        if peak_price is not None:
+            row.peak_price = peak_price
+        if trough_price is not None:
+            row.trough_price = trough_price
+        if mfe is not None:
+            row.mfe = mfe
+        if mae is not None:
+            row.mae = mae
         row.status = "closed"
         logger.info(
             "Journal exit %d: reason=%s pnl=%.2f hold=%.0fs",
@@ -170,6 +182,68 @@ class TradeJournal:
         logger.info(
             "Journal fill %d: filled=%d @ %.4f ttf=%.0fs",
             journal_id, filled_quantity, fill_price, row.time_to_fill_secs or 0,
+        )
+
+    # ── Reconciler recovery ───────────────────────────────────────────────────
+
+    async def find_cancelled_for_reconciliation(
+        self,
+        option_symbol: str,
+        session_date: str,
+    ) -> Optional[Any]:
+        """
+        Find the most recent cancelled/stale_cancelled journal row for this
+        option symbol and session date.  Used by the reconciler to restore the
+        original strategy linkage when a broker position is discovered after a
+        stale-cancel cycle.
+        """
+        from sqlalchemy import select, desc
+        result = await self._db.execute(
+            select(DBTradeJournal)
+            .where(
+                DBTradeJournal.option_symbol == option_symbol,
+                DBTradeJournal.session_date == session_date,
+                DBTradeJournal.status.in_(["cancelled"]),
+            )
+            .order_by(desc(DBTradeJournal.entry_time))
+            .limit(1)
+        )
+        return result.scalar_one_or_none()
+
+    async def restore_reconciler_fill(
+        self,
+        journal_id: int,
+        fill_price: float,
+        filled_quantity: int,
+        filled_at: datetime,
+    ):
+        """
+        Update a cancelled journal row to reflect the actual broker fill that
+        was discovered by the periodic reconciler.  Sets status back to 'open'
+        so the normal exit path can close it when the position is eventually sold.
+        """
+        row = await self._db.get(DBTradeJournal, journal_id)
+        if row is None:
+            logger.warning("Journal record %d not found for reconciler restore", journal_id)
+            return
+        row.fill_price = fill_price
+        row.filled_quantity = filled_quantity
+        filled_at_et = filled_at.astimezone(ET) if filled_at.tzinfo else filled_at.replace(tzinfo=ET)
+        row.filled_at = filled_at_et
+        row.status = "open"
+        row.exit_reason = None
+        if row.limit_price is not None:
+            row.slippage = fill_price - row.limit_price
+        if row.entry_time is not None:
+            entry_et = (
+                row.entry_time.replace(tzinfo=ET)
+                if row.entry_time.tzinfo is None
+                else row.entry_time.astimezone(ET)
+            )
+            row.time_to_fill_secs = max(0.0, (filled_at_et - entry_et).total_seconds())
+        logger.info(
+            "Journal reconciler-fill restore %d: %s filled @ %.4f qty=%d",
+            journal_id, row.option_symbol, fill_price, filled_quantity,
         )
 
     # ── Cancellation ──────────────────────────────────────────────────────────

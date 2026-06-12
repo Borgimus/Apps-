@@ -22,7 +22,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 from zoneinfo import ZoneInfo
 
 from .fill_tracker import FillTracker
@@ -54,6 +54,9 @@ class Reconciler:
         pm: PositionManager,
         fill_tracker: FillTracker,
         now: datetime,
+        journal=None,
+        risk=None,
+        session_date: Optional[str] = None,
     ) -> ReconciliationResult:
         result = ReconciliationResult(
             local_positions=len(pm.open_positions()),
@@ -71,19 +74,83 @@ class Reconciler:
             for opt_sym, bp in broker_syms.items():
                 if not pm.has_position(opt_sym):
                     direction = "LONG" if bp.quantity > 0 else "SHORT"
+                    fill_price = float(bp.avg_cost)
+                    filled_qty = abs(bp.quantity)
+
+                    journal_id: Optional[int] = None
+                    strategy_id = "reconciled"
+
+                    # Try to find and restore the original cancelled journal row
+                    if journal is not None and session_date is not None:
+                        try:
+                            original = await journal.find_cancelled_for_reconciliation(
+                                option_symbol=opt_sym,
+                                session_date=session_date,
+                            )
+                            if original is not None:
+                                journal_id = original.id
+                                strategy_id = original.strategy_id
+                                await journal.restore_reconciler_fill(
+                                    journal_id=original.id,
+                                    fill_price=fill_price,
+                                    filled_quantity=filled_qty,
+                                    filled_at=now,
+                                )
+                                await journal.log_event(
+                                    event="reconciler_fill_recovery",
+                                    message=(
+                                        f"Reconciler: restored fill for {opt_sym} "
+                                        f"from cancelled journal row {original.id} "
+                                        f"strategy={strategy_id} fill={fill_price:.4f}"
+                                    ),
+                                    level="info",
+                                    symbol=bp.symbol,
+                                    data={
+                                        "journal_id": original.id,
+                                        "strategy_id": strategy_id,
+                                        "fill_price": fill_price,
+                                        "filled_qty": filled_qty,
+                                    },
+                                )
+                                await journal.commit()
+                                logger.info(
+                                    "Reconciler: restored cancelled journal row %d for %s "
+                                    "strategy=%s fill=%.4f",
+                                    original.id, opt_sym, strategy_id, fill_price,
+                                )
+                            else:
+                                logger.warning(
+                                    "Reconciler: no cancelled journal row for %s on %s "
+                                    "— opening with strategy_id='reconciled' (no journal link)",
+                                    opt_sym, session_date,
+                                )
+                        except Exception as _jexc:
+                            logger.warning(
+                                "Reconciler: journal lookup/restore failed for %s: %s "
+                                "— proceeding without journal link",
+                                opt_sym, _jexc,
+                            )
+
                     pm.open(
                         option_symbol=opt_sym,
                         symbol=bp.symbol,
-                        strategy_id="reconciled",
+                        strategy_id=strategy_id,
                         direction=direction,
                         entry_time=now,
-                        entry_price=float(bp.avg_cost),
-                        quantity=abs(bp.quantity),
+                        entry_price=fill_price,
+                        quantity=filled_qty,
+                        journal_id=journal_id,
                     )
+
+                    if risk is not None:
+                        risk.record_entry_filled()
+
                     msg = (
                         f"Reconciled: added broker position {opt_sym} "
-                        f"qty={abs(bp.quantity)} cost={float(bp.avg_cost):.4f}"
+                        f"qty={filled_qty} cost={fill_price:.4f}"
                     )
+                    if journal_id is not None:
+                        msg += f" journal_id={journal_id} strategy={strategy_id}"
                     logger.warning("Reconciler: %s", msg)
                     result.repaired.append(msg)
 

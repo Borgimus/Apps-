@@ -271,6 +271,8 @@ async def monitor_positions(
                 pm_pos = pm.close(pos.option_symbol, _exit_price_pnl, pnl)
                 risk.record_exit(Decimal(str(pnl)))
                 if pos.journal_id and journal:
+                    _mfe = round((pos.peak_price - pos.entry_price) * 100 * pos.quantity, 2)
+                    _mae = round((pos.trough_price - pos.entry_price) * 100 * pos.quantity, 2)
                     await journal.record_exit(
                         journal_id=pos.journal_id,
                         exit_time=now,
@@ -280,6 +282,10 @@ async def monitor_positions(
                         hold_duration_secs=hold_secs,
                         exit_bid=_exit_bid,
                         exit_ask=_exit_ask,
+                        peak_price=pos.peak_price,
+                        trough_price=pos.trough_price,
+                        mfe=_mfe,
+                        mae=_mae,
                     )
                     await journal.log_event(
                         event="exit",
@@ -418,6 +424,8 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
             pm.close(pos.option_symbol, exit_price, pnl)
             risk.record_exit(Decimal(str(pnl)))
             if pos.journal_id and journal:
+                _eod_mfe = round((pos.peak_price - pos.entry_price) * 100 * pos.quantity, 2)
+                _eod_mae = round((pos.trough_price - pos.entry_price) * 100 * pos.quantity, 2)
                 await journal.record_exit(
                     journal_id=pos.journal_id,
                     exit_time=now,
@@ -425,6 +433,10 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
                     exit_reason="eod_exit",
                     realized_pnl=pnl,
                     hold_duration_secs=hold_secs,
+                    peak_price=pos.peak_price,
+                    trough_price=pos.trough_price,
+                    mfe=_eod_mfe,
+                    mae=_eod_mae,
                 )
                 await journal.commit()
         else:
@@ -1708,7 +1720,12 @@ async def run_session(args: argparse.Namespace):
         )
         if recon_due:
             try:
-                recon = await reconciler.reconcile(broker, pm, fill_tracker, now)
+                recon = await reconciler.reconcile(
+                    broker, pm, fill_tracker, now,
+                    journal=journal,
+                    risk=risk,
+                    session_date=today_str,
+                )
                 recon_warnings.extend(recon.flagged)
                 last_reconciled_at = now
                 if recon.flagged:

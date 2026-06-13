@@ -1,0 +1,182 @@
+{
+  "protocol": "evaluation/phase2_eval_protocol.md",
+  "created": "2026-06-13",
+  "last_updated": "2026-06-13",
+  "phase": 2,
+  "session_count": {
+    "target": 10,
+    "completed": 0,
+    "remaining": 10,
+    "midpoint_trigger": 5,
+    "midpoint_reached": false,
+    "final_trigger": 10,
+    "final_reached": false
+  },
+  "phase1_baseline": {
+    "note": "Carry-forward from research/clean_session_analysis_2026-06-12.md. Signal_bridge data available for S3-S5 only (9 completed trades). S1-S2 (5 completed trades) lack signal_bridge data; dimension values estimated from post-session reports.",
+    "sessions": 5,
+    "trades": 14,
+    "wins": 2,
+    "losses": 11,
+    "breakeven": 1,
+    "net_pnl": -276.00,
+    "gross_wins": 17.00,
+    "gross_losses": 293.00,
+    "win_rate": 0.1429,
+    "avg_pnl_per_trade": -19.71,
+    "profit_factor": 0.058,
+    "recovered_fills": 14,
+    "direct_fills": 0,
+    "sessions_detail": [
+      {
+        "session": "S1", "date": "2026-06-05", "pnl": 2.00, "trades": 3, "wins": 1, "losses": 2,
+        "orb_trades": 1, "vwap_trades": 2, "recovered": 3, "direct": 0,
+        "signal_bridge_available": false
+      },
+      {
+        "session": "S2", "date": "2026-06-08", "pnl": -9.00, "trades": 2, "wins": 0, "losses": 2,
+        "orb_trades": 0, "vwap_trades": 2, "recovered": 2, "direct": 0,
+        "signal_bridge_available": false
+      },
+      {
+        "session": "S3", "date": "2026-06-10", "pnl": -99.00, "trades": 2, "wins": 0, "losses": 1,
+        "breakeven": 1,
+        "orb_trades": 1, "vwap_trades": 1, "recovered": 2, "direct": 0,
+        "signal_bridge_available": true
+      },
+      {
+        "session": "S4", "date": "2026-06-11", "pnl": -89.00, "trades": 3, "wins": 0, "losses": 3,
+        "orb_trades": 0, "vwap_trades": 3, "recovered": 3, "direct": 0,
+        "signal_bridge_available": true
+      },
+      {
+        "session": "S5", "date": "2026-06-12", "pnl": -81.00, "trades": 4, "wins": 1, "losses": 3,
+        "orb_trades": 1, "vwap_trades": 3, "recovered": 4, "direct": 0,
+        "signal_bridge_available": true
+      }
+    ]
+  },
+  "phase2_sessions": [],
+  "cumulative": {
+    "note": "Includes Phase 1 baseline. Updated after each Phase 2 session.",
+    "sessions": 5,
+    "trades": 14,
+    "wins": 2,
+    "losses": 11,
+    "breakeven": 1,
+    "net_pnl": -276.00,
+    "gross_wins": 17.00,
+    "gross_losses": 293.00,
+    "win_rate": 0.1429,
+    "avg_pnl_per_trade": -19.71,
+    "profit_factor": 0.058,
+    "recovered_fills": 14,
+    "direct_fills": 0
+  },
+  "dimensions": {
+    "note": "All Phase 1 dimension data. S1-S2 signal_bridge unavailable; quality/age/scanner sourced from post-session reports where possible, otherwise null. Phase 2 sessions will have complete signal_bridge data via DB (reconciler fix now active).",
+    "strategy": {
+      "orb": {"n": 3, "wins": 2, "losses": 1, "pnl": -82.00, "gross_wins": 17.00, "gross_losses": 99.00},
+      "vwap_reclaim": {"n": 11, "wins": 0, "losses": 11, "pnl": -194.00, "gross_wins": 0.00, "gross_losses": 194.00}
+    },
+    "quality_score": {
+      "note": "S3-S5 only (signal_bridge data). 9 completed trades, 1 breakeven (SPY S3 excluded from win/loss).",
+      "1": {"n": 1, "wins": 0, "losses": 1, "pnl": -14.00},
+      "2": {"n": 4, "wins": 0, "losses": 4, "pnl": -132.00},
+      "3": {"n": 2, "wins": 1, "losses": 0, "breakeven": 1, "pnl": 4.00},
+      "4": {"n": 2, "wins": 0, "losses": 2, "pnl": -127.00}
+    },
+    "dte": {
+      "note": "S3-S5 only. 9 completed trades.",
+      "0": {"n": 7, "wins": 1, "losses": 5, "breakeven": 1, "pnl": -118.00},
+      "1": {"n": 1, "wins": 0, "losses": 1, "pnl": -60.00},
+      "2-3": {"n": 1, "wins": 0, "losses": 1, "pnl": -99.00},
+      "4+": {"n": 0, "wins": 0, "losses": 0, "pnl": 0.00}
+    },
+    "asset_class": {
+      "note": "All 14 trades. ETF/single-stock classification from universe group. S1-S2 assumed ETF from symbol list.",
+      "etf": {"n": 13, "wins": 2, "losses": 10, "breakeven": 1, "pnl": -209.00},
+      "single_stock": {"n": 1, "wins": 0, "losses": 1, "pnl": -67.00}
+    },
+    "signal_age_minutes": {
+      "note": "S3-S5 only (9 completed trades). Phase 1 used coarser bins; these are the Phase 2 bins.",
+      "<30": {"n": 2, "wins": 0, "losses": 1, "breakeven": 1, "pnl": 0.00},
+      "30-60": {"n": 3, "wins": 0, "losses": 3, "pnl": -93.00},
+      "60-90": {"n": 3, "wins": 1, "losses": 2, "pnl": -102.00},
+      "90-120": {"n": 1, "wins": 0, "losses": 1, "pnl": -60.00},
+      ">120": {"n": 0, "wins": 0, "losses": 0, "pnl": 0.00}
+    },
+    "scanner_score": {
+      "note": "S3-S5 only (9 completed trades).",
+      "<40": {"n": 3, "wins": 0, "losses": 3, "pnl": -82.00},
+      "40-49": {"n": 2, "wins": 0, "losses": 2, "pnl": -14.00},
+      "50-59": {"n": 4, "wins": 1, "losses": 3, "pnl": -180.00},
+      "60-69": {"n": 0, "wins": 0, "losses": 0, "pnl": 0.00},
+      "70+": {"n": 0, "wins": 0, "losses": 0, "pnl": 0.00}
+    },
+    "fill_path": {
+      "recovered": {"n": 14, "wins": 2, "losses": 11, "breakeven": 1, "pnl": -276.00},
+      "direct": {"n": 0, "wins": 0, "losses": 0, "pnl": 0.00}
+    }
+  },
+  "minimum_observations": {
+    "note": "Minimum 3 per bucket before dimension comparisons. Updated after each session.",
+    "strategy_orb_reached": true,
+    "strategy_vwap_reached": true,
+    "quality_1_reached": false,
+    "quality_2_reached": true,
+    "quality_3_reached": false,
+    "quality_4_reached": false,
+    "dte_0_reached": true,
+    "dte_1_reached": false,
+    "dte_2_3_reached": false,
+    "dte_4plus_reached": false,
+    "asset_etf_reached": true,
+    "asset_single_stock_reached": false,
+    "age_lt30_reached": false,
+    "age_30_60_reached": true,
+    "age_60_90_reached": true,
+    "age_90_120_reached": false,
+    "age_gt120_reached": false,
+    "scanner_lt40_reached": true,
+    "scanner_40_49_reached": false,
+    "scanner_50_59_reached": true,
+    "scanner_60_69_reached": false,
+    "scanner_70plus_reached": false,
+    "fill_path_recovered_reached": true,
+    "fill_path_direct_reached": false
+  },
+  "primary_questions_status": {
+    "Q1_orb_vs_vwap": {
+      "status": "indeterminate",
+      "reason": "ORB N=3 reached but one outlier (SMH -$99) dominates; not stable to outlier removal. VWAP N=11. Need more ORB observations.",
+      "orb_pf": 0.174,
+      "vwap_pf": 0.0
+    },
+    "Q2_signal_age": {
+      "status": "indeterminate",
+      "reason": "30-60 (N=3) and 60-90 (N=3) reached but other buckets empty. <30 N=2, >120 N=0.",
+      "note": "No positive age→performance correlation visible so far."
+    },
+    "Q3_dte": {
+      "status": "indeterminate",
+      "reason": "DTE=0 N=7 reached; DTE=1 N=1, DTE=2-3 N=1. Multi-day DTE both large losses but N insufficient."
+    },
+    "Q4_etf_vs_single_stock": {
+      "status": "indeterminate",
+      "reason": "Single-stock N=1 (TSLA). ETF N=13. Need N≥3 single-stock."
+    },
+    "Q5_quality_scores": {
+      "status": "indeterminate",
+      "reason": "Quality=2 N=4 (all losses), quality=3 N=2 (1 win), quality=1,4 N<3. No pattern survives minimum threshold."
+    },
+    "Q6_scanner_score": {
+      "status": "indeterminate",
+      "reason": "No positive score→performance correlation visible. No bucket has N≥3 in comparable ranges."
+    },
+    "Q7_fill_path": {
+      "status": "indeterminate",
+      "reason": "Direct fills N=0. All 14 fills were recovered. Cannot compare until direct fills occur."
+    }
+  }
+}

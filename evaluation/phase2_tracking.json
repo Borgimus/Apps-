@@ -1,12 +1,12 @@
 {
   "protocol": "evaluation/phase2_eval_protocol.md",
   "created": "2026-06-13",
-  "last_updated": "2026-06-13",
+  "last_updated": "2026-06-15",
   "phase": 2,
   "session_count": {
     "target": 10,
-    "completed": 0,
-    "remaining": 10,
+    "completed": 1,
+    "remaining": 9,
     "midpoint_trigger": 5,
     "midpoint_reached": false,
     "final_trigger": 10,
@@ -19,9 +19,9 @@
     "wins": 2,
     "losses": 11,
     "breakeven": 1,
-    "net_pnl": -276.00,
-    "gross_wins": 17.00,
-    "gross_losses": 293.00,
+    "net_pnl": -276.0,
+    "gross_wins": 17.0,
+    "gross_losses": 293.0,
     "win_rate": 0.1429,
     "avg_pnl_per_trade": -19.71,
     "profit_factor": 0.058,
@@ -29,94 +29,359 @@
     "direct_fills": 0,
     "sessions_detail": [
       {
-        "session": "S1", "date": "2026-06-05", "pnl": 2.00, "trades": 3, "wins": 1, "losses": 2,
-        "orb_trades": 1, "vwap_trades": 2, "recovered": 3, "direct": 0,
+        "session": "S1",
+        "date": "2026-06-05",
+        "pnl": 2.0,
+        "trades": 3,
+        "wins": 1,
+        "losses": 2,
+        "orb_trades": 1,
+        "vwap_trades": 2,
+        "recovered": 3,
+        "direct": 0,
         "signal_bridge_available": false
       },
       {
-        "session": "S2", "date": "2026-06-08", "pnl": -9.00, "trades": 2, "wins": 0, "losses": 2,
-        "orb_trades": 0, "vwap_trades": 2, "recovered": 2, "direct": 0,
+        "session": "S2",
+        "date": "2026-06-08",
+        "pnl": -9.0,
+        "trades": 2,
+        "wins": 0,
+        "losses": 2,
+        "orb_trades": 0,
+        "vwap_trades": 2,
+        "recovered": 2,
+        "direct": 0,
         "signal_bridge_available": false
       },
       {
-        "session": "S3", "date": "2026-06-10", "pnl": -99.00, "trades": 2, "wins": 0, "losses": 1,
+        "session": "S3",
+        "date": "2026-06-10",
+        "pnl": -99.0,
+        "trades": 2,
+        "wins": 0,
+        "losses": 1,
         "breakeven": 1,
-        "orb_trades": 1, "vwap_trades": 1, "recovered": 2, "direct": 0,
+        "orb_trades": 1,
+        "vwap_trades": 1,
+        "recovered": 2,
+        "direct": 0,
         "signal_bridge_available": true
       },
       {
-        "session": "S4", "date": "2026-06-11", "pnl": -89.00, "trades": 3, "wins": 0, "losses": 3,
-        "orb_trades": 0, "vwap_trades": 3, "recovered": 3, "direct": 0,
+        "session": "S4",
+        "date": "2026-06-11",
+        "pnl": -89.0,
+        "trades": 3,
+        "wins": 0,
+        "losses": 3,
+        "orb_trades": 0,
+        "vwap_trades": 3,
+        "recovered": 3,
+        "direct": 0,
         "signal_bridge_available": true
       },
       {
-        "session": "S5", "date": "2026-06-12", "pnl": -81.00, "trades": 4, "wins": 1, "losses": 3,
-        "orb_trades": 1, "vwap_trades": 3, "recovered": 4, "direct": 0,
+        "session": "S5",
+        "date": "2026-06-12",
+        "pnl": -81.0,
+        "trades": 4,
+        "wins": 1,
+        "losses": 3,
+        "orb_trades": 1,
+        "vwap_trades": 3,
+        "recovered": 4,
+        "direct": 0,
         "signal_bridge_available": true
       }
     ]
   },
-  "phase2_sessions": [],
+  "phase2_sessions": [
+    {
+      "session": "S6",
+      "date": "2026-06-15",
+      "pnl_journal": 21.0,
+      "pnl_confirmed": 23.0,
+      "pnl_note": "Journal $21 (exit prices at limit). Actual confirmed: XLE -$4 (journal -$6), PLTR +$24, DIA +$3 provisional (exit order pending at broker as of report time).",
+      "trades": 3,
+      "wins": 2,
+      "losses": 1,
+      "breakeven": 0,
+      "orb_trades": 0,
+      "vwap_trades": 3,
+      "recovered": 1,
+      "direct": 2,
+      "data_clean": false,
+      "data_clean_reason": "DIA exit order unfilled at EOD (position open); XLE exit price discrepancy (journal $0.36, actual $0.38, corrected post-session)",
+      "signal_bridge_available": true,
+      "trades_detail": [
+        {
+          "journal_id": 33,
+          "symbol": "XLE",
+          "contract": "XLE260618C00056500",
+          "strategy": "vwap_reclaim",
+          "quality": 2,
+          "scanner": 67,
+          "age_min": 37.9,
+          "age_bucket": "30-60",
+          "dte": 3,
+          "pnl_journal": -6.0,
+          "pnl_actual": -4.0,
+          "fill_path": "recovered",
+          "asset_class": "etf",
+          "universe_group": "core_etfs",
+          "outcome": "loss",
+          "entry_fill": 0.42,
+          "exit_fill_journal": 0.36,
+          "exit_fill_actual": 0.38,
+          "exit_reason": "trailing_stop",
+          "delta": 0.376,
+          "iv": 0.319,
+          "entry_spread_pct": 2.4,
+          "exit_spread_pct": 5.4
+        },
+        {
+          "journal_id": 34,
+          "symbol": "PLTR",
+          "contract": "PLTR260618C00136000",
+          "strategy": "vwap_reclaim",
+          "quality": 3,
+          "scanner": 55,
+          "age_min": 108.6,
+          "age_bucket": "90-120",
+          "dte": 3,
+          "pnl_journal": 24.0,
+          "pnl_actual": 24.0,
+          "fill_path": "direct",
+          "asset_class": "single_stock",
+          "universe_group": "liquid_growth",
+          "outcome": "win",
+          "entry_fill": 2.08,
+          "exit_fill_journal": 2.32,
+          "exit_fill_actual": 2.32,
+          "exit_reason": "eod_exit",
+          "delta": 0.414,
+          "iv": 0.584,
+          "entry_spread_pct": 1.5,
+          "exit_spread_pct": null
+        },
+        {
+          "journal_id": 35,
+          "symbol": "DIA",
+          "contract": "DIA260618C00522000",
+          "strategy": "vwap_reclaim",
+          "quality": 2,
+          "scanner": 58,
+          "age_min": 73.9,
+          "age_bucket": "60-90",
+          "dte": 3,
+          "pnl_journal": 3.0,
+          "pnl_actual": "pending",
+          "fill_path": "direct",
+          "asset_class": "etf",
+          "universe_group": "core_etfs",
+          "outcome": "win",
+          "entry_fill": 1.8,
+          "exit_fill_journal": 1.83,
+          "exit_fill_actual": null,
+          "exit_reason": "eod_exit",
+          "delta": 0.405,
+          "iv": 0.128,
+          "entry_spread_pct": 8.6,
+          "exit_spread_pct": null
+        }
+      ]
+    }
+  ],
   "cumulative": {
-    "note": "Includes Phase 1 baseline. Updated after each Phase 2 session.",
-    "sessions": 5,
-    "trades": 14,
-    "wins": 2,
-    "losses": 11,
+    "note": "Includes Phase 1 baseline plus S6. S6: data_clean=False (DIA open position, XLE fill discrepancy). P&L uses actual XLE fill (-$4) and journal DIA (+$3, pending broker confirmation).",
+    "sessions": 6,
+    "trades": 17,
+    "wins": 4,
+    "losses": 12,
     "breakeven": 1,
-    "net_pnl": -276.00,
-    "gross_wins": 17.00,
-    "gross_losses": 293.00,
-    "win_rate": 0.1429,
-    "avg_pnl_per_trade": -19.71,
-    "profit_factor": 0.058,
-    "recovered_fills": 14,
-    "direct_fills": 0
+    "net_pnl": -253.0,
+    "gross_wins": 44.0,
+    "gross_losses": 297.0,
+    "win_rate": 0.2353,
+    "avg_pnl_per_trade": -14.88,
+    "profit_factor": 0.148,
+    "recovered_fills": 15,
+    "direct_fills": 2
   },
   "dimensions": {
     "note": "All Phase 1 dimension data. S1-S2 signal_bridge unavailable; quality/age/scanner sourced from post-session reports where possible, otherwise null. Phase 2 sessions will have complete signal_bridge data via DB (reconciler fix now active).",
     "strategy": {
-      "orb": {"n": 3, "wins": 2, "losses": 1, "pnl": -82.00, "gross_wins": 17.00, "gross_losses": 99.00},
-      "vwap_reclaim": {"n": 11, "wins": 0, "losses": 11, "pnl": -194.00, "gross_wins": 0.00, "gross_losses": 194.00}
+      "orb": {
+        "n": 3,
+        "wins": 2,
+        "losses": 1,
+        "pnl": -82.0,
+        "gross_wins": 17.0,
+        "gross_losses": 99.0
+      },
+      "vwap_reclaim": {
+        "n": 14,
+        "wins": 2,
+        "losses": 12,
+        "pnl": -171.0,
+        "gross_wins": 27.0,
+        "gross_losses": 198.0
+      }
     },
     "quality_score": {
       "note": "S3-S5 only (signal_bridge data). 9 completed trades, 1 breakeven (SPY S3 excluded from win/loss).",
-      "1": {"n": 1, "wins": 0, "losses": 1, "pnl": -14.00},
-      "2": {"n": 4, "wins": 0, "losses": 4, "pnl": -132.00},
-      "3": {"n": 2, "wins": 1, "losses": 0, "breakeven": 1, "pnl": 4.00},
-      "4": {"n": 2, "wins": 0, "losses": 2, "pnl": -127.00}
+      "1": {
+        "n": 1,
+        "wins": 0,
+        "losses": 1,
+        "pnl": -14.0
+      },
+      "2": {
+        "n": 6,
+        "wins": 1,
+        "losses": 5,
+        "pnl": -133.0
+      },
+      "3": {
+        "n": 3,
+        "wins": 2,
+        "losses": 0,
+        "breakeven": 1,
+        "pnl": 28.0
+      },
+      "4": {
+        "n": 2,
+        "wins": 0,
+        "losses": 2,
+        "pnl": -127.0
+      }
     },
     "dte": {
       "note": "S3-S5 only. 9 completed trades.",
-      "0": {"n": 7, "wins": 1, "losses": 5, "breakeven": 1, "pnl": -118.00},
-      "1": {"n": 1, "wins": 0, "losses": 1, "pnl": -60.00},
-      "2-3": {"n": 1, "wins": 0, "losses": 1, "pnl": -99.00},
-      "4+": {"n": 0, "wins": 0, "losses": 0, "pnl": 0.00}
+      "0": {
+        "n": 7,
+        "wins": 1,
+        "losses": 5,
+        "breakeven": 1,
+        "pnl": -118.0
+      },
+      "1": {
+        "n": 1,
+        "wins": 0,
+        "losses": 1,
+        "pnl": -60.0
+      },
+      "2-3": {
+        "n": 4,
+        "wins": 2,
+        "losses": 2,
+        "pnl": -76.0
+      },
+      "4+": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "pnl": 0.0
+      }
     },
     "asset_class": {
       "note": "All 14 trades. ETF/single-stock classification from universe group. S1-S2 assumed ETF from symbol list.",
-      "etf": {"n": 13, "wins": 2, "losses": 10, "breakeven": 1, "pnl": -209.00},
-      "single_stock": {"n": 1, "wins": 0, "losses": 1, "pnl": -67.00}
+      "etf": {
+        "n": 15,
+        "wins": 3,
+        "losses": 11,
+        "breakeven": 1,
+        "pnl": -210.0
+      },
+      "single_stock": {
+        "n": 2,
+        "wins": 1,
+        "losses": 1,
+        "pnl": -43.0
+      }
     },
     "signal_age_minutes": {
       "note": "S3-S5 only (9 completed trades). Phase 1 used coarser bins; these are the Phase 2 bins.",
-      "<30": {"n": 2, "wins": 0, "losses": 1, "breakeven": 1, "pnl": 0.00},
-      "30-60": {"n": 3, "wins": 0, "losses": 3, "pnl": -93.00},
-      "60-90": {"n": 3, "wins": 1, "losses": 2, "pnl": -102.00},
-      "90-120": {"n": 1, "wins": 0, "losses": 1, "pnl": -60.00},
-      ">120": {"n": 0, "wins": 0, "losses": 0, "pnl": 0.00}
+      "<30": {
+        "n": 2,
+        "wins": 0,
+        "losses": 1,
+        "breakeven": 1,
+        "pnl": 0.0
+      },
+      "30-60": {
+        "n": 4,
+        "wins": 0,
+        "losses": 4,
+        "pnl": -97.0
+      },
+      "60-90": {
+        "n": 4,
+        "wins": 2,
+        "losses": 2,
+        "pnl": -99.0
+      },
+      "90-120": {
+        "n": 2,
+        "wins": 1,
+        "losses": 1,
+        "pnl": -36.0
+      },
+      ">120": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "pnl": 0.0
+      }
     },
     "scanner_score": {
       "note": "S3-S5 only (9 completed trades).",
-      "<40": {"n": 3, "wins": 0, "losses": 3, "pnl": -82.00},
-      "40-49": {"n": 2, "wins": 0, "losses": 2, "pnl": -14.00},
-      "50-59": {"n": 4, "wins": 1, "losses": 3, "pnl": -180.00},
-      "60-69": {"n": 0, "wins": 0, "losses": 0, "pnl": 0.00},
-      "70+": {"n": 0, "wins": 0, "losses": 0, "pnl": 0.00}
+      "<40": {
+        "n": 3,
+        "wins": 0,
+        "losses": 3,
+        "pnl": -82.0
+      },
+      "40-49": {
+        "n": 2,
+        "wins": 0,
+        "losses": 2,
+        "pnl": -14.0
+      },
+      "50-59": {
+        "n": 6,
+        "wins": 3,
+        "losses": 3,
+        "pnl": -153.0
+      },
+      "60-69": {
+        "n": 1,
+        "wins": 0,
+        "losses": 1,
+        "pnl": -4.0
+      },
+      "70+": {
+        "n": 0,
+        "wins": 0,
+        "losses": 0,
+        "pnl": 0.0
+      }
     },
     "fill_path": {
-      "recovered": {"n": 14, "wins": 2, "losses": 11, "breakeven": 1, "pnl": -276.00},
-      "direct": {"n": 0, "wins": 0, "losses": 0, "pnl": 0.00}
+      "recovered": {
+        "n": 15,
+        "wins": 2,
+        "losses": 12,
+        "breakeven": 1,
+        "pnl": -280.0
+      },
+      "direct": {
+        "n": 2,
+        "wins": 2,
+        "losses": 0,
+        "pnl": 27.0
+      }
     }
   },
   "minimum_observations": {
@@ -125,11 +390,11 @@
     "strategy_vwap_reached": true,
     "quality_1_reached": false,
     "quality_2_reached": true,
-    "quality_3_reached": false,
+    "quality_3_reached": true,
     "quality_4_reached": false,
     "dte_0_reached": true,
     "dte_1_reached": false,
-    "dte_2_3_reached": false,
+    "dte_2_3_reached": true,
     "dte_4plus_reached": false,
     "asset_etf_reached": true,
     "asset_single_stock_reached": false,
@@ -149,34 +414,35 @@
   "primary_questions_status": {
     "Q1_orb_vs_vwap": {
       "status": "indeterminate",
-      "reason": "ORB N=3 reached but one outlier (SMH -$99) dominates; not stable to outlier removal. VWAP N=11. Need more ORB observations.",
+      "reason": "ORB N=3 unchanged. VWAP N=14. No ORB trades in S6. Indeterminate pending ORB data.",
       "orb_pf": 0.174,
       "vwap_pf": 0.0
     },
     "Q2_signal_age": {
       "status": "indeterminate",
       "reason": "30-60 (N=3) and 60-90 (N=3) reached but other buckets empty. <30 N=2, >120 N=0.",
-      "note": "No positive age→performance correlation visible so far."
+      "note": "No positive age\u2192performance correlation visible so far."
     },
     "Q3_dte": {
       "status": "indeterminate",
-      "reason": "DTE=0 N=7 reached; DTE=1 N=1, DTE=2-3 N=1. Multi-day DTE both large losses but N insufficient."
+      "reason": "DTE=0 N=7, DTE=2-3 N=4 (both above minimum). DTE 0: 1 win / 7 trades, pnl=-118. DTE 2-3: 2 wins / 4 trades, pnl=-78. DTE 1 N=1 still insufficient. Early observation only."
     },
     "Q4_etf_vs_single_stock": {
       "status": "indeterminate",
-      "reason": "Single-stock N=1 (TSLA). ETF N=13. Need N≥3 single-stock."
+      "reason": "Single-stock N=2 (TSLA S5, PLTR S6). ETF N=15. Still below N=3 minimum for single-stock."
     },
     "Q5_quality_scores": {
       "status": "indeterminate",
-      "reason": "Quality=2 N=4 (all losses), quality=3 N=2 (1 win), quality=1,4 N<3. No pattern survives minimum threshold."
+      "reason": "Quality=2 N=6 (1 win/6, 17%), quality=3 N=3 (2 wins/3, 67%). Both above N=3 minimum. Early pattern: Q3 outperforms Q2. Quality=1 N=1, quality=4 N=2 still below minimum. Not yet SUPPORTED (small N, possible confounds)."
     },
     "Q6_scanner_score": {
       "status": "indeterminate",
-      "reason": "No positive score→performance correlation visible. No bucket has N≥3 in comparable ranges."
+      "reason": "Score 50-59 N=6 (3 wins/6, +$-153 cumul). Score 60-69 N=1. Score <40 N=3 (0 wins). No bucket with N>=3 showing positive expectancy yet."
     },
     "Q7_fill_path": {
       "status": "indeterminate",
-      "reason": "Direct fills N=0. All 14 fills were recovered. Cannot compare until direct fills occur."
+      "reason": "Recovered N=15 (2 wins/15, pnl=-282). Direct N=2 (2 wins/2, pnl=+27). Direct below N=3 minimum. First direct fills in Phase 2 (PLTR, DIA S6). Insufficient for conclusions."
     }
-  }
+  },
+  "note": "Phase 2 tracking. S6 provisional: DIA exit unconfirmed (pending fill). data_clean=False for S6."
 }

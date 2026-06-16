@@ -1535,7 +1535,7 @@ async def run_session(args: argparse.Namespace):
     if store:
         try:
             recovery_result = await SessionRecovery().recover(
-                broker, pm, fill_tracker, store, today_str
+                broker, pm, fill_tracker, store, today_str, journal=journal
             )
             for w in recovery_result.warnings:
                 logger.warning("Recovery: %s", w)

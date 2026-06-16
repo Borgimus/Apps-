@@ -100,11 +100,11 @@
     {
       "session": "S6",
       "date": "2026-06-15",
-      "pnl_journal": 21.0,
-      "pnl_confirmed": 23.0,
-      "pnl_note": "Journal $21 (exit prices at limit). Actual confirmed: XLE -$4 (journal -$6), PLTR +$24, DIA +$3 provisional (exit order pending at broker as of report time).",
+      "pnl_journal": 18.0,
+      "pnl_confirmed": 20.0,
+      "pnl_note": "Confirmed closed trades only: XLE -$4 actual (journal recorded -$6), PLTR +$24. DIA EOD exit order EXPIRED unfilled at broker (4 PM ET 2026-06-15) -- position carried over to S7, re-linked to this journal row via SessionRecovery fix. DIA P&L excluded from S6 totals until actual exit confirmed.",
       "trades": 3,
-      "wins": 2,
+      "wins": 1,
       "losses": 1,
       "breakeven": 0,
       "orb_trades": 0,
@@ -112,7 +112,7 @@
       "recovered": 1,
       "direct": 2,
       "data_clean": false,
-      "data_clean_reason": "DIA exit order unfilled at EOD (position open); XLE exit price discrepancy (journal $0.36, actual $0.38, corrected post-session)",
+      "data_clean_reason": "DIA carryover position unresolved at session end (EOD limit order expired unfilled); XLE exit price discrepancy (journal $0.36, actual $0.38, corrected post-session).",
       "signal_bridge_available": true,
       "trades_detail": [
         {
@@ -175,39 +175,41 @@
           "age_min": 73.9,
           "age_bucket": "60-90",
           "dte": 3,
-          "pnl_journal": 3.0,
-          "pnl_actual": "pending",
+          "pnl_journal": null,
+          "pnl_actual": null,
           "fill_path": "direct",
           "asset_class": "etf",
           "universe_group": "core_etfs",
-          "outcome": "win",
+          "outcome": "pending",
           "entry_fill": 1.8,
-          "exit_fill_journal": 1.83,
+          "exit_fill_journal": null,
           "exit_fill_actual": null,
-          "exit_reason": "eod_exit",
+          "exit_reason": null,
           "delta": 0.405,
           "iv": 0.128,
           "entry_spread_pct": 8.6,
-          "exit_spread_pct": null
+          "exit_spread_pct": null,
+          "note": "EOD sell limit 1.83 expired unfilled at broker. Position carried to S7."
         }
-      ]
+      ],
+      "still_open": 1
     }
   ],
   "cumulative": {
-    "note": "Includes Phase 1 baseline plus S6. S6: data_clean=False (DIA open position, XLE fill discrepancy). P&L uses actual XLE fill (-$4) and journal DIA (+$3, pending broker confirmation).",
+    "note": "Includes Phase 1 baseline plus S6 confirmed-closed trades (XLE, PLTR). DIA carryover position from S6 remains open (EOD limit expired unfilled); excluded from cumulative totals until actual exit confirmed in S7. Will be attributed to S6 session_date when resolved.",
     "sessions": 6,
-    "trades": 17,
-    "wins": 4,
+    "trades": 16,
+    "wins": 3,
     "losses": 12,
     "breakeven": 1,
-    "net_pnl": -253.0,
-    "gross_wins": 44.0,
+    "net_pnl": -256.0,
+    "gross_wins": 41.0,
     "gross_losses": 297.0,
-    "win_rate": 0.2353,
-    "avg_pnl_per_trade": -14.88,
-    "profit_factor": 0.148,
+    "win_rate": 0.1875,
+    "avg_pnl_per_trade": -16.0,
+    "profit_factor": 0.138,
     "recovered_fills": 15,
-    "direct_fills": 2
+    "direct_fills": 1
   },
   "dimensions": {
     "note": "All Phase 1 dimension data. S1-S2 signal_bridge unavailable; quality/age/scanner sourced from post-session reports where possible, otherwise null. Phase 2 sessions will have complete signal_bridge data via DB (reconciler fix now active).",
@@ -222,10 +224,10 @@
       },
       "vwap_reclaim": {
         "n": 14,
-        "wins": 2,
+        "wins": 1,
         "losses": 12,
-        "pnl": -171.0,
-        "gross_wins": 27.0,
+        "pnl": -174.0,
+        "gross_wins": 24.0,
         "gross_losses": 198.0
       }
     },
@@ -238,10 +240,10 @@
         "pnl": -14.0
       },
       "2": {
-        "n": 6,
-        "wins": 1,
+        "n": 5,
+        "wins": 0,
         "losses": 5,
-        "pnl": -133.0
+        "pnl": -136.0
       },
       "3": {
         "n": 3,
@@ -273,10 +275,10 @@
         "pnl": -60.0
       },
       "2-3": {
-        "n": 4,
-        "wins": 2,
+        "n": 3,
+        "wins": 1,
         "losses": 2,
-        "pnl": -76.0
+        "pnl": -79.0
       },
       "4+": {
         "n": 0,
@@ -288,11 +290,11 @@
     "asset_class": {
       "note": "All 14 trades. ETF/single-stock classification from universe group. S1-S2 assumed ETF from symbol list.",
       "etf": {
-        "n": 15,
-        "wins": 3,
+        "n": 14,
+        "wins": 2,
         "losses": 11,
         "breakeven": 1,
-        "pnl": -210.0
+        "pnl": -213.0
       },
       "single_stock": {
         "n": 2,
@@ -317,10 +319,10 @@
         "pnl": -97.0
       },
       "60-90": {
-        "n": 4,
-        "wins": 2,
+        "n": 3,
+        "wins": 1,
         "losses": 2,
-        "pnl": -99.0
+        "pnl": -102.0
       },
       "90-120": {
         "n": 2,
@@ -350,10 +352,10 @@
         "pnl": -14.0
       },
       "50-59": {
-        "n": 6,
-        "wins": 3,
+        "n": 5,
+        "wins": 2,
         "losses": 3,
-        "pnl": -153.0
+        "pnl": -156.0
       },
       "60-69": {
         "n": 1,
@@ -377,10 +379,10 @@
         "pnl": -280.0
       },
       "direct": {
-        "n": 2,
-        "wins": 2,
+        "n": 1,
+        "wins": 1,
         "losses": 0,
-        "pnl": 27.0
+        "pnl": 24.0
       }
     }
   },
@@ -444,5 +446,5 @@
       "reason": "Recovered N=15 (2 wins/15, pnl=-282). Direct N=2 (2 wins/2, pnl=+27). Direct below N=3 minimum. First direct fills in Phase 2 (PLTR, DIA S6). Insufficient for conclusions."
     }
   },
-  "note": "Phase 2 tracking. S6 provisional: DIA exit unconfirmed (pending fill). data_clean=False for S6."
+  "note": "Phase 2 tracking. S6: XLE -$4 actual (corrected), PLTR +$24 (confirmed). DIA carryover position from S6 unresolved (EOD limit expired unfilled at broker); tracked separately, to be resolved in S7 and attributed back to S6 session_date."
 }

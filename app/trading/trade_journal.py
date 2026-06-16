@@ -210,6 +210,31 @@ class TradeJournal:
         )
         return result.scalar_one_or_none()
 
+    async def find_open_for_symbol(
+        self,
+        option_symbol: str,
+    ) -> Optional[Any]:
+        """
+        Find the most recent journal row for this option symbol still in
+        'open' status, regardless of session_date.  Used at session startup
+        to re-link a broker position that was carried over from a prior
+        session (e.g. an EOD exit order that did not fill before the prior
+        session ended) back to its original journal entry, instead of
+        recording it as a new orphan position with no strategy/signal
+        metadata.
+        """
+        from sqlalchemy import select, desc
+        result = await self._db.execute(
+            select(DBTradeJournal)
+            .where(
+                DBTradeJournal.option_symbol == option_symbol,
+                DBTradeJournal.status == "open",
+            )
+            .order_by(desc(DBTradeJournal.entry_time))
+            .limit(1)
+        )
+        return result.scalar_one_or_none()
+
     async def restore_reconciler_fill(
         self,
         journal_id: int,

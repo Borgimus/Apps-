@@ -71,6 +71,7 @@ class SessionRecovery:
         fill_tracker: FillTracker,
         store: PendingOrderStore,
         session_date: str,
+        journal=None,
     ) -> RecoveryResult:
         result = RecoveryResult()
         now = datetime.now(tz=ET)
@@ -112,19 +113,54 @@ class SessionRecovery:
                 if pm.has_position(bp.option_symbol):
                     continue
                 direction = "LONG" if bp.quantity > 0 else "SHORT"
+
+                # Carried-over position from a prior session (e.g. an EOD
+                # exit order that did not fill before the prior session
+                # ended): re-link to its original journal row instead of
+                # recording it as an orphan with no strategy/signal metadata.
+                journal_id = None
+                strategy_id = "recovered"
+                entry_time = now
+                if journal is not None:
+                    try:
+                        original = await journal.find_open_for_symbol(bp.option_symbol)
+                        if original is not None:
+                            journal_id = original.id
+                            strategy_id = original.strategy_id
+                            if original.entry_time is not None:
+                                entry_time = (
+                                    original.entry_time.replace(tzinfo=ET)
+                                    if original.entry_time.tzinfo is None
+                                    else original.entry_time.astimezone(ET)
+                                )
+                            logger.info(
+                                "Recovery: re-linked carryover position %s to "
+                                "journal row %d (session_date=%s) strategy=%s "
+                                "original_entry=%s",
+                                bp.option_symbol, original.id,
+                                original.session_date, strategy_id, entry_time,
+                            )
+                    except Exception as _jexc:
+                        logger.warning(
+                            "Recovery: journal lookup failed for %s: %s "
+                            "— proceeding without journal link",
+                            bp.option_symbol, _jexc,
+                        )
+
                 pm.open(
                     option_symbol=bp.option_symbol,
                     symbol=bp.symbol,
-                    strategy_id="recovered",
+                    strategy_id=strategy_id,
                     direction=direction,
-                    entry_time=now,
+                    entry_time=entry_time,
                     entry_price=float(bp.avg_cost),
                     quantity=abs(bp.quantity),
+                    journal_id=journal_id,
                 )
                 result.broker_positions_loaded += 1
                 logger.info(
-                    "Recovery: loaded broker position %s qty=%d cost=%.4f",
-                    bp.option_symbol, abs(bp.quantity), float(bp.avg_cost),
+                    "Recovery: loaded broker position %s qty=%d cost=%.4f journal_id=%s",
+                    bp.option_symbol, abs(bp.quantity), float(bp.avg_cost), journal_id,
                 )
         except NotImplementedError:
             msg = "Broker does not support get_positions() — broker positions not recovered"

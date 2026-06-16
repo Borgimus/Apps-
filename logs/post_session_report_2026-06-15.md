@@ -5,7 +5,9 @@
 **Session Start:** 09:37:06 ET
 **Session End:** 12:30:18 ET
 **Total Cycles:** 342
-**data_clean:** FALSE — DIA exit order unfilled at EOD (position open at broker); XLE exit price discrepancy
+**data_clean:** FALSE — DIA EOD exit order expired unfilled at broker (confirmed 2026-06-16); position carried over to Session 7. XLE exit price discrepancy corrected.
+
+**UPDATE (2026-06-16, prior to Session 7 launch):** Confirmed via broker order history that the DIA260618C00522000 EOD sell limit (order `8d4e94db`, limit $1.83) **expired unfilled** at 4:00 PM ET on 2026-06-15 (status=expired). The position remained open overnight: qty=1, entry fill=$1.80, current mark $2.30 bid/$2.44 ask (unrealized +$50–52). Trade journal row 35 was corrected from a premature `status=closed` (with fabricated exit_price=$1.83) back to `status=open` with exit fields cleared, and a carryover note was added. A defect was identified and fixed: `SessionRecovery.recover()` had no mechanism to re-link a broker position carried over from a prior session back to its original journal row — it would have created an orphan `strategy_id="recovered"` entry with no signal/quality/DTE metadata, breaking the Phase 2 requirement that carryover P&L attribute back to the original Session 6 trade. Added `TradeJournal.find_open_for_symbol()` and wired it into recovery so the carryover re-attaches to journal row 35 (original entry_time, strategy_id, journal_id preserved) when Session 7 starts. S6 totals below now reflect only the two confirmed-closed trades (XLE, PLTR); DIA is excluded from S6 P&L until its actual exit is confirmed in Session 7.
 
 ---
 
@@ -13,12 +15,11 @@
 
 | Metric | Value |
 |--------|-------|
-| Session P&L (journal) | +$21.00 |
-| Session P&L (confirmed fills) | +$20.00 (XLE -$4 actual + PLTR +$24; DIA pending) |
-| Session P&L (actual fills incl. journal DIA) | +$23.00 (XLE -$4 + PLTR +$24 + DIA +$3 journal) |
-| Trades | 3 (1 recovered / 2 direct) |
-| Wins | 2 (PLTR +$24, DIA +$3 provisional) |
-| Losses | 1 (XLE -$4 actual / -$6 journal) |
+| Session P&L (confirmed closed trades) | +$20.00 (XLE -$4 actual + PLTR +$24) |
+| Trades | 3 entries (2 closed, 1 carried over to S7) |
+| Wins | 1 (PLTR +$24) |
+| Losses | 1 (XLE -$4 actual / -$6 journal at limit) |
+| Still open (carryover) | 1 (DIA — EOD limit expired unfilled; resolved in S7) |
 | Breakeven | 0 |
 | Avg signal age | 73.5 min |
 | Avg DTE | 3 (all June 18 expiry — Thursday due to Juneteenth holiday June 19) |

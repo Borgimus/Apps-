@@ -1,7 +1,7 @@
 {
   "version": "1",
   "created_at": "2026-05-11T12:07:54.394379",
-  "last_updated": "2026-06-15T12:45:00",
+  "last_updated": "2026-06-16T18:04:34.068523",
   "sessions": [
     {
       "date": "2026-05-11",
@@ -903,10 +903,10 @@
   "cumulative": {
     "trading_days": 15,
     "total_trades": 26,
-    "total_pnl": -994.5,
-    "expectancy": -38.25,
+    "total_pnl": -997.5,
+    "expectancy": -38.37,
     "win_rate": 0.2308,
-    "profit_factor": 0.02,
+    "profit_factor": 0.04,
     "max_drawdown": 1034.5,
     "pnl_by_strategy": {
       "fill_lifecycle_test": {
@@ -937,7 +937,7 @@
         "trades": 22,
         "wins": 3,
         "losses": 18,
-        "pnl": -805.0
+        "pnl": -808.0
       }
     },
     "pnl_by_entry_hour": {
@@ -963,7 +963,7 @@
         "trades": 15,
         "wins": 4,
         "losses": 11,
-        "pnl": -234.5
+        "pnl": -237.5
       }
     },
     "pnl_by_delta_bucket": {
@@ -983,7 +983,7 @@
         "trades": 6,
         "wins": 2,
         "losses": 4,
-        "pnl": -536.0
+        "pnl": -539.0
       },
       "mid (0.30-0.40)": {
         "trades": 1,
@@ -997,7 +997,7 @@
         "trades": 19,
         "wins": 5,
         "losses": 13,
-        "pnl": -857.5
+        "pnl": -860.5
       },
       "tight (<5%)": {
         "trades": 8,

@@ -7,7 +7,7 @@
 **Total Cycles:** 342
 **data_clean:** FALSE — DIA EOD exit order expired unfilled at broker (confirmed 2026-06-16); position carried over to Session 7. XLE exit price discrepancy corrected.
 
-**UPDATE (2026-06-16, prior to Session 7 launch):** Confirmed via broker order history that the DIA260618C00522000 EOD sell limit (order `8d4e94db`, limit $1.83) **expired unfilled** at 4:00 PM ET on 2026-06-15 (status=expired). The position remained open overnight: qty=1, entry fill=$1.80, current mark $2.30 bid/$2.44 ask (unrealized +$50–52). Trade journal row 35 was corrected from a premature `status=closed` (with fabricated exit_price=$1.83) back to `status=open` with exit fields cleared, and a carryover note was added. A defect was identified and fixed: `SessionRecovery.recover()` had no mechanism to re-link a broker position carried over from a prior session back to its original journal row — it would have created an orphan `strategy_id="recovered"` entry with no signal/quality/DTE metadata, breaking the Phase 2 requirement that carryover P&L attribute back to the original Session 6 trade. Added `TradeJournal.find_open_for_symbol()` and wired it into recovery so the carryover re-attaches to journal row 35 (original entry_time, strategy_id, journal_id preserved) when Session 7 starts. S6 totals below now reflect only the two confirmed-closed trades (XLE, PLTR); DIA is excluded from S6 P&L until its actual exit is confirmed in Session 7.
+**FINAL RESOLUTION (2026-06-16, at Session 7 startup):** Confirmed via broker order history that the DIA260618C00522000 EOD sell limit (order `8d4e94db`, limit $1.83) **expired unfilled** at 4:00 PM ET on 2026-06-15. The position remained open overnight (qty=1, entry fill=$1.80). Trade journal row 35 was corrected from a premature `status=closed` (with fabricated exit_price=$1.83) back to `status=open`, and a defect was fixed: `SessionRecovery.recover()` had no mechanism to re-link a broker position carried over from a prior session back to its original journal row — it would have created an orphan `strategy_id="recovered"` entry with no signal/quality/DTE metadata. Added `TradeJournal.find_open_for_symbol()`, wired into recovery. At Session 7 startup (09:46:39 ET, 2026-06-16) the carryover correctly re-linked to journal row 35 with its original entry_time (2026-06-15 11:48:54). This let the existing `max_hold` exit rule fire on schedule (~22 hr hold, no threshold changes) — exit order placed at $1.95, **broker-confirmed filled** at 09:46:58 ET, realized_pnl=+$15.00, hold=79,068s. All three S6 trades are now fully resolved and reconciled. DIA's P&L is attributed to S6 (this session) per Phase 2 carryover handling, even though it physically resolved during S7.
 
 ---
 
@@ -15,11 +15,11 @@
 
 | Metric | Value |
 |--------|-------|
-| Session P&L (confirmed closed trades) | +$20.00 (XLE -$4 actual + PLTR +$24) |
-| Trades | 3 entries (2 closed, 1 carried over to S7) |
-| Wins | 1 (PLTR +$24) |
+| Session P&L (final, all 3 trades resolved) | +$35.00 (XLE -$4, PLTR +$24, DIA +$15) |
+| Trades | 3 entries (3 closed — DIA resolved at Session 7 startup via carryover) |
+| Wins | 2 (PLTR +$24, DIA +$15) |
 | Losses | 1 (XLE -$4 actual / -$6 journal at limit) |
-| Still open (carryover) | 1 (DIA — EOD limit expired unfilled; resolved in S7) |
+| Carryover (resolved in S7) | 1 (DIA — S6 EOD limit expired unfilled; max_hold exit filled $1.95 at S7 startup, P&L attributed to S6) |
 | Breakeven | 0 |
 | Avg signal age | 73.5 min |
 | Avg DTE | 3 (all June 18 expiry — Thursday due to Juneteenth holiday June 19) |
@@ -36,16 +36,14 @@
 |---|--------|----------|----------|-------|------|--------------|-------------|-----|-------------|------|---------|-------|-----------|-----|-----------|-----------|----------|-----------|
 | 33 | XLE | XLE260618C00056500 | vwap_reclaim | 10:52:55 | 11:09:14 | $0.42 | $0.38* | -$4* | trailing_stop | 11.3 min | 2 | 67 | 37.9 | 3 | 2.4% | 5.4% | core_etfs (ETF) | recovered |
 | 34 | PLTR | PLTR260618C00136000 | vwap_reclaim | 11:38:35 | 12:30:17 | $2.08 | $2.32 | +$24 | eod_exit | 51.1 min | 3 | 55 | 108.6 | 3 | 1.5% | n/a | liquid_growth (stock) | direct |
-| 35 | DIA | DIA260618C00522000 | vwap_reclaim | 11:48:54 | pending | $1.80 | $1.83† | +$3† | eod_exit | 40.8 min | 2 | 58 | 73.9 | 3 | 8.6% | n/a | core_etfs (ETF) | direct |
+| 35 | DIA | DIA260618C00522000 | vwap_reclaim | 11:48:54 | 09:46:58 (S7) | $1.80 | $1.95‡ | +$15‡ | max_hold (carryover, resolved S7) | 79,068s (~21.97 hr) | 2 | 58 | 73.9 | 3 | 8.6% | n/a | core_etfs (ETF) | direct |
 
 *XLE: journal exit_price=0.36 (limit), actual broker fill=0.38. Journal corrected; realized_pnl updated to -$4. See discrepancy note.  
-†DIA: EOD limit sell at $1.83 submitted 12:30 ET, order status=new at broker as of report time (12:43 ET, bid ~$1.64). Journal and health report recorded $1.83/+$3.00 assuming fill; not yet confirmed. Day order remains valid until 4 PM ET.
+‡DIA: S6 EOD limit sell at $1.83 (order `8d4e94db`) expired unfilled at 4:00 PM ET market close on 2026-06-15. Position carried over open to Session 7. At S7 startup (2026-06-16 09:46:39 ET) the carryover was re-linked to this journal row (defect fix: `SessionRecovery`/`find_open_for_symbol`), preserving the original entry_time. The existing `max_hold` exit rule then fired on schedule, placing a sell at $1.95 (order `9a97cdfc...`), broker-confirmed filled at 09:46:58 ET. realized_pnl=+$15.00. P&L attributed to S6 per Phase 2 carryover handling.
 
-**Session P&L (actual confirmed fills):** +$20.00 (XLE -$4, PLTR +$24)
-**Session P&L (journal, incl. DIA at limit):** +$21.00
-**Session P&L (corrected entry + DIA at limit):** +$23.00
-**Discrepancy — XLE:** journal -$6 vs actual -$4 (+$2 in favor; journal recorded limit, broker filled better)
-**Discrepancy — DIA:** journal closed at $1.83 (+$3), broker position still open (order not filled as of 12:43 ET)
+**Session P&L (final, broker-confirmed fills, all 3 trades):** +$35.00 (XLE -$4, PLTR +$24, DIA +$15)
+**Discrepancy — XLE (resolved):** journal originally recorded -$6 (limit price) vs actual -$4 broker fill (+$2 in favor); corrected in DB and ledger.
+**Discrepancy — DIA (resolved):** journal originally recorded a premature closed status at $1.83 (+$3) assuming the EOD limit would fill; the order actually expired unfilled. Corrected back to open, then naturally closed by the max_hold rule at S7 startup for a broker-confirmed +$15.
 
 ---
 
@@ -54,23 +52,23 @@
 | Check | Result |
 |-------|--------|
 | Session terminated ≤12:35 ET | PASS (actual: 12:30:18 ET) |
-| Broker positions at EOD | FAIL — DIA260618C00522000 qty=1 still open |
-| Broker open orders at EOD | FAIL — DIA260618C00522000 sell limit $1.83 status=new |
+| Broker positions at EOD | FAIL (as of S6 end) — DIA260618C00522000 qty=1 still open at 12:30:18 ET. RESOLVED 2026-06-16 09:46:58 ET: max_hold exit filled $1.95 at S7 startup. |
+| Broker open orders at EOD | FAIL (as of S6 end) — DIA260618C00522000 sell limit $1.83 status=new at 4 PM ET; order subsequently expired unfilled. RESOLVED via S7 carryover exit. |
 | 403 errors on exit orders | None |
-| daily_pnl vs sum of confirmed fills | MISMATCH — session runner reports $21, confirmed fills $20 (XLE -$4 + PLTR +$24), DIA TBD |
+| daily_pnl vs sum of confirmed fills | RESOLVED — final confirmed fills sum to $35 (XLE -$4 + PLTR +$24 + DIA +$15); session-runner-reported $21 (DIA at limit) was provisional and has been superseded by broker-confirmed figures. |
 | Every fill in ledger | PASS (3 trades recorded) |
 | Reconciler: repaired / flagged | 1 / 0 (XLE at 10:58 ET) |
-| Journal rows: closed / cancelled / rejected | 3 / 0 / 0 |
+| Journal rows: closed / cancelled / rejected | 3 / 0 / 0 (final — DIA closed at S7 startup) |
 | XLE exit_price journal vs broker | MISMATCH — journal $0.36, broker fill $0.38 (+$2); corrected in DB and ledger |
-| DIA exit_price journal vs broker | UNCONFIRMED — journal $1.83 (limit), broker order unfilled |
+| DIA exit_price journal vs broker | RESOLVED — journal originally recorded $1.83 (limit, unfilled); broker-confirmed actual exit fill $1.95 via max_hold rule at S7 startup. Journal corrected to match. |
 | LIVE_TRADING_ENABLED | false ✓ |
 
-**data_clean determination:** FALSE
+**data_clean determination:** FALSE (final — this determination does not change retroactively; data_clean reflects state as of original session end, not subsequent cross-session resolution)
 
-Failing criteria:
-1. Broker positions at EOD ≠ 0 (DIA open)
+Failing criteria (as recorded at original session end, 2026-06-15):
+1. Broker positions at EOD ≠ 0 (DIA open) — subsequently resolved 2026-06-16 at S7 startup, see FINAL RESOLUTION above
 2. Journal exit_price vs Alpaca mismatch: XLE ($0.36 journal / $0.38 actual) — corrected post-session
-3. DIA exit unconfirmed — cannot verify "every status=closed trade has verified fill price"
+3. DIA exit unconfirmed at original session end — now fully confirmed (broker fill $1.95, +$15) and reconciled
 
 ---
 
@@ -98,21 +96,21 @@ Direct fills: 2 (PLTR, DIA entries — first direct fills of Phase 2)
 
 | Strategy | N | Wins | P&L |
 |----------|---|------|-----|
-| vwap_reclaim | 3 | 2 | +$23 (confirmed+journal) |
+| vwap_reclaim | 3 | 2 | +$35 (final, broker-confirmed) |
 | orb | 0 | — | — |
 
 ### By Quality Score
 
 | Quality | N | Wins | P&L |
 |---------|---|------|-----|
-| 2 | 2 | 1 (DIA) | -$4 + $3 = -$1 |
+| 2 | 2 | 1 (DIA) | -$4 + $15 = +$11 |
 | 3 | 1 | 1 (PLTR) | +$24 |
 
 ### By DTE
 
 | DTE | N | Wins | P&L |
 |-----|---|------|-----|
-| 3 | 3 | 2 | +$23 |
+| 3 | 3 | 2 | +$35 |
 
 (All three trades: June 18 expiry from June 15 session date = DTE 3)
 
@@ -121,21 +119,21 @@ Direct fills: 2 (PLTR, DIA entries — first direct fills of Phase 2)
 | Age Bucket | N | Wins | P&L |
 |------------|---|------|-----|
 | 30–60 min | 1 (XLE, 37.9 min) | 0 | -$4 |
-| 60–90 min | 1 (DIA, 73.9 min) | 1 | +$3 |
+| 60–90 min | 1 (DIA, 73.9 min) | 1 | +$15 |
 | 90–120 min | 1 (PLTR, 108.6 min) | 1 | +$24 |
 
 ### By Asset Class
 
 | Class | N | Wins | P&L |
 |-------|---|------|-----|
-| ETF (core_etfs) | 2 (XLE, DIA) | 1 (DIA) | -$1 |
+| ETF (core_etfs) | 2 (XLE, DIA) | 1 (DIA) | +$11 |
 | Single-stock (liquid_growth) | 1 (PLTR) | 1 | +$24 |
 
 ### By Scanner Score
 
 | Score Bucket | N | Wins | P&L |
 |-------------|---|------|-----|
-| 50–59 | 2 (PLTR=55, DIA=58) | 2 | +$27 |
+| 50–59 | 2 (PLTR=55, DIA=58) | 2 | +$39 |
 | 60–69 | 1 (XLE=67) | 0 | -$4 |
 
 ### By Fill Path
@@ -143,7 +141,7 @@ Direct fills: 2 (PLTR, DIA entries — first direct fills of Phase 2)
 | Path | N | Wins | P&L |
 |------|---|------|-----|
 | recovered (Pattern A) | 1 (XLE) | 0 | -$4 |
-| direct (FillTracker) | 2 (PLTR, DIA) | 2 | +$27 |
+| direct (FillTracker) | 2 (PLTR, DIA) | 2 | +$39 |
 
 ---
 
@@ -151,34 +149,29 @@ Direct fills: 2 (PLTR, DIA entries — first direct fills of Phase 2)
 
 | Session | Date | P&L | Trades | Wins | data_clean | Running P&L (Phase 2 only) |
 |---------|------|-----|--------|------|------------|---------------------------|
-| S6 | 2026-06-15 | +$23* | 3 | 2 | FALSE | +$23* |
+| S6 | 2026-06-15 | +$35* | 3 | 2 | FALSE | +$35* |
 
-*Using actual XLE fill (-$4) + confirmed PLTR (+$24) + provisional DIA (+$3 journal). If DIA fills at $1.83 confirmed, total = +$23. If DIA expires or sells at lower price, total will differ.
+*Final, broker-confirmed: XLE -$4 (actual fill) + PLTR +$24 (confirmed) + DIA +$15 (carryover, max_hold exit confirmed filled $1.95 at S7 startup 2026-06-16 09:46:58 ET, attributed to S6 per Phase 2 carryover handling).
 
 **Phase 1 baseline (S1–S5, carried forward):** -$276.00, 14 trades, 2 wins
 
-**Combined Phase 1 + Phase 2 (S6 provisional):**
+**Combined Phase 1 + Phase 2 (S6 final):**
 - Total trades: 17 (14 P1 + 3 S6)
 - Total wins: 4 (2 P1 + 2 S6)
-- Net P&L: -$253.00 (-$276 + $23)
+- Net P&L: -$241.00 (-$276 + $35)
 - Win rate: 23.5%
 
 ---
 
 ## Infrastructure Anomalies
 
-### 1. DIA EOD Exit Order Unfilled (primary anomaly)
+### 1. DIA EOD Exit Order Unfilled (primary anomaly) — RESOLVED
 
-EOD limit sell for DIA260618C00522000 submitted at 12:30:17 ET at limit $1.83. As of 12:43 ET (report time), broker order status=new and position still open. Market value of DIA call is ~$1.64 vs limit $1.83.
+EOD limit sell for DIA260618C00522000 submitted at 12:30:17 ET at limit $1.83. The order expired unfilled at 4:00 PM ET market close on 2026-06-15 (broker order `8d4e94db`, confirmed via order history). The session runner had recorded this trade as closed in the journal (status=closed, exit_price=1.83, pnl=+3.0) at time of order submission — standard behavior observed in all prior sessions, but incorrect since the order never filled.
 
-The session runner recorded this trade as closed in the journal (status=closed, exit_price=1.83, pnl=+3.0) at time of order submission — standard behavior observed in all prior sessions. The day order remains valid until 4 PM ET.
+The position remained open at the broker overnight and carried into Session 7. A defect in `SessionRecovery.recover()` (no mechanism to re-link a carried-over broker position to its original journal row) was identified and fixed — see FINAL RESOLUTION at top of report. At Session 7 startup (2026-06-16 09:46:39 ET) the carryover was correctly re-linked to journal row 35, the existing `max_hold` exit rule fired on schedule (no threshold/strategy changes), and the exit filled at $1.95, broker-confirmed at 09:46:58 ET, realized_pnl=+$15.00.
 
-**Resolution options (requiring user decision):**
-- Wait for potential fill before 4 PM ET (DIA would need to rally ~$0.19 above current level)
-- Cancel limit and submit market order before 4 PM ET to close at current bid
-- Allow day order to expire; position carries to next session (June 18 expiry, DTE becomes 2)
-
-**This session will remain data_clean=False regardless of DIA resolution** (XLE exit price discrepancy was also confirmed).
+**This session remains data_clean=False** (as determined at original session end) — the XLE exit price discrepancy was also confirmed, and data_clean reflects the state at original session close, not subsequent cross-session resolution.
 
 ### 2. XLE Exit Price Discrepancy (corrected)
 
@@ -192,7 +185,7 @@ The session runner records the exit limit price as exit_price without waiting fo
 
 PLTR and DIA entry orders filled directly via FillTracker (not Pattern A stale-cancel recovery). All 14 Phase 1 fills and the XLE S6 fill were Pattern A recovered. This gives initial data for Q7 (fill path comparison):
 - Recovered (N=15): 2 wins, 12 losses, -$282 cumulative (Phase 1 + XLE S6)
-- Direct (N=2): 2 wins, 0 losses, +$27 (PLTR + DIA provisional)
+- Direct (N=2): 2 wins, 0 losses, +$39 (PLTR + DIA, both broker-confirmed final)
 
 (Insufficient for conclusions; N=2 direct is below the minimum-3 threshold.)
 
@@ -200,7 +193,7 @@ PLTR and DIA entry orders filled directly via FillTracker (not Pattern A stale-c
 
 ## Issues for Next Session
 
-1. **Resolve DIA position** (user decision required): Check broker after 4 PM ET for DIA fill status. If unfilled, position carries as DTE-2 call into June 16.
+1. **Resolve DIA position** — DONE. Confirmed unfilled at 4 PM ET 2026-06-15; carried over as DTE-2 call into June 16; resolved at Session 7 startup via max_hold exit, broker-confirmed filled $1.95, +$15.00. See FINAL RESOLUTION above.
 
 2. **Exit price recording bug** (Phase 2-eligible fix): Session runner records limit price as exit_price without waiting for actual broker fill price confirmation. XLE demonstrated a +$2 discrepancy this session. A targeted fix to update exit_price from the broker's `filled_avg_price` after exit confirmation would improve accounting accuracy. This qualifies under Phase 2 defect criteria ("incorrect accounting / incorrect trade recording").
 

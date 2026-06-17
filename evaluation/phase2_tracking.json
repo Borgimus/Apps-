@@ -1,12 +1,12 @@
 {
   "protocol": "evaluation/phase2_eval_protocol.md",
   "created": "2026-06-13",
-  "last_updated": "2026-06-15",
+  "last_updated": "2026-06-17",
   "phase": 2,
   "session_count": {
     "target": 10,
-    "completed": 1,
-    "remaining": 9,
+    "completed": 2,
+    "remaining": 8,
     "midpoint_trigger": 5,
     "midpoint_reached": false,
     "final_trigger": 10,
@@ -97,6 +97,26 @@
     ]
   },
   "phase2_sessions": [
+    {
+      "session": "S7",
+      "date": "2026-06-17",
+      "pnl_journal": 0.0,
+      "pnl_confirmed": 0.0,
+      "pnl_note": "Zero-trade session. Scanner operated all 360 cycles (09:30–12:30 ET) but rvol < 0.50 across all 27 symbols throughout. low_volume_chop gate blocked all 180 candidate rejections across 35 periodic re-scans. Peak rvol: AVGO 0.472 at ~10:42 ET, never cleared threshold.",
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "breakeven": 0,
+      "orb_trades": 0,
+      "vwap_trades": 0,
+      "recovered": 0,
+      "direct": 0,
+      "data_clean": true,
+      "data_clean_reason": "Zero-trade session — no fills to verify, no broker state, clean pre-session checks, clean EOD shutdown. 360 cycles completed without incident.",
+      "signal_bridge_available": true,
+      "trades_detail": [],
+      "infra_notes": "Note: A prior S7 attempt on 2026-06-16 was invalidated due to sandbox VM reboot mid-session (process killed externally at cycle 24 ~09:58 ET, no positions open). That attempt was voided and excluded from evaluation. This 2026-06-17 run is the official Session 7."
+    },
     {
       "session": "S6",
       "date": "2026-06-15",
@@ -195,8 +215,8 @@
     }
   ],
   "cumulative": {
-    "note": "Includes Phase 1 baseline plus S6 (all three trades resolved, including DIA carryover resolved at S7 startup 2026-06-16 and attributed back to S6).",
-    "sessions": 6,
+    "note": "Includes Phase 1 baseline (S1-S5) plus Phase 2 S6 and S7. S6: 3 trades (XLE -$4, PLTR +$24, DIA +$15 carryover). S7: 0 trades (low_volume_chop standby all session). Trade totals unchanged from S6.",
+    "sessions": 7,
     "trades": 17,
     "wins": 4,
     "losses": 12,
@@ -211,7 +231,7 @@
     "direct_fills": 2
   },
   "dimensions": {
-    "note": "All Phase 1 dimension data. S1-S2 signal_bridge unavailable; quality/age/scanner sourced from post-session reports where possible, otherwise null. Phase 2 sessions will have complete signal_bridge data via DB (reconciler fix now active).",
+    "note": "Through S6 (17 total trades: 14 P1 + 3 S6). S1-S2 signal_bridge unavailable; quality/age/scanner sourced from post-session reports where possible. S3-S6 have full signal_bridge data. S7 adds 0 trades. All dimension counts reflect 12 trades with quality/DTE/age/scanner data (S3-S5=9 + S6=3; S1-S2=5 excluded from quality/age/scanner due to no signal_bridge).",
     "strategy": {
       "orb": {
         "n": 3,
@@ -231,7 +251,7 @@
       }
     },
     "quality_score": {
-      "note": "S3-S5 only (signal_bridge data). 9 completed trades, 1 breakeven (SPY S3 excluded from win/loss).",
+      "note": "S3-S6 (signal_bridge data). 12 completed trades with quality data (9 P1 + 3 S6: XLE q=2, PLTR q=3, DIA q=2). 1 breakeven (SPY S3 excluded from win/loss).",
       "1": {
         "n": 1,
         "wins": 0,
@@ -259,7 +279,7 @@
       }
     },
     "dte": {
-      "note": "S3-S5 only. 9 completed trades.",
+      "note": "S3-S6. 12 completed trades with DTE data. S6 all DTE=3 (June 18 expiry, Thursday due to Juneteenth holiday June 19).",
       "0": {
         "n": 7,
         "wins": 1,
@@ -303,7 +323,7 @@
       }
     },
     "signal_age_minutes": {
-      "note": "S3-S5 only (9 completed trades). Phase 1 used coarser bins; these are the Phase 2 bins.",
+      "note": "S3-S6 (12 completed trades with age data). S6: XLE 37.9min (30-60), PLTR 108.6min (90-120), DIA 73.9min (60-90).",
       "<30": {
         "n": 2,
         "wins": 0,
@@ -337,7 +357,7 @@
       }
     },
     "scanner_score": {
-      "note": "S3-S5 only (9 completed trades).",
+      "note": "S3-S6 (12 completed trades with scanner score data). S6: XLE 67 (60-69), PLTR 55 (50-59), DIA 58 (50-59).",
       "<40": {
         "n": 3,
         "wins": 0,
@@ -415,35 +435,35 @@
   "primary_questions_status": {
     "Q1_orb_vs_vwap": {
       "status": "indeterminate",
-      "reason": "ORB N=3 unchanged. VWAP N=14. No ORB trades in S6. Indeterminate pending ORB data.",
+      "reason": "ORB N=3 unchanged (no ORB trades in S6 or S7). VWAP N=14. No additional data from S7 (0 trades). Indeterminate pending ORB data.",
       "orb_pf": 0.174,
       "vwap_pf": 0.0
     },
     "Q2_signal_age": {
       "status": "indeterminate",
-      "reason": "30-60 (N=3) and 60-90 (N=3) reached but other buckets empty. <30 N=2, >120 N=0.",
-      "note": "No positive age\u2192performance correlation visible so far."
+      "reason": "30-60 N=5 (0 wins/5, pnl=-101), 60-90 N=5 (3 wins/5, pnl=-72), 90-120 N=2 (1 win/2, pnl=-36). <30 N=2, >120 N=0. S7 adds no data. No consistent positive age\u2192performance correlation yet; 60-90 shows best win rate but small N.",
+      "note": "30-60 bucket now weakest. 60-90 and 90-120 both show wins but 90-120 still below N=3 minimum."
     },
     "Q3_dte": {
       "status": "indeterminate",
-      "reason": "DTE=0 N=7, DTE=2-3 N=4 (both above minimum). DTE 0: 1 win / 7 trades, pnl=-118. DTE 2-3: 2 wins / 4 trades, pnl=-78. DTE 1 N=1 still insufficient. Early observation only."
+      "reason": "DTE=0 N=7 (1 win, pnl=-118). DTE=2-3 N=7 (4 wins, pnl=-29). DTE=1 N=1. S7 adds no data. DTE 2-3 now showing stronger win rate vs DTE=0 at equal N, but still early."
     },
     "Q4_etf_vs_single_stock": {
       "status": "indeterminate",
-      "reason": "Single-stock N=2 (TSLA S5, PLTR S6). ETF N=15. Still below N=3 minimum for single-stock."
+      "reason": "Single-stock N=2 (TSLA S5, PLTR S6). ETF N=15. S7 adds no data. Still below N=3 minimum for single-stock."
     },
     "Q5_quality_scores": {
       "status": "indeterminate",
-      "reason": "Quality=2 N=6 (1 win/6, 17%), quality=3 N=3 (2 wins/3, 67%). Both above N=3 minimum. Early pattern: Q3 outperforms Q2. Quality=1 N=1, quality=4 N=2 still below minimum. Not yet SUPPORTED (small N, possible confounds)."
+      "reason": "Quality=2 N=6 (1 win/6, 17%, pnl=-121), quality=3 N=3 (2 wins/3, 67%, pnl=+28). S7 adds no data. Both above N=3 minimum. Early pattern: quality=3 outperforms quality=2 in win rate. Not yet SUPPORTED (small N, possible confounds from other dimensions)."
     },
     "Q6_scanner_score": {
       "status": "indeterminate",
-      "reason": "Score 50-59 N=6 (3 wins/6, +$-153 cumul). Score 60-69 N=1. Score <40 N=3 (0 wins). No bucket with N>=3 showing positive expectancy yet."
+      "reason": "Score 50-59 N=6 (3 wins/6, pnl=-102). Score 60-69 N=2 (0 wins, pnl=-8). Score <40 N=3 (0 wins, pnl=-82). S7 adds no data. No bucket with N>=3 showing positive expectancy. 50-59 is the best-performing bucket with 50% win rate but negative expectancy overall."
     },
     "Q7_fill_path": {
       "status": "indeterminate",
-      "reason": "Recovered N=15 (2 wins, pnl=-280.0). Direct N=2 (2 wins, pnl=39.0). Direct fills now 2/2 winners but still below N=3 minimum."
+      "reason": "Recovered N=15 (2 wins, pnl=-280). Direct N=2 (2 wins, pnl=+39). S7 adds no data. Direct fills 2/2 winners but still below N=3 minimum. Pattern promising but insufficient."
     }
   },
-  "note": "Phase 2 tracking. S6 complete: all three trades resolved (XLE -$4, PLTR +$24, DIA +$15 via carryover resolved at S7 startup). DIA P&L attributed to S6 per carryover protocol."
+  "note": "Phase 2 tracking. S6 complete (XLE -$4, PLTR +$24, DIA +$15 carryover). S7 complete: zero-trade standby session (rvol < 0.50 all session, low_volume_chop gate). 8 sessions remaining to Phase 2 midpoint (S10)."
 }

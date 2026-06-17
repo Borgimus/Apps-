@@ -1,0 +1,58 @@
+import apiClient from './client';
+import type {
+  SessionLevels,
+  ICTSignal,
+  BacktestRequest,
+  BacktestResponse,
+  ScannerResult,
+  StrategyConfig,
+  MarketStructurePoint,
+} from '../types/ict';
+
+export const ictApi = {
+  // Session levels
+  getSessionLevels: async (symbol: string): Promise<SessionLevels> => {
+    const { data } = await apiClient.get<SessionLevels>(`/api/ict/sessions/${symbol}`);
+    return data;
+  },
+
+  // Signals
+  getSignals: async (): Promise<ICTSignal[]> => {
+    const { data } = await apiClient.get<ICTSignal[]>('/api/ict/signals');
+    return data;
+  },
+
+  // Backtest
+  runBacktest: async (request: BacktestRequest): Promise<{ task_id: string }> => {
+    const { data } = await apiClient.post<{ task_id: string }>('/api/ict/backtest', request);
+    return data;
+  },
+
+  getBacktestResult: async (taskId: string): Promise<BacktestResponse> => {
+    const { data } = await apiClient.get<BacktestResponse>(`/api/ict/backtest/${taskId}`);
+    return data;
+  },
+
+  // Scanner
+  getScannerResults: async (): Promise<ScannerResult[]> => {
+    const { data } = await apiClient.get<ScannerResult[]>('/api/ict/scanner');
+    return data;
+  },
+
+  // Config
+  getConfig: async (): Promise<StrategyConfig> => {
+    const { data } = await apiClient.get<StrategyConfig>('/api/ict/config');
+    return data;
+  },
+
+  updateConfig: async (config: Partial<StrategyConfig>): Promise<StrategyConfig> => {
+    const { data } = await apiClient.put<StrategyConfig>('/api/ict/config', config);
+    return data;
+  },
+
+  // Market structure
+  getMarketStructure: async (symbol: string): Promise<MarketStructurePoint[]> => {
+    const { data } = await apiClient.get<MarketStructurePoint[]>(`/api/ict/market-structure/${symbol}`);
+    return data;
+  },
+};

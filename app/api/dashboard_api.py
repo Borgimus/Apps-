@@ -126,6 +126,16 @@ def create_app(
         allow_headers=["*"],
     )
 
+    # Mount ICT strategy routers
+    try:
+        from .ict_api import create_ict_router
+        ict_http_router, ict_ws_router = create_ict_router()
+        app.include_router(ict_http_router)
+        app.include_router(ict_ws_router)
+        logger.info("ICT strategy API mounted at /api/ict and /ws/ict/signals")
+    except Exception as _exc:
+        logger.warning("Failed to mount ICT router: %s", _exc)
+
     @app.on_event("startup")
     async def startup():
         await init_db()

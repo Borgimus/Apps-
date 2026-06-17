@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  background-color: #0f1117;
+  color: #e2e8f0;
+  font-family: 'Inter', sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1d27;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2d3e;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #353850;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+@layer components {
+  .card {
+    @apply bg-bg-secondary border border-border rounded-lg p-4;
+  }
+  .btn-primary {
+    @apply bg-accent hover:bg-indigo-500 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply bg-bg-tertiary hover:bg-border text-text-primary px-4 py-2 rounded-md text-sm font-medium transition-colors border border-border;
+  }
+  .btn-bull {
+    @apply bg-bull/20 hover:bg-bull/30 text-bull px-4 py-2 rounded-md text-sm font-medium transition-colors border border-bull/30;
+  }
+  .btn-bear {
+    @apply bg-bear/20 hover:bg-bear/30 text-bear px-4 py-2 rounded-md text-sm font-medium transition-colors border border-bear/30;
+  }
+  .input {
+    @apply bg-bg-tertiary border border-border rounded-md px-3 py-2 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-accent transition-colors w-full;
+  }
+  .label {
+    @apply text-xs font-medium text-text-secondary uppercase tracking-wide;
+  }
+  .skeleton {
+    @apply animate-pulse bg-bg-tertiary rounded;
+  }
+}

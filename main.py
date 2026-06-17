@@ -171,5 +171,148 @@ def strategies():
     click.echo(tabulate(rows, headers=["ID", "Name", "Default Symbols"], tablefmt="rounded_grid"))
 
 
+# ── ICT Strategy commands ─────────────────────────────────────────────────────
+
+@cli.group()
+def ict():
+    """ICT Liquidity Sweep & FVG Reversal strategy commands."""
+
+
+@ict.command("signals")
+@click.option("--symbol", "-s", multiple=True, default=["SPY"], help="Symbols to analyse")
+@click.option("--params", "-p", default="{}", help="JSON params for ICTConfig overrides")
+def ict_signals(symbol, params):
+    """Generate ICT signals from the latest 1-minute bar data."""
+    import json as _json
+    import warnings
+
+    from app.strategies.ict import ICTStrategy
+
+    try:
+        param_dict = _json.loads(params)
+    except _json.JSONDecodeError:
+        click.echo(f"Invalid JSON params: {params}")
+        return
+
+    strategy = ICTStrategy(params=param_dict)
+
+    for sym in symbol:
+        click.echo(f"\nScanning {sym} for ICT signals...")
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                from app.data.data_fetcher import fetch_1min_bars
+                bars = fetch_1min_bars(sym, warn=False)
+
+            if bars.empty:
+                click.echo(f"  No bar data available for {sym}")
+                continue
+
+            sigs = strategy.generate_signals(bars, sym)
+            if not sigs:
+                click.echo(f"  No signals found for {sym}")
+            else:
+                for sig in sigs:
+                    click.echo(
+                        f"  [{sig.direction.value.upper()}] {sym} @ {sig.entry_price:.4f} "
+                        f"| SL={sig.stop_loss:.4f} TP={sig.take_profit:.4f} "
+                        f"| Conf={sig.confidence:.2f} | {sig.notes[:80]}"
+                    )
+        except Exception as exc:
+            click.echo(f"  Error scanning {sym}: {exc}")
+
+
+@ict.command("backtest")
+@click.option("--symbol", "-s", default="SPY", help="Symbol to backtest")
+@click.option("--start", default=None, help="Start date YYYY-MM-DD")
+@click.option("--end", default=None, help="End date YYYY-MM-DD")
+@click.option("--equity", default=100_000.0, help="Starting equity")
+@click.option("--params", "-p", default="{}", help="JSON ICTConfig overrides")
+@click.option("--exit-mode", default="fixed_rr",
+              type=click.Choice(["fixed_rr", "liquidity_target", "major_structure", "hybrid"]),
+              help="Exit mode")
+def ict_backtest(symbol, start, end, equity, params, exit_mode):
+    """Run an ICT strategy backtest on 1-minute data."""
+    import json as _json
+    import warnings
+
+    from app.backtesting.ict_backtester import ICTBacktester
+
+    try:
+        param_dict = _json.loads(params)
+    except _json.JSONDecodeError:
+        click.echo(f"Invalid JSON params: {params}")
+        return
+
+    param_dict.setdefault("exit_mode", exit_mode)
+    param_dict.setdefault("account_size", equity)
+
+    click.echo(f"Fetching 1-minute bars for {symbol}...")
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        from app.data.data_fetcher import fetch_1min_bars
+        bars = fetch_1min_bars(symbol, start=start, end=end, warn=False)
+
+    if bars.empty:
+        click.echo("No bar data returned — cannot run backtest.")
+        return
+
+    click.echo(f"Running ICT backtest: {symbol} | {len(bars)} bars | equity=${equity:,.0f}")
+    bt = ICTBacktester(params=param_dict, starting_equity=equity)
+    result = bt.run(bars, symbol, start, end)
+    click.echo(result.summary())
+
+
+@ict.command("scan")
+@click.option("--symbol", "-s", multiple=True, default=["SPY", "QQQ"],
+              help="Symbols to scan")
+@click.option("--params", "-p", default="{}", help="JSON ICTConfig overrides")
+def ict_scan(symbol, params):
+    """Run the ICT multi-symbol scanner."""
+    import asyncio
+    import json as _json
+    import warnings
+
+    from app.scanner import ICTScanner
+
+    try:
+        param_dict = _json.loads(params)
+    except _json.JSONDecodeError:
+        click.echo(f"Invalid JSON params: {params}")
+        return
+
+    def _fetcher(sym: str):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            from app.data.data_fetcher import fetch_1min_bars
+            return fetch_1min_bars(sym, warn=False)
+
+    scanner = ICTScanner(list(symbol), _fetcher, param_dict)
+    results = asyncio.run(scanner.scan_all())
+
+    click.echo(f"\nICT Scanner Results ({len(results)} symbols scanned):")
+    for r in results:
+        if r.error:
+            click.echo(f"  {r.symbol}: ERROR — {r.error}")
+        elif r.signal:
+            sig = r.signal
+            click.echo(
+                f"  {r.symbol}: SIGNAL [{sig.direction.value.upper()}] "
+                f"@ {sig.entry_price:.4f} conf={r.confidence:.2f}"
+            )
+        else:
+            click.echo(f"  {r.symbol}: no signal (conf={r.confidence:.2f})")
+
+
+@ict.command("config")
+def ict_config():
+    """Print the default ICT strategy configuration."""
+    from app.strategies.ict.config import ICTConfig
+
+    cfg = ICTConfig()
+    import json as _json
+    click.echo(_json.dumps(cfg.model_dump(), indent=2, default=str))
+
+
 if __name__ == "__main__":
     cli()

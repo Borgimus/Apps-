@@ -87,10 +87,9 @@ export default function TradeHistoryTable({ trades }: TradeHistoryTableProps) {
                 ['entry_price', 'Entry'],
                 ['exit_price', 'Exit'],
                 ['pnl', 'P&L'],
-                ['pnl_pct', 'P&L %'],
                 ['rr_achieved', 'R:R'],
                 ['exit_reason', 'Exit'],
-                ['duration_minutes', 'Duration'],
+                ['trade_duration_minutes', 'Duration'],
               ] as [SortKey, string][]).map(([key, label]) => (
                 <th
                   key={key}
@@ -104,35 +103,34 @@ export default function TradeHistoryTable({ trades }: TradeHistoryTableProps) {
             </tr>
           </thead>
           <tbody>
-            {visible.map((trade) => (
-              <tr key={trade.id} className="border-b border-border hover:bg-bg-tertiary transition-colors">
+            {visible.map((trade, idx) => (
+              <tr key={`${trade.symbol}-${trade.entry_time}-${idx}`} className="border-b border-border hover:bg-bg-tertiary transition-colors">
                 <td className="px-3 py-2.5 text-text-muted whitespace-nowrap">{formatTime(trade.entry_time)}</td>
                 <td className="px-3 py-2.5 font-mono font-semibold text-text-primary">{trade.symbol}</td>
                 <td className="px-3 py-2.5"><DirectionBadge direction={trade.direction} /></td>
                 <td className="px-3 py-2.5 font-mono text-text-secondary">{formatPrice(trade.entry_price)}</td>
-                <td className="px-3 py-2.5 font-mono text-text-secondary">{formatPrice(trade.exit_price)}</td>
+                <td className="px-3 py-2.5 font-mono text-text-secondary">
+                  {trade.exit_price != null ? formatPrice(trade.exit_price) : '—'}
+                </td>
                 <td className={`px-3 py-2.5 font-mono font-semibold ${trade.pnl >= 0 ? 'text-bull' : 'text-bear'}`}>
                   {trade.pnl >= 0 ? '+' : ''}${trade.pnl.toFixed(2)}
                 </td>
-                <td className={`px-3 py-2.5 font-mono ${trade.pnl_pct >= 0 ? 'text-bull' : 'text-bear'}`}>
-                  {trade.pnl_pct >= 0 ? '+' : ''}{(trade.pnl_pct * 100).toFixed(1)}%
-                </td>
                 <td className="px-3 py-2.5 font-mono text-text-primary">
-                  {trade.rr_achieved > 0 ? `1:${trade.rr_achieved.toFixed(2)}` : '—'}
+                  {trade.rr_achieved > 0 ? `1:${trade.rr_achieved.toFixed(2)}` : trade.rr_achieved.toFixed(2)}
                 </td>
                 <td className="px-3 py-2.5">
                   <span className={`px-1.5 py-0.5 rounded text-xs capitalize ${
-                    trade.exit_reason === 'target' ? 'bg-bull/20 text-bull' :
-                    trade.exit_reason === 'stop' ? 'bg-bear/20 text-bear' :
+                    trade.exit_reason === 'tp' ? 'bg-bull/20 text-bull' :
+                    trade.exit_reason === 'sl' ? 'bg-bear/20 text-bear' :
                     'bg-bg-tertiary text-text-muted'
                   }`}>
-                    {trade.exit_reason}
+                    {trade.exit_reason === 'tp' ? 'Target' : trade.exit_reason === 'sl' ? 'Stop' : trade.exit_reason}
                   </span>
                 </td>
                 <td className="px-3 py-2.5 text-text-muted">
-                  {trade.duration_minutes >= 60
-                    ? `${(trade.duration_minutes / 60).toFixed(1)}h`
-                    : `${trade.duration_minutes}m`}
+                  {trade.trade_duration_minutes >= 60
+                    ? `${(trade.trade_duration_minutes / 60).toFixed(1)}h`
+                    : `${trade.trade_duration_minutes}m`}
                 </td>
               </tr>
             ))}

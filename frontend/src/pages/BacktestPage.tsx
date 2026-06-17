@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import BacktestForm from '../components/backtest/BacktestForm'
 import BacktestMetricsPanel from '../components/backtest/BacktestMetrics'
@@ -6,7 +6,7 @@ import EquityCurve from '../components/backtest/EquityCurve'
 import MonthlyReturns from '../components/backtest/MonthlyReturns'
 import TradeHistoryTable from '../components/backtest/TradeHistoryTable'
 import { ictApi } from '../api/ict'
-import type { BacktestResults } from '../types/ict'
+import type { BacktestResults, BacktestMetrics, MonthlyReturn } from '../types/ict'
 
 function ProgressBar({ progress }: { progress: number }) {
   return (
@@ -35,16 +35,16 @@ export default function BacktestPage() {
     queryFn: () => ictApi.getBacktestResult(taskId!),
     enabled: !!taskId && polling,
     refetchInterval: (query) => {
-      const data = query.state.data
-      if (!data) return 2000
-      if (data.status === 'completed' || data.status === 'failed') return false
+      const status = query.state.data?.status
+      if (!status) return 2000
+      if (status === 'completed' || status === 'failed') return false
       return 2000
     },
   })
 
   useEffect(() => {
-    if (backtestData?.status === 'completed' && backtestData.results) {
-      setResults(backtestData.results)
+    if (backtestData?.status === 'completed') {
+      setResults(backtestData)
       setPolling(false)
     } else if (backtestData?.status === 'failed') {
       setPolling(false)
@@ -59,6 +59,58 @@ export default function BacktestPage() {
 
   const isRunning = polling && backtestData?.status === 'running'
   const hasFailed = backtestData?.status === 'failed'
+
+  // Adapt flat results into BacktestMetrics shape for the metrics panel
+  const metrics = useMemo<BacktestMetrics | null>(() => {
+    if (!results) return null
+    return {
+      win_rate: results.win_rate,
+      avg_rr: results.avg_rr,
+      profit_factor: results.profit_factor,
+      expectancy: results.expectancy,
+      max_drawdown: results.max_drawdown,
+      total_return: results.total_return,
+      monthly_return: results.monthly_return,
+      sharpe_ratio: results.sharpe_ratio,
+      total_trades: results.total_trades,
+      winning_trades: results.winning_trades,
+      losing_trades: results.losing_trades,
+      long_win_rate: results.long_win_rate,
+      short_win_rate: results.short_win_rate,
+      total_pnl: results.total_pnl,
+      trade_duration_avg: results.trade_duration_avg ?? 0,
+      monthly_pnl: results.monthly_pnl,
+    }
+  }, [results])
+
+  // Transform monthly_pnl dict {YYYY-MM: dollars} → MonthlyReturn[] for chart
+  const monthlyReturns = useMemo<MonthlyReturn[]>(() => {
+    if (!results?.monthly_pnl) return []
+    const pnl = results.monthly_pnl
+    return Object.entries(pnl)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([month, dollars]) => ({
+        month,
+        return: dollars / 100000,
+        trades: results.trades.filter((t) => t.entry_time.startsWith(month)).length,
+      }))
+  }, [results])
+
+  // Build equity curve from trade list
+  const equityCurve = useMemo(() => {
+    if (!results?.trades.length) return []
+    let equity = 100000
+    let peak = equity
+    return results.trades.map((t) => {
+      equity += t.pnl
+      if (equity > peak) peak = equity
+      return {
+        date: t.entry_time.slice(0, 10),
+        equity,
+        drawdown: equity < peak ? (equity - peak) / peak : 0,
+      }
+    })
+  }, [results])
 
   return (
     <div className="flex flex-col lg:flex-row gap-4 min-h-0">
@@ -96,20 +148,20 @@ export default function BacktestPage() {
           </div>
         )}
 
-        {results && (
+        {results && metrics && (
           <>
             {/* Metrics */}
             <div className="card">
-              <BacktestMetricsPanel metrics={results.metrics} />
+              <BacktestMetricsPanel metrics={metrics} />
             </div>
 
             {/* Charts Row */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
               <div className="card">
-                <EquityCurve data={results.equity_curve} />
+                <EquityCurve data={equityCurve} />
               </div>
               <div className="card">
-                <MonthlyReturns data={results.monthly_returns} />
+                <MonthlyReturns data={monthlyReturns} />
               </div>
             </div>
 

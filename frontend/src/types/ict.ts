@@ -79,34 +79,60 @@ export interface BacktestMetrics {
   monthly_return: number;
   sharpe_ratio: number;
   total_trades: number;
+  winning_trades: number;
+  losing_trades: number;
   long_win_rate: number;
   short_win_rate: number;
+  total_pnl: number;
   trade_duration_avg: number;
+  monthly_pnl: Record<string, number>;
 }
 
 export interface BacktestTrade {
-  id: string;
   symbol: string;
   direction: Direction;
   entry_price: number;
-  exit_price: number;
+  exit_price: number | null;
   stop_loss: number;
   take_profit: number;
+  position_size: number;
+  risk_amount: number;
   pnl: number;
-  pnl_pct: number;
   rr_achieved: number;
   entry_time: string;
-  exit_time: string;
-  duration_minutes: number;
-  exit_reason: 'target' | 'stop' | 'manual';
-  sweep_type: SweepType;
+  exit_time: string | null;
+  trade_duration_minutes: number;
+  exit_reason: 'sl' | 'tp' | 'eod' | 'signal';
+  fvg_type: string;
+  sweep_type: string;
 }
 
+// Flat response from GET /api/ict/backtest/{task_id}
 export interface BacktestResults {
-  metrics: BacktestMetrics;
+  task_id: string;
+  status: BacktestStatus;
+  symbol: string;
+  start_date: string | null;
+  end_date: string | null;
+  // inline metrics (mirrors ICTBacktestResultResponse)
+  total_trades: number;
+  winning_trades: number;
+  losing_trades: number;
+  win_rate: number;
+  long_win_rate: number;
+  short_win_rate: number;
+  avg_rr: number;
+  profit_factor: number;
+  expectancy: number;
+  total_pnl: number;
+  total_return: number;
+  monthly_return: number;
+  max_drawdown: number;
+  sharpe_ratio: number;
+  trade_duration_avg: number;
+  monthly_pnl: Record<string, number>;
   trades: BacktestTrade[];
-  equity_curve: EquityPoint[];
-  monthly_returns: MonthlyReturn[];
+  error: string | null;
 }
 
 export interface EquityPoint {
@@ -121,12 +147,13 @@ export interface MonthlyReturn {
   trades: number;
 }
 
-export interface BacktestResponse {
-  status: BacktestStatus;
-  progress: number;
-  results?: BacktestResults;
-  error?: string;
+// POST /api/ict/backtest returns just a task_id
+export interface BacktestTaskCreated {
+  task_id: string;
 }
+
+// Alias — the polling response IS the results object
+export type BacktestResponse = BacktestResults;
 
 export interface StrategyConfig {
   // Session settings

@@ -200,6 +200,10 @@ class ICTBacktestResult:
             "monthly_return": round(self.monthly_return, 4),
             "max_drawdown": round(self.max_drawdown, 4),
             "sharpe_ratio": round(self.sharpe_ratio, 4),
+            "trade_duration_avg": (
+                round(sum(t.trade_duration_minutes for t in self.trades) / len(self.trades), 1)
+                if self.trades else 0
+            ),
             "monthly_pnl": {k: round(v, 2) for k, v in self.monthly_pnl.items()},
         }
 

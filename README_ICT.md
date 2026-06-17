@@ -13,21 +13,73 @@ A full-stack algorithmic trading application implementing the ICT (Inner Circle 
 
 ---
 
-## Quick Start
+## How to Run and Access the App
 
-### Docker (recommended)
+### 1. Start with Docker
+
+From the repo root:
 
 ```bash
-git clone <repo>
-cd Apps-
 docker compose up --build
 ```
 
-| Service | URL |
+The first run downloads base images and installs dependencies — allow 2–3 minutes. Subsequent starts take a few seconds.
+
+To run in the background:
+
+```bash
+docker compose up --build -d
+```
+
+To stop everything:
+
+```bash
+docker compose down
+```
+
+### 2. Access on the same machine
+
+| What | URL |
 |---|---|
-| Frontend | http://localhost:3000 |
-| Backend API | http://localhost:8000 |
-| API docs | http://localhost:8000/docs |
+| Frontend (trading dashboard) | http://localhost:3000 |
+| Backend REST API | http://localhost:8000 |
+| Interactive API docs (Swagger) | http://localhost:8000/docs |
+| Alternative API docs (ReDoc) | http://localhost:8000/redoc |
+
+### 3. Access from another device on the same Wi-Fi
+
+Docker binds the ports to `0.0.0.0` by default, so any device on the same local network can reach the app using the **host machine's local IP address** instead of `localhost`.
+
+**Find your host machine's local IP:**
+
+```bash
+# macOS / Linux
+ipconfig getifaddr en0        # macOS (Wi-Fi)
+ip route get 1 | awk '{print $7; exit}'  # Linux
+
+# Windows (PowerShell)
+ipconfig | findstr "IPv4"
+```
+
+The local IP is typically in the form `192.168.x.x` or `10.0.x.x`.
+
+**Then on any phone, tablet, or other laptop on the same Wi-Fi, open:**
+
+| What | URL |
+|---|---|
+| Frontend | `http://<host-ip>:3000` |
+| API | `http://<host-ip>:8000` |
+| API docs | `http://<host-ip>:8000/docs` |
+
+For example, if your host machine's IP is `192.168.1.42`:
+- Frontend → `http://192.168.1.42:3000`
+- API docs → `http://192.168.1.42:8000/docs`
+
+> If the remote device can't connect, check that your host machine's firewall allows inbound connections on ports 3000 and 8000.
+
+---
+
+## Quick Start (local dev without Docker)
 
 ### Local development
 

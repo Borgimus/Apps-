@@ -86,3 +86,6 @@ reports/
 
 # Alembic versions cache
 alembic/versions/*.pyc
+
+# Claude Code internal scaffolding
+.claude/

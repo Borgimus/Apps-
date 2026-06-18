@@ -14,8 +14,14 @@ class ICTWebSocketClient {
   private shouldReconnect = true;
   private pingInterval: ReturnType<typeof setInterval> | null = null;
 
-  constructor(url: string = 'ws://localhost:8000/ws/ict/signals') {
-    this.url = url;
+  constructor(url?: string) {
+    // Derive WebSocket URL from current page origin so it routes through nginx
+    if (url) {
+      this.url = url;
+    } else {
+      const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      this.url = `${proto}//${window.location.host}/ws/ict/signals`;
+    }
   }
 
   connect(): void {

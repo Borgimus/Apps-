@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8000',
+  // Relative URL — routed through nginx proxy in production, Vite proxy in dev
+  baseURL: '',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

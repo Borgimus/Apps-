@@ -1,7 +1,7 @@
 {
   "version": "1",
   "created_at": "2026-05-11T12:07:54.394379",
-  "last_updated": "2026-06-17T16:31:12.824845",
+  "last_updated": "2026-06-18T16:30:26.297751",
   "sessions": [
     {
       "date": "2026-05-11",
@@ -922,14 +922,87 @@
       "reject_reasons": {},
       "data_clean": true,
       "notes": "Zero-trade session \u2014 scanner operated normally for all 360 cycles (09:30\u201312:30 ET) but rvol < 0.50 across all 27 symbols throughout the session (peak: AVGO 0.472 ~10:42 ET). low_volume_chop gate blocked all 180 candidate rejections across 35 periodic re-scans. No positions opened, no orders submitted, no broker state. data_clean=TRUE (no fills to verify). Phase 2 valid zero-trade session. Note: this is the official Session 7; the prior 2026-06-16 attempt was invalidated due to sandbox VM reboot and is excluded from evaluation."
+    },
+    {
+      "date": "2026-06-18",
+      "total_trades": 3,
+      "wins": 1,
+      "losses": 2,
+      "realized_pnl": -7.0,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 22.000000000000004,
+      "slippage_total": -0.040000000000000036,
+      "spread_cost_total": 6.5,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 3,
+      "trades_filled": 3,
+      "trades_cancelled": 0,
+      "trades_rejected": 156,
+      "by_strategy": {
+        "orb": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -20.0
+        },
+        "vwap_reclaim": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "pnl": 13.0
+        }
+      },
+      "by_entry_hour": {
+        "10:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -12.0
+        },
+        "11:00": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "pnl": 5.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 3,
+          "wins": 1,
+          "losses": 2,
+          "pnl": -7.0
+        }
+      },
+      "by_spread_bucket": {
+        "tight (<5%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -12.0
+        },
+        "moderate (5-10%)": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "pnl": 5.0
+        }
+      },
+      "reject_reasons": {
+        "cooldown_after_loss": 56,
+        "Max entries per day reached": 100
+      },
+      "data_clean": false,
+      "notes": "Exit prices corrected from broker-confirmed fills (marketable_limit mode). AAPL: limit 0.64 \u2192 fill 0.66 (+2, pnl -14\u2192-12). PLTR: limit 0.94 \u2192 fill 0.97 (+3, pnl +22\u2192+25). DIA: limit 0.31 \u2192 fill 0.33 (+2, pnl -22\u2192-20). Corrected session pnl: -7.00. Same exit price recording defect (deferred per Phase 2 protocol)."
     }
   ],
   "cumulative": {
-    "trading_days": 16,
-    "total_trades": 26,
-    "total_pnl": -997.5,
-    "expectancy": -38.37,
-    "win_rate": 0.2308,
+    "trading_days": 17,
+    "total_trades": 29,
+    "total_pnl": -1011.5,
+    "expectancy": -34.88,
+    "win_rate": 0.2414,
     "profit_factor": 0.04,
     "max_drawdown": 1034.5,
     "pnl_by_strategy": {
@@ -946,10 +1019,10 @@
         "pnl": 0.0
       },
       "orb": {
-        "trades": 3,
+        "trades": 4,
         "wins": 2,
-        "losses": 1,
-        "pnl": -82.0
+        "losses": 2,
+        "pnl": -104.0
       },
       "rsi_trend": {
         "trades": 1,
@@ -958,10 +1031,10 @@
         "pnl": -109.5
       },
       "vwap_reclaim": {
-        "trades": 22,
-        "wins": 3,
-        "losses": 18,
-        "pnl": -808.0
+        "trades": 24,
+        "wins": 4,
+        "losses": 19,
+        "pnl": -800.0
       }
     },
     "pnl_by_entry_hour": {
@@ -978,24 +1051,24 @@
         "pnl": -109.5
       },
       "10:00": {
-        "trades": 5,
+        "trades": 6,
         "wins": 0,
-        "losses": 4,
-        "pnl": -171.5
+        "losses": 5,
+        "pnl": -185.5
       },
       "11:00": {
-        "trades": 15,
-        "wins": 4,
-        "losses": 11,
+        "trades": 17,
+        "wins": 5,
+        "losses": 12,
         "pnl": -237.5
       }
     },
     "pnl_by_delta_bucket": {
       "unknown": {
-        "trades": 17,
-        "wins": 3,
-        "losses": 13,
-        "pnl": -266.5
+        "trades": 20,
+        "wins": 4,
+        "losses": 15,
+        "pnl": -280.5
       },
       "low (<0.30)": {
         "trades": 3,
@@ -1018,24 +1091,24 @@
     },
     "pnl_by_spread_bucket": {
       "moderate (5-10%)": {
-        "trades": 19,
-        "wins": 5,
-        "losses": 13,
+        "trades": 21,
+        "wins": 6,
+        "losses": 14,
         "pnl": -860.5
       },
       "tight (<5%)": {
-        "trades": 8,
+        "trades": 9,
         "wins": 1,
-        "losses": 7,
-        "pnl": -137.0
+        "losses": 8,
+        "pnl": -151.0
       }
     },
     "reject_counts_by_reason": {
       "No trades in first 15 min after open (until 09": 9,
-      "cooldown_after_loss": 293,
+      "cooldown_after_loss": 349,
       "Max trades per day reached": 155,
       "Trade cost $1106.00 exceeds max risk $996.80 and cannot be reduc": 1,
-      "Max entries per day reached": 42,
+      "Max entries per day reached": 142,
       "Trade cost $7957.00 exceeds max risk $995.38 and cannot be reduc": 5,
       "Trade cost $7917.00 exceeds max risk $995.38 and cannot be reduc": 4,
       "Trade cost $7728.00 exceeds max risk $995.38 and cannot be reduc": 2,

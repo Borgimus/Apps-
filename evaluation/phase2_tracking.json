@@ -1,12 +1,12 @@
 {
   "protocol": "evaluation/phase2_eval_protocol.md",
   "created": "2026-06-13",
-  "last_updated": "2026-06-17",
+  "last_updated": "2026-06-18",
   "phase": 2,
   "session_count": {
     "target": 10,
-    "completed": 2,
-    "remaining": 8,
+    "completed": 3,
+    "remaining": 7,
     "midpoint_trigger": 5,
     "midpoint_reached": false,
     "final_trigger": 10,
@@ -98,11 +98,111 @@
   },
   "phase2_sessions": [
     {
+      "session": "S8",
+      "date": "2026-06-18",
+      "pnl_journal": -14.0,
+      "pnl_confirmed": -7.0,
+      "pnl_note": "Three trades: AAPL LONG -12 actual (journal -14), PLTR SHORT +25 actual (journal +22), DIA ORB SHORT -20 actual (journal -22). All exit fills better than limit (marketable_limit mode). AAPL exit 0.64\u21920.66, PLTR exit 0.94\u21920.97, DIA exit 0.31\u21920.33. Journal-recorded P&L -14.00 corrected to -7.00 post-session. All DTE=0 (June 18 expiry day). All direct fills. All trailing_stop exits.",
+      "trades": 3,
+      "wins": 1,
+      "losses": 2,
+      "breakeven": 0,
+      "orb_trades": 1,
+      "vwap_trades": 2,
+      "recovered": 0,
+      "direct": 3,
+      "data_clean": false,
+      "data_clean_reason": "All 3 exit prices required post-session correction from broker-confirmed fills (marketable_limit mode fills at better-than-limit prices). Journal P&L -14.00 corrected to -7.00. DIA exit spread at 45% (bid=0.31, ask=0.49) vastly exceeded 10% threshold \u2014 exit proceeded with WARNING. No positions carried overnight; 0 broker positions/orders at EOD; 18 reconciler runs all clean (0 repaired, 0 flagged).",
+      "signal_bridge_available": true,
+      "trades_detail": [
+        {
+          "journal_id": 36,
+          "symbol": "AAPL",
+          "contract": "AAPL260618C00300000",
+          "strategy": "vwap_reclaim",
+          "quality": 3,
+          "scanner": 42,
+          "age_min": 29.0,
+          "age_bucket": "<30",
+          "dte": 0,
+          "pnl_journal": -14.0,
+          "pnl_actual": -12.0,
+          "fill_path": "direct",
+          "asset_class": "single_stock",
+          "universe_group": "mega_cap",
+          "outcome": "loss",
+          "entry_fill": 0.78,
+          "exit_fill_journal": 0.64,
+          "exit_fill_actual": 0.66,
+          "exit_reason": "trailing_stop",
+          "entry_spread_pct": 3.82,
+          "exit_spread_pct": 10.37,
+          "rvol": 0.524,
+          "mfe": 19.0,
+          "mae": -10.5
+        },
+        {
+          "journal_id": 37,
+          "symbol": "PLTR",
+          "contract": "PLTR260618P00127000",
+          "strategy": "vwap_reclaim",
+          "quality": 2,
+          "scanner": 50,
+          "age_min": 24.6,
+          "age_bucket": "<30",
+          "dte": 0,
+          "pnl_journal": 22.0,
+          "pnl_actual": 25.0,
+          "fill_path": "direct",
+          "asset_class": "single_stock",
+          "universe_group": "liquid_growth",
+          "outcome": "win",
+          "entry_fill": 0.72,
+          "exit_fill_journal": 0.94,
+          "exit_fill_actual": 0.97,
+          "exit_reason": "trailing_stop",
+          "entry_spread_pct": 8.45,
+          "exit_spread_pct": 7.18,
+          "rvol": 0.505,
+          "mfe": 60.5,
+          "mae": -2.0
+        },
+        {
+          "journal_id": 38,
+          "symbol": "DIA",
+          "contract": "DIA260618P00515000",
+          "strategy": "orb",
+          "quality": 3,
+          "scanner": 48,
+          "age_min": 90.4,
+          "age_bucket": "90-120",
+          "dte": 0,
+          "pnl_journal": -22.0,
+          "pnl_actual": -20.0,
+          "fill_path": "direct",
+          "asset_class": "etf",
+          "universe_group": "core_etfs",
+          "outcome": "loss",
+          "entry_fill": 0.53,
+          "exit_fill_journal": 0.31,
+          "exit_fill_actual": 0.33,
+          "exit_reason": "trailing_stop",
+          "entry_spread_pct": 7.84,
+          "exit_spread_pct": 45.0,
+          "rvol": 0.523,
+          "mfe": 2.0,
+          "mae": -13.0,
+          "note": "DIA exit spread 45% (bid=0.31, ask=0.49) far exceeded 10% threshold. Session runner issued WARNING and proceeded with exit. ORB strategy."
+        }
+      ],
+      "infra_notes": "356 cycles. 18 reconciler runs all clean (0 repaired, 0 flagged). 0 API errors. DIA exit spread warning: 45% > 10% max (bid=0.31, ask=0.49). Max entries per day (3/3) reached at ~12:29 ET \u2014 MSTR rejected on that basis, confirming rvol improved in afternoon session. PLTR exit spread warning not triggered (7.18% < 10%). AAPL exit spread warning at 10.37% (just over threshold)."
+    },
+    {
       "session": "S7",
       "date": "2026-06-17",
       "pnl_journal": 0.0,
       "pnl_confirmed": 0.0,
-      "pnl_note": "Zero-trade session. Scanner operated all 360 cycles (09:30–12:30 ET) but rvol < 0.50 across all 27 symbols throughout. low_volume_chop gate blocked all 180 candidate rejections across 35 periodic re-scans. Peak rvol: AVGO 0.472 at ~10:42 ET, never cleared threshold.",
+      "pnl_note": "Zero-trade session. Scanner operated all 360 cycles (09:30\u201312:30 ET) but rvol < 0.50 across all 27 symbols throughout. low_volume_chop gate blocked all 180 candidate rejections across 35 periodic re-scans. Peak rvol: AVGO 0.472 at ~10:42 ET, never cleared threshold.",
       "trades": 0,
       "wins": 0,
       "losses": 0,
@@ -112,7 +212,7 @@
       "recovered": 0,
       "direct": 0,
       "data_clean": true,
-      "data_clean_reason": "Zero-trade session — no fills to verify, no broker state, clean pre-session checks, clean EOD shutdown. 360 cycles completed without incident.",
+      "data_clean_reason": "Zero-trade session \u2014 no fills to verify, no broker state, clean pre-session checks, clean EOD shutdown. 360 cycles completed without incident.",
       "signal_bridge_available": true,
       "trades_detail": [],
       "infra_notes": "Note: A prior S7 attempt on 2026-06-16 was invalidated due to sandbox VM reboot mid-session (process killed externally at cycle 24 ~09:58 ET, no positions open). That attempt was voided and excluded from evaluation. This 2026-06-17 run is the official Session 7."
@@ -215,43 +315,43 @@
     }
   ],
   "cumulative": {
-    "note": "Includes Phase 1 baseline (S1-S5) plus Phase 2 S6 and S7. S6: 3 trades (XLE -$4, PLTR +$24, DIA +$15 carryover). S7: 0 trades (low_volume_chop standby all session). Trade totals unchanged from S6.",
-    "sessions": 7,
-    "trades": 17,
-    "wins": 4,
-    "losses": 12,
+    "note": "Includes Phase 1 baseline (S1-S5) plus Phase 2 S6, S7, and S8. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: 0 trades. S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct fills).",
+    "sessions": 8,
+    "trades": 20,
+    "wins": 5,
+    "losses": 14,
     "breakeven": 1,
-    "net_pnl": -241.0,
-    "gross_wins": 56.0,
-    "gross_losses": 297.0,
-    "win_rate": 0.2353,
-    "avg_pnl_per_trade": -14.18,
-    "profit_factor": 0.189,
+    "net_pnl": -248.0,
+    "gross_wins": 81.0,
+    "gross_losses": 329.0,
+    "win_rate": 0.25,
+    "avg_pnl_per_trade": -12.4,
+    "profit_factor": 0.246,
     "recovered_fills": 15,
-    "direct_fills": 2
+    "direct_fills": 5
   },
   "dimensions": {
-    "note": "Through S6 (17 total trades: 14 P1 + 3 S6). S1-S2 signal_bridge unavailable; quality/age/scanner sourced from post-session reports where possible. S3-S6 have full signal_bridge data. S7 adds 0 trades. All dimension counts reflect 12 trades with quality/DTE/age/scanner data (S3-S5=9 + S6=3; S1-S2=5 excluded from quality/age/scanner due to no signal_bridge).",
+    "note": "Through S8 (20 total trades: 14 P1 + 3 S6 + 0 S7 + 3 S8). S1-S2 signal_bridge unavailable; quality/age/scanner sourced from post-session reports where possible. S3-S8 have full signal_bridge data. All dimension counts reflect 15 trades with quality/DTE/age/scanner data (S3-S5=9 + S6=3 + S8=3; S1-S2=5 excluded from quality/age/scanner due to no signal_bridge).",
     "strategy": {
       "orb": {
-        "n": 3,
+        "n": 4,
         "wins": 2,
-        "losses": 1,
-        "pnl": -82.0,
+        "losses": 2,
+        "pnl": -102.0,
         "gross_wins": 17.0,
-        "gross_losses": 99.0
+        "gross_losses": 119.0
       },
       "vwap_reclaim": {
-        "n": 14,
-        "wins": 2,
-        "losses": 12,
-        "pnl": -159.0,
-        "gross_wins": 39.0,
-        "gross_losses": 198.0
+        "n": 16,
+        "wins": 3,
+        "losses": 13,
+        "pnl": -146.0,
+        "gross_wins": 64.0,
+        "gross_losses": 210.0
       }
     },
     "quality_score": {
-      "note": "S3-S6 (signal_bridge data). 12 completed trades with quality data (9 P1 + 3 S6: XLE q=2, PLTR q=3, DIA q=2). 1 breakeven (SPY S3 excluded from win/loss).",
+      "note": "S3-S8 (signal_bridge data). 15 completed trades with quality data (9 P1 + 3 S6 + 3 S8: AAPL q=3, PLTR q=2, DIA q=3). 1 breakeven (SPY S3).",
       "1": {
         "n": 1,
         "wins": 0,
@@ -259,17 +359,17 @@
         "pnl": -14.0
       },
       "2": {
-        "n": 6,
-        "wins": 1,
+        "n": 7,
+        "wins": 2,
         "losses": 5,
-        "pnl": -121.0
+        "pnl": -96.0
       },
       "3": {
-        "n": 3,
+        "n": 5,
         "wins": 2,
-        "losses": 0,
+        "losses": 2,
         "breakeven": 1,
-        "pnl": 28.0
+        "pnl": -4.0
       },
       "4": {
         "n": 2,
@@ -279,13 +379,13 @@
       }
     },
     "dte": {
-      "note": "S3-S6. 12 completed trades with DTE data. S6 all DTE=3 (June 18 expiry, Thursday due to Juneteenth holiday June 19).",
+      "note": "S3-S8. 15 completed trades with DTE data. S6 all DTE=3 (June 18 expiry, Thursday due to Juneteenth holiday June 19). S8 all DTE=0 (June 18 actual expiry day).",
       "0": {
-        "n": 7,
-        "wins": 1,
-        "losses": 5,
+        "n": 10,
+        "wins": 2,
+        "losses": 7,
         "breakeven": 1,
-        "pnl": -118.0
+        "pnl": -125.0
       },
       "1": {
         "n": 1,
@@ -309,27 +409,27 @@
     "asset_class": {
       "note": "All 14 trades. ETF/single-stock classification from universe group. S1-S2 assumed ETF from symbol list.",
       "etf": {
-        "n": 15,
+        "n": 16,
         "wins": 3,
-        "losses": 11,
+        "losses": 12,
         "breakeven": 1,
-        "pnl": -198.0
+        "pnl": -218.0
       },
       "single_stock": {
-        "n": 2,
-        "wins": 1,
-        "losses": 1,
-        "pnl": -43.0
+        "n": 4,
+        "wins": 2,
+        "losses": 2,
+        "pnl": -30.0
       }
     },
     "signal_age_minutes": {
-      "note": "S3-S6 (12 completed trades with age data). S6: XLE 37.9min (30-60), PLTR 108.6min (90-120), DIA 73.9min (60-90).",
+      "note": "S3-S8 (15 completed trades with age data). S6: XLE 37.9min (30-60), PLTR 108.6min (90-120), DIA 73.9min (60-90). S8: AAPL 29.0min (<30), PLTR 24.6min (<30), DIA 90.4min (90-120).",
       "<30": {
-        "n": 2,
-        "wins": 0,
-        "losses": 1,
+        "n": 4,
+        "wins": 1,
+        "losses": 2,
         "breakeven": 1,
-        "pnl": 0.0
+        "pnl": 13.0
       },
       "30-60": {
         "n": 4,
@@ -344,10 +444,10 @@
         "pnl": -87.0
       },
       "90-120": {
-        "n": 2,
+        "n": 3,
         "wins": 1,
-        "losses": 1,
-        "pnl": -36.0
+        "losses": 2,
+        "pnl": -56.0
       },
       ">120": {
         "n": 0,
@@ -357,7 +457,7 @@
       }
     },
     "scanner_score": {
-      "note": "S3-S6 (12 completed trades with scanner score data). S6: XLE 67 (60-69), PLTR 55 (50-59), DIA 58 (50-59).",
+      "note": "S3-S8 (15 completed trades with scanner score data). S6: XLE 67 (60-69), PLTR 55 (50-59), DIA 58 (50-59). S8: AAPL 42 (40-49), PLTR 50 (50-59), DIA 48 (40-49).",
       "<40": {
         "n": 3,
         "wins": 0,
@@ -365,16 +465,16 @@
         "pnl": -82.0
       },
       "40-49": {
-        "n": 2,
+        "n": 4,
         "wins": 0,
-        "losses": 2,
-        "pnl": -14.0
+        "losses": 4,
+        "pnl": -46.0
       },
       "50-59": {
-        "n": 6,
-        "wins": 3,
+        "n": 7,
+        "wins": 4,
         "losses": 3,
-        "pnl": -141.0
+        "pnl": -116.0
       },
       "60-69": {
         "n": 1,
@@ -398,10 +498,10 @@
         "pnl": -280.0
       },
       "direct": {
-        "n": 2,
-        "wins": 2,
-        "losses": 0,
-        "pnl": 39.0
+        "n": 5,
+        "wins": 3,
+        "losses": 2,
+        "pnl": 32.0
       }
     }
   },
@@ -418,52 +518,52 @@
     "dte_2_3_reached": true,
     "dte_4plus_reached": false,
     "asset_etf_reached": true,
-    "asset_single_stock_reached": false,
-    "age_lt30_reached": false,
+    "asset_single_stock_reached": true,
+    "age_lt30_reached": true,
     "age_30_60_reached": true,
     "age_60_90_reached": true,
-    "age_90_120_reached": false,
+    "age_90_120_reached": true,
     "age_gt120_reached": false,
     "scanner_lt40_reached": true,
-    "scanner_40_49_reached": false,
+    "scanner_40_49_reached": true,
     "scanner_50_59_reached": true,
     "scanner_60_69_reached": false,
     "scanner_70plus_reached": false,
     "fill_path_recovered_reached": true,
-    "fill_path_direct_reached": false
+    "fill_path_direct_reached": true
   },
   "primary_questions_status": {
     "Q1_orb_vs_vwap": {
       "status": "indeterminate",
-      "reason": "ORB N=3 unchanged (no ORB trades in S6 or S7). VWAP N=14. No additional data from S7 (0 trades). Indeterminate pending ORB data.",
-      "orb_pf": 0.174,
-      "vwap_pf": 0.0
+      "reason": "ORB N=4 (2 wins/4, pnl=-102, PF=17/119=0.143). VWAP N=16 (3 wins/16, pnl=-146, PF=64/210=0.305). S8 adds DIA ORB loss (-20). ORB profit factor dropped from 0.174 to 0.143. VWAP improved slightly with PLTR win. Still indeterminate \u2014 both PFs below 1, VWAP higher PF but both unprofitable overall.",
+      "orb_pf": 0.143,
+      "vwap_pf": 0.305
     },
     "Q2_signal_age": {
       "status": "indeterminate",
-      "reason": "30-60 N=5 (0 wins/5, pnl=-101), 60-90 N=5 (3 wins/5, pnl=-72), 90-120 N=2 (1 win/2, pnl=-36). <30 N=2, >120 N=0. S7 adds no data. No consistent positive age\u2192performance correlation yet; 60-90 shows best win rate but small N.",
+      "reason": "<30 N=4 (1 win/4, pnl=+13), 30-60 N=4 (0 wins/4, pnl=-97), 60-90 N=4 (2 wins/4, pnl=-87), 90-120 N=3 (1 win/3, pnl=-56). All four primary buckets now at N\u22653. >120 N=0. <30 shows only positive pnl (+13) from S8 PLTR win outweighing AAPL loss. 30-60 remains weakest (0 wins). 60-90 best win rate but negative pnl. No consistent age\u2192performance relationship established yet.",
       "note": "30-60 bucket now weakest. 60-90 and 90-120 both show wins but 90-120 still below N=3 minimum."
     },
     "Q3_dte": {
       "status": "indeterminate",
-      "reason": "DTE=0 N=7 (1 win, pnl=-118). DTE=2-3 N=7 (4 wins, pnl=-29). DTE=1 N=1. S7 adds no data. DTE 2-3 now showing stronger win rate vs DTE=0 at equal N, but still early."
+      "reason": "DTE=0 N=10 (2 wins/10, 20%, pnl=-125). DTE=2-3 N=4 (2 wins/4, pnl=-64). DTE=1 N=1. S8 adds 3 more DTE=0 trades. DTE=0 now largest bucket at N=10. DTE=0 win rate holding at 20% with strongly negative expectancy. DTE=2-3 shows 50% win rate over N=4 \u2014 early advantage for non-expiry DTE."
     },
     "Q4_etf_vs_single_stock": {
       "status": "indeterminate",
-      "reason": "Single-stock N=2 (TSLA S5, PLTR S6). ETF N=15. S7 adds no data. Still below N=3 minimum for single-stock."
+      "reason": "Single-stock N=4 (2 wins/4, 50%, pnl=-30, avg=-7.50/trade). ETF N=16 (3 wins/16, 18.75%, pnl=-218, avg=-13.63/trade). Single-stock now at N\u22653 minimum. S8 adds AAPL (loss) and PLTR (win) to single-stock. Early pattern: single-stock win rate (50%) and avg_pnl (-7.50) both favor single-stock over ETF (18.75%, -13.63), but N=4 is still small. Potentially SUPPORTED pending more data."
     },
     "Q5_quality_scores": {
       "status": "indeterminate",
-      "reason": "Quality=2 N=6 (1 win/6, 17%, pnl=-121), quality=3 N=3 (2 wins/3, 67%, pnl=+28). S7 adds no data. Both above N=3 minimum. Early pattern: quality=3 outperforms quality=2 in win rate. Not yet SUPPORTED (small N, possible confounds from other dimensions)."
+      "reason": "Quality=2 N=7 (2 wins/7, 29%, pnl=-96). Quality=3 N=5 (2 wins/5, 40%, pnl=-4). S8 adds PLTR (q=2, win +25) and AAPL+DIA (q=3, both losses). Quality=3 shifted from positive (+28) to near-zero (-4) after S8 losses. Quality=2 improved slightly. Early quality=3 outperformance pattern is weakening. Both buckets above N minimum. Still indeterminate."
     },
     "Q6_scanner_score": {
       "status": "indeterminate",
-      "reason": "Score 50-59 N=6 (3 wins/6, pnl=-102). Score 60-69 N=2 (0 wins, pnl=-8). Score <40 N=3 (0 wins, pnl=-82). S7 adds no data. No bucket with N>=3 showing positive expectancy. 50-59 is the best-performing bucket with 50% win rate but negative expectancy overall."
+      "reason": "Score <40 N=3 (0 wins, pnl=-82). Score 40-49 N=4 (0 wins, pnl=-46). Score 50-59 N=7 (4 wins/7, 57%, pnl=-116). Score 60-69 N=1 (0 wins, pnl=-4). S8 adds AAPL+DIA (40-49, both losses) and PLTR (50-59, win). 40-49 bucket now confirmed weakest (0/4 wins). 50-59 improves to 57% win rate. Higher score bands appear better but still below N minimum for 60-69 and 70+. Still indeterminate \u2014 50-59 showing positive win rate but negative overall pnl."
     },
     "Q7_fill_path": {
       "status": "indeterminate",
-      "reason": "Recovered N=15 (2 wins, pnl=-280). Direct N=2 (2 wins, pnl=+39). S7 adds no data. Direct fills 2/2 winners but still below N=3 minimum. Pattern promising but insufficient."
+      "reason": "Recovered N=15 (2 wins/15, 13%, pnl=-280, avg=-18.67/trade). Direct N=5 (3 wins/5, 60%, pnl=+32, avg=+6.40/trade). Direct now at N\u22653 minimum. S8 all 3 trades were direct fills. Direct 3/5 wins vs recovered 2/15 wins \u2014 stark difference. Direct pnl strongly positive (+32) vs recovered deeply negative (-280). Pattern potentially SUPPORTED but confound exists: S8 direct fills are DTE=0 with market in partial-day liquidity recovery, not a clean comparison yet."
     }
   },
-  "note": "Phase 2 tracking. S6 complete (XLE -$4, PLTR +$24, DIA +$15 carryover). S7 complete: zero-trade standby session (rvol < 0.50 all session, low_volume_chop gate). 8 sessions remaining to Phase 2 midpoint (S10)."
+  "note": "Phase 2 tracking. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: zero-trade standby (rvol < 0.50). S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct, all trailing_stop). data_clean=FALSE \u2014 all 3 exits required broker fill correction. 7 sessions remaining to Phase 2 completion (S15)."
 }

@@ -385,7 +385,7 @@
         "wins": 2,
         "losses": 7,
         "breakeven": 1,
-        "pnl": -125.0
+        "pnl": -117.0
       },
       "1": {
         "n": 1,
@@ -546,7 +546,7 @@
     },
     "Q3_dte": {
       "status": "indeterminate",
-      "reason": "DTE=0 N=10 (2 wins/10, 20%, pnl=-125). DTE=2-3 N=4 (2 wins/4, pnl=-64). DTE=1 N=1. S8 adds 3 more DTE=0 trades. DTE=0 now largest bucket at N=10. DTE=0 win rate holding at 20% with strongly negative expectancy. DTE=2-3 shows 50% win rate over N=4 \u2014 early advantage for non-expiry DTE."
+      "reason": "DTE=0 N=10 (2 wins/10, 20%, pnl=-117). DTE=2-3 N=4 (2 wins/4, pnl=-64). DTE=1 N=1. S8 adds 3 more DTE=0 trades. DTE=0 now largest bucket at N=10. DTE=0 win rate holding at 20% with strongly negative expectancy. DTE=2-3 shows 50% win rate over N=4 \u2014 early advantage for non-expiry DTE."
     },
     "Q4_etf_vs_single_stock": {
       "status": "indeterminate",

@@ -89,3 +89,7 @@ alembic/versions/*.pyc
 
 # Claude Code internal scaffolding
 .claude/
+
+# Frontend
+node_modules/
+frontend/dist/

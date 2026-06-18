@@ -78,7 +78,8 @@ Thumbs.db
 # Backtest outputs
 backtest_results/
 reports/
-*.html
+backtest_results/**/*.html
+reports/**/*.html
 
 # Jupyter
 .ipynb_checkpoints/

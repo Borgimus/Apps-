@@ -19,7 +19,7 @@ export const ictApi = {
   // Signals
   getSignals: async (): Promise<ICTSignal[]> => {
     const { data } = await apiClient.get<ICTSignal[]>('/api/ict/signals');
-    return data;
+    return Array.isArray(data) ? data : [];
   },
 
   // Backtest
@@ -33,10 +33,10 @@ export const ictApi = {
     return data;
   },
 
-  // Scanner
+  // Scanner — backend returns { results: [...], symbols_scanned, signals_found, scanned_at }
   getScannerResults: async (): Promise<ScannerResult[]> => {
-    const { data } = await apiClient.get<ScannerResult[]>('/api/ict/scanner');
-    return data;
+    const { data } = await apiClient.get<{ results: ScannerResult[] }>('/api/ict/scanner');
+    return Array.isArray(data) ? data : (data.results ?? []);
   },
 
   // Config

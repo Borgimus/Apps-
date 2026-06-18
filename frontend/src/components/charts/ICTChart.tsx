@@ -8,7 +8,7 @@ import {
   CrosshairMode,
   LineStyle,
 } from 'lightweight-charts'
-import type { SessionLevels, ICTSignal, FVGZone, MarketStructurePoint } from '../../types/ict'
+import type { SessionLevels, ICTSignal, FVGZone, MarketStructurePoint, Candle } from '../../types/ict'
 
 interface LayerToggles {
   sessionLevels: boolean
@@ -19,22 +19,22 @@ interface LayerToggles {
 
 interface ICTChartProps {
   symbol: string
+  bars?: Candle[]
   sessionLevels?: SessionLevels | null
   signals?: ICTSignal[]
   fvgZones?: FVGZone[]
   marketStructure?: MarketStructurePoint[]
   height?: number
+  isLoadingBars?: boolean
 }
 
-// Generate mock OHLCV data for demo
-function generateMockCandles(count: number = 200): CandlestickData<Time>[] {
+function generateMockCandles(count = 200): CandlestickData<Time>[] {
   const candles: CandlestickData<Time>[] = []
   let price = 1.08500
   const now = Math.floor(Date.now() / 1000)
-  const interval = 60 // 1 minute
 
   for (let i = count; i >= 0; i--) {
-    const t = now - i * interval
+    const t = now - i * 60
     const open = price
     const change = (Math.random() - 0.495) * 0.00050
     const high = open + Math.random() * 0.00040
@@ -65,11 +65,13 @@ const CHART_COLORS = {
 
 export default function ICTChart({
   symbol,
+  bars,
   sessionLevels,
   signals = [],
   fvgZones = [],
   marketStructure = [],
   height = 500,
+  isLoadingBars = false,
 }: ICTChartProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
@@ -100,9 +102,7 @@ export default function ICTChart({
         vertLines: { color: CHART_COLORS.grid },
         horzLines: { color: CHART_COLORS.grid },
       },
-      crosshair: {
-        mode: CrosshairMode.Normal,
-      },
+      crosshair: { mode: CrosshairMode.Normal },
       rightPriceScale: {
         borderColor: CHART_COLORS.border,
         textColor: CHART_COLORS.text,
@@ -123,14 +123,9 @@ export default function ICTChart({
       wickDownColor: CHART_COLORS.wickDownColor,
     })
 
-    const mockData = generateMockCandles(300)
-    candleSeries.setData(mockData)
-    chart.timeScale().fitContent()
-
     chartRef.current = chart
     seriesRef.current = candleSeries
 
-    // Resize observer
     const resizeObserver = new ResizeObserver(() => {
       if (containerRef.current) {
         chart.applyOptions({ width: containerRef.current.clientWidth })
@@ -146,11 +141,20 @@ export default function ICTChart({
     }
   }, [height])
 
+  // Load bar data (real or mock)
+  useEffect(() => {
+    if (!seriesRef.current) return
+    const data: CandlestickData<Time>[] = bars && bars.length > 0
+      ? bars.map((b) => ({ time: b.time as Time, open: b.open, high: b.high, low: b.low, close: b.close }))
+      : generateMockCandles(300)
+    seriesRef.current.setData(data)
+    chartRef.current?.timeScale().fitContent()
+  }, [bars])
+
   // Session levels overlay
   useEffect(() => {
     if (!chartRef.current || !sessionLevels || !layers.sessionLevels) return
     const chart = chartRef.current
-
     const lines: Array<ISeriesApi<'Line'>> = []
 
     const addLine = (price: number, color: string, title: string) => {
@@ -164,30 +168,24 @@ export default function ICTChart({
         priceLineVisible: false,
       })
       const nowNum = Math.floor(Date.now() / 1000)
-      const now = nowNum as Time
-      const past = (nowNum - 3600) as Time
       s.setData([
-        { time: past, value: price },
-        { time: now, value: price },
+        { time: (nowNum - 3600) as Time, value: price },
+        { time: nowNum as Time, value: price },
       ])
       lines.push(s)
     }
 
-    if (layers.sessionLevels) {
-      addLine(sessionLevels.asian_high, '#f59e0b', 'AS H')
-      addLine(sessionLevels.asian_low, '#f59e0b', 'AS L')
-      addLine(sessionLevels.london_high, '#3b82f6', 'LN H')
-      addLine(sessionLevels.london_low, '#3b82f6', 'LN L')
-    }
+    addLine(sessionLevels.asian_high, '#f59e0b', 'AS H')
+    addLine(sessionLevels.asian_low, '#f59e0b', 'AS L')
+    addLine(sessionLevels.london_high, '#3b82f6', 'LN H')
+    addLine(sessionLevels.london_low, '#3b82f6', 'LN L')
 
     return () => {
-      lines.forEach((l) => {
-        try { chart.removeSeries(l) } catch { /* ignore */ }
-      })
+      lines.forEach((l) => { try { chart.removeSeries(l) } catch { /* ignore */ } })
     }
   }, [sessionLevels, layers.sessionLevels])
 
-  // Signals markers
+  // Signal markers
   useEffect(() => {
     if (!seriesRef.current || !signals.length || !layers.signals) return
     const markers = signals
@@ -203,12 +201,11 @@ export default function ICTChart({
       .sort((a, b) => (a.time as number) - (b.time as number))
 
     seriesRef.current.setMarkers(markers)
-    return () => {
-      seriesRef.current?.setMarkers([])
-    }
+    return () => { seriesRef.current?.setMarkers([]) }
   }, [signals, layers.signals])
 
   const activeSignal = signals.find((s) => s.status === 'active')
+  const usingLiveData = bars && bars.length > 0
 
   return (
     <div className="flex flex-col gap-0">
@@ -232,17 +229,22 @@ export default function ICTChart({
                 : 'bg-transparent border-transparent text-text-muted'
             }`}
           >
-            <div
-              className="w-2 h-2 rounded-full"
-              style={{ background: layers[key] ? color : '#2a2d3e' }}
-            />
+            <div className="w-2 h-2 rounded-full" style={{ background: layers[key] ? color : '#2a2d3e' }} />
             {label}
           </button>
         ))}
 
+        {/* Data source badge */}
+        <div className={`ml-auto flex items-center gap-1.5 text-xs px-2 py-0.5 rounded ${
+          isLoadingBars ? 'text-text-muted' : usingLiveData ? 'text-bull' : 'text-text-muted'
+        }`}>
+          <div className={`w-1.5 h-1.5 rounded-full ${usingLiveData ? 'bg-bull animate-pulse' : 'bg-text-muted'}`} />
+          {isLoadingBars ? 'Loading…' : usingLiveData ? 'Live data' : 'Mock data'}
+        </div>
+
         {/* Active signal info */}
         {activeSignal && (
-          <div className="ml-auto flex items-center gap-3 text-xs">
+          <div className="flex items-center gap-3 text-xs">
             <div className="flex items-center gap-1.5 px-2 py-1 bg-bg-tertiary rounded border border-border">
               <span className="text-text-muted">Entry:</span>
               <span className={`font-mono font-semibold ${activeSignal.direction === 'long' ? 'text-bull' : 'text-bear'}`}>
@@ -268,11 +270,11 @@ export default function ICTChart({
       {layers.sessionLevels && (
         <div className="flex items-center gap-4 px-3 py-1.5 bg-bg-secondary border-t border-border text-xs">
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-0.5 bg-asian" style={{ borderTop: '1px dashed #f59e0b' }} />
+            <div className="w-4 h-0.5" style={{ borderTop: '1px dashed #f59e0b' }} />
             <span className="text-text-muted">Asian H/L</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-0.5 bg-london" style={{ borderTop: '1px dashed #3b82f6' }} />
+            <div className="w-4 h-0.5" style={{ borderTop: '1px dashed #3b82f6' }} />
             <span className="text-text-muted">London H/L</span>
           </div>
           <div className="flex items-center gap-1.5">

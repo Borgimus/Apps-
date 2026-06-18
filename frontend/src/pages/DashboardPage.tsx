@@ -6,6 +6,7 @@ import FVGOverlay from '../components/charts/FVGOverlay'
 import { useSessionLevels } from '../hooks/useSessionLevels'
 import { useICTSignals } from '../hooks/useICTSignals'
 import { useScanner } from '../hooks/useScanner'
+import { useBars } from '../hooks/useBars'
 import { useSignalStore } from '../store/signalStore'
 import { DirectionBadge } from '../components/signals/SignalBadge'
 
@@ -19,6 +20,7 @@ export default function DashboardPage() {
   const { data: sessionLevels, isLoading: levelsLoading } = useSessionLevels(symbol)
   const { isLoading: signalsLoading } = useICTSignals()
   const { data: scannerData } = useScanner()
+  const { data: bars, isLoading: barsLoading } = useBars(symbol, 300)
   const { signals } = useSignalStore()
 
   const activeSignals = signals.filter((s) => s.status === 'active' || s.status === 'pending')
@@ -41,6 +43,8 @@ export default function DashboardPage() {
           </div>
           <ICTChart
             symbol={symbol}
+            bars={bars}
+            isLoadingBars={barsLoading}
             sessionLevels={sessionLevels}
             signals={activeSignals}
             fvgZones={fvgZones}

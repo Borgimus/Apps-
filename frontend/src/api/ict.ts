@@ -50,6 +50,15 @@ export const ictApi = {
     return data;
   },
 
+  // OHLCV bars for the chart
+  getBars: async (symbol: string, limit = 300): Promise<import('../types/ict').Candle[]> => {
+    const { data } = await apiClient.get<import('../types/ict').Candle[]>(
+      `/api/ict/bars/${symbol}`,
+      { params: { limit } }
+    );
+    return Array.isArray(data) ? data : [];
+  },
+
   // Market structure
   getMarketStructure: async (symbol: string): Promise<MarketStructurePoint[]> => {
     const { data } = await apiClient.get<MarketStructurePoint[]>(`/api/ict/market-structure/${symbol}`);

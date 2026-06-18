@@ -105,9 +105,24 @@ router = APIRouter(prefix="/api/ict", tags=["ICT Strategy"])
 ws_router = APIRouter(tags=["ICT WebSocket"])
 
 
-# ── Helper: safe data fetch (warning-suppressed) ──────────────────────────────
+# ── Helper: safe data fetch (Alpaca → yfinance fallback) ─────────────────────
 
 def _fetch_bars_silent(symbol: str, days: int = 7):
+    settings = get_settings()
+    if settings.alpaca_api_key and settings.alpaca_secret_key:
+        from ..data.alpaca_data import fetch_alpaca_bars, is_supported
+        if is_supported(symbol):
+            bars = fetch_alpaca_bars(
+                symbol,
+                api_key=settings.alpaca_api_key,
+                secret_key=settings.alpaca_secret_key,
+                days=days,
+                data_feed=settings.alpaca_data_feed,
+                data_url=settings.alpaca_data_url,
+            )
+            if not bars.empty:
+                return bars
+            logger.info("Alpaca returned no bars for %s — falling back to yfinance", symbol)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         return fetch_1min_bars(symbol, warn=False)
@@ -438,6 +453,32 @@ async def get_backtest_result(task_id: str):
     )
 
 
+# ── Bars (OHLCV for frontend chart) ───────────────────────────────────────────
+
+@router.get("/bars/{symbol}")
+async def get_bars(
+    symbol: str,
+    limit: int = Query(default=300, ge=10, le=2000),
+    days: int = Query(default=7, ge=1, le=30),
+):
+    """Return recent OHLCV 1-minute bars for the frontend chart."""
+    bars = _fetch_bars_silent(symbol, days=days)
+    if bars.empty:
+        return []
+    tail = bars.tail(limit)
+    return [
+        {
+            "time": int(ts.timestamp()),
+            "open": float(row["open"]),
+            "high": float(row["high"]),
+            "low": float(row["low"]),
+            "close": float(row["close"]),
+            "volume": int(row.get("volume", 0)),
+        }
+        for ts, row in tail.iterrows()
+    ]
+
+
 # ── Scanner ────────────────────────────────────────────────────────────────────
 
 @router.get("/scanner", response_model=ScannerResponse)
@@ -637,12 +678,81 @@ async def ws_ict_signals(websocket: WebSocket):
 
 
 async def broadcast_ict_signal(signal_data: dict) -> None:
-    """Call from background tasks to push ICT signals to connected WS clients."""
+    """Push an ICT signal to all connected WebSocket clients."""
     await _ws_manager.broadcast({
-        "type": "ict_signal",
+        "type": "signal",
         "data": signal_data,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     })
+
+
+# ── Background scanner loop ────────────────────────────────────────────────────
+
+_seen_signal_keys: set[str] = set()  # dedup by (symbol, sweep_type, timestamp-minute)
+
+
+async def _background_scan_loop(interval_seconds: int = 60) -> None:
+    """Periodically run the ICT scanner and broadcast new signals."""
+    global _seen_signal_keys
+    await asyncio.sleep(10)  # wait for app startup to settle
+    logger.info("ICT background scanner started (interval=%ds)", interval_seconds)
+
+    while True:
+        try:
+            settings = get_settings()
+            symbols = settings.watchlist[:5]
+            strategy = ICTStrategy(params=_active_config.model_dump())
+
+            for sym in symbols:
+                bars = _fetch_bars_silent(sym)
+                if bars.empty:
+                    continue
+                try:
+                    raw_signals = strategy.generate_signals(bars, sym)
+                except Exception as exc:
+                    logger.debug("Scanner error for %s: %s", sym, exc)
+                    continue
+
+                for sig in raw_signals:
+                    minute_bucket = sig.timestamp[:16] if hasattr(sig, "timestamp") else ""
+                    key = f"{sig.symbol}:{sig.sweep_type}:{minute_bucket}"
+                    if key in _seen_signal_keys:
+                        continue
+                    _seen_signal_keys.add(key)
+                    if len(_seen_signal_keys) > 500:
+                        _seen_signal_keys = set(list(_seen_signal_keys)[-250:])
+
+                    payload = {
+                        "id": str(uuid.uuid4()),
+                        "symbol": sig.symbol,
+                        "direction": sig.direction.value if hasattr(sig.direction, "value") else str(sig.direction),
+                        "entry_price": float(sig.entry_price),
+                        "stop_loss": float(sig.stop_loss),
+                        "take_profit": float(sig.take_profit),
+                        "fvg_upper": float(sig.fvg_upper),
+                        "fvg_lower": float(sig.fvg_lower),
+                        "sweep_type": str(sig.sweep_type),
+                        "confidence": float(sig.confidence),
+                        "timestamp": sig.timestamp if isinstance(sig.timestamp, str) else sig.timestamp.isoformat(),
+                        "status": "active",
+                    }
+                    await broadcast_ict_signal(payload)
+                    logger.info("Broadcast ICT signal: %s %s @ %.5f",
+                                sig.symbol, payload["direction"], sig.entry_price)
+
+        except Exception as exc:
+            logger.warning("Background scanner error: %s", exc)
+
+        await asyncio.sleep(interval_seconds)
+
+
+def start_background_scanner(app, interval_seconds: int = 60) -> None:
+    """Register the scanner loop as a FastAPI startup task."""
+    import asyncio
+
+    @app.on_event("startup")
+    async def _start():
+        asyncio.create_task(_background_scan_loop(interval_seconds))
 
 
 def create_ict_router() -> tuple:

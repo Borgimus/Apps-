@@ -4,7 +4,7 @@ import Sidebar from './Sidebar'
 import TopBar from './TopBar'
 
 export default function Layout() {
-  const [symbol, setSymbol] = useState('EURUSD')
+  const [symbol, setSymbol] = useState('SPY')
   const [timeframe, setTimeframe] = useState('1m')
 
   return (

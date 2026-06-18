@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSignalStore } from '../../store/signalStore'
 
-const SYMBOLS = ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD', 'NQ', 'ES', 'GC', 'CL']
+const SYMBOLS = ['SPY', 'QQQ', 'AAPL', 'TSLA', 'NVDA', 'BTCUSD', 'ETHUSD', 'EURUSD', 'GBPUSD', 'NQ', 'ES']
 const TIMEFRAMES = ['1m', '5m', '15m', '1h', '4h', '1D']
 
 interface TopBarProps {

@@ -128,10 +128,11 @@ def create_app(
 
     # Mount ICT strategy routers
     try:
-        from .ict_api import create_ict_router
+        from .ict_api import create_ict_router, start_background_scanner
         ict_http_router, ict_ws_router = create_ict_router()
         app.include_router(ict_http_router)
         app.include_router(ict_ws_router)
+        start_background_scanner(app, interval_seconds=60)
         logger.info("ICT strategy API mounted at /api/ict and /ws/ict/signals")
     except Exception as _exc:
         logger.warning("Failed to mount ICT router: %s", _exc)

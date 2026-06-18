@@ -111,6 +111,8 @@ class Settings(BaseSettings):
     alpaca_api_key: Optional[str] = None
     alpaca_secret_key: Optional[str] = None
     alpaca_base_url: str = "https://paper-api.alpaca.markets"
+    alpaca_data_url: str = "https://data.alpaca.markets"
+    alpaca_data_feed: str = "iex"  # "iex" free tier; "sip" requires paid subscription
 
     tradier_access_token: Optional[str] = None
     tradier_base_url: str = "https://sandbox.tradier.com/v1"

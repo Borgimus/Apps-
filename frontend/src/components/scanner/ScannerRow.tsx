@@ -6,9 +6,9 @@ interface ScannerRowProps {
   onChartClick?: (symbol: string) => void
 }
 
-function SessionStatus({ levels }: { levels: ScannerResult['session_levels'] }) {
-  const hasAsian = levels.asian_high > 0 && levels.asian_low > 0
-  const hasLondon = levels.london_high > 0 && levels.london_low > 0
+function SessionStatus({ levels }: { levels: ScannerResult['session_levels'] | null | undefined }) {
+  const hasAsian = !!levels && levels.asian_high > 0 && levels.asian_low > 0
+  const hasLondon = !!levels && levels.london_high > 0 && levels.london_low > 0
   return (
     <div className="flex gap-1">
       <span className={`text-xs px-1.5 py-0.5 rounded ${hasAsian ? 'bg-asian/20 text-asian' : 'bg-bg-tertiary text-text-muted'}`}>

@@ -38,7 +38,7 @@ export interface ScannerResult {
   symbol: string;
   signal: Direction | null;
   confidence: number;
-  session_levels: SessionLevels;
+  session_levels: SessionLevels | null;
   active_fvgs: FVGZone[];
 }
 

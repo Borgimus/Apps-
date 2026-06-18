@@ -1,0 +1,53 @@
+# Never send node_modules into the build context — the Dockerfile installs
+# them inside the container via npm ci, compiled for the container's Node version.
+node_modules/
+frontend/node_modules/
+frontend/dist/
+
+# Python build artefacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Local databases (dev only)
+*.db
+*.sqlite
+*.sqlite3
+
+# Test & coverage output
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+backtest_results/
+reports/
+
+# Secrets / local config
+.env
+.env.local
+*.pem
+KILL_SWITCH
+
+# Logs
+logs/
+*.log
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Git & Claude
+.git/
+.claude/

@@ -163,8 +163,9 @@ export default function ICTChart({
         lastValueVisible: true,
         priceLineVisible: false,
       })
-      const now = Math.floor(Date.now() / 1000) as Time
-      const past = (now - 3600) as Time
+      const nowNum = Math.floor(Date.now() / 1000)
+      const now = nowNum as Time
+      const past = (nowNum - 3600) as Time
       s.setData([
         { time: past, value: price },
         { time: now, value: price },

@@ -111,6 +111,7 @@ export interface BacktestTrade {
 export interface BacktestResults {
   task_id: string;
   status: BacktestStatus;
+  progress?: number;        // 0–1 while status === 'running'
   symbol: string;
   start_date: string | null;
   end_date: string | null;

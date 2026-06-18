@@ -18,7 +18,7 @@ export const useSignalStore = create<SignalStore>((set) => ({
   lastUpdate: null,
 
   setSignals: (signals) =>
-    set({ signals, lastUpdate: new Date() }),
+    set({ signals: Array.isArray(signals) ? signals : [], lastUpdate: new Date() }),
 
   addSignal: (signal) =>
     set((state) => ({

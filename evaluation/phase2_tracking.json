@@ -565,5 +565,17 @@
       "reason": "Recovered N=15 (2 wins/15, 13%, pnl=-280, avg=-18.67/trade). Direct N=5 (3 wins/5, 60%, pnl=+32, avg=+6.40/trade). Direct now at N\u22653 minimum. S8 all 3 trades were direct fills. Direct 3/5 wins vs recovered 2/15 wins \u2014 stark difference. Direct pnl strongly positive (+32) vs recovered deeply negative (-280). Pattern potentially SUPPORTED but confound exists: S8 direct fills are DTE=0 with market in partial-day liquidity recovery, not a clean comparison yet."
     }
   },
-  "note": "Phase 2 tracking. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: zero-trade standby (rvol < 0.50). S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct, all trailing_stop). data_clean=FALSE \u2014 all 3 exits required broker fill correction. 7 sessions remaining to Phase 2 completion (S15)."
+  "voided_attempts": [
+    {
+      "intended_session": "S9",
+      "date": "2026-06-22",
+      "voided_at_et": "09:40:39",
+      "cycles_completed": 22,
+      "reason": "External shell/process termination. Session runner launched as background process (&) in bash shell; shell was recycled between conversation turns, killing the child process at cycle 22. No positions opened, no orders placed, zero broker exposure. Session window incomplete (09:30\u201309:40 ET vs required 09:30\u201312:30 ET).",
+      "broker_state_at_void": "0 positions, 0 open orders",
+      "excluded_from_phase2": true,
+      "fix": "Relaunch with nohup to survive shell handoffs: nohup python scripts/session_runner.py --poll 30 --reconcile-interval 10 > logs/session_YYYY-MM-DD.log 2>&1 &"
+    }
+  ],
+  "note": "Phase 2 tracking. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: zero-trade standby (rvol < 0.50). S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct, all trailing_stop). data_clean=FALSE \u2014 all 3 exits required broker fill correction. 7 sessions remaining to Phase 2 completion (S15). S9 attempt on 2026-06-22 voided (shell kill at 09:40 ET, cycle 22, no broker exposure)."
 }

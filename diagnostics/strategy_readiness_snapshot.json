@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-05-26T17:48:06.988845-04:00",
-  "session_date": "2026-05-26",
+  "generated_at": "2026-06-22T09:28:15.155735-04:00",
+  "session_date": "2026-06-22",
   "bar_interval": "5m",
   "rsi_trend_config": {
     "rsi_period": 14,
@@ -37,12 +37,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "SPY",
@@ -50,12 +50,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "SPY",
@@ -63,12 +63,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "QQQ",
@@ -76,12 +76,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "QQQ",
@@ -89,12 +89,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "QQQ",
@@ -102,12 +102,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "IWM",
@@ -115,12 +115,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "IWM",
@@ -128,12 +128,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "IWM",
@@ -141,12 +141,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "DIA",
@@ -154,12 +154,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "DIA",
@@ -167,12 +167,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "DIA",
@@ -180,12 +180,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "XLK",
@@ -193,12 +193,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "XLK",
@@ -206,12 +206,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "XLK",
@@ -219,12 +219,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "XLF",
@@ -232,12 +232,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "XLF",
@@ -245,12 +245,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "XLF",
@@ -258,12 +258,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "XLE",
@@ -271,12 +271,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "XLE",
@@ -284,12 +284,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "XLE",
@@ -297,12 +297,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "XLY",
@@ -310,12 +310,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "XLY",
@@ -323,12 +323,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "XLY",
@@ -336,12 +336,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "SMH",
@@ -349,12 +349,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "SMH",
@@ -362,12 +362,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "SMH",
@@ -375,12 +375,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "AAPL",
@@ -388,12 +388,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "AAPL",
@@ -401,12 +401,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "AAPL",
@@ -414,12 +414,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "MSFT",
@@ -427,12 +427,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "MSFT",
@@ -440,12 +440,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "MSFT",
@@ -453,12 +453,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "NVDA",
@@ -466,12 +466,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "NVDA",
@@ -479,12 +479,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "NVDA",
@@ -492,12 +492,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "AMZN",
@@ -505,12 +505,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "AMZN",
@@ -518,12 +518,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "AMZN",
@@ -531,12 +531,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "META",
@@ -544,12 +544,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "META",
@@ -557,12 +557,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "META",
@@ -570,12 +570,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "GOOGL",
@@ -583,12 +583,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "GOOGL",
@@ -596,12 +596,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "GOOGL",
@@ -609,12 +609,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "TSLA",
@@ -622,12 +622,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "TSLA",
@@ -635,12 +635,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "TSLA",
@@ -648,12 +648,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "AMD",
@@ -661,12 +661,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "AMD",
@@ -674,12 +674,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "AMD",
@@ -687,12 +687,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "ARM",
@@ -700,12 +700,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "ARM",
@@ -713,12 +713,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "ARM",
@@ -726,12 +726,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "AVGO",
@@ -739,12 +739,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "AVGO",
@@ -752,12 +752,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "AVGO",
@@ -765,12 +765,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "COIN",
@@ -778,12 +778,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "COIN",
@@ -791,12 +791,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "COIN",
@@ -804,12 +804,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "MSTR",
@@ -817,12 +817,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "MSTR",
@@ -830,12 +830,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "MSTR",
@@ -843,12 +843,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "PLTR",
@@ -856,12 +856,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "PLTR",
@@ -869,12 +869,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "PLTR",
@@ -882,12 +882,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "SHOP",
@@ -895,12 +895,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "SHOP",
@@ -908,12 +908,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "SHOP",
@@ -921,12 +921,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "SNOW",
@@ -934,12 +934,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "SNOW",
@@ -947,12 +947,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "SNOW",
@@ -960,12 +960,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "NET",
@@ -973,12 +973,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "NET",
@@ -986,12 +986,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "NET",
@@ -999,12 +999,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "CRWD",
@@ -1012,12 +1012,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "CRWD",
@@ -1025,12 +1025,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "CRWD",
@@ -1038,12 +1038,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "DDOG",
@@ -1051,12 +1051,12 @@
       "strategy_id": "orb",
       "strategy_name": "Opening Range Breakout",
       "min_bars_required": 17,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 17 more bars",
       "earliest_ready_time_et": "10:55",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "DDOG",
@@ -1064,12 +1064,12 @@
       "strategy_id": "vwap_reclaim",
       "strategy_name": "VWAP Reclaim/Rejection",
       "min_bars_required": 7,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 7 more bars",
       "earliest_ready_time_et": "10:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     },
     {
       "symbol": "DDOG",
@@ -1077,12 +1077,12 @@
       "strategy_id": "rsi_trend",
       "strategy_name": "RSI + Trend Filter",
       "min_bars_required": 55,
-      "bars_available_today": 78,
-      "bars_available_total": 78,
-      "ready": true,
-      "reason": "sufficient bars",
+      "bars_available_today": 0,
+      "bars_available_total": 0,
+      "ready": false,
+      "reason": "need 55 more bars",
       "earliest_ready_time_et": "14:05",
-      "currently_past_ready_time": true
+      "currently_past_ready_time": false
     }
   ]
 }

@@ -1,7 +1,7 @@
 # Strategy Readiness Snapshot
 
-**Generated:** 2026-05-26 17:48:06 ET  
-**Session date:** 2026-05-26  
+**Generated:** 2026-06-22 09:28:15 ET  
+**Session date:** 2026-06-22  
 **Bar interval:** 5m  
 
 ## Active Configuration
@@ -29,115 +29,115 @@
 
 - `min_bars_required`: **17**
 - Earliest ready: **10:55 ET**
-- Currently ready: **27/27 symbols**
+- Currently ready: **0/27 symbols**
 
 | Symbol | Group | Bars Today | Total Bars | Ready | Reason |
 |---|---|---|---|---|---|
-| AAPL | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| AMD | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| AMZN | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| ARM | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| AVGO | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| COIN | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| CRWD | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| DDOG | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| DIA | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| GOOGL | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| IWM | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| META | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| MSFT | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| MSTR | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| NET | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| NVDA | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| PLTR | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| QQQ | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| SHOP | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| SMH | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| SNOW | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| SPY | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| TSLA | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| XLE | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| XLF | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| XLK | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| XLY | core_etfs | 78 | 78 | ✓ | sufficient bars |
+| AAPL | mega_cap | 0 | 0 | ✗ | need 17 more bars |
+| AMD | liquid_growth | 0 | 0 | ✗ | need 17 more bars |
+| AMZN | mega_cap | 0 | 0 | ✗ | need 17 more bars |
+| ARM | liquid_growth | 0 | 0 | ✗ | need 17 more bars |
+| AVGO | liquid_growth | 0 | 0 | ✗ | need 17 more bars |
+| COIN | liquid_growth | 0 | 0 | ✗ | need 17 more bars |
+| CRWD | liquid_growth | 0 | 0 | ✗ | need 17 more bars |
+| DDOG | liquid_growth | 0 | 0 | ✗ | need 17 more bars |
+| DIA | core_etfs | 0 | 0 | ✗ | need 17 more bars |
+| GOOGL | mega_cap | 0 | 0 | ✗ | need 17 more bars |
+| IWM | core_etfs | 0 | 0 | ✗ | need 17 more bars |
+| META | mega_cap | 0 | 0 | ✗ | need 17 more bars |
+| MSFT | mega_cap | 0 | 0 | ✗ | need 17 more bars |
+| MSTR | liquid_growth | 0 | 0 | ✗ | need 17 more bars |
+| NET | liquid_growth | 0 | 0 | ✗ | need 17 more bars |
+| NVDA | mega_cap | 0 | 0 | ✗ | need 17 more bars |
+| PLTR | liquid_growth | 0 | 0 | ✗ | need 17 more bars |
+| QQQ | core_etfs | 0 | 0 | ✗ | need 17 more bars |
+| SHOP | liquid_growth | 0 | 0 | ✗ | need 17 more bars |
+| SMH | core_etfs | 0 | 0 | ✗ | need 17 more bars |
+| SNOW | liquid_growth | 0 | 0 | ✗ | need 17 more bars |
+| SPY | core_etfs | 0 | 0 | ✗ | need 17 more bars |
+| TSLA | mega_cap | 0 | 0 | ✗ | need 17 more bars |
+| XLE | core_etfs | 0 | 0 | ✗ | need 17 more bars |
+| XLF | core_etfs | 0 | 0 | ✗ | need 17 more bars |
+| XLK | core_etfs | 0 | 0 | ✗ | need 17 more bars |
+| XLY | core_etfs | 0 | 0 | ✗ | need 17 more bars |
 
 ### VWAP Reclaim/Rejection (`vwap_reclaim`)
 
 - `min_bars_required`: **7**
 - Earliest ready: **10:05 ET**
-- Currently ready: **27/27 symbols**
+- Currently ready: **0/27 symbols**
 
 | Symbol | Group | Bars Today | Total Bars | Ready | Reason |
 |---|---|---|---|---|---|
-| AAPL | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| AMD | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| AMZN | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| ARM | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| AVGO | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| COIN | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| CRWD | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| DDOG | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| DIA | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| GOOGL | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| IWM | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| META | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| MSFT | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| MSTR | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| NET | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| NVDA | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| PLTR | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| QQQ | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| SHOP | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| SMH | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| SNOW | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| SPY | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| TSLA | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| XLE | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| XLF | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| XLK | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| XLY | core_etfs | 78 | 78 | ✓ | sufficient bars |
+| AAPL | mega_cap | 0 | 0 | ✗ | need 7 more bars |
+| AMD | liquid_growth | 0 | 0 | ✗ | need 7 more bars |
+| AMZN | mega_cap | 0 | 0 | ✗ | need 7 more bars |
+| ARM | liquid_growth | 0 | 0 | ✗ | need 7 more bars |
+| AVGO | liquid_growth | 0 | 0 | ✗ | need 7 more bars |
+| COIN | liquid_growth | 0 | 0 | ✗ | need 7 more bars |
+| CRWD | liquid_growth | 0 | 0 | ✗ | need 7 more bars |
+| DDOG | liquid_growth | 0 | 0 | ✗ | need 7 more bars |
+| DIA | core_etfs | 0 | 0 | ✗ | need 7 more bars |
+| GOOGL | mega_cap | 0 | 0 | ✗ | need 7 more bars |
+| IWM | core_etfs | 0 | 0 | ✗ | need 7 more bars |
+| META | mega_cap | 0 | 0 | ✗ | need 7 more bars |
+| MSFT | mega_cap | 0 | 0 | ✗ | need 7 more bars |
+| MSTR | liquid_growth | 0 | 0 | ✗ | need 7 more bars |
+| NET | liquid_growth | 0 | 0 | ✗ | need 7 more bars |
+| NVDA | mega_cap | 0 | 0 | ✗ | need 7 more bars |
+| PLTR | liquid_growth | 0 | 0 | ✗ | need 7 more bars |
+| QQQ | core_etfs | 0 | 0 | ✗ | need 7 more bars |
+| SHOP | liquid_growth | 0 | 0 | ✗ | need 7 more bars |
+| SMH | core_etfs | 0 | 0 | ✗ | need 7 more bars |
+| SNOW | liquid_growth | 0 | 0 | ✗ | need 7 more bars |
+| SPY | core_etfs | 0 | 0 | ✗ | need 7 more bars |
+| TSLA | mega_cap | 0 | 0 | ✗ | need 7 more bars |
+| XLE | core_etfs | 0 | 0 | ✗ | need 7 more bars |
+| XLF | core_etfs | 0 | 0 | ✗ | need 7 more bars |
+| XLK | core_etfs | 0 | 0 | ✗ | need 7 more bars |
+| XLY | core_etfs | 0 | 0 | ✗ | need 7 more bars |
 
 ### RSI + Trend Filter (`rsi_trend`)
 
 - `min_bars_required`: **55**
 - Earliest ready: **14:05 ET**
-- Currently ready: **27/27 symbols**
+- Currently ready: **0/27 symbols**
 
 | Symbol | Group | Bars Today | Total Bars | Ready | Reason |
 |---|---|---|---|---|---|
-| AAPL | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| AMD | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| AMZN | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| ARM | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| AVGO | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| COIN | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| CRWD | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| DDOG | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| DIA | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| GOOGL | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| IWM | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| META | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| MSFT | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| MSTR | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| NET | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| NVDA | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| PLTR | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| QQQ | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| SHOP | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| SMH | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| SNOW | liquid_growth | 78 | 78 | ✓ | sufficient bars |
-| SPY | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| TSLA | mega_cap | 78 | 78 | ✓ | sufficient bars |
-| XLE | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| XLF | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| XLK | core_etfs | 78 | 78 | ✓ | sufficient bars |
-| XLY | core_etfs | 78 | 78 | ✓ | sufficient bars |
+| AAPL | mega_cap | 0 | 0 | ✗ | need 55 more bars |
+| AMD | liquid_growth | 0 | 0 | ✗ | need 55 more bars |
+| AMZN | mega_cap | 0 | 0 | ✗ | need 55 more bars |
+| ARM | liquid_growth | 0 | 0 | ✗ | need 55 more bars |
+| AVGO | liquid_growth | 0 | 0 | ✗ | need 55 more bars |
+| COIN | liquid_growth | 0 | 0 | ✗ | need 55 more bars |
+| CRWD | liquid_growth | 0 | 0 | ✗ | need 55 more bars |
+| DDOG | liquid_growth | 0 | 0 | ✗ | need 55 more bars |
+| DIA | core_etfs | 0 | 0 | ✗ | need 55 more bars |
+| GOOGL | mega_cap | 0 | 0 | ✗ | need 55 more bars |
+| IWM | core_etfs | 0 | 0 | ✗ | need 55 more bars |
+| META | mega_cap | 0 | 0 | ✗ | need 55 more bars |
+| MSFT | mega_cap | 0 | 0 | ✗ | need 55 more bars |
+| MSTR | liquid_growth | 0 | 0 | ✗ | need 55 more bars |
+| NET | liquid_growth | 0 | 0 | ✗ | need 55 more bars |
+| NVDA | mega_cap | 0 | 0 | ✗ | need 55 more bars |
+| PLTR | liquid_growth | 0 | 0 | ✗ | need 55 more bars |
+| QQQ | core_etfs | 0 | 0 | ✗ | need 55 more bars |
+| SHOP | liquid_growth | 0 | 0 | ✗ | need 55 more bars |
+| SMH | core_etfs | 0 | 0 | ✗ | need 55 more bars |
+| SNOW | liquid_growth | 0 | 0 | ✗ | need 55 more bars |
+| SPY | core_etfs | 0 | 0 | ✗ | need 55 more bars |
+| TSLA | mega_cap | 0 | 0 | ✗ | need 55 more bars |
+| XLE | core_etfs | 0 | 0 | ✗ | need 55 more bars |
+| XLF | core_etfs | 0 | 0 | ✗ | need 55 more bars |
+| XLK | core_etfs | 0 | 0 | ✗ | need 55 more bars |
+| XLY | core_etfs | 0 | 0 | ✗ | need 55 more bars |
 
 ## Summary
 
-- **Opening Range Breakout**: 27/27 symbols ready  (earliest: 10:55 ET)
-- **VWAP Reclaim/Rejection**: 27/27 symbols ready  (earliest: 10:05 ET)
-- **RSI + Trend Filter**: 27/27 symbols ready  (earliest: 14:05 ET)
+- **Opening Range Breakout**: 0/27 symbols ready  (earliest: 10:55 ET)
+- **VWAP Reclaim/Rejection**: 0/27 symbols ready  (earliest: 10:05 ET)
+- **RSI + Trend Filter**: 0/27 symbols ready  (earliest: 14:05 ET)
 
 ---
 

@@ -574,8 +574,18 @@
       "reason": "External shell/process termination. Session runner launched as background process (&) in bash shell; shell was recycled between conversation turns, killing the child process at cycle 22. No positions opened, no orders placed, zero broker exposure. Session window incomplete (09:30\u201309:40 ET vs required 09:30\u201312:30 ET).",
       "broker_state_at_void": "0 positions, 0 open orders",
       "excluded_from_phase2": true,
-      "fix": "Relaunch with nohup to survive shell handoffs: nohup python scripts/session_runner.py --poll 30 --reconcile-interval 10 > logs/session_YYYY-MM-DD.log 2>&1 &"
+      "fix_attempted": "nohup \u2014 insufficient, see attempt 2"
+    },
+    {
+      "intended_session": "S9",
+      "date": "2026-06-23",
+      "voided_at_et": "10:05:22",
+      "cycles_completed": 73,
+      "reason": "Remote container killed process with SIGKILL during conversation inactivity. nohup protects against SIGHUP only; container resource management sent SIGKILL which cannot be caught or logged. Process died cleanly mid-STANDBY (RVOL < 0.5, no entries placed). Scores were rising at time of death (IWM/SMH/ARM=70, QQQ/XLK=62). No positions, no orders, no broker exposure. Session window incomplete (09:30\u201310:05 ET vs required 09:30\u201312:30 ET).",
+      "broker_state_at_void": "0 positions, 0 open orders",
+      "excluded_from_phase2": true,
+      "fix_required": "Session runner must be executed on a persistent host (local machine, VPS, or persistent server) outside the ephemeral Claude Code remote container. The container cannot sustain a 3-hour background process through inactivity periods."
     }
   ],
-  "note": "Phase 2 tracking. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: zero-trade standby (rvol < 0.50). S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct, all trailing_stop). data_clean=FALSE \u2014 all 3 exits required broker fill correction. 7 sessions remaining to Phase 2 completion (S15). S9 attempt on 2026-06-22 voided (shell kill at 09:40 ET, cycle 22, no broker exposure)."
+  "note": "Phase 2 tracking. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: zero-trade standby (rvol < 0.50). S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct, all trailing_stop). data_clean=FALSE \u2014 all 3 exits required broker fill correction. 7 sessions remaining to Phase 2 completion (S15). S9: 2 voided attempts \u2014 2026-06-22 (shell kill cycle 22) and 2026-06-23 (SIGKILL cycle 73). Root cause: ephemeral container cannot sustain 3-hour background process."
 }

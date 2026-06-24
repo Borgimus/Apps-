@@ -1,7 +1,7 @@
 {
   "version": "1",
   "created_at": "2026-05-11T12:07:54.394379",
-  "last_updated": "2026-06-18T16:30:26.297751",
+  "last_updated": "2026-06-24T16:30:22.527428",
   "sessions": [
     {
       "date": "2026-05-11",
@@ -995,13 +995,37 @@
       },
       "data_clean": false,
       "notes": "Exit prices corrected from broker-confirmed fills (marketable_limit mode). AAPL: limit 0.64 \u2192 fill 0.66 (+2, pnl -14\u2192-12). PLTR: limit 0.94 \u2192 fill 0.97 (+3, pnl +22\u2192+25). DIA: limit 0.31 \u2192 fill 0.33 (+2, pnl -22\u2192-20). Corrected session pnl: -7.00. Same exit price recording defect (deferred per Phase 2 protocol)."
+    },
+    {
+      "date": "2026-06-24",
+      "total_trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "realized_pnl": 0,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 0.0,
+      "slippage_total": 0,
+      "spread_cost_total": 0,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 0,
+      "trades_filled": 0,
+      "trades_cancelled": 0,
+      "trades_rejected": 0,
+      "by_strategy": {},
+      "by_entry_hour": {},
+      "by_delta_bucket": {},
+      "by_spread_bucket": {},
+      "reject_reasons": {},
+      "data_clean": false,
+      "notes": null
     }
   ],
   "cumulative": {
-    "trading_days": 17,
+    "trading_days": 18,
     "total_trades": 29,
-    "total_pnl": -1011.5,
-    "expectancy": -34.88,
+    "total_pnl": -1004.5,
+    "expectancy": -34.64,
     "win_rate": 0.2414,
     "profit_factor": 0.04,
     "max_drawdown": 1034.5,
@@ -1022,7 +1046,7 @@
         "trades": 4,
         "wins": 2,
         "losses": 2,
-        "pnl": -104.0
+        "pnl": -102.0
       },
       "rsi_trend": {
         "trades": 1,
@@ -1034,7 +1058,7 @@
         "trades": 24,
         "wins": 4,
         "losses": 19,
-        "pnl": -800.0
+        "pnl": -795.0
       }
     },
     "pnl_by_entry_hour": {
@@ -1054,13 +1078,13 @@
         "trades": 6,
         "wins": 0,
         "losses": 5,
-        "pnl": -185.5
+        "pnl": -183.5
       },
       "11:00": {
         "trades": 17,
         "wins": 5,
         "losses": 12,
-        "pnl": -237.5
+        "pnl": -232.5
       }
     },
     "pnl_by_delta_bucket": {
@@ -1068,7 +1092,7 @@
         "trades": 20,
         "wins": 4,
         "losses": 15,
-        "pnl": -280.5
+        "pnl": -273.5
       },
       "low (<0.30)": {
         "trades": 3,
@@ -1094,13 +1118,13 @@
         "trades": 21,
         "wins": 6,
         "losses": 14,
-        "pnl": -860.5
+        "pnl": -855.5
       },
       "tight (<5%)": {
         "trades": 9,
         "wins": 1,
         "losses": 8,
-        "pnl": -151.0
+        "pnl": -149.0
       }
     },
     "reject_counts_by_reason": {

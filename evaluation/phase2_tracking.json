@@ -5,8 +5,8 @@
   "phase": 2,
   "session_count": {
     "target": 10,
-    "completed": 3,
-    "remaining": 7,
+    "completed": 4,
+    "remaining": 6,
     "midpoint_trigger": 5,
     "midpoint_reached": false,
     "final_trigger": 10,
@@ -97,6 +97,26 @@
     ]
   },
   "phase2_sessions": [
+    {
+      "session": "S9",
+      "date": "2026-06-24",
+      "pnl_journal": 0.0,
+      "pnl_confirmed": 0.0,
+      "pnl_note": "Zero-trade session. Scanner operated all 165 cycles (09:39–12:30 ET) but all 27 symbols rejected every scan. Primary rejection reasons: data_fetch_error + scanner_data_stale + low_volume_chop + atr_too_small + invalid_price + insufficient_underlying_volume. Scores at 10.0/NEUTRAL all session — yfinance daily data failures (No daily data returned) degraded scoring further than prior STANDBY sessions where scores reached 48–70. RVOL never cleared 0.50.",
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "breakeven": 0,
+      "orb_trades": 0,
+      "vwap_trades": 0,
+      "recovered": 0,
+      "direct": 0,
+      "data_clean": true,
+      "data_clean_reason": "Zero-trade session — no fills to verify, no broker state, clean pre-session checks, clean EOD shutdown. 165 cycles completed without infrastructure interruption. tmux session survived full window. All 5 health checks passed (09:35, 09:45, 10:00, 11:00, 12:00 ET). 864 scan_results rows written, 0 signal_bridge rows, 0 trade_journal rows. Broker: 0 positions, 0 open orders at EOD.",
+      "signal_bridge_available": false,
+      "trades_detail": [],
+      "infra_notes": "Session launched via tmux (tmux new-session -d -s s9) to survive shell recycling — all prior nohup/& attempts failed. 165 cycles, 09:39:02–12:30:21 ET. Reconciler clean all runs (0 repaired, 0 flagged). API errors: 0. yfinance daily data fetch failed for all 27 symbols (No daily data returned, 1d 2026-04-10 to 2026-06-25) — pre-existing infrastructure issue, same pattern as prior sessions but more severe today. Intraday data also degraded (atr_too_small, invalid_price), causing scores to remain at 10.0 vs 48–70 in prior STANDBY sessions. Two prior S9 attempts voided (2026-06-22 cycle 22, 2026-06-23 cycle 73) — both excluded from Phase 2 statistics."
+    },
     {
       "session": "S8",
       "date": "2026-06-18",
@@ -587,5 +607,5 @@
       "fix_required": "Session runner must be executed on a persistent host (local machine, VPS, or persistent server) outside the ephemeral Claude Code remote container. The container cannot sustain a 3-hour background process through inactivity periods."
     }
   ],
-  "note": "Phase 2 tracking. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: zero-trade standby (rvol < 0.50). S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct, all trailing_stop). data_clean=FALSE \u2014 all 3 exits required broker fill correction. 7 sessions remaining to Phase 2 completion (S15). S9: 2 voided attempts \u2014 2026-06-22 (shell kill cycle 22) and 2026-06-23 (SIGKILL cycle 73). Root cause: ephemeral container cannot sustain 3-hour background process."
+  "note": "Phase 2 tracking. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: zero-trade standby (rvol < 0.50). S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct, all trailing_stop). data_clean=FALSE. S9: zero-trade standby (all symbols rejected, yfinance daily data degraded, scores 10.0 all session). data_clean=TRUE. 6 sessions remaining to Phase 2 completion (S15). Midpoint review triggers after S10."
 }

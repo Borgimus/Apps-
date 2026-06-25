@@ -1,14 +1,14 @@
 {
   "protocol": "evaluation/phase2_eval_protocol.md",
   "created": "2026-06-13",
-  "last_updated": "2026-06-18",
+  "last_updated": "2026-06-25",
   "phase": 2,
   "session_count": {
     "target": 10,
-    "completed": 4,
-    "remaining": 6,
+    "completed": 5,
+    "remaining": 5,
     "midpoint_trigger": 5,
-    "midpoint_reached": false,
+    "midpoint_reached": true,
     "final_trigger": 10,
     "final_reached": false
   },
@@ -97,6 +97,26 @@
     ]
   },
   "phase2_sessions": [
+    {
+      "session": "S10",
+      "date": "2026-06-25",
+      "pnl_journal": 0.0,
+      "pnl_confirmed": 0.0,
+      "pnl_note": "Zero-trade session. Scanner operated all 167 cycles (09:36–12:31 ET) but all 27 symbols rejected every scan. Primary rejection reasons: data_fetch_error + scanner_data_stale + low_volume_chop + atr_too_small + invalid_price + insufficient_underlying_volume. Scores at 10.0/NEUTRAL all session — yfinance daily data failures (No daily data returned) same pattern as S9 (2026-06-24). RVOL never cleared 0.50.",
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "breakeven": 0,
+      "orb_trades": 0,
+      "vwap_trades": 0,
+      "recovered": 0,
+      "direct": 0,
+      "data_clean": true,
+      "data_clean_reason": "Zero-trade session — no fills to verify, no broker state, clean pre-session checks, clean EOD shutdown. 167 cycles completed without infrastructure interruption. tmux session survived full window. All 5 health checks passed (09:45, 10:00, 11:00, 12:00, EOD). 891 scan_results rows written, 0 signal_bridge rows, 0 trade_journal rows. Broker: 0 positions, 0 open orders at EOD. API errors: 0. Reconciler: 0 repaired, 0 flagged.",
+      "signal_bridge_available": false,
+      "trades_detail": [],
+      "infra_notes": "Session launched via tmux (tmux new-session -d -s s10). 167 cycles, 09:36:07–12:31:37 ET. yfinance daily data fetch failed for all 27 symbols (No daily data returned) — same pattern as S9 (2026-06-24). Scores remained at 10.0/NEUTRAL all session. Midpoint trigger reached: this is session 5 of 10 in Phase 2. Midpoint review now due."
+    },
     {
       "session": "S9",
       "date": "2026-06-24",
@@ -335,8 +355,8 @@
     }
   ],
   "cumulative": {
-    "note": "Includes Phase 1 baseline (S1-S5) plus Phase 2 S6, S7, and S8. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: 0 trades. S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct fills).",
-    "sessions": 8,
+    "note": "Includes Phase 1 baseline (S1-S5) plus Phase 2 S6-S10. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: 0 trades. S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct fills). S9: 0 trades (yfinance data failure). S10: 0 trades (yfinance data failure).",
+    "sessions": 10,
     "trades": 20,
     "wins": 5,
     "losses": 14,
@@ -607,5 +627,5 @@
       "fix_required": "Session runner must be executed on a persistent host (local machine, VPS, or persistent server) outside the ephemeral Claude Code remote container. The container cannot sustain a 3-hour background process through inactivity periods."
     }
   ],
-  "note": "Phase 2 tracking. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: zero-trade standby (rvol < 0.50). S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct, all trailing_stop). data_clean=FALSE. S9: zero-trade standby (all symbols rejected, yfinance daily data degraded, scores 10.0 all session). data_clean=TRUE. 6 sessions remaining to Phase 2 completion (S15). Midpoint review triggers after S10."
+  "note": "Phase 2 tracking. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: zero-trade standby (rvol < 0.50). S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct, all trailing_stop). data_clean=FALSE. S9: zero-trade standby (yfinance data failure, scores 10.0). data_clean=TRUE. S10: zero-trade standby (yfinance data failure, scores 10.0). data_clean=TRUE. MIDPOINT REACHED (5/10 sessions). Midpoint review now due. 5 sessions remaining (S11-S15)."
 }

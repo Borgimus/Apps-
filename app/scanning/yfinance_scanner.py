@@ -27,24 +27,79 @@ Freshness tracking:
   - latest_intraday_bar_timestamp: ET datetime of last 5m bar received
   - intraday_data_age_seconds: seconds between that bar and fetch time
   - is_data_stale: True when intraday_data_age_seconds > max_intraday_data_age_seconds
+
+Data fetch:
+  - yf.download() batches all symbols in two parallel threaded calls (daily + intraday)
+    instead of sequential per-symbol Ticker.history() calls.
+  - YF_EMAIL / YF_PASSWORD env vars enable authenticated Yahoo Finance requests,
+    which reduces the risk of the "possibly delisted; no price data found" false-positive
+    that affects unauthenticated sessions under rate limiting.
+  - yf.config.debug.hide_exceptions = False: data failures raise exceptions rather than
+    silently returning empty DataFrames.
 """
 
 from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import warnings
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta
-from typing import List, Optional
+from typing import Dict, List, Optional, Tuple
 from zoneinfo import ZoneInfo
 
+import requests as _requests
 import numpy as np
 import pandas as pd
+import yfinance as yf
 
 logger = logging.getLogger(__name__)
 _ET = ZoneInfo("America/New_York")
 _UTC = ZoneInfo("UTC")
+
+
+def _make_session() -> _requests.Session:
+    """
+    Return a requests.Session that trusts the container proxy CA bundle.
+
+    yfinance v1.4.x defaults to curl_cffi as its HTTP backend, which does not
+    read REQUESTS_CA_BUNDLE / SSL_CERT_FILE and therefore fails TLS in
+    proxy-terminated environments. Passing an explicit requests.Session forces
+    the requests backend, which already picks up those env vars.
+    """
+    sess = _requests.Session()
+    ca = os.getenv("REQUESTS_CA_BUNDLE") or os.getenv("SSL_CERT_FILE")
+    if ca and os.path.exists(ca):
+        sess.verify = ca
+    return sess
+
+
+def _configure_yfinance() -> None:
+    """Apply global yfinance settings once at import time."""
+    # Raise exceptions on data failures rather than silently returning empty DataFrames.
+    yf.config.debug.hide_exceptions = False
+
+    email = os.getenv("YF_EMAIL", "").strip()
+    password = os.getenv("YF_PASSWORD", "").strip()
+    if email and password:
+        try:
+            yf.Auth(email, password)
+            logger.info(
+                "YFinanceScanner: authenticated with Yahoo Finance account %s", email
+            )
+        except Exception as exc:
+            logger.warning(
+                "YFinanceScanner: Yahoo Finance auth failed — proceeding unauthenticated: %s",
+                exc,
+            )
+    else:
+        logger.debug(
+            "YFinanceScanner: YF_EMAIL/YF_PASSWORD not set — unauthenticated requests"
+        )
+
+
+_configure_yfinance()
 
 
 @dataclass
@@ -85,6 +140,11 @@ class YFinanceScanner:
     """
     Computes SymbolMetrics for a list of symbols using yfinance.
 
+    Data is fetched via two batched yf.download() calls (daily + intraday),
+    each of which downloads all symbols in parallel using threads. This replaces
+    the prior sequential per-symbol Ticker.history() approach and eliminates the
+    ~3-minute pre-session scan delay.
+
     Usage:
         scanner = YFinanceScanner()
         results = await scanner.scan(["SPY", "QQQ", "AAPL"])
@@ -93,6 +153,11 @@ class YFinanceScanner:
         orb_minutes: Length of the opening range window in minutes (default 30).
         max_intraday_data_age_seconds: Intraday bar age beyond which a symbol is
             marked is_data_stale=True and rejected by CandidateScorer (default 1200 = 20 min).
+
+    Environment:
+        YF_EMAIL / YF_PASSWORD: Optional Yahoo Finance account credentials for
+            authenticated API access. Reduces false-positive "possibly delisted"
+            errors under unauthenticated rate limiting.
     """
 
     def __init__(self, orb_minutes: int = 30, max_intraday_data_age_seconds: int = 1200):
@@ -100,21 +165,55 @@ class YFinanceScanner:
         self._max_intraday_data_age_seconds = max_intraday_data_age_seconds
 
     async def scan(self, symbols: List[str]) -> List[SymbolMetrics]:
-        """Scan all symbols concurrently. Failures return partial metrics."""
-        tasks = [self._scan_one(sym) for sym in symbols]
+        """
+        Scan all symbols. Fetches all data in two batched calls, then computes
+        metrics per symbol concurrently. Failures return sentinel SymbolMetrics.
+        """
+        now_et = datetime.now(tz=_ET)
+        today = now_et.date()
+        daily_cache, intra_cache = await asyncio.get_event_loop().run_in_executor(
+            None, self._batch_fetch, symbols, today
+        )
+        tasks = [
+            self._scan_one(
+                sym,
+                daily_cache.get(sym),
+                intra_cache.get(sym, pd.DataFrame()),
+                now_et,
+                today,
+            )
+            for sym in symbols
+        ]
         return await asyncio.gather(*tasks, return_exceptions=False)
 
     async def scan_one(self, symbol: str) -> SymbolMetrics:
-        return await self._scan_one(symbol)
+        now_et = datetime.now(tz=_ET)
+        today = now_et.date()
+        daily_cache, intra_cache = await asyncio.get_event_loop().run_in_executor(
+            None, self._batch_fetch, [symbol], today
+        )
+        return await self._scan_one(
+            symbol,
+            daily_cache.get(symbol),
+            intra_cache.get(symbol, pd.DataFrame()),
+            now_et,
+            today,
+        )
 
-    async def _scan_one(self, symbol: str) -> SymbolMetrics:
+    async def _scan_one(
+        self,
+        symbol: str,
+        daily_df: Optional[pd.DataFrame],
+        intra_df: pd.DataFrame,
+        now_et: datetime,
+        today: date,
+    ) -> SymbolMetrics:
         try:
             return await asyncio.get_event_loop().run_in_executor(
-                None, self._compute_metrics, symbol
+                None, self._compute_metrics, symbol, daily_df, intra_df, now_et, today
             )
         except Exception as exc:
             logger.warning("YFinanceScanner: failed for %s: %s", symbol, exc)
-            now = datetime.now(tz=_ET)
             return SymbolMetrics(
                 symbol=symbol,
                 price=0.0, atr=0.0, atr_pct=0.0, rvol=0.0, rsi=50.0,
@@ -124,47 +223,137 @@ class YFinanceScanner:
                 trend="unknown", ma_compression=False, gap_pct=0.0,
                 volatility_5d=0.0, has_earnings_today=False,
                 volume_today=0, avg_volume_20d=0.0,
-                fetched_at=now, errors=[str(exc)],
+                fetched_at=now_et, errors=[str(exc)],
                 is_data_stale=True,
             )
 
-    def _compute_metrics(self, symbol: str) -> SymbolMetrics:
-        import yfinance as yf
+    # ── Batch data fetch ──────────────────────────────────────────────────────
 
-        now_et = datetime.now(tz=_ET)
-        today = now_et.date()
-        errors: List[str] = []
+    def _batch_fetch(
+        self, symbols: List[str], today: date
+    ) -> Tuple[Dict[str, Optional[pd.DataFrame]], Dict[str, pd.DataFrame]]:
+        """
+        Download daily and intraday bars for all symbols in two parallel calls.
+
+        Returns:
+            daily_cache:  symbol → DataFrame (None if data unavailable)
+            intra_cache:  symbol → DataFrame (empty DataFrame if unavailable)
+        """
+        daily_start = today - timedelta(days=75)
+        end_date = str(today + timedelta(days=1))
+        tickers_str = " ".join(symbols)
+
+        sess = _make_session()
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
 
-            ticker = yf.Ticker(symbol)
+            try:
+                daily_all = yf.download(
+                    tickers=tickers_str,
+                    start=str(daily_start),
+                    end=end_date,
+                    interval="1d",
+                    auto_adjust=True,
+                    threads=True,
+                    progress=False,
+                    group_by="ticker",
+                    session=sess,
+                )
+            except Exception as exc:
+                logger.error("YFinanceScanner: batch daily download failed: %s", exc)
+                daily_all = pd.DataFrame()
 
-            # ── Daily bars (60 days for ATR/RSI/MA/vol) ───────────────────────
-            daily_start = today - timedelta(days=75)
-            daily_df = ticker.history(
-                start=str(daily_start), end=str(today + timedelta(days=1)),
-                interval="1d", auto_adjust=True,
+            try:
+                intra_all = yf.download(
+                    tickers=tickers_str,
+                    period="2d",
+                    interval="5m",
+                    auto_adjust=True,
+                    threads=True,
+                    progress=False,
+                    group_by="ticker",
+                    session=sess,
+                )
+            except Exception as exc:
+                logger.error("YFinanceScanner: batch intraday download failed: %s", exc)
+                intra_all = pd.DataFrame()
+
+        daily_cache: Dict[str, Optional[pd.DataFrame]] = {}
+        intra_cache: Dict[str, pd.DataFrame] = {}
+
+        for sym in symbols:
+            daily_cache[sym] = self._extract_symbol(daily_all, sym, dropna_col="close")
+            intra_cache[sym] = (
+                self._extract_symbol(intra_all, sym, dropna_col=None) or pd.DataFrame()
             )
-            if daily_df.empty:
-                raise ValueError(f"No daily data returned for {symbol}")
-            daily_df.columns = [c.lower() for c in daily_df.columns]
-            daily_df.index = pd.to_datetime(daily_df.index, utc=True)
 
-            # ── Intraday bars (2-day window for VWAP / ORB) ───────────────────
-            intra_df = ticker.history(
-                period="2d", interval="5m", auto_adjust=True,
+        failed_daily = [s for s, df in daily_cache.items() if df is None]
+        if failed_daily:
+            logger.warning(
+                "YFinanceScanner: batch daily fetch returned no data for %d/%d symbols: %s",
+                len(failed_daily), len(symbols), failed_daily,
             )
-            intra_df.columns = [c.lower() for c in intra_df.columns]
-            intra_df.index = pd.to_datetime(intra_df.index, utc=True)
 
-            # ── Earnings check ────────────────────────────────────────────────
-            has_earnings = self._check_earnings(ticker, today)
+        return daily_cache, intra_cache
+
+    @staticmethod
+    def _extract_symbol(
+        download_df: pd.DataFrame,
+        symbol: str,
+        dropna_col: Optional[str],
+    ) -> Optional[pd.DataFrame]:
+        """
+        Slice a per-symbol DataFrame from a yf.download() result.
+
+        yf.download(group_by="ticker") returns a MultiIndex DataFrame when multiple
+        tickers are requested. For a single ticker it may return plain columns.
+        Returns None when the symbol has no data in the result.
+        """
+        if download_df.empty:
+            return None
+        try:
+            if isinstance(download_df.columns, pd.MultiIndex):
+                top_level = download_df.columns.get_level_values(0)
+                if symbol not in top_level:
+                    return None
+                df = download_df[symbol].copy()
+            else:
+                df = download_df.copy()
+
+            df.columns = [c.lower() for c in df.columns]
+            df.index = pd.to_datetime(df.index, utc=True)
+
+            if dropna_col and dropna_col in df.columns:
+                df = df.dropna(subset=[dropna_col])
+
+            return df if not df.empty else None
+        except Exception:
+            return None
+
+    # ── Per-symbol metric computation ─────────────────────────────────────────
+
+    def _compute_metrics(
+        self,
+        symbol: str,
+        daily_df: Optional[pd.DataFrame],
+        intra_df: pd.DataFrame,
+        now_et: datetime,
+        today: date,
+    ) -> SymbolMetrics:
+        errors: List[str] = []
+
+        if daily_df is None or daily_df.empty:
+            raise ValueError(f"No daily data returned for {symbol}")
+
+        # ── Earnings check (per-symbol calendar call — not part of history batch) ──
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            has_earnings = self._check_earnings(
+                yf.Ticker(symbol, session=_make_session()), today
+            )
 
         # ── Previous close from daily bars ────────────────────────────────────
-        # daily_df.iloc[-1] is the last COMPLETED daily bar.  During market hours
-        # this is always yesterday's close — store it separately and never use it
-        # as the current intraday price.
         previous_close = float(daily_df["close"].iloc[-1])
         if previous_close <= 0:
             raise ValueError(f"Invalid previous_close {previous_close} for {symbol}")
@@ -195,7 +384,6 @@ class YFinanceScanner:
                 symbol, previous_close,
             )
 
-        # Apply sentinel values for VWAP / ORB when no intraday data
         if vwap is None:
             vwap = price
             price_vs_vwap = "unknown"
@@ -212,7 +400,11 @@ class YFinanceScanner:
             is_data_stale = True
 
         if is_data_stale:
-            age_desc = f"{intraday_data_age:.0f}s" if intraday_data_age != float("inf") else "no bars"
+            age_desc = (
+                f"{intraday_data_age:.0f}s"
+                if intraday_data_age != float("inf")
+                else "no bars"
+            )
             logger.warning(
                 "YFinanceScanner: %s intraday data stale (age=%s, threshold=%ds)",
                 symbol, age_desc, self._max_intraday_data_age_seconds,
@@ -270,7 +462,7 @@ class YFinanceScanner:
             is_data_stale=is_data_stale,
         )
 
-    # ── Sub-computations ──────────────────────────────────────────────────────
+    # ── Sub-computations (unchanged) ──────────────────────────────────────────
 
     @staticmethod
     def _compute_atr(df: pd.DataFrame, price: float):
@@ -367,11 +559,9 @@ class YFinanceScanner:
         if today_bars.empty:
             return None, None, None, "unknown", None, None, False, False
 
-        # Latest intraday close and its ET timestamp
         latest_bar_close = float(today_bars["close"].iloc[-1])
         latest_bar_ts_et = _ts_to_et(today_bars.index[-1])
 
-        # VWAP from today's bars
         typical = (today_bars["high"] + today_bars["low"] + today_bars["close"]) / 3
         cum_vol = today_bars["volume"].cumsum()
         vwap_series = (typical * today_bars["volume"]).cumsum() / cum_vol.replace(0, np.nan)
@@ -379,7 +569,6 @@ class YFinanceScanner:
         if np.isnan(vwap):
             vwap = latest_bar_close
 
-        # price_vs_vwap: compare latest intraday close to VWAP
         tol = vwap * 0.001
         if latest_bar_close > vwap + tol:
             price_vs_vwap = "above"
@@ -388,7 +577,6 @@ class YFinanceScanner:
         else:
             price_vs_vwap = "at"
 
-        # Opening range: first orb_minutes of the 09:30 ET session
         et_idx = today_bars.index.tz_convert(_ET)
         minutes_from_open = et_idx.hour * 60 + et_idx.minute
         orb_mask = (
@@ -404,7 +592,6 @@ class YFinanceScanner:
             orb_high = latest_bar_close
             orb_low  = latest_bar_close
 
-        # ORB breakout/breakdown: compare latest intraday close to today's ORB range
         is_orb_breakout  = latest_bar_close > orb_high
         is_orb_breakdown = latest_bar_close < orb_low
 

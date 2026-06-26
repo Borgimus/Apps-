@@ -14,11 +14,12 @@
 mode: grouped
 
 # Which groups are active in normal sessions.
-# Override via UNIVERSE_GROUPS_ENABLED=core_etfs,mega_cap,liquid_growth
+# Override via UNIVERSE_GROUPS_ENABLED=core_etfs,mega_cap,liquid_growth,high_beta_liquid
 enabled_groups:
   - core_etfs
   - mega_cap
   - liquid_growth
+  - high_beta_liquid
 
 # Limits applied at load time (overridable via env vars)
 max_total_symbols: 40

@@ -67,11 +67,21 @@ def _make_session() -> _requests.Session:
     read REQUESTS_CA_BUNDLE / SSL_CERT_FILE and therefore fails TLS in
     proxy-terminated environments. Passing an explicit requests.Session forces
     the requests backend, which already picks up those env vars.
+
+    A browser-like User-Agent is set because Yahoo Finance returns different
+    responses based on this header at several internal endpoints.
     """
     sess = _requests.Session()
     ca = os.getenv("REQUESTS_CA_BUNDLE") or os.getenv("SSL_CERT_FILE")
     if ca and os.path.exists(ca):
         sess.verify = ca
+    sess.headers.update({
+        "User-Agent": (
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        ),
+        "Accept-Language": "en-US,en;q=0.9",
+    })
     return sess
 
 
@@ -244,6 +254,17 @@ class YFinanceScanner:
         tickers_str = " ".join(symbols)
 
         sess = _make_session()
+
+        # Yahoo Finance crumb authentication requires valid browser session
+        # cookies (A1/A3/A1S). Without them, the /v1/test/getcrumb endpoint
+        # returns 401, which yfinance surfaces as data failures on every symbol.
+        # Visiting finance.yahoo.com once populates those cookies on our session
+        # before yf.download() makes its crumb request.
+        try:
+            sess.get("https://finance.yahoo.com", timeout=10)
+            logger.debug("YFinanceScanner: Yahoo cookie prefetch OK (cookies=%d)", len(sess.cookies))
+        except Exception as exc:
+            logger.warning("YFinanceScanner: Yahoo cookie prefetch failed: %s", exc)
 
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")

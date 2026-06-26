@@ -1,0 +1,665 @@
+2026-06-26T13:32:49 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-26T13:32:51 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-26T13:32:51 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-26T13:32:51 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-26T13:32:51 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-26T13:32:51 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-06-26  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-06-26T13:32:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-26T13:32:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-26T13:32:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Friday 2026-06-26 — trading day
+2026-06-26T13:32:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-26T13:32:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-26T13:32:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-26T13:32:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-26T13:32:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-26T13:32:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: Last session log: 15s ago
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Friday 2026-06-26 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 15s ago
+
+  Result: PASS
+2026-06-26T13:32:52 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Friday 2026-06-26 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 15s ago
+
+  Result: PASS
+2026-06-26T13:32:52 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-26T13:32:52 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-26 | starting_equity=98963.77
+2026-06-26T13:32:52 | INFO     | session_runner | Account: equity=98963.77 paper=True
+2026-06-26T13:32:52 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-26T13:32:52 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-26T13:32:52 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-26T13:32:52 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-26T13:32:52 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-26T13:33:06 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T13:33:06 | ERROR    | yfinance | ['ROKU', 'LYFT', 'XLK', 'ARM', 'AMZN', 'AVGO', 'DIA', 'SMH', 'AAPL', 'RIOT', 'NVDA', 'RIVN', 'DDOG', 'SHOP', 'META', 'HOOD', 'SNOW', 'AMD', 'UBER', 'DKNG', 'AFRM', 'QQQ', 'SPY', 'MSFT', 'GOOGL', 'CRWD', 'XLF', 'MSTR', 'MARA', 'SOFI', 'TSLA', 'IWM', 'NET', 'XLE', 'COIN', 'XLY', 'SQ', 'PLTR']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T13:33:18 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T13:33:18 | ERROR    | yfinance | ['XLK', 'ROKU', 'AMZN', 'ARM', 'LYFT', 'AVGO', 'DIA', 'RIOT', 'SMH', 'AAPL', 'NVDA', 'DDOG', 'RIVN', 'SHOP', 'META', 'UBER', 'SNOW', 'HOOD', 'AMD', 'DKNG', 'AFRM', 'QQQ', 'SPY', 'MSFT', 'GOOGL', 'CRWD', 'MARA', 'MSTR', 'XLF', 'SOFI', 'TSLA', 'COIN', 'IWM', 'XLE', 'NET', 'XLY', 'PLTR', 'SQ']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: batch daily fetch returned no data for 38/38 symbols: ['SPY', 'QQQ', 'IWM', 'DIA', 'XLK', 'XLF', 'XLE', 'XLY', 'SMH', 'AAPL', 'MSFT', 'NVDA', 'AMZN', 'META', 'GOOGL', 'TSLA', 'AMD', 'ARM', 'AVGO', 'COIN', 'MSTR', 'PLTR', 'SHOP', 'SNOW', 'NET', 'CRWD', 'DDOG', 'RIVN', 'SOFI', 'HOOD', 'MARA', 'RIOT', 'ROKU', 'DKNG', 'UBER', 'LYFT', 'SQ', 'AFRM']
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SPY: No daily data returned for SPY
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for QQQ: No daily data returned for QQQ
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for IWM: No daily data returned for IWM
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DIA: No daily data returned for DIA
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLK: No daily data returned for XLK
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLF: No daily data returned for XLF
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLE: No daily data returned for XLE
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLY: No daily data returned for XLY
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SMH: No daily data returned for SMH
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AAPL: No daily data returned for AAPL
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSFT: No daily data returned for MSFT
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMZN: No daily data returned for AMZN
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for META: No daily data returned for META
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for GOOGL: No daily data returned for GOOGL
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for TSLA: No daily data returned for TSLA
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMD: No daily data returned for AMD
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ARM: No daily data returned for ARM
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AVGO: No daily data returned for AVGO
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for COIN: No daily data returned for COIN
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSTR: No daily data returned for MSTR
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for PLTR: No daily data returned for PLTR
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SHOP: No daily data returned for SHOP
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SNOW: No daily data returned for SNOW
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NET: No daily data returned for NET
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for CRWD: No daily data returned for CRWD
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DDOG: No daily data returned for DDOG
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIVN: No daily data returned for RIVN
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SOFI: No daily data returned for SOFI
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for HOOD: No daily data returned for HOOD
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MARA: No daily data returned for MARA
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIOT: No daily data returned for RIOT
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ROKU: No daily data returned for ROKU
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DKNG: No daily data returned for DKNG
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for UBER: No daily data returned for UBER
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for LYFT: No daily data returned for LYFT
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AFRM: No daily data returned for AFRM
+2026-06-26T13:33:18 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NVDA: No daily data returned for NVDA
+2026-06-26T13:33:18 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-26T13:33:18 | INFO     | session_runner |   SPY     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T13:33:18 | INFO     | session_runner |   QQQ     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T13:33:18 | INFO     | session_runner |   IWM     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T13:33:18 | INFO     | session_runner |   DIA     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T13:33:18 | INFO     | session_runner |   XLK     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T13:33:18 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-26T13:33:18 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-06-26T13:33:18 | INFO     | session_runner | [cycle 1] 09:33:18 ET | positions=0 | entries=0
+2026-06-26T13:33:19 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-26T13:33:49 | INFO     | session_runner | [cycle 2] 09:33:49 ET | positions=0 | entries=0
+2026-06-26T13:34:19 | INFO     | session_runner | [cycle 3] 09:34:19 ET | positions=0 | entries=0
+2026-06-26T13:34:49 | INFO     | session_runner | [cycle 4] 09:34:49 ET | positions=0 | entries=0
+2026-06-26T13:35:19 | INFO     | session_runner | [cycle 5] 09:35:19 ET | positions=0 | entries=0
+2026-06-26T13:35:49 | INFO     | session_runner | [cycle 6] 09:35:49 ET | positions=0 | entries=0
+2026-06-26T13:36:19 | INFO     | session_runner | [cycle 7] 09:36:19 ET | positions=0 | entries=0
+2026-06-26T13:36:49 | INFO     | session_runner | [cycle 8] 09:36:49 ET | positions=0 | entries=0
+2026-06-26T13:37:20 | INFO     | session_runner | [cycle 9] 09:37:20 ET | positions=0 | entries=0
+2026-06-26T13:37:50 | INFO     | session_runner | [cycle 10] 09:37:50 ET | positions=0 | entries=0
+2026-06-26T13:38:20 | INFO     | session_runner | [cycle 11] 09:38:20 ET | positions=0 | entries=0
+2026-06-26T13:38:20 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-26T13:38:20 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-26T13:38:20 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-26T13:38:20 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-26T13:38:32 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T13:38:32 | ERROR    | yfinance | ['AMZN', 'XLK', 'ARM', 'ROKU', 'LYFT', 'SMH', 'DIA', 'AVGO', 'AAPL', 'RIOT', 'RIVN', 'NVDA', 'DDOG', 'UBER', 'META', 'SHOP', 'HOOD', 'SNOW', 'AMD', 'DKNG', 'AFRM', 'SPY', 'QQQ', 'CRWD', 'GOOGL', 'MSFT', 'XLF', 'MSTR', 'MARA', 'TSLA', 'SOFI', 'IWM', 'COIN', 'NET', 'XLY', 'XLE', 'PLTR', 'SQ']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T13:38:46 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T13:38:46 | ERROR    | yfinance | ['XLK', 'ROKU', 'AMZN', 'ARM', 'LYFT', 'DIA', 'AVGO', 'SMH', 'AAPL', 'NVDA', 'RIOT', 'RIVN', 'DDOG', 'SHOP', 'META', 'HOOD', 'SNOW', 'UBER', 'AMD', 'DKNG', 'QQQ', 'AFRM', 'SPY', 'MSFT', 'CRWD', 'MARA', 'GOOGL', 'XLF', 'MSTR', 'SOFI', 'TSLA', 'COIN', 'IWM', 'NET', 'XLY', 'XLE', 'PLTR', 'SQ']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: batch daily fetch returned no data for 38/38 symbols: ['SPY', 'QQQ', 'IWM', 'DIA', 'XLK', 'XLF', 'XLE', 'XLY', 'SMH', 'AAPL', 'MSFT', 'NVDA', 'AMZN', 'META', 'GOOGL', 'TSLA', 'AMD', 'ARM', 'AVGO', 'COIN', 'MSTR', 'PLTR', 'SHOP', 'SNOW', 'NET', 'CRWD', 'DDOG', 'RIVN', 'SOFI', 'HOOD', 'MARA', 'RIOT', 'ROKU', 'DKNG', 'UBER', 'LYFT', 'SQ', 'AFRM']
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SPY: No daily data returned for SPY
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for QQQ: No daily data returned for QQQ
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for IWM: No daily data returned for IWM
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DIA: No daily data returned for DIA
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLK: No daily data returned for XLK
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLF: No daily data returned for XLF
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLE: No daily data returned for XLE
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLY: No daily data returned for XLY
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SMH: No daily data returned for SMH
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AAPL: No daily data returned for AAPL
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSFT: No daily data returned for MSFT
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NVDA: No daily data returned for NVDA
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMZN: No daily data returned for AMZN
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for META: No daily data returned for META
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for GOOGL: No daily data returned for GOOGL
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for TSLA: No daily data returned for TSLA
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMD: No daily data returned for AMD
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ARM: No daily data returned for ARM
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AVGO: No daily data returned for AVGO
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for COIN: No daily data returned for COIN
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSTR: No daily data returned for MSTR
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for PLTR: No daily data returned for PLTR
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SHOP: No daily data returned for SHOP
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SNOW: No daily data returned for SNOW
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NET: No daily data returned for NET
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for CRWD: No daily data returned for CRWD
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DDOG: No daily data returned for DDOG
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIVN: No daily data returned for RIVN
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SOFI: No daily data returned for SOFI
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for HOOD: No daily data returned for HOOD
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MARA: No daily data returned for MARA
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIOT: No daily data returned for RIOT
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ROKU: No daily data returned for ROKU
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DKNG: No daily data returned for DKNG
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for UBER: No daily data returned for UBER
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for LYFT: No daily data returned for LYFT
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-26T13:38:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AFRM: No daily data returned for AFRM
+2026-06-26T13:38:46 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-26T13:38:46 | INFO     | session_runner |   SPY     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T13:38:46 | INFO     | session_runner |   QQQ     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T13:38:46 | INFO     | session_runner |   IWM     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T13:38:46 | INFO     | session_runner |   DIA     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T13:38:46 | INFO     | session_runner |   XLK     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T13:38:46 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-26T13:38:46 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+6 | INFO     | session_runner |   XLK     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T13:38:46 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-26T13:38:46 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-26T15:19:16 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-26T15:19:16 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-26T15:19:32 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-26T15:19:32 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-26T15:19:33 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-26T15:19:33 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-26T15:19:33 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-26T15:19:33 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-26T15:19:33 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-26T15:19:33 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-26T15:19:33 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+2026-06-26T15:19:33 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-06-26  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Friday 2026-06-26 — trading day
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Friday 2026-06-26 — trading day
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: Last session log: 6047s ago
+2026-06-26T15:19:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: Last session log: 6047s ago
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Friday 2026-06-26 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 6047s ago
+
+  Result: PASS
+2026-06-26T15:19:33 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Friday 2026-06-26 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 6047s ago
+
+  Result: PASS
+2026-06-26T15:19:33 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Friday 2026-06-26 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 6047s ago
+
+  Result: PASS
+2026-06-26T15:19:33 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-26T15:19:33 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-26T15:19:34 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-26 | starting_equity=98963.77
+2026-06-26T15:19:34 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-26 | starting_equity=98963.77
+2026-06-26T15:19:34 | INFO     | session_runner | Account: equity=98963.77 paper=True
+2026-06-26T15:19:34 | INFO     | session_runner | Account: equity=98963.77 paper=True
+2026-06-26T15:19:34 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-26T15:19:34 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-26T15:19:34 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-26T15:19:34 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-26T15:19:34 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-26T15:19:34 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-26T15:19:34 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-26T15:19:34 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-26T15:19:34 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-26T15:19:34 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-26T15:19:49 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T15:19:49 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T15:19:49 | ERROR    | yfinance | ['HOOD', 'NET', 'MSTR', 'TSLA', 'XLY', 'DKNG', 'MSFT', 'SQ', 'QQQ', 'SNOW', 'COIN', 'MARA', 'NVDA', 'SHOP', 'XLE', 'RIOT', 'SMH', 'UBER', 'AMD', 'CRWD', 'AVGO', 'AAPL', 'AMZN', 'ROKU', 'XLF', 'SOFI', 'LYFT', 'XLK', 'GOOGL', 'ARM', 'SPY', 'IWM', 'DDOG', 'RIVN', 'META', 'AFRM', 'PLTR', 'DIA']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T15:19:49 | ERROR    | yfinance | ['HOOD', 'NET', 'MSTR', 'TSLA', 'XLY', 'DKNG', 'MSFT', 'SQ', 'QQQ', 'SNOW', 'COIN', 'MARA', 'NVDA', 'SHOP', 'XLE', 'RIOT', 'SMH', 'UBER', 'AMD', 'CRWD', 'AVGO', 'AAPL', 'AMZN', 'ROKU', 'XLF', 'SOFI', 'LYFT', 'XLK', 'GOOGL', 'ARM', 'SPY', 'IWM', 'DDOG', 'RIVN', 'META', 'AFRM', 'PLTR', 'DIA']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T15:20:05 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T15:20:05 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T15:20:05 | ERROR    | yfinance | ['NET', 'TSLA', 'HOOD', 'MSTR', 'XLY', 'MSFT', 'DKNG', 'SNOW', 'QQQ', 'MARA', 'SQ', 'COIN', 'XLE', 'NVDA', 'RIOT', 'SHOP', 'UBER', 'AMD', 'AMZN', 'SMH', 'CRWD', 'AAPL', 'AVGO', 'ROKU', 'XLF', 'SOFI', 'LYFT', 'XLK', 'GOOGL', 'IWM', 'ARM', 'SPY', 'META', 'RIVN', 'DDOG', 'AFRM', 'PLTR', 'DIA']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T15:20:05 | ERROR    | yfinance | ['NET', 'TSLA', 'HOOD', 'MSTR', 'XLY', 'MSFT', 'DKNG', 'SNOW', 'QQQ', 'MARA', 'SQ', 'COIN', 'XLE', 'NVDA', 'RIOT', 'SHOP', 'UBER', 'AMD', 'AMZN', 'SMH', 'CRWD', 'AAPL', 'AVGO', 'ROKU', 'XLF', 'SOFI', 'LYFT', 'XLK', 'GOOGL', 'IWM', 'ARM', 'SPY', 'META', 'RIVN', 'DDOG', 'AFRM', 'PLTR', 'DIA']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: batch daily fetch returned no data for 38/38 symbols: ['SPY', 'QQQ', 'IWM', 'DIA', 'XLK', 'XLF', 'XLE', 'XLY', 'SMH', 'AAPL', 'MSFT', 'NVDA', 'AMZN', 'META', 'GOOGL', 'TSLA', 'AMD', 'ARM', 'AVGO', 'COIN', 'MSTR', 'PLTR', 'SHOP', 'SNOW', 'NET', 'CRWD', 'DDOG', 'RIVN', 'SOFI', 'HOOD', 'MARA', 'RIOT', 'ROKU', 'DKNG', 'UBER', 'LYFT', 'SQ', 'AFRM']
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: batch daily fetch returned no data for 38/38 symbols: ['SPY', 'QQQ', 'IWM', 'DIA', 'XLK', 'XLF', 'XLE', 'XLY', 'SMH', 'AAPL', 'MSFT', 'NVDA', 'AMZN', 'META', 'GOOGL', 'TSLA', 'AMD', 'ARM', 'AVGO', 'COIN', 'MSTR', 'PLTR', 'SHOP', 'SNOW', 'NET', 'CRWD', 'DDOG', 'RIVN', 'SOFI', 'HOOD', 'MARA', 'RIOT', 'ROKU', 'DKNG', 'UBER', 'LYFT', 'SQ', 'AFRM']
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SPY: No daily data returned for SPY
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SPY: No daily data returned for SPY
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for QQQ: No daily data returned for QQQ
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for QQQ: No daily data returned for QQQ
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for IWM: No daily data returned for IWM
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for IWM: No daily data returned for IWM
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DIA: No daily data returned for DIA
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DIA: No daily data returned for DIA
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLK: No daily data returned for XLK
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLK: No daily data returned for XLK
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLF: No daily data returned for XLF
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLF: No daily data returned for XLF
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLE: No daily data returned for XLE
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLE: No daily data returned for XLE
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLY: No daily data returned for XLY
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLY: No daily data returned for XLY
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SMH: No daily data returned for SMH
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SMH: No daily data returned for SMH
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AAPL: No daily data returned for AAPL
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AAPL: No daily data returned for AAPL
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSFT: No daily data returned for MSFT
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSFT: No daily data returned for MSFT
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NVDA: No daily data returned for NVDA
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NVDA: No daily data returned for NVDA
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for META: No daily data returned for META
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for META: No daily data returned for META
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for GOOGL: No daily data returned for GOOGL
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for GOOGL: No daily data returned for GOOGL
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for TSLA: No daily data returned for TSLA
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for TSLA: No daily data returned for TSLA
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMD: No daily data returned for AMD
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMD: No daily data returned for AMD
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ARM: No daily data returned for ARM
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ARM: No daily data returned for ARM
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AVGO: No daily data returned for AVGO
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AVGO: No daily data returned for AVGO
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for COIN: No daily data returned for COIN
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for COIN: No daily data returned for COIN
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMZN: No daily data returned for AMZN
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMZN: No daily data returned for AMZN
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSTR: No daily data returned for MSTR
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSTR: No daily data returned for MSTR
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for PLTR: No daily data returned for PLTR
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for PLTR: No daily data returned for PLTR
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SHOP: No daily data returned for SHOP
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SHOP: No daily data returned for SHOP
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SNOW: No daily data returned for SNOW
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SNOW: No daily data returned for SNOW
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NET: No daily data returned for NET
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NET: No daily data returned for NET
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for CRWD: No daily data returned for CRWD
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for CRWD: No daily data returned for CRWD
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DDOG: No daily data returned for DDOG
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DDOG: No daily data returned for DDOG
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIVN: No daily data returned for RIVN
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIVN: No daily data returned for RIVN
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SOFI: No daily data returned for SOFI
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SOFI: No daily data returned for SOFI
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for HOOD: No daily data returned for HOOD
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for HOOD: No daily data returned for HOOD
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MARA: No daily data returned for MARA
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MARA: No daily data returned for MARA
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIOT: No daily data returned for RIOT
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIOT: No daily data returned for RIOT
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ROKU: No daily data returned for ROKU
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ROKU: No daily data returned for ROKU
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DKNG: No daily data returned for DKNG
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DKNG: No daily data returned for DKNG
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for UBER: No daily data returned for UBER
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for UBER: No daily data returned for UBER
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for LYFT: No daily data returned for LYFT
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for LYFT: No daily data returned for LYFT
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AFRM: No daily data returned for AFRM
+2026-06-26T15:20:05 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AFRM: No daily data returned for AFRM
+2026-06-26T15:20:05 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-26T15:20:05 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-26T15:20:05 | INFO     | session_runner |   SPY     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:20:05 | INFO     | session_runner |   SPY     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:20:05 | INFO     | session_runner |   QQQ     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:20:05 | INFO     | session_runner |   QQQ     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:20:05 | INFO     | session_runner |   IWM     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:20:05 | INFO     | session_runner |   IWM     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:20:05 | INFO     | session_runner |   DIA     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:20:05 | INFO     | session_runner |   DIA     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:20:05 | INFO     | session_runner |   XLK     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:20:05 | INFO     | session_runner |   XLK     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:20:05 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-26T15:20:05 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-26T15:20:05 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-06-26T15:20:05 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-06-26T15:20:05 | INFO     | session_runner | [cycle 1] 11:20:05 ET | positions=0 | entries=0
+2026-06-26T15:20:05 | INFO     | session_runner | [cycle 1] 11:20:05 ET | positions=0 | entries=0
+2026-06-26T15:20:05 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-26T15:20:05 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-26T15:20:35 | INFO     | session_runner | [cycle 2] 11:20:35 ET | positions=0 | entries=0
+2026-06-26T15:20:35 | INFO     | session_runner | [cycle 2] 11:20:35 ET | positions=0 | entries=0
+2026-06-26T15:21:06 | INFO     | session_runner | [cycle 3] 11:21:06 ET | positions=0 | entries=0
+2026-06-26T15:21:06 | INFO     | session_runner | [cycle 3] 11:21:06 ET | positions=0 | entries=0
+2026-06-26T15:21:36 | INFO     | session_runner | [cycle 4] 11:21:36 ET | positions=0 | entries=0
+2026-06-26T15:21:36 | INFO     | session_runner | [cycle 4] 11:21:36 ET | positions=0 | entries=0
+2026-06-26T15:22:06 | INFO     | session_runner | [cycle 5] 11:22:06 ET | positions=0 | entries=0
+2026-06-26T15:22:06 | INFO     | session_runner | [cycle 5] 11:22:06 ET | positions=0 | entries=0
+2026-06-26T15:22:36 | INFO     | session_runner | [cycle 6] 11:22:36 ET | positions=0 | entries=0
+2026-06-26T15:22:36 | INFO     | session_runner | [cycle 6] 11:22:36 ET | positions=0 | entries=0
+2026-06-26T15:23:06 | INFO     | session_runner | [cycle 7] 11:23:06 ET | positions=0 | entries=0
+2026-06-26T15:23:06 | INFO     | session_runner | [cycle 7] 11:23:06 ET | positions=0 | entries=0
+2026-06-26T15:23:36 | INFO     | session_runner | [cycle 8] 11:23:36 ET | positions=0 | entries=0
+2026-06-26T15:23:36 | INFO     | session_runner | [cycle 8] 11:23:36 ET | positions=0 | entries=0
+2026-06-26T15:24:06 | INFO     | session_runner | [cycle 9] 11:24:06 ET | positions=0 | entries=0
+2026-06-26T15:24:06 | INFO     | session_runner | [cycle 9] 11:24:06 ET | positions=0 | entries=0
+2026-06-26T15:24:36 | INFO     | session_runner | [cycle 10] 11:24:36 ET | positions=0 | entries=0
+2026-06-26T15:24:36 | INFO     | session_runner | [cycle 10] 11:24:36 ET | positions=0 | entries=0
+2026-06-26T15:25:06 | INFO     | session_runner | [cycle 11] 11:25:06 ET | positions=0 | entries=0
+2026-06-26T15:25:06 | INFO     | session_runner | [cycle 11] 11:25:06 ET | positions=0 | entries=0
+2026-06-26T15:25:06 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-26T15:25:06 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-26T15:25:06 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-26T15:25:06 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-26T15:25:06 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-26T15:25:06 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-26T15:25:06 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-26T15:25:06 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-26T15:25:20 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T15:25:20 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T15:25:20 | ERROR    | yfinance | ['NET', 'MSTR', 'TSLA', 'HOOD', 'XLY', 'DKNG', 'MSFT', 'QQQ', 'SNOW', 'SQ', 'COIN', 'MARA', 'NVDA', 'XLE', 'SHOP', 'RIOT', 'UBER', 'SMH', 'CRWD', 'AMZN', 'AAPL', 'AMD', 'AVGO', 'SOFI', 'ROKU', 'XLF', 'LYFT', 'XLK', 'GOOGL', 'ARM', 'IWM', 'SPY', 'META', 'DDOG', 'PLTR', 'AFRM', 'DIA', 'RIVN']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T15:25:20 | ERROR    | yfinance | ['NET', 'MSTR', 'TSLA', 'HOOD', 'XLY', 'DKNG', 'MSFT', 'QQQ', 'SNOW', 'SQ', 'COIN', 'MARA', 'NVDA', 'XLE', 'SHOP', 'RIOT', 'UBER', 'SMH', 'CRWD', 'AMZN', 'AAPL', 'AMD', 'AVGO', 'SOFI', 'ROKU', 'XLF', 'LYFT', 'XLK', 'GOOGL', 'ARM', 'IWM', 'SPY', 'META', 'DDOG', 'PLTR', 'AFRM', 'DIA', 'RIVN']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T15:25:34 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T15:25:34 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T15:25:34 | ERROR    | yfinance | ['HOOD', 'NET', 'MSTR', 'TSLA', 'XLY', 'QQQ', 'SNOW', 'MSFT', 'DKNG', 'SQ', 'MARA', 'COIN', 'NVDA', 'XLE', 'SHOP', 'RIOT', 'SMH', 'UBER', 'AMD', 'AMZN', 'CRWD', 'AVGO', 'AAPL', 'ROKU', 'XLF', 'SOFI', 'LYFT', 'XLK', 'IWM', 'ARM', 'SPY', 'GOOGL', 'META', 'PLTR', 'RIVN', 'DDOG', 'AFRM', 'DIA']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T15:25:34 | ERROR    | yfinance | ['HOOD', 'NET', 'MSTR', 'TSLA', 'XLY', 'QQQ', 'SNOW', 'MSFT', 'DKNG', 'SQ', 'MARA', 'COIN', 'NVDA', 'XLE', 'SHOP', 'RIOT', 'SMH', 'UBER', 'AMD', 'AMZN', 'CRWD', 'AVGO', 'AAPL', 'ROKU', 'XLF', 'SOFI', 'LYFT', 'XLK', 'IWM', 'ARM', 'SPY', 'GOOGL', 'META', 'PLTR', 'RIVN', 'DDOG', 'AFRM', 'DIA']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: batch daily fetch returned no data for 38/38 symbols: ['SPY', 'QQQ', 'IWM', 'DIA', 'XLK', 'XLF', 'XLE', 'XLY', 'SMH', 'AAPL', 'MSFT', 'NVDA', 'AMZN', 'META', 'GOOGL', 'TSLA', 'AMD', 'ARM', 'AVGO', 'COIN', 'MSTR', 'PLTR', 'SHOP', 'SNOW', 'NET', 'CRWD', 'DDOG', 'RIVN', 'SOFI', 'HOOD', 'MARA', 'RIOT', 'ROKU', 'DKNG', 'UBER', 'LYFT', 'SQ', 'AFRM']
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: batch daily fetch returned no data for 38/38 symbols: ['SPY', 'QQQ', 'IWM', 'DIA', 'XLK', 'XLF', 'XLE', 'XLY', 'SMH', 'AAPL', 'MSFT', 'NVDA', 'AMZN', 'META', 'GOOGL', 'TSLA', 'AMD', 'ARM', 'AVGO', 'COIN', 'MSTR', 'PLTR', 'SHOP', 'SNOW', 'NET', 'CRWD', 'DDOG', 'RIVN', 'SOFI', 'HOOD', 'MARA', 'RIOT', 'ROKU', 'DKNG', 'UBER', 'LYFT', 'SQ', 'AFRM']
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SPY: No daily data returned for SPY
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SPY: No daily data returned for SPY
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for QQQ: No daily data returned for QQQ
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for QQQ: No daily data returned for QQQ
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for IWM: No daily data returned for IWM
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for IWM: No daily data returned for IWM
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DIA: No daily data returned for DIA
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DIA: No daily data returned for DIA
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLK: No daily data returned for XLK
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLK: No daily data returned for XLK
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLF: No daily data returned for XLF
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLF: No daily data returned for XLF
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLE: No daily data returned for XLE
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLE: No daily data returned for XLE
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLY: No daily data returned for XLY
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLY: No daily data returned for XLY
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SMH: No daily data returned for SMH
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SMH: No daily data returned for SMH
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AAPL: No daily data returned for AAPL
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AAPL: No daily data returned for AAPL
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSFT: No daily data returned for MSFT
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSFT: No daily data returned for MSFT
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NVDA: No daily data returned for NVDA
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NVDA: No daily data returned for NVDA
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMZN: No daily data returned for AMZN
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMZN: No daily data returned for AMZN
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for META: No daily data returned for META
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for META: No daily data returned for META
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for GOOGL: No daily data returned for GOOGL
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for GOOGL: No daily data returned for GOOGL
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for TSLA: No daily data returned for TSLA
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for TSLA: No daily data returned for TSLA
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMD: No daily data returned for AMD
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMD: No daily data returned for AMD
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ARM: No daily data returned for ARM
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ARM: No daily data returned for ARM
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AVGO: No daily data returned for AVGO
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AVGO: No daily data returned for AVGO
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for COIN: No daily data returned for COIN
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for COIN: No daily data returned for COIN
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSTR: No daily data returned for MSTR
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSTR: No daily data returned for MSTR
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for PLTR: No daily data returned for PLTR
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for PLTR: No daily data returned for PLTR
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SHOP: No daily data returned for SHOP
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SHOP: No daily data returned for SHOP
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SNOW: No daily data returned for SNOW
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SNOW: No daily data returned for SNOW
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NET: No daily data returned for NET
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NET: No daily data returned for NET
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for CRWD: No daily data returned for CRWD
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for CRWD: No daily data returned for CRWD
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DDOG: No daily data returned for DDOG
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DDOG: No daily data returned for DDOG
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIVN: No daily data returned for RIVN
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIVN: No daily data returned for RIVN
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SOFI: No daily data returned for SOFI
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SOFI: No daily data returned for SOFI
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for HOOD: No daily data returned for HOOD
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for HOOD: No daily data returned for HOOD
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MARA: No daily data returned for MARA
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MARA: No daily data returned for MARA
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIOT: No daily data returned for RIOT
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIOT: No daily data returned for RIOT
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ROKU: No daily data returned for ROKU
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ROKU: No daily data returned for ROKU
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DKNG: No daily data returned for DKNG
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DKNG: No daily data returned for DKNG
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for UBER: No daily data returned for UBER
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for UBER: No daily data returned for UBER
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for LYFT: No daily data returned for LYFT
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for LYFT: No daily data returned for LYFT
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AFRM: No daily data returned for AFRM
+2026-06-26T15:25:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AFRM: No daily data returned for AFRM
+2026-06-26T15:25:34 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-26T15:25:34 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-26T15:25:34 | INFO     | session_runner |   SPY     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:25:34 | INFO     | session_runner |   SPY     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:25:34 | INFO     | session_runner |   QQQ     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:25:34 | INFO     | session_runner |   QQQ     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:25:34 | INFO     | session_runner |   IWM     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:25:34 | INFO     | session_runner |   IWM     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:25:34 | INFO     | session_runner |   DIA     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:25:34 | INFO     | session_runner |   DIA     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:25:34 | INFO     | session_runner |   XLK     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:25:34 | INFO     | session_runner |   XLK     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:25:34 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-26T15:25:34 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-26T15:25:34 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-26T15:25:34 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-26T15:26:04 | INFO     | session_runner | [cycle 12] 11:26:04 ET | positions=0 | entries=0
+2026-06-26T15:26:04 | INFO     | session_runner | [cycle 12] 11:26:04 ET | positions=0 | entries=0
+2026-06-26T15:26:34 | INFO     | session_runner | [cycle 13] 11:26:34 ET | positions=0 | entries=0
+2026-06-26T15:26:34 | INFO     | session_runner | [cycle 13] 11:26:34 ET | positions=0 | entries=0
+2026-06-26T15:27:04 | INFO     | session_runner | [cycle 14] 11:27:04 ET | positions=0 | entries=0
+2026-06-26T15:27:04 | INFO     | session_runner | [cycle 14] 11:27:04 ET | positions=0 | entries=0
+2026-06-26T15:27:34 | INFO     | session_runner | [cycle 15] 11:27:34 ET | positions=0 | entries=0
+2026-06-26T15:27:34 | INFO     | session_runner | [cycle 15] 11:27:34 ET | positions=0 | entries=0
+2026-06-26T15:28:04 | INFO     | session_runner | [cycle 16] 11:28:04 ET | positions=0 | entries=0
+2026-06-26T15:28:04 | INFO     | session_runner | [cycle 16] 11:28:04 ET | positions=0 | entries=0
+2026-06-26T15:28:34 | INFO     | session_runner | [cycle 17] 11:28:34 ET | positions=0 | entries=0
+2026-06-26T15:28:34 | INFO     | session_runner | [cycle 17] 11:28:34 ET | positions=0 | entries=0
+2026-06-26T15:29:04 | INFO     | session_runner | [cycle 18] 11:29:04 ET | positions=0 | entries=0
+2026-06-26T15:29:04 | INFO     | session_runner | [cycle 18] 11:29:04 ET | positions=0 | entries=0
+2026-06-26T15:29:34 | INFO     | session_runner | [cycle 19] 11:29:34 ET | positions=0 | entries=0
+2026-06-26T15:29:34 | INFO     | session_runner | [cycle 19] 11:29:34 ET | positions=0 | entries=0
+2026-06-26T15:30:04 | INFO     | session_runner | [cycle 20] 11:30:04 ET | positions=0 | entries=0
+2026-06-26T15:30:04 | INFO     | session_runner | [cycle 20] 11:30:04 ET | positions=0 | entries=0
+2026-06-26T15:30:34 | INFO     | session_runner | [cycle 21] 11:30:34 ET | positions=0 | entries=0
+2026-06-26T15:30:34 | INFO     | session_runner | [cycle 21] 11:30:34 ET | positions=0 | entries=0
+2026-06-26T15:30:34 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-26T15:30:34 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-26T15:30:34 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-26T15:30:34 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-26T15:30:35 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-26T15:30:35 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-26T15:30:35 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-26T15:30:35 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-26T15:30:35 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-26T15:30:35 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-26T15:30:48 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T15:30:48 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T15:30:48 | ERROR    | yfinance | ['TSLA', 'HOOD', 'NET', 'MSTR', 'XLY', 'MSFT', 'DKNG', 'SNOW', 'QQQ', 'MARA', 'COIN', 'SQ', 'NVDA', 'SHOP', 'XLE', 'RIOT', 'SMH', 'UBER', 'CRWD', 'AMD', 'AMZN', 'AVGO', 'ROKU', 'SOFI', 'AAPL', 'XLF', 'LYFT', 'GOOGL', 'ARM', 'XLK', 'IWM', 'SPY', 'META', 'DDOG', 'RIVN', 'AFRM', 'DIA', 'PLTR']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T15:30:48 | ERROR    | yfinance | ['TSLA', 'HOOD', 'NET', 'MSTR', 'XLY', 'MSFT', 'DKNG', 'SNOW', 'QQQ', 'MARA', 'COIN', 'SQ', 'NVDA', 'SHOP', 'XLE', 'RIOT', 'SMH', 'UBER', 'CRWD', 'AMD', 'AMZN', 'AVGO', 'ROKU', 'SOFI', 'AAPL', 'XLF', 'LYFT', 'GOOGL', 'ARM', 'XLK', 'IWM', 'SPY', 'META', 'DDOG', 'RIVN', 'AFRM', 'DIA', 'PLTR']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T15:31:02 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T15:31:02 | ERROR    | yfinance | 
+38 Failed downloads:
+2026-06-26T15:31:02 | ERROR    | yfinance | ['TSLA', 'MSTR', 'HOOD', 'NET', 'XLY', 'DKNG', 'MSFT', 'SNOW', 'QQQ', 'SQ', 'NVDA', 'MARA', 'XLE', 'COIN', 'RIOT', 'SHOP', 'UBER', 'AMD', 'SMH', 'AMZN', 'AAPL', 'CRWD', 'AVGO', 'SOFI', 'ROKU', 'XLF', 'XLK', 'LYFT', 'GOOGL', 'ARM', 'IWM', 'META', 'SPY', 'RIVN', 'DDOG', 'AFRM', 'PLTR', 'DIA']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T15:31:02 | ERROR    | yfinance | ['TSLA', 'MSTR', 'HOOD', 'NET', 'XLY', 'DKNG', 'MSFT', 'SNOW', 'QQQ', 'SQ', 'NVDA', 'MARA', 'XLE', 'COIN', 'RIOT', 'SHOP', 'UBER', 'AMD', 'SMH', 'AMZN', 'AAPL', 'CRWD', 'AVGO', 'SOFI', 'ROKU', 'XLF', 'XLK', 'LYFT', 'GOOGL', 'ARM', 'IWM', 'META', 'SPY', 'RIVN', 'DDOG', 'AFRM', 'PLTR', 'DIA']: YFRateLimitError('Too Many Requests. Rate limited. Try after a while.')
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: batch daily fetch returned no data for 38/38 symbols: ['SPY', 'QQQ', 'IWM', 'DIA', 'XLK', 'XLF', 'XLE', 'XLY', 'SMH', 'AAPL', 'MSFT', 'NVDA', 'AMZN', 'META', 'GOOGL', 'TSLA', 'AMD', 'ARM', 'AVGO', 'COIN', 'MSTR', 'PLTR', 'SHOP', 'SNOW', 'NET', 'CRWD', 'DDOG', 'RIVN', 'SOFI', 'HOOD', 'MARA', 'RIOT', 'ROKU', 'DKNG', 'UBER', 'LYFT', 'SQ', 'AFRM']
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: batch daily fetch returned no data for 38/38 symbols: ['SPY', 'QQQ', 'IWM', 'DIA', 'XLK', 'XLF', 'XLE', 'XLY', 'SMH', 'AAPL', 'MSFT', 'NVDA', 'AMZN', 'META', 'GOOGL', 'TSLA', 'AMD', 'ARM', 'AVGO', 'COIN', 'MSTR', 'PLTR', 'SHOP', 'SNOW', 'NET', 'CRWD', 'DDOG', 'RIVN', 'SOFI', 'HOOD', 'MARA', 'RIOT', 'ROKU', 'DKNG', 'UBER', 'LYFT', 'SQ', 'AFRM']
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SPY: No daily data returned for SPY
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SPY: No daily data returned for SPY
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for QQQ: No daily data returned for QQQ
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for QQQ: No daily data returned for QQQ
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for IWM: No daily data returned for IWM
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for IWM: No daily data returned for IWM
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DIA: No daily data returned for DIA
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DIA: No daily data returned for DIA
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLK: No daily data returned for XLK
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLK: No daily data returned for XLK
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLF: No daily data returned for XLF
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLF: No daily data returned for XLF
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLE: No daily data returned for XLE
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLE: No daily data returned for XLE
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLY: No daily data returned for XLY
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLY: No daily data returned for XLY
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SMH: No daily data returned for SMH
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SMH: No daily data returned for SMH
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AAPL: No daily data returned for AAPL
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AAPL: No daily data returned for AAPL
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSFT: No daily data returned for MSFT
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSFT: No daily data returned for MSFT
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NVDA: No daily data returned for NVDA
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NVDA: No daily data returned for NVDA
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMZN: No daily data returned for AMZN
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMZN: No daily data returned for AMZN
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for META: No daily data returned for META
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for META: No daily data returned for META
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for GOOGL: No daily data returned for GOOGL
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for GOOGL: No daily data returned for GOOGL
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for TSLA: No daily data returned for TSLA
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for TSLA: No daily data returned for TSLA
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMD: No daily data returned for AMD
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMD: No daily data returned for AMD
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ARM: No daily data returned for ARM
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ARM: No daily data returned for ARM
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AVGO: No daily data returned for AVGO
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AVGO: No daily data returned for AVGO
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for COIN: No daily data returned for COIN
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for COIN: No daily data returned for COIN
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSTR: No daily data returned for MSTR
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSTR: No daily data returned for MSTR
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for PLTR: No daily data returned for PLTR
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for PLTR: No daily data returned for PLTR
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SHOP: No daily data returned for SHOP
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SHOP: No daily data returned for SHOP
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SNOW: No daily data returned for SNOW
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SNOW: No daily data returned for SNOW
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NET: No daily data returned for NET
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NET: No daily data returned for NET
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for CRWD: No daily data returned for CRWD
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for CRWD: No daily data returned for CRWD
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DDOG: No daily data returned for DDOG
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DDOG: No daily data returned for DDOG
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIVN: No daily data returned for RIVN
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIVN: No daily data returned for RIVN
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SOFI: No daily data returned for SOFI
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SOFI: No daily data returned for SOFI
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for HOOD: No daily data returned for HOOD
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for HOOD: No daily data returned for HOOD
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MARA: No daily data returned for MARA
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MARA: No daily data returned for MARA
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIOT: No daily data returned for RIOT
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIOT: No daily data returned for RIOT
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ROKU: No daily data returned for ROKU
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ROKU: No daily data returned for ROKU
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DKNG: No daily data returned for DKNG
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DKNG: No daily data returned for DKNG
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for UBER: No daily data returned for UBER
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for UBER: No daily data returned for UBER
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for LYFT: No daily data returned for LYFT
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for LYFT: No daily data returned for LYFT
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AFRM: No daily data returned for AFRM
+2026-06-26T15:31:02 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AFRM: No daily data returned for AFRM
+2026-06-26T15:31:02 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-26T15:31:02 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-26T15:31:02 | INFO     | session_runner |   SPY     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:31:02 | INFO     | session_runner |   SPY     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:31:02 | INFO     | session_runner |   QQQ     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:31:02 | INFO     | session_runner |   QQQ     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:31:02 | INFO     | session_runner |   IWM     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:31:02 | INFO     | session_runner |   IWM     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:31:02 | INFO     | session_runner |   DIA     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:31:02 | INFO     | session_runner |   DIA     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:31:02 | INFO     | session_runner |   XLK     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:31:02 | INFO     | session_runner |   XLK     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-06-26T15:31:02 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-26T15:31:02 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-26T15:31:02 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-26T15:31:02 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-26T15:31:32 | INFO     | session_runner | [cycle 22] 11:31:32 ET | positions=0 | entries=0
+2026-06-26T15:31:32 | INFO     | session_runner | [cycle 22] 11:31:32 ET | positions=0 | entries=0
+2026-06-26T15:32:02 | INFO     | session_runner | [cycle 23] 11:32:02 ET | positions=0 | entries=0
+2026-06-26T15:32:02 | INFO     | session_runner | [cycle 23] 11:32:02 ET | positions=0 | entries=0
+2026-06-26T15:32:32 | INFO     | session_runner | [cycle 24] 11:32:32 ET | positions=0 | entries=0
+2026-06-26T15:32:32 | INFO     | session_runner | [cycle 24] 11:32:32 ET | positions=0 | entries=0
+2026-06-26T15:33:02 | INFO     | session_runner | [cycle 25] 11:33:02 ET | positions=0 | entries=0
+2026-06-26T15:33:02 | INFO     | session_runner | [cycle 25] 11:33:02 ET | positions=0 | entries=0
+2026-06-26T15:33:32 | INFO     | session_runner | [cycle 26] 11:33:32 ET | positions=0 | entries=0
+2026-06-26T15:33:32 | INFO     | session_runner | [cycle 26] 11:33:32 ET | positions=0 | entries=0
+2026-06-26T15:34:02 | INFO     | session_runner | [cycle 27] 11:34:02 ET | positions=0 | entries=0
+2026-06-26T15:34:02 | INFO     | session_runner | [cycle 27] 11:34:02 ET | positions=0 | entries=0
+2026-06-26T15:34:32 | INFO     | session_runner | [cycle 28] 11:34:32 ET | positions=0 | entries=0
+2026-06-26T15:34:32 | INFO     | session_runner | [cycle 28] 11:34:32 ET | positions=0 | entries=0

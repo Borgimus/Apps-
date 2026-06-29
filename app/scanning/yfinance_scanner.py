@@ -1,7 +1,7 @@
 """
-YFinance Market Scanner — research-grade intraday metrics.
+Market Scanner — Alpaca primary data source, yfinance for earnings only.
 
-IMPORTANT: yfinance data is RESEARCH ONLY.
+IMPORTANT: All data here is RESEARCH ONLY.
 Do not use these metrics for execution decisions.
 All execution quotes must come from Alpaca.
 
@@ -29,13 +29,11 @@ Freshness tracking:
   - is_data_stale: True when intraday_data_age_seconds > max_intraday_data_age_seconds
 
 Data fetch:
-  - yf.download() batches all symbols in two parallel threaded calls (daily + intraday)
-    instead of sequential per-symbol Ticker.history() calls.
-  - YF_EMAIL / YF_PASSWORD env vars enable authenticated Yahoo Finance requests,
-    which reduces the risk of the "possibly delisted; no price data found" false-positive
-    that affects unauthenticated sessions under rate limiting.
-  - yf.config.debug.hide_exceptions = False: data failures raise exceptions rather than
-    silently returning empty DataFrames.
+  - Alpaca Market Data API (/v2/stocks/bars) batches all symbols in two calls
+    (daily 1Day + intraday 5Min), replacing the prior yfinance dependency.
+  - Alpaca uses existing broker credentials (ALPACA_API_KEY / ALPACA_SECRET_KEY).
+  - yfinance is retained only for the per-symbol earnings calendar check; it
+    fails gracefully (returns has_earnings=False) when Yahoo is unavailable.
 """
 
 from __future__ import annotations
@@ -49,27 +47,49 @@ from datetime import date, datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 from zoneinfo import ZoneInfo
 
-import requests as _requests
+import httpx as _httpx
 import numpy as np
 import pandas as pd
+import requests as _requests
 import yfinance as yf
 
 logger = logging.getLogger(__name__)
 _ET = ZoneInfo("America/New_York")
 _UTC = ZoneInfo("UTC")
 
+_ALPACA_DATA_URL = "https://data.alpaca.markets"
+
+
+def _make_alpaca_client() -> _httpx.Client:
+    """
+    Return a synchronous httpx.Client authenticated for Alpaca Market Data.
+
+    Uses ALPACA_API_KEY / ALPACA_SECRET_KEY from environment (same credentials
+    as the execution broker). CA bundle from REQUESTS_CA_BUNDLE is applied so
+    proxy-terminated TLS works in the container environment.
+    """
+    ca = os.getenv("REQUESTS_CA_BUNDLE") or os.getenv("SSL_CERT_FILE")
+    verify = ca if ca and os.path.exists(ca) else True
+    return _httpx.Client(
+        base_url=_ALPACA_DATA_URL,
+        headers={
+            "APCA-API-KEY-ID": os.getenv("ALPACA_API_KEY", ""),
+            "APCA-API-SECRET-KEY": os.getenv("ALPACA_SECRET_KEY", ""),
+            "Accept": "application/json",
+        },
+        verify=verify,
+        timeout=30.0,
+    )
+
 
 def _make_session() -> _requests.Session:
     """
-    Return a requests.Session that trusts the container proxy CA bundle.
+    Return a requests.Session for yfinance earnings-calendar calls.
 
-    yfinance v1.4.x defaults to curl_cffi as its HTTP backend, which does not
-    read REQUESTS_CA_BUNDLE / SSL_CERT_FILE and therefore fails TLS in
-    proxy-terminated environments. Passing an explicit requests.Session forces
-    the requests backend, which already picks up those env vars.
-
-    A browser-like User-Agent is set because Yahoo Finance returns different
-    responses based on this header at several internal endpoints.
+    yfinance v1.4.x defaults to curl_cffi which fails TLS in proxy-terminated
+    environments. Passing an explicit requests.Session forces the requests
+    backend, which respects REQUESTS_CA_BUNDLE. Browser-like headers reduce
+    Yahoo's likelihood of returning a 401 on the crumb endpoint.
     """
     sess = _requests.Session()
     ca = os.getenv("REQUESTS_CA_BUNDLE") or os.getenv("SSL_CERT_FILE")
@@ -87,7 +107,6 @@ def _make_session() -> _requests.Session:
 
 def _configure_yfinance() -> None:
     """Apply global yfinance settings once at import time."""
-    # Raise exceptions on data failures rather than silently returning empty DataFrames.
     yf.config.debug.hide_exceptions = False
 
     email = os.getenv("YF_EMAIL", "").strip()
@@ -148,12 +167,11 @@ class SymbolMetrics:
 
 class YFinanceScanner:
     """
-    Computes SymbolMetrics for a list of symbols using yfinance.
+    Computes SymbolMetrics for a list of symbols using Alpaca Market Data.
 
-    Data is fetched via two batched yf.download() calls (daily + intraday),
-    each of which downloads all symbols in parallel using threads. This replaces
-    the prior sequential per-symbol Ticker.history() approach and eliminates the
-    ~3-minute pre-session scan delay.
+    Data is fetched via two batched Alpaca /v2/stocks/bars calls (daily 1Day +
+    intraday 5Min), each covering all symbols in a single HTTP request. Earnings
+    calendar checks fall back to yfinance (fails gracefully when Yahoo is blocked).
 
     Usage:
         scanner = YFinanceScanner()
@@ -165,9 +183,8 @@ class YFinanceScanner:
             marked is_data_stale=True and rejected by CandidateScorer (default 1200 = 20 min).
 
     Environment:
-        YF_EMAIL / YF_PASSWORD: Optional Yahoo Finance account credentials for
-            authenticated API access. Reduces false-positive "possibly delisted"
-            errors under unauthenticated rate limiting.
+        ALPACA_API_KEY / ALPACA_SECRET_KEY: Alpaca credentials (shared with broker).
+        YF_EMAIL / YF_PASSWORD: Optional Yahoo Finance credentials for earnings checks.
     """
 
     def __init__(self, orb_minutes: int = 30, max_intraday_data_age_seconds: int = 1200):
@@ -243,114 +260,100 @@ class YFinanceScanner:
         self, symbols: List[str], today: date
     ) -> Tuple[Dict[str, Optional[pd.DataFrame]], Dict[str, pd.DataFrame]]:
         """
-        Download daily and intraday bars for all symbols in two parallel calls.
+        Download daily and intraday bars for all symbols via Alpaca Market Data.
+
+        Two HTTP requests cover all symbols:
+          1. 1Day bars (75 calendar days) for ATR, RSI, RVOL avg, trend, gap%, vol5d
+          2. 5Min bars (2 calendar days) for intraday price, VWAP, ORB, RVOL today
 
         Returns:
             daily_cache:  symbol → DataFrame (None if data unavailable)
             intra_cache:  symbol → DataFrame (empty DataFrame if unavailable)
         """
-        daily_start = today - timedelta(days=75)
-        end_date = str(today + timedelta(days=1))
-        tickers_str = " ".join(symbols)
-
-        sess = _make_session()
-
-        # Yahoo Finance crumb authentication requires valid browser session
-        # cookies (A1/A3/A1S). Without them, the /v1/test/getcrumb endpoint
-        # returns 401, which yfinance surfaces as data failures on every symbol.
-        # Visiting finance.yahoo.com once populates those cookies on our session
-        # before yf.download() makes its crumb request.
-        try:
-            sess.get("https://finance.yahoo.com", timeout=10)
-            logger.debug("YFinanceScanner: Yahoo cookie prefetch OK (cookies=%d)", len(sess.cookies))
-        except Exception as exc:
-            logger.warning("YFinanceScanner: Yahoo cookie prefetch failed: %s", exc)
-
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-
-            try:
-                daily_all = yf.download(
-                    tickers=tickers_str,
-                    start=str(daily_start),
-                    end=end_date,
-                    interval="1d",
-                    auto_adjust=True,
-                    threads=True,
-                    progress=False,
-                    group_by="ticker",
-                    session=sess,
-                )
-            except Exception as exc:
-                logger.error("YFinanceScanner: batch daily download failed: %s", exc)
-                daily_all = pd.DataFrame()
-
-            try:
-                intra_all = yf.download(
-                    tickers=tickers_str,
-                    period="2d",
-                    interval="5m",
-                    auto_adjust=True,
-                    threads=True,
-                    progress=False,
-                    group_by="ticker",
-                    session=sess,
-                )
-            except Exception as exc:
-                logger.error("YFinanceScanner: batch intraday download failed: %s", exc)
-                intra_all = pd.DataFrame()
-
         daily_cache: Dict[str, Optional[pd.DataFrame]] = {}
         intra_cache: Dict[str, pd.DataFrame] = {}
 
+        try:
+            with _make_alpaca_client() as client:
+                # Daily bars: include today's live bar (same as yfinance behaviour)
+                daily_raw = self._alpaca_fetch_bars(
+                    client, symbols, "1Day",
+                    start=str(today - timedelta(days=75)),
+                    end=str(today),
+                    adjustment="all",
+                )
+                # Intraday 5m: no end → Alpaca defaults to now (latest bar)
+                intra_raw = self._alpaca_fetch_bars(
+                    client, symbols, "5Min",
+                    start=str(today - timedelta(days=2)),
+                    end=None,
+                    adjustment="raw",
+                )
+        except Exception as exc:
+            logger.error("AlpacaScanner: batch fetch failed: %s", exc)
+            for sym in symbols:
+                daily_cache[sym] = None
+                intra_cache[sym] = pd.DataFrame()
+            return daily_cache, intra_cache
+
         for sym in symbols:
-            daily_cache[sym] = self._extract_symbol(daily_all, sym, dropna_col="close")
-            intra_cache[sym] = (
-                self._extract_symbol(intra_all, sym, dropna_col=None) or pd.DataFrame()
-            )
+            daily_df = _alpaca_bars_to_df(daily_raw.get(sym, []))
+            daily_cache[sym] = daily_df if not daily_df.empty else None
+
+            intra_df = _alpaca_bars_to_df(intra_raw.get(sym, []))
+            intra_cache[sym] = intra_df if not intra_df.empty else pd.DataFrame()
 
         failed_daily = [s for s, df in daily_cache.items() if df is None]
         if failed_daily:
             logger.warning(
-                "YFinanceScanner: batch daily fetch returned no data for %d/%d symbols: %s",
+                "AlpacaScanner: no daily data for %d/%d symbols: %s",
                 len(failed_daily), len(symbols), failed_daily,
             )
 
         return daily_cache, intra_cache
 
-    @staticmethod
-    def _extract_symbol(
-        download_df: pd.DataFrame,
-        symbol: str,
-        dropna_col: Optional[str],
-    ) -> Optional[pd.DataFrame]:
+    def _alpaca_fetch_bars(
+        self,
+        client: _httpx.Client,
+        symbols: List[str],
+        timeframe: str,
+        start: str,
+        end: Optional[str],
+        adjustment: str,
+    ) -> Dict[str, list]:
         """
-        Slice a per-symbol DataFrame from a yf.download() result.
+        Fetch bars for all symbols with automatic pagination.
 
-        yf.download(group_by="ticker") returns a MultiIndex DataFrame when multiple
-        tickers are requested. For a single ticker it may return plain columns.
-        Returns None when the symbol has no data in the result.
+        Returns {symbol: [bar_dict, ...]} where each bar_dict has keys
+        t, o, h, l, c, v (plus extras vw, n which are ignored downstream).
         """
-        if download_df.empty:
-            return None
-        try:
-            if isinstance(download_df.columns, pd.MultiIndex):
-                top_level = download_df.columns.get_level_values(0)
-                if symbol not in top_level:
-                    return None
-                df = download_df[symbol].copy()
-            else:
-                df = download_df.copy()
+        result: Dict[str, list] = {s: [] for s in symbols}
+        params: dict = {
+            "symbols": ",".join(symbols),
+            "timeframe": timeframe,
+            "start": start,
+            "adjustment": adjustment,
+            "feed": "iex",
+            "limit": 10000,
+        }
+        if end is not None:
+            params["end"] = end
 
-            df.columns = [c.lower() for c in df.columns]
-            df.index = pd.to_datetime(df.index, utc=True)
+        while True:
+            resp = client.get("/v2/stocks/bars", params=params)
+            resp.raise_for_status()
+            data = resp.json()
 
-            if dropna_col and dropna_col in df.columns:
-                df = df.dropna(subset=[dropna_col])
+            for sym, bars in data.get("bars", {}).items():
+                if sym in result:
+                    result[sym].extend(bars)
 
-            return df if not df.empty else None
-        except Exception:
-            return None
+            next_token = data.get("next_page_token")
+            if not next_token:
+                break
+            params["page_token"] = next_token
+
+        return result
 
     # ── Per-symbol metric computation ─────────────────────────────────────────
 
@@ -367,7 +370,7 @@ class YFinanceScanner:
         if daily_df is None or daily_df.empty:
             raise ValueError(f"No daily data returned for {symbol}")
 
-        # ── Earnings check (per-symbol calendar call — not part of history batch) ──
+        # ── Earnings check (best-effort yfinance; fails gracefully when blocked) ──
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             has_earnings = self._check_earnings(
@@ -658,6 +661,26 @@ class YFinanceScanner:
         except Exception:
             pass
         return False
+
+
+def _alpaca_bars_to_df(bars: list) -> pd.DataFrame:
+    """
+    Convert an Alpaca bars list to a scanner-format DataFrame.
+
+    Input:  [{"t": "2026-06-29T13:30:00Z", "o": 736.61, "h": 738.2,
+               "l": 735.38, "c": 738.12, "v": 14529, "vw": ..., "n": ...}, ...]
+    Output: DataFrame with UTC-aware DatetimeIndex and lowercase OHLCV columns.
+    """
+    if not bars:
+        return pd.DataFrame()
+    df = pd.DataFrame(bars)
+    df["t"] = pd.to_datetime(df["t"], utc=True)
+    df = df.set_index("t")
+    df = df.rename(columns={"o": "open", "h": "high", "l": "low", "c": "close", "v": "volume"})
+    for col in ("open", "high", "low", "close", "volume"):
+        if col not in df.columns:
+            df[col] = np.nan
+    return df[["open", "high", "low", "close", "volume"]]
 
 
 def _ts_to_et(ts) -> datetime:

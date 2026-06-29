@@ -20,12 +20,14 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import os
 import warnings
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 from functools import lru_cache
 from typing import Dict, List, Optional, Tuple
 
+import httpx as _httpx
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -39,6 +41,55 @@ _RESEARCH_WARNING = (
     "[yfinance] Data is unofficial and for research/educational use only. "
     "Do not use for execution."
 )
+
+_ALPACA_DATA_URL = "https://data.alpaca.markets"
+_YF_TO_ALPACA_TF = {
+    "1m": "1Min", "2m": "2Min", "5m": "5Min", "15m": "15Min",
+    "30m": "30Min", "60m": "1Hour", "1h": "1Hour", "1d": "1Day",
+}
+
+
+def _make_alpaca_data_client() -> _httpx.Client:
+    ca = os.getenv("REQUESTS_CA_BUNDLE") or os.getenv("SSL_CERT_FILE")
+    verify = ca if ca and os.path.exists(ca) else True
+    return _httpx.Client(
+        base_url=_ALPACA_DATA_URL,
+        headers={
+            "APCA-API-KEY-ID": os.getenv("ALPACA_API_KEY", ""),
+            "APCA-API-SECRET-KEY": os.getenv("ALPACA_SECRET_KEY", ""),
+            "Accept": "application/json",
+        },
+        verify=verify,
+        timeout=30.0,
+    )
+
+
+def _fetch_alpaca_bars_sync(symbol: str, timeframe: str, start: str) -> pd.DataFrame:
+    all_bars: list = []
+    params: dict = {
+        "symbols": symbol, "timeframe": timeframe,
+        "start": start, "feed": "iex", "limit": 10000,
+    }
+    with _make_alpaca_data_client() as client:
+        while True:
+            resp = client.get("/v2/stocks/bars", params=params)
+            resp.raise_for_status()
+            data = resp.json()
+            all_bars.extend(data.get("bars", {}).get(symbol, []))
+            next_token = data.get("next_page_token")
+            if not next_token:
+                break
+            params["page_token"] = next_token
+    if not all_bars:
+        return pd.DataFrame()
+    df = pd.DataFrame(all_bars)
+    df["t"] = pd.to_datetime(df["t"], utc=True)
+    df = df.set_index("t")
+    df = df.rename(columns={"o": "open", "h": "high", "l": "low", "c": "close", "v": "volume"})
+    for col in ("open", "high", "low", "close", "volume"):
+        if col not in df.columns:
+            df[col] = float("nan")
+    return df[["open", "high", "low", "close", "volume"]]
 
 
 class YFinanceDataSource:
@@ -120,10 +171,13 @@ class YFinanceDataSource:
     async def get_intraday_bars(
         self, symbol: str, interval: str = "5m", days_back: int = 5
     ) -> pd.DataFrame:
-        """Return intraday OHLCV bars (up to 60 days, sub-daily only)."""
-        end = date.today() + timedelta(days=1)  # yfinance end is exclusive; +1 includes today
-        start = end - timedelta(days=days_back + 1)
-        return await self.get_bars(symbol, start, end, interval)
+        """Return intraday OHLCV bars via Alpaca Market Data API (IEX feed)."""
+        start = str(date.today() - timedelta(days=days_back + 1))
+        timeframe = _YF_TO_ALPACA_TF.get(interval, "5Min")
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None, _fetch_alpaca_bars_sync, symbol, timeframe, start
+        )
 
     # ── Option chains (RESEARCH only) ─────────────────────────────────────────
 

@@ -1,12 +1,13 @@
 {
   "protocol": "evaluation/phase2_eval_protocol.md",
   "created": "2026-06-13",
-  "last_updated": "2026-06-25",
+  "last_updated": "2026-06-30",
   "phase": 2,
   "session_count": {
     "target": 10,
-    "completed": 5,
-    "remaining": 5,
+    "completed": 6,
+    "remaining": 4,
+    "note": "S11 counted as completed (validity TBD); S12 voided. S11 had 2 confirmed fills with broker-verified P&L.",
     "midpoint_trigger": 5,
     "midpoint_reached": true,
     "final_trigger": 10,
@@ -97,6 +98,106 @@
     ]
   },
   "phase2_sessions": [
+    {
+      "session": "S11",
+      "date": "2026-06-29",
+      "validity": "TBD",
+      "validity_reason": "Session killed at 11:47 ET with RIVN open (43 min before 12:30 ET EOD exit). RIVN resolved in S12 via max_hold. 2 completed trades with confirmed broker fills. User decision required.",
+      "pnl_journal": -7.0,
+      "pnl_confirmed": -7.0,
+      "pnl_note": "MSFT260629P00370000 trailing_stop +$1.00. RIVN260702C00017000 max_hold -$8.00 (entry S11 / exit S12, attributed to S11). IWM260629P00295000 stale_cancelled ($0 P&L). Net: -$7.00.",
+      "trades": 2,
+      "wins": 1,
+      "losses": 1,
+      "breakeven": 0,
+      "orb_trades": 1,
+      "vwap_trades": 1,
+      "recovered": 0,
+      "direct": 2,
+      "data_clean": false,
+      "data_clean_reason": "Session killed at 11:47 ET with RIVN open. RIVN exit occurred in S12 via max_hold (not S11 EOD logic). Exit spread 41.5% was WARNING-level but exit proceeded per protocol. MSFT confirmed. IWM stale_cancelled (DTE=0 day order, no fill). EOD: 0 positions, 0 orders (broker confirmed via S12 EOD check).",
+      "signal_bridge_available": true,
+      "trades_detail": [
+        {
+          "journal_id": 195,
+          "symbol": "MSFT",
+          "contract": "MSFT260629P00370000",
+          "strategy": "vwap_reclaim",
+          "quality": 2,
+          "scanner": 70,
+          "age_min": 100.1,
+          "age_bucket": "90-120",
+          "dte": 0,
+          "pnl_journal": 1.0,
+          "pnl_actual": 1.0,
+          "fill_path": "direct",
+          "asset_class": "single_stock",
+          "universe_group": "mega_cap",
+          "outcome": "win",
+          "entry_fill": 0.69,
+          "exit_fill_journal": 0.70,
+          "exit_fill_actual": 0.70,
+          "exit_reason": "trailing_stop",
+          "entry_spread_pct": 4.44,
+          "exit_spread_pct": null,
+          "rvol": 0.535,
+          "mfe": 30.0,
+          "mae": 0.0
+        },
+        {
+          "journal_id": 196,
+          "symbol": "RIVN",
+          "contract": "RIVN260702C00017000",
+          "strategy": "orb",
+          "quality": 2,
+          "scanner": 60,
+          "age_min": 105.1,
+          "age_bucket": "90-120",
+          "dte": 3,
+          "pnl_journal": -8.0,
+          "pnl_actual": -8.0,
+          "fill_path": "direct",
+          "asset_class": "single_stock",
+          "universe_group": "high_beta_liquid",
+          "outcome": "loss",
+          "entry_fill": 0.29,
+          "exit_fill_journal": 0.21,
+          "exit_fill_actual": 0.21,
+          "exit_reason": "max_hold (carryover — resolved S12 startup)",
+          "entry_spread_pct": 6.67,
+          "exit_spread_pct": 41.5,
+          "rvol": 0.681,
+          "mfe": 0.0,
+          "mae": -2.5,
+          "note": "Entry limit $0.31 filled at $0.29. Overnight carryover S11→S12. SessionRecovery re-linked to journal row 196. max_hold exit S12 cycle 1 (09:31 ET). Exit spread 41.5% > 10% threshold — WARNING, proceeded. P&L attributed to S11."
+        },
+        {
+          "journal_id": 197,
+          "symbol": "IWM",
+          "contract": "IWM260629P00295000",
+          "strategy": "orb",
+          "quality": 3,
+          "scanner": 55,
+          "age_min": 100.1,
+          "age_bucket": "90-120",
+          "dte": 0,
+          "pnl_journal": null,
+          "pnl_actual": null,
+          "fill_path": null,
+          "asset_class": "etf",
+          "universe_group": "core_etfs",
+          "outcome": "cancelled",
+          "entry_fill": null,
+          "exit_fill_journal": null,
+          "exit_fill_actual": null,
+          "exit_reason": "stale_cancelled",
+          "entry_spread_pct": 5.41,
+          "rvol": 0.517,
+          "note": "DTE=0 day order $0.19 placed, never filled. Expired market close June 29."
+        }
+      ],
+      "infra_notes": "3 windows: 09:39-09:44 ET (11 cycles STANDBY), 10:38-10:50 ET (22 cycles STANDBY), 11:29-11:47 ET (16 cycles, fills cycle 3, MSFT exit cycle 8). VM killed by Firecracker teardown between turns. yfinance 429 hit bars fetch in window 3 (pre-Alpaca fix). Fix deployed after S11."
+    },
     {
       "session": "S10",
       "date": "2026-06-25",
@@ -355,43 +456,45 @@
     }
   ],
   "cumulative": {
-    "note": "Includes Phase 1 baseline (S1-S5) plus Phase 2 S6-S10. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: 0 trades. S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct fills). S9: 0 trades (yfinance data failure). S10: 0 trades (yfinance data failure).",
-    "sessions": 10,
-    "trades": 20,
-    "wins": 5,
-    "losses": 14,
+    "note": "Includes Phase 1 baseline (S1-S5) plus Phase 2 S6-S11. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: 0 trades. S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct fills). S9: 0 trades (yfinance data failure). S10: 0 trades (yfinance data failure). S11: 2 completed trades (MSFT +1, RIVN -8; IWM cancelled). S12: VOIDED (0 new trades). S11 validity TBD.",
+    "sessions": 11,
+    "trades": 22,
+    "wins": 6,
+    "losses": 15,
     "breakeven": 1,
-    "net_pnl": -248.0,
-    "gross_wins": 81.0,
-    "gross_losses": 329.0,
-    "win_rate": 0.25,
-    "avg_pnl_per_trade": -12.4,
-    "profit_factor": 0.246,
+    "net_pnl": -255.0,
+    "gross_wins": 82.0,
+    "gross_losses": 337.0,
+    "win_rate": 0.2727,
+    "avg_pnl_per_trade": -11.59,
+    "profit_factor": 0.243,
     "recovered_fills": 15,
-    "direct_fills": 5
+    "direct_fills": 7
   },
   "dimensions": {
-    "note": "Through S8 (20 total trades: 14 P1 + 3 S6 + 0 S7 + 3 S8). S1-S2 signal_bridge unavailable; quality/age/scanner sourced from post-session reports where possible. S3-S8 have full signal_bridge data. All dimension counts reflect 15 trades with quality/DTE/age/scanner data (S3-S5=9 + S6=3 + S8=3; S1-S2=5 excluded from quality/age/scanner due to no signal_bridge).",
+    "note": "Through S11 (22 total trades: 14 P1 + 3 S6 + 0 S7 + 3 S8 + 0 S9 + 0 S10 + 2 S11). S1-S2 signal_bridge unavailable; quality/age/scanner sourced from post-session reports where possible. S3-S11 have full signal_bridge data. All dimension counts reflect 17 trades with quality/DTE/age/scanner data (S3-S5=9 + S6=3 + S8=3 + S11=2; S1-S2=5 excluded from quality/age/scanner). IWM cancelled trade (S11 journal_id=197) excluded from dimension counts. S11 validity TBD.",
     "strategy": {
       "orb": {
-        "n": 4,
+        "n": 5,
         "wins": 2,
-        "losses": 2,
-        "pnl": -102.0,
+        "losses": 3,
+        "pnl": -110.0,
         "gross_wins": 17.0,
-        "gross_losses": 119.0
+        "gross_losses": 127.0,
+        "note": "Added RIVN (S11, orb, loss -8)"
       },
       "vwap_reclaim": {
-        "n": 16,
-        "wins": 3,
+        "n": 17,
+        "wins": 4,
         "losses": 13,
-        "pnl": -146.0,
-        "gross_wins": 64.0,
-        "gross_losses": 210.0
+        "pnl": -145.0,
+        "gross_wins": 65.0,
+        "gross_losses": 210.0,
+        "note": "Added MSFT (S11, vwap_reclaim, win +1)"
       }
     },
     "quality_score": {
-      "note": "S3-S8 (signal_bridge data). 15 completed trades with quality data (9 P1 + 3 S6 + 3 S8: AAPL q=3, PLTR q=2, DIA q=3). 1 breakeven (SPY S3).",
+      "note": "S3-S11 (signal_bridge data). 17 completed trades with quality data. S11 adds MSFT q=2 (win), RIVN q=2 (loss). 1 breakeven (SPY S3).",
       "1": {
         "n": 1,
         "wins": 0,
@@ -399,10 +502,10 @@
         "pnl": -14.0
       },
       "2": {
-        "n": 7,
-        "wins": 2,
-        "losses": 5,
-        "pnl": -96.0
+        "n": 9,
+        "wins": 3,
+        "losses": 6,
+        "pnl": -103.0
       },
       "3": {
         "n": 5,
@@ -419,13 +522,14 @@
       }
     },
     "dte": {
-      "note": "S3-S8. 15 completed trades with DTE data. S6 all DTE=3 (June 18 expiry, Thursday due to Juneteenth holiday June 19). S8 all DTE=0 (June 18 actual expiry day).",
+      "note": "S3-S11. 17 completed trades with DTE data. S6 all DTE=3 (June 18 expiry). S8 all DTE=0 (June 18 expiry day). S11 MSFT DTE=0, RIVN DTE=3.",
       "0": {
-        "n": 10,
-        "wins": 2,
+        "n": 11,
+        "wins": 3,
         "losses": 7,
         "breakeven": 1,
-        "pnl": -117.0
+        "pnl": -116.0,
+        "note": "Added MSFT S11 DTE=0 win +1"
       },
       "1": {
         "n": 1,
@@ -434,10 +538,11 @@
         "pnl": -60.0
       },
       "2-3": {
-        "n": 4,
+        "n": 5,
         "wins": 2,
-        "losses": 2,
-        "pnl": -64.0
+        "losses": 3,
+        "pnl": -72.0,
+        "note": "Added RIVN S11 DTE=3 loss -8"
       },
       "4+": {
         "n": 0,
@@ -447,7 +552,7 @@
       }
     },
     "asset_class": {
-      "note": "All 14 trades. ETF/single-stock classification from universe group. S1-S2 assumed ETF from symbol list.",
+      "note": "All trades with asset classification. S11 adds MSFT (single_stock, win) and RIVN (single_stock, loss). IWM cancelled excluded.",
       "etf": {
         "n": 16,
         "wins": 3,
@@ -456,14 +561,15 @@
         "pnl": -218.0
       },
       "single_stock": {
-        "n": 4,
-        "wins": 2,
-        "losses": 2,
-        "pnl": -30.0
+        "n": 6,
+        "wins": 3,
+        "losses": 3,
+        "pnl": -37.0,
+        "note": "Added MSFT +1 and RIVN -8"
       }
     },
     "signal_age_minutes": {
-      "note": "S3-S8 (15 completed trades with age data). S6: XLE 37.9min (30-60), PLTR 108.6min (90-120), DIA 73.9min (60-90). S8: AAPL 29.0min (<30), PLTR 24.6min (<30), DIA 90.4min (90-120).",
+      "note": "S3-S11 (17 completed trades with age data). S6: XLE 37.9min (30-60), PLTR 108.6min (90-120), DIA 73.9min (60-90). S8: AAPL 29.0min (<30), PLTR 24.6min (<30), DIA 90.4min (90-120). S11: MSFT 100.1min (90-120), RIVN 105.1min (90-120).",
       "<30": {
         "n": 4,
         "wins": 1,
@@ -484,10 +590,11 @@
         "pnl": -87.0
       },
       "90-120": {
-        "n": 3,
-        "wins": 1,
-        "losses": 2,
-        "pnl": -56.0
+        "n": 5,
+        "wins": 2,
+        "losses": 3,
+        "pnl": -63.0,
+        "note": "Added MSFT +1 (win) and RIVN -8 (loss) from S11"
       },
       ">120": {
         "n": 0,
@@ -497,7 +604,7 @@
       }
     },
     "scanner_score": {
-      "note": "S3-S8 (15 completed trades with scanner score data). S6: XLE 67 (60-69), PLTR 55 (50-59), DIA 58 (50-59). S8: AAPL 42 (40-49), PLTR 50 (50-59), DIA 48 (40-49).",
+      "note": "S3-S11 (17 completed trades with scanner score data). S11 adds MSFT score=70 (70+ bucket, win) and RIVN score=60 (60-69 bucket, loss).",
       "<40": {
         "n": 3,
         "wins": 0,
@@ -517,16 +624,18 @@
         "pnl": -116.0
       },
       "60-69": {
-        "n": 1,
+        "n": 2,
         "wins": 0,
-        "losses": 1,
-        "pnl": -4.0
+        "losses": 2,
+        "pnl": -12.0,
+        "note": "Added RIVN S11 (score=60, loss -8)"
       },
       "70+": {
-        "n": 0,
-        "wins": 0,
+        "n": 1,
+        "wins": 1,
         "losses": 0,
-        "pnl": 0.0
+        "pnl": 1.0,
+        "note": "Added MSFT S11 (score=70, win +1)"
       }
     },
     "fill_path": {
@@ -538,15 +647,16 @@
         "pnl": -280.0
       },
       "direct": {
-        "n": 5,
-        "wins": 3,
-        "losses": 2,
-        "pnl": 32.0
+        "n": 7,
+        "wins": 4,
+        "losses": 3,
+        "pnl": 25.0,
+        "note": "Added MSFT +1 (win) and RIVN -8 (loss) from S11"
       }
     }
   },
   "minimum_observations": {
-    "note": "Minimum 3 per bucket before dimension comparisons. Updated after each session.",
+    "note": "Minimum 3 per bucket before dimension comparisons. Updated through S11.",
     "strategy_orb_reached": true,
     "strategy_vwap_reached": true,
     "quality_1_reached": false,
@@ -575,37 +685,47 @@
   "primary_questions_status": {
     "Q1_orb_vs_vwap": {
       "status": "indeterminate",
-      "reason": "ORB N=4 (2 wins/4, pnl=-102, PF=17/119=0.143). VWAP N=16 (3 wins/16, pnl=-146, PF=64/210=0.305). S8 adds DIA ORB loss (-20). ORB profit factor dropped from 0.174 to 0.143. VWAP improved slightly with PLTR win. Still indeterminate \u2014 both PFs below 1, VWAP higher PF but both unprofitable overall.",
-      "orb_pf": 0.143,
-      "vwap_pf": 0.305
+      "reason": "ORB N=5 (2 wins/5, pnl=-110, PF=17/127=0.134). VWAP N=17 (4 wins/17, pnl=-145, PF=65/210=0.310). S11 adds RIVN (ORB, loss -8) and MSFT (VWAP, win +1). ORB PF dropped further (0.143\u21920.134); VWAP PF improved slightly (0.305\u21920.310). Both below 1. VWAP now higher PF and better win rate. Still indeterminate \u2014 both unprofitable overall.",
+      "orb_pf": 0.134,
+      "vwap_pf": 0.310
     },
     "Q2_signal_age": {
       "status": "indeterminate",
-      "reason": "<30 N=4 (1 win/4, pnl=+13), 30-60 N=4 (0 wins/4, pnl=-97), 60-90 N=4 (2 wins/4, pnl=-87), 90-120 N=3 (1 win/3, pnl=-56). All four primary buckets now at N\u22653. >120 N=0. <30 shows only positive pnl (+13) from S8 PLTR win outweighing AAPL loss. 30-60 remains weakest (0 wins). 60-90 best win rate but negative pnl. No consistent age\u2192performance relationship established yet.",
-      "note": "30-60 bucket now weakest. 60-90 and 90-120 both show wins but 90-120 still below N=3 minimum."
+      "reason": "S11 adds MSFT 100.1min and RIVN 105.1min, both in 90-120 bucket. 90-120 N=5 (2 wins/5, pnl=-63). <30 N=4 (+13), 30-60 N=4 (-97), 60-90 N=4 (-87), 90-120 N=5 (-63). 30-60 remains weakest (0 wins, pnl=-97). <30 still only positive bucket. 90-120 improves to 2 wins from 1 but still negative pnl. No clear monotonic age\u2192performance relationship.",
+      "note": "All four primary age buckets at N\u22653. 30-60 worst. <30 only positive. 90-120 shows 40% win rate but -63 pnl."
     },
     "Q3_dte": {
       "status": "indeterminate",
-      "reason": "DTE=0 N=10 (2 wins/10, 20%, pnl=-117). DTE=2-3 N=4 (2 wins/4, pnl=-64). DTE=1 N=1. S8 adds 3 more DTE=0 trades. DTE=0 now largest bucket at N=10. DTE=0 win rate holding at 20% with strongly negative expectancy. DTE=2-3 shows 50% win rate over N=4 \u2014 early advantage for non-expiry DTE."
+      "reason": "S11 adds MSFT DTE=0 (win +1) and RIVN DTE=3 (loss -8). DTE=0 N=11 (3 wins/11, 27%, pnl=-116). DTE=2-3 N=5 (2 wins/5, 40%, pnl=-72). DTE=0 win rate improves slightly (20%\u219227%) but pnl essentially unchanged (-117\u2192-116). DTE=2-3 win rate drops (50%\u219240%) with RIVN loss adding to pnl drag. DTE=2-3 still shows better win rate than DTE=0 but gap narrowing."
     },
     "Q4_etf_vs_single_stock": {
       "status": "indeterminate",
-      "reason": "Single-stock N=4 (2 wins/4, 50%, pnl=-30, avg=-7.50/trade). ETF N=16 (3 wins/16, 18.75%, pnl=-218, avg=-13.63/trade). Single-stock now at N\u22653 minimum. S8 adds AAPL (loss) and PLTR (win) to single-stock. Early pattern: single-stock win rate (50%) and avg_pnl (-7.50) both favor single-stock over ETF (18.75%, -13.63), but N=4 is still small. Potentially SUPPORTED pending more data."
+      "reason": "S11 adds MSFT (win +1) and RIVN (loss -8) both to single-stock. Single-stock N=6 (3 wins/6, 50%, pnl=-37, avg=-6.17/trade). ETF N=16 unchanged (3 wins/16, 18.75%, pnl=-218, avg=-13.63/trade). Single-stock win rate holds at 50% vs ETF 18.75%. Avg pnl improves slightly (-7.50\u2192-6.17). Pattern POTENTIALLY SUPPORTED but single-stock pnl remains negative overall despite better win rate."
     },
     "Q5_quality_scores": {
       "status": "indeterminate",
-      "reason": "Quality=2 N=7 (2 wins/7, 29%, pnl=-96). Quality=3 N=5 (2 wins/5, 40%, pnl=-4). S8 adds PLTR (q=2, win +25) and AAPL+DIA (q=3, both losses). Quality=3 shifted from positive (+28) to near-zero (-4) after S8 losses. Quality=2 improved slightly. Early quality=3 outperformance pattern is weakening. Both buckets above N minimum. Still indeterminate."
+      "reason": "S11 adds MSFT q=2 (win +1) and RIVN q=2 (loss -8). Quality=2 N=9 (3 wins/9, 33%, pnl=-103). Quality=3 N=5 unchanged (2 wins/5, 40%, pnl=-4). Quality=2 pnl deteriorates further (-96→-103) despite win rate holding. Quality=3 still best pnl. Gap widens: q=3 avg=-0.80/trade vs q=2 avg=-11.44/trade. Still indeterminate but q=3 advantage is strengthening."
     },
     "Q6_scanner_score": {
       "status": "indeterminate",
-      "reason": "Score <40 N=3 (0 wins, pnl=-82). Score 40-49 N=4 (0 wins, pnl=-46). Score 50-59 N=7 (4 wins/7, 57%, pnl=-116). Score 60-69 N=1 (0 wins, pnl=-4). S8 adds AAPL+DIA (40-49, both losses) and PLTR (50-59, win). 40-49 bucket now confirmed weakest (0/4 wins). 50-59 improves to 57% win rate. Higher score bands appear better but still below N minimum for 60-69 and 70+. Still indeterminate \u2014 50-59 showing positive win rate but negative overall pnl."
+      "reason": "S11 adds MSFT score=70 (70+ bucket, win +1) and RIVN score=60 (60-69 bucket, loss -8). Score 60-69 N=2 (0 wins, pnl=-12). Score 70+ N=1 (1 win, pnl=+1). Both below N=3 minimum. Existing buckets unchanged: <40 N=3 (0 wins, -82), 40-49 N=4 (0 wins, -46), 50-59 N=7 (4 wins 57%, -116). 60-69 now 0/2 wins with another loss (RIVN). 70+ positive pnl but N=1 only. Still indeterminate \u2014 60-69 and 70+ both below minimum."
     },
     "Q7_fill_path": {
       "status": "indeterminate",
-      "reason": "Recovered N=15 (2 wins/15, 13%, pnl=-280, avg=-18.67/trade). Direct N=5 (3 wins/5, 60%, pnl=+32, avg=+6.40/trade). Direct now at N\u22653 minimum. S8 all 3 trades were direct fills. Direct 3/5 wins vs recovered 2/15 wins \u2014 stark difference. Direct pnl strongly positive (+32) vs recovered deeply negative (-280). Pattern potentially SUPPORTED but confound exists: S8 direct fills are DTE=0 with market in partial-day liquidity recovery, not a clean comparison yet."
+      "reason": "S11 adds MSFT (direct, win +1) and RIVN (direct, loss -8). Recovered N=15 unchanged (2 wins/15, 13%, pnl=-280, avg=-18.67/trade). Direct N=7 (4 wins/7, 57%, pnl=+25, avg=+3.57/trade). Direct pnl eroded from +32 to +25 with RIVN loss, but still positive. Direct win rate holds at 57% (vs 13% recovered). Gap remains large. Pattern potentially SUPPORTED \u2014 direct fills consistently outperform recovered across sessions S6 through S11."
     }
   },
   "voided_attempts": [
+    {
+      "intended_session": "S12",
+      "date": "2026-06-30",
+      "voided_at_et": "10:49 ET (last logged cycle 26)",
+      "cycles_completed": 64,
+      "reason": "Killed before 12:30 ET with 0 new positions. Per protocol: 'If killed before 12:30 ET with 0 positions: VOIDED.' Three windows killed by Firecracker VM teardown. All 38 symbols STANDBY (low_volume_chop) every scan. RIVN carryover from S11 closed at cycle 1 of window 1 via max_hold — that trade attributed to S11 not S12.",
+      "broker_state_at_void": "0 positions, 0 open orders (EOD confirmed ~19:23 ET)",
+      "excluded_from_phase2": true,
+      "note": "RIVN260702C00017000 carryover from S11 correctly recovered and closed. P&L attributed to S11 per carryover convention."
+    },
     {
       "intended_session": "S9",
       "date": "2026-06-22",
@@ -627,5 +747,5 @@
       "fix_required": "Session runner must be executed on a persistent host (local machine, VPS, or persistent server) outside the ephemeral Claude Code remote container. The container cannot sustain a 3-hour background process through inactivity periods."
     }
   ],
-  "note": "Phase 2 tracking. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: zero-trade standby (rvol < 0.50). S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct, all trailing_stop). data_clean=FALSE. S9: zero-trade standby (yfinance data failure, scores 10.0). data_clean=TRUE. S10: zero-trade standby (yfinance data failure, scores 10.0). data_clean=TRUE. MIDPOINT REACHED (5/10 sessions). Midpoint review now due. 5 sessions remaining (S11-S15)."
+  "note": "Phase 2 tracking. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: zero-trade standby (rvol < 0.50). S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct, all trailing_stop). data_clean=FALSE. S9: zero-trade standby (yfinance data failure, scores 10.0). data_clean=TRUE. S10: zero-trade standby (yfinance data failure, scores 10.0). data_clean=TRUE. MIDPOINT REACHED (5/10 sessions). S11 (2026-06-29): 2 completed trades (MSFT +1, RIVN -8; IWM cancelled), INTERRUPTED at 11:47 ET with RIVN open — validity TBD. S12 (2026-06-30): VOIDED (killed before 12:30 ET with 0 new positions). Sessions remaining to target: S12-S15 (4), or S11-S15 (5) if S11 voided."
 }

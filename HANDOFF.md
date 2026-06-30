@@ -1,7 +1,7 @@
 # Project Handoff Document
-**Generated:** 2026-06-26  
+**Generated:** 2026-06-30  
 **Branch:** `claude/options-trading-research-system-TIU0p`  
-**Last commit:** `eceb15c` — Add high_beta_liquid to enabled scanner groups (27→38 symbols)
+**Last commit:** pending (S11/S12 post-session documentation)
 
 ---
 
@@ -22,36 +22,60 @@ An intraday options trading research system operating under a **frozen evaluatio
 
 **Goal:** Collect 10 clean sessions (S6–S15) to answer 7 primary research questions (Q1–Q7) about signal quality, fill path, DTE, spread, scanner score, and strategy attribution.
 
-**Status:** 5 of 10 sessions complete (MIDPOINT REACHED). 5 remaining.
+**Status:** 6 of 10 sessions complete (S11 validity TBD). 4 remaining (S12–S15).
 
-| Session | Date | P&L | Trades | Wins | data_clean | Running P&L |
-|---------|------|-----|--------|------|------------|-------------|
-| S6 | 2026-06-15 | +$35.00 | 3 | 2 | FALSE | +$35.00 |
-| S7 | 2026-06-17 | $0.00 | 0 | — | TRUE | +$35.00 |
-| S8 | 2026-06-18 | -$7.00 | 3 | 1 | FALSE | +$28.00 |
-| S9 | 2026-06-24 | $0.00 | 0 | — | TRUE | +$28.00 |
-| S10 | 2026-06-25 | $0.00 | 0 | — | TRUE | +$28.00 |
+| Session | Date | P&L | Trades | Wins | data_clean | Status | Running P&L |
+|---------|------|-----|--------|------|------------|--------|-------------|
+| S6 | 2026-06-15 | +$35.00 | 3 | 2 | FALSE | complete | +$35.00 |
+| S7 | 2026-06-17 | $0.00 | 0 | — | TRUE | complete | +$35.00 |
+| S8 | 2026-06-18 | -$7.00 | 3 | 1 | FALSE | complete | +$28.00 |
+| S9 | 2026-06-24 | $0.00 | 0 | — | TRUE | complete | +$28.00 |
+| S10 | 2026-06-25 | $0.00 | 0 | — | TRUE | complete | +$28.00 |
+| S11 | 2026-06-29 | -$7.00 | 2 | 1 | FALSE | **TBD** | +$21.00 |
+| S12 | 2026-06-30 | $0.00 | 0 | — | TRUE | **VOIDED** | — |
 
 **Phase 1 baseline (S1–S5, carry-forward):** -$276.00, 14 trades, 2 wins  
-**Combined P&L (all sessions):** -$248.00, 20 trades, 5 wins, 25.0% win rate
+**Combined P&L (all sessions incl. S11):** -$255.00, 22 trades, 6 wins, 27.3% win rate
 
 **Midpoint analysis completed:** `research/phase2_midpoint_analysis_2026-06-25.md`  
 **Protocol document:** `evaluation/phase2_eval_protocol.md`  
 **Tracking file:** `evaluation/phase2_tracking.json`
 
+### S11 Validity Decision Required
+
+S11 (2026-06-29) was killed at 11:47 ET with RIVN open. Options:
+- **Count as valid (with data_clean=FALSE):** 2 broker-confirmed fills, P&L known, carryover resolved cleanly. Data is usable.
+- **Void:** Session window incomplete (killed 43 min before 12:30 ET EOD); RIVN exit by max_hold in S12, not S11's own logic.
+
+S12 (2026-06-30) is definitively VOIDED — killed before 12:30 ET with 0 new positions per protocol.
+
 ---
 
-## Next Immediate Task: Session 11 (S11)
+## Next Immediate Task: Session 13 (S13)
 
-### Launch Command
+S12 was voided. S13 is the next required session (or S12-retry on the next trading day).
+
+### CRITICAL: VM Teardown Between Turns
+
+**Root cause confirmed:** Each Claude Code conversation turn runs in a Firecracker microVM. The VM is torn down completely after ~13 min of idle time between conversation turns. This is a hypervisor-level kill — no process survives (tmux servers, orphaned processes with their own PGID, keepalive processes — all die). This is why S11 and S12 had 2–3 windows each instead of a continuous 09:30–12:30 ET run.
+
+**S9/S10 succeeded because:** those sessions required Claude to actively monitor health checks at regular intervals (09:35, 09:45, 10:00, 11:00, 12:00 ET), which kept the VM alive. S11/S12 had longer idle gaps between health check turns.
+
+**Required fix for S13+:** Invoke the `/loop` skill at session launch with a 5–8 min interval. This creates periodic Claude turns that keep the VM alive and can detect/relaunch a killed session_runner within the loop interval.
+
+### Launch Sequence for S13
+
 ```bash
-tmux new-session -d -s s11 -x 220 -y 50
-tmux send-keys -t s11 "python -u scripts/session_runner.py --poll 30 --reconcile-interval 10 2>&1 | tee logs/session_YYYY-MM-DD.log" Enter
+# 1. Start tmux and launch session_runner
+tmux new-session -d -s s13 -x 220 -y 50
+tmux send-keys -t s13 "until [ \$(TZ=America/New_York date +%H%M) -ge 1230 ]; do python -u scripts/session_runner.py --poll 30 --reconcile-interval 10 2>&1 | tee -a logs/session_YYYY-MM-DD.log; sleep 10; done" Enter
 ```
-Replace `YYYY-MM-DD` with the actual session date.
 
-### Why tmux (critical)
-All prior `&` and `nohup` launch attempts were killed by the remote container's process manager (SIGKILL) during conversation inactivity gaps. tmux server processes survive shell recycling entirely. S9 and S10 both ran full windows (165 and 167 cycles respectively) using tmux.
+Then immediately invoke `/loop` with a 6–7 min interval to keep the VM alive and monitor the session.
+
+### Why tmux + /loop (critical)
+- **tmux**: Protects the session_runner process from being killed when the Claude shell is recycled between turns. The `until` watchdog loop in tmux relaunches if the Python process dies.
+- **`/loop`**: Keeps the Firecracker VM alive by creating periodic Claude turns. Without this, the VM dies after ~13 min idle and the tmux server itself is destroyed.
 
 ### Pre-Session Checklist
 1. Verify market is open and not a half-day
@@ -84,9 +108,17 @@ Session auto-terminates at 12:30 ET. After completion:
 
 ---
 
-## Recent Code Changes (S9–S10 Era)
+## Recent Code Changes (S11–S12 Era)
 
-Two changes were explicitly authorized by the user as exceptions to the Phase 2 freeze:
+Three changes were explicitly authorized as exceptions to the Phase 2 freeze:
+
+### 0. Intraday bars → Alpaca (commit `ad85192`)
+File: `app/data/yfinance_data.py`
+
+**What changed:**  
+`YFinanceDataSource.get_intraday_bars()` now fetches bars from the Alpaca Market Data API (IEX feed) instead of yfinance. Yahoo Finance began rate-limiting (HTTP 429) on 2026-06-26; every cycle in S11 window 3 hit the 429 for MSFT/RIVN/PLTR signal-generation bars. The fix adds `_make_alpaca_data_client()` and `_fetch_alpaca_bars_sync()` module-level helpers, and replaces the yfinance call with an Alpaca paginated fetch.
+
+**Effect:** All intraday bars for signal generation now come from Alpaca. No longer dependent on Yahoo Finance for anything in the trading loop.
 
 ### 1. yfinance Integration (commit `081cc03`)
 File: `app/scanning/yfinance_scanner.py`
@@ -176,12 +208,15 @@ WHERE data_valid = TRUE
 
 ## Known Infrastructure Issues
 
-**yfinance daily data failures:** Recurring issue where yfinance returns empty DataFrames for all symbols. Occurred on both S9 (2026-06-24) and S10 (2026-06-25). When this happens:
+**Firecracker VM teardown (CRITICAL — affects all sessions):** Each Claude Code conversation turn runs in a Firecracker microVM. After ~13 min of idle time between conversation turns, the entire VM is torn down at the hypervisor level. No process survives — not tmux servers, not orphaned processes with their own PGID. The only reliable solution is `/loop` skill at 5–8 min intervals to keep the VM alive through active turns. S9/S10 succeeded because health checks were performed every 5–10 min during session monitoring. S11/S12 had longer idle gaps and were killed repeatedly.
+
+**yfinance 429 rate limit on intraday bars:** Yahoo Finance rate-limited all yfinance bar fetches starting 2026-06-26. This affected S11 window 3 (cycles 1–5 of 11:29 ET window). **FIXED:** `get_intraday_bars()` in `app/data/yfinance_data.py` now uses Alpaca Market Data API (IEX feed). Active for S12+.
+
+**yfinance daily data failures:** Recurring issue where yfinance returns empty DataFrames for daily OHLCV data. Occurred on S9 (2026-06-24) and S10 (2026-06-25). When this happens:
 - Scores collapse to 10.0 (artifact from rsi=50.0 sentinel)
 - All symbols rejected via `data_fetch_error`
 - Session produces 0 trades but is still classified STANDBY
-- Does not affect session validity if scanner operated correctly
-- The new batch fetch + requests backend in `yfinance_scanner.py` may improve reliability for S11+
+- The batch fetch + requests backend in `yfinance_scanner.py` may improve reliability
 
 **Commit workflow for logs/reports:** `.gitignore` blocks `logs/` and `evaluation/reports/`. Use `git add -f` to force-add these files when committing post-session documentation.
 
@@ -193,6 +228,9 @@ WHERE data_valid = TRUE
 |------|---------|-------|-------|-----------|
 | 2026-06-22 | S9 attempt 1 | Cycle 22 (09:40:39 ET) | bash shell recycled (`&` backgrounding) | 0 |
 | 2026-06-23 | S9 attempt 2 | Cycle 73 (10:05:22 ET) | SIGKILL from container resource manager (`nohup` only blocks SIGHUP) | 0 |
+| 2026-06-30 | S12 | Cycle 26 (10:49 ET, last of 3 windows) | Firecracker VM teardown × 3, killed before 12:30 ET with 0 new positions | 0 new |
+
+**S11 (2026-06-29):** Not voided but validity TBD. Killed at 11:47 ET with RIVN open. 2 broker-confirmed fills. See S11 validity decision required above.
 
 ---
 
@@ -209,9 +247,16 @@ WHERE data_valid = TRUE
 - DIA SHORT (orb): direct fill, DTE=0, loss (-$20 actual, -$22 journal)
 - All exits via trailing_stop. All fills better than limit (marketable_limit mode).
 
-**Notable patterns (midpoint findings):**
-- All 6 Phase 2 trades were DTE=0
-- All S8 fills were direct (not recovered); S6 fills were recovered
-- Direct fills significantly outperform recovered: +$6.40 vs -$18.67 avg per trade (confounded by Phase 1 vs Phase 2 infrastructure differences)
-- Trend alignment dominates score variance (6.7pt gap between trend_up and trend_sideways candidates)
-- All 3 ORB signals showed underlying moving against breakout direction in 5/15/30min windows (consistent late-entry pattern, signal age 66–90 min at trade time)
+**S11 (2026-06-29) — 2 completed trades, -$7.00, data_clean=FALSE, validity TBD**
+- MSFT SHORT (vwap_reclaim): direct fill, DTE=0, win (+$1.00, trailing_stop, hold=186s)
+  - scanner=70, quality=2, age=100.1 min, rvol=0.535, entry spread=4.4%
+- RIVN LONG (orb): direct fill, DTE=3, loss (-$8.00, max_hold carryover, hold=78,656s)
+  - scanner=60, quality=2, age=105.1 min, rvol=0.681, entry spread=6.7%, exit spread=41.5%
+  - Entry limit $0.31, filled $0.29; exit $0.21 triggered in S12 at startup
+- IWM SHORT (orb): DTE=0 day order $0.19, stale_cancelled (never filled before VM kill)
+
+**Notable patterns (through S11):**
+- Direct fills outperform recovered: direct N=7 (4 wins, 57%, avg=+$3.57/trade) vs recovered N=15 (2 wins, 13%, avg=-$18.67/trade)
+- DTE=0 win rate improved slightly to 27% (3/11) but pnl essentially flat at -$116
+- 90–120 min signal age now most populated bucket (N=5), showing 40% win rate (-$63 total)
+- Quality=3 average pnl (-$0.80/trade) significantly better than quality=2 (-$11.44/trade)

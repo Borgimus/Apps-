@@ -1,0 +1,446 @@
+2026-07-01T13:36:07 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-01T13:36:07 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-01T13:36:11 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-01T13:36:11 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-01T13:36:25 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-07-01T13:36:25 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-07-01T13:36:25 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-07-01T13:36:25 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-07-01T13:36:25 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-07-01T13:36:25 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-07-01T13:36:25 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-07-01T13:36:25 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-07-01T13:36:25 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+2026-07-01T13:36:25 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-07-01  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Wednesday 2026-07-01 — trading day
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Wednesday 2026-07-01 — trading day
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: No prior session log today — first run of the day
+2026-07-01T13:36:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: No prior session log today — first run of the day
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Wednesday 2026-07-01 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-07-01T13:36:26 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Wednesday 2026-07-01 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-07-01T13:36:26 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Wednesday 2026-07-01 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-07-01T13:36:26 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-07-01T13:36:26 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-07-01T13:36:27 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-07-01 | starting_equity=98960.53
+2026-07-01T13:36:27 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-07-01 | starting_equity=98960.53
+2026-07-01T13:36:27 | INFO     | session_runner | Account: equity=98960.53 paper=True
+2026-07-01T13:36:27 | INFO     | session_runner | Account: equity=98960.53 paper=True
+2026-07-01T13:36:27 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-07-01T13:36:27 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-07-01T13:36:27 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-07-01T13:36:27 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-07-01T13:36:27 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-01T13:36:27 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-01T13:36:27 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-01T13:36:27 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-01T13:36:27 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-01T13:36:27 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-01T13:36:27 | ERROR    | app.scanning.yfinance_scanner | AlpacaScanner: batch fetch failed: Client error '401 Unauthorized' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=SPY%2CQQQ%2CIWM%2CDIA%2CXLK%2CXLF%2CXLE%2CXLY%2CSMH%2CAAPL%2CMSFT%2CNVDA%2CAMZN%2CMETA%2CGOOGL%2CTSLA%2CAMD%2CARM%2CAVGO%2CCOIN%2CMSTR%2CPLTR%2CSHOP%2CSNOW%2CNET%2CCRWD%2CDDOG%2CRIVN%2CSOFI%2CHOOD%2CMARA%2CRIOT%2CROKU%2CDKNG%2CUBER%2CLYFT%2CSQ%2CAFRM&timeframe=1Day&start=2026-04-17&adjustment=all&feed=iex&limit=10000&end=2026-07-01'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+2026-07-01T13:36:27 | ERROR    | app.scanning.yfinance_scanner | AlpacaScanner: batch fetch failed: Client error '401 Unauthorized' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=SPY%2CQQQ%2CIWM%2CDIA%2CXLK%2CXLF%2CXLE%2CXLY%2CSMH%2CAAPL%2CMSFT%2CNVDA%2CAMZN%2CMETA%2CGOOGL%2CTSLA%2CAMD%2CARM%2CAVGO%2CCOIN%2CMSTR%2CPLTR%2CSHOP%2CSNOW%2CNET%2CCRWD%2CDDOG%2CRIVN%2CSOFI%2CHOOD%2CMARA%2CRIOT%2CROKU%2CDKNG%2CUBER%2CLYFT%2CSQ%2CAFRM&timeframe=1Day&start=2026-04-17&adjustment=all&feed=iex&limit=10000&end=2026-07-01'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SPY: No daily data returned for SPY
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SPY: No daily data returned for SPY
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for QQQ: No daily data returned for QQQ
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for QQQ: No daily data returned for QQQ
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for IWM: No daily data returned for IWM
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DIA: No daily data returned for DIA
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLK: No daily data returned for XLK
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLF: No daily data returned for XLF
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLE: No daily data returned for XLE
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLY: No daily data returned for XLY
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SMH: No daily data returned for SMH
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AAPL: No daily data returned for AAPL
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSFT: No daily data returned for MSFT
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NVDA: No daily data returned for NVDA
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMZN: No daily data returned for AMZN
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for META: No daily data returned for META
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for GOOGL: No daily data returned for GOOGL
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for TSLA: No daily data returned for TSLA
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for IWM: No daily data returned for IWM
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DIA: No daily data returned for DIA
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLK: No daily data returned for XLK
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLF: No daily data returned for XLF
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLE: No daily data returned for XLE
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLY: No daily data returned for XLY
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SMH: No daily data returned for SMH
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AAPL: No daily data returned for AAPL
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSFT: No daily data returned for MSFT
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NVDA: No daily data returned for NVDA
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMZN: No daily data returned for AMZN
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for META: No daily data returned for META
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for GOOGL: No daily data returned for GOOGL
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for TSLA: No daily data returned for TSLA
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMD: No daily data returned for AMD
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMD: No daily data returned for AMD
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ARM: No daily data returned for ARM
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ARM: No daily data returned for ARM
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AVGO: No daily data returned for AVGO
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AVGO: No daily data returned for AVGO
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for COIN: No daily data returned for COIN
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for COIN: No daily data returned for COIN
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSTR: No daily data returned for MSTR
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSTR: No daily data returned for MSTR
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for PLTR: No daily data returned for PLTR
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for PLTR: No daily data returned for PLTR
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SHOP: No daily data returned for SHOP
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SHOP: No daily data returned for SHOP
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SNOW: No daily data returned for SNOW
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SNOW: No daily data returned for SNOW
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NET: No daily data returned for NET
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NET: No daily data returned for NET
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for CRWD: No daily data returned for CRWD
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for CRWD: No daily data returned for CRWD
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DDOG: No daily data returned for DDOG
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DDOG: No daily data returned for DDOG
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIVN: No daily data returned for RIVN
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIVN: No daily data returned for RIVN
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SOFI: No daily data returned for SOFI
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SOFI: No daily data returned for SOFI
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for HOOD: No daily data returned for HOOD
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for HOOD: No daily data returned for HOOD
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MARA: No daily data returned for MARA
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MARA: No daily data returned for MARA
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIOT: No daily data returned for RIOT
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIOT: No daily data returned for RIOT
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ROKU: No daily data returned for ROKU
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ROKU: No daily data returned for ROKU
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DKNG: No daily data returned for DKNG
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DKNG: No daily data returned for DKNG
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for UBER: No daily data returned for UBER
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for UBER: No daily data returned for UBER
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for LYFT: No daily data returned for LYFT
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for LYFT: No daily data returned for LYFT
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AFRM: No daily data returned for AFRM
+2026-07-01T13:36:27 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AFRM: No daily data returned for AFRM
+2026-07-01T13:36:27 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-07-01T13:36:27 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-07-01T13:36:27 | INFO     | session_runner |   SPY     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T13:36:27 | INFO     | session_runner |   SPY     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T13:36:27 | INFO     | session_runner |   QQQ     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T13:36:27 | INFO     | session_runner |   QQQ     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T13:36:27 | INFO     | session_runner |   IWM     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T13:36:27 | INFO     | session_runner |   IWM     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T13:36:27 | INFO     | session_runner |   DIA     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T13:36:27 | INFO     | session_runner |   DIA     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T13:36:27 | INFO     | session_runner |   XLK     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T13:36:27 | INFO     | session_runner |   XLK     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T13:36:27 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-07-01T13:36:27 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-07-01T13:36:28 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-07-01T13:36:28 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-07-01T13:36:28 | INFO     | session_runner | [cycle 1] 09:36:28 ET | positions=0 | entries=0
+2026-07-01T13:36:28 | INFO     | session_runner | [cycle 1] 09:36:28 ET | positions=0 | entries=0
+2026-07-01T13:36:28 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-01T13:36:28 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-01T13:36:58 | INFO     | session_runner | [cycle 2] 09:36:58 ET | positions=0 | entries=0
+2026-07-01T13:36:58 | INFO     | session_runner | [cycle 2] 09:36:58 ET | positions=0 | entries=0
+2026-07-01T13:37:28 | INFO     | session_runner | [cycle 3] 09:37:28 ET | positions=0 | entries=0
+2026-07-01T13:37:28 | INFO     | session_runner | [cycle 3] 09:37:28 ET | positions=0 | entries=0
+2026-07-01T13:37:58 | INFO     | session_runner | [cycle 4] 09:37:58 ET | positions=0 | entries=0
+2026-07-01T13:37:58 | INFO     | session_runner | [cycle 4] 09:37:58 ET | positions=0 | entries=0
+2026-07-01T13:38:28 | INFO     | session_runner | [cycle 5] 09:38:28 ET | positions=0 | entries=0
+2026-07-01T13:38:28 | INFO     | session_runner | [cycle 5] 09:38:28 ET | positions=0 | entries=0
+2026-07-01T13:38:58 | INFO     | session_runner | [cycle 6] 09:38:58 ET | positions=0 | entries=0
+2026-07-01T13:38:58 | INFO     | session_runner | [cycle 6] 09:38:58 ET | positions=0 | entries=0
+2026-07-01T13:39:28 | INFO     | session_runner | [cycle 7] 09:39:28 ET | positions=0 | entries=0
+2026-07-01T13:39:28 | INFO     | session_runner | [cycle 7] 09:39:28 ET | positions=0 | entries=0
+2026-07-01T13:39:58 | INFO     | session_runner | [cycle 8] 09:39:58 ET | positions=0 | entries=0
+2026-07-01T13:39:58 | INFO     | session_runner | [cycle 8] 09:39:58 ET | positions=0 | entries=0
+2026-07-01T13:40:28 | INFO     | session_runner | [cycle 9] 09:40:28 ET | positions=0 | entries=0
+2026-07-01T13:40:28 | INFO     | session_runner | [cycle 9] 09:40:28 ET | positions=0 | entries=0
+2026-07-01T13:40:58 | INFO     | session_runner | [cycle 10] 09:40:58 ET | positions=0 | entries=0
+2026-07-01T13:40:58 | INFO     | session_runner | [cycle 10] 09:40:58 ET | positions=0 | entries=0
+2026-07-01T13:41:28 | INFO     | session_runner | [cycle 11] 09:41:28 ET | positions=0 | entries=0
+2026-07-01T13:41:28 | INFO     | session_runner | [cycle 11] 09:41:28 ET | positions=0 | entries=0
+2026-07-01T13:41:58 | INFO     | session_runner | [cycle 12] 09:41:58 ET | positions=0 | entries=0
+2026-07-01T13:41:58 | INFO     | session_runner | [cycle 12] 09:41:58 ET | positions=0 | entries=0
+2026-07-01T13:42:28 | INFO     | session_runner | [cycle 13] 09:42:28 ET | positions=0 | entries=0
+2026-07-01T13:42:28 | INFO     | session_runner | [cycle 13] 09:42:28 ET | positions=0 | entries=0
+2026-07-01T13:42:59 | INFO     | session_runner | [cycle 14] 09:42:59 ET | positions=0 | entries=0
+2026-07-01T13:42:59 | INFO     | session_runner | [cycle 14] 09:42:59 ET | positions=0 | entries=0
+2026-07-01T13:43:29 | INFO     | session_runner | [cycle 15] 09:43:29 ET | positions=0 | entries=0
+2026-07-01T13:43:29 | INFO     | session_runner | [cycle 15] 09:43:29 ET | positions=0 | entries=0
+2026-07-01T13:43:59 | INFO     | session_runner | [cycle 16] 09:43:59 ET | positions=0 | entries=0
+2026-07-01T13:43:59 | INFO     | session_runner | [cycle 16] 09:43:59 ET | positions=0 | entries=0
+2026-07-01T13:44:29 | INFO     | session_runner | [cycle 17] 09:44:29 ET | positions=0 | entries=0
+2026-07-01T13:44:29 | INFO     | session_runner | [cycle 17] 09:44:29 ET | positions=0 | entries=0
+2026-07-01T13:44:59 | INFO     | session_runner | [cycle 18] 09:44:59 ET | positions=0 | entries=0
+2026-07-01T13:44:59 | INFO     | session_runner | [cycle 18] 09:44:59 ET | positions=0 | entries=0
+2026-07-01T13:45:29 | INFO     | session_runner | [cycle 19] 09:45:29 ET | positions=0 | entries=0
+2026-07-01T13:45:29 | INFO     | session_runner | [cycle 19] 09:45:29 ET | positions=0 | entries=0
+2026-07-01T13:45:59 | INFO     | session_runner | [cycle 20] 09:45:59 ET | positions=0 | entries=0
+2026-07-01T13:45:59 | INFO     | session_runner | [cycle 20] 09:45:59 ET | positions=0 | entries=0
+2026-07-01T13:46:29 | INFO     | session_runner | [cycle 21] 09:46:29 ET | positions=0 | entries=0
+2026-07-01T13:46:29 | INFO     | session_runner | [cycle 21] 09:46:29 ET | positions=0 | entries=0
+2026-07-01T13:46:29 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-01T13:46:29 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-01T13:47:00 | INFO     | session_runner | [cycle 22] 09:47:00 ET | positions=0 | entries=0
+2026-07-01T13:47:00 | INFO     | session_runner | [cycle 22] 09:47:00 ET | positions=0 | entries=0
+2026-07-01T13:47:30 | INFO     | session_runner | [cycle 23] 09:47:30 ET | positions=0 | entries=0
+2026-07-01T13:47:30 | INFO     | session_runner | [cycle 23] 09:47:30 ET | positions=0 | entries=0
+2026-07-01T13:48:00 | INFO     | session_runner | [cycle 24] 09:48:00 ET | positions=0 | entries=0
+2026-07-01T13:48:00 | INFO     | session_runner | [cycle 24] 09:48:00 ET | positions=0 | entries=0
+2026-07-01T15:52:24 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-01T15:52:24 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-01T15:52:39 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-07-01T15:52:39 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-07-01T15:52:39 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-07-01T15:52:39 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-07-01T15:52:39 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-07-01T15:52:39 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-07-01T15:52:39 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-07-01T15:52:39 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-07-01T15:52:39 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+2026-07-01T15:52:39 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-07-01  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Wednesday 2026-07-01 — trading day
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Wednesday 2026-07-01 — trading day
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-07-01T15:52:40 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-07-01T15:52:40 | WARNING  | app.evaluation.pre_session | pre_session [FAIL] data_feed_fresh: Last session log is 124m old — data may be stale
+2026-07-01T15:52:40 | WARNING  | app.evaluation.pre_session | pre_session [FAIL] data_feed_fresh: Last session log is 124m old — data may be stale
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Wednesday 2026-07-01 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ⚠  [advisory]  data_feed_fresh                 Last session log is 124m old — data may be stale
+
+  Result: PASS
+2026-07-01T15:52:40 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Wednesday 2026-07-01 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ⚠  [advisory]  data_feed_fresh                 Last session log is 124m old — data may be stale
+
+  Result: PASS
+2026-07-01T15:52:40 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Wednesday 2026-07-01 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ⚠  [advisory]  data_feed_fresh                 Last session log is 124m old — data may be stale
+
+  Result: PASS
+2026-07-01T15:52:40 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-07-01T15:52:40 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-07-01T15:52:40 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-07-01 | starting_equity=98960.53
+2026-07-01T15:52:40 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-07-01 | starting_equity=98960.53
+2026-07-01T15:52:40 | INFO     | session_runner | Account: equity=98960.53 paper=True
+2026-07-01T15:52:40 | INFO     | session_runner | Account: equity=98960.53 paper=True
+2026-07-01T15:52:40 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-07-01T15:52:40 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-07-01T15:52:40 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-07-01T15:52:40 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-07-01T15:52:40 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-01T15:52:40 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-01T15:52:40 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-01T15:52:40 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-01T15:52:40 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-01T15:52:40 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-01T15:52:41 | ERROR    | app.scanning.yfinance_scanner | AlpacaScanner: batch fetch failed: Client error '401 Unauthorized' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=SPY%2CQQQ%2CIWM%2CDIA%2CXLK%2CXLF%2CXLE%2CXLY%2CSMH%2CAAPL%2CMSFT%2CNVDA%2CAMZN%2CMETA%2CGOOGL%2CTSLA%2CAMD%2CARM%2CAVGO%2CCOIN%2CMSTR%2CPLTR%2CSHOP%2CSNOW%2CNET%2CCRWD%2CDDOG%2CRIVN%2CSOFI%2CHOOD%2CMARA%2CRIOT%2CROKU%2CDKNG%2CUBER%2CLYFT%2CSQ%2CAFRM&timeframe=1Day&start=2026-04-17&adjustment=all&feed=iex&limit=10000&end=2026-07-01'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+2026-07-01T15:52:41 | ERROR    | app.scanning.yfinance_scanner | AlpacaScanner: batch fetch failed: Client error '401 Unauthorized' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=SPY%2CQQQ%2CIWM%2CDIA%2CXLK%2CXLF%2CXLE%2CXLY%2CSMH%2CAAPL%2CMSFT%2CNVDA%2CAMZN%2CMETA%2CGOOGL%2CTSLA%2CAMD%2CARM%2CAVGO%2CCOIN%2CMSTR%2CPLTR%2CSHOP%2CSNOW%2CNET%2CCRWD%2CDDOG%2CRIVN%2CSOFI%2CHOOD%2CMARA%2CRIOT%2CROKU%2CDKNG%2CUBER%2CLYFT%2CSQ%2CAFRM&timeframe=1Day&start=2026-04-17&adjustment=all&feed=iex&limit=10000&end=2026-07-01'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/401
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SPY: No daily data returned for SPY
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SPY: No daily data returned for SPY
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for QQQ: No daily data returned for QQQ
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for QQQ: No daily data returned for QQQ
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for IWM: No daily data returned for IWM
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for IWM: No daily data returned for IWM
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DIA: No daily data returned for DIA
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DIA: No daily data returned for DIA
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLK: No daily data returned for XLK
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLK: No daily data returned for XLK
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLF: No daily data returned for XLF
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLF: No daily data returned for XLF
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLE: No daily data returned for XLE
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLE: No daily data returned for XLE
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLY: No daily data returned for XLY
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for XLY: No daily data returned for XLY
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SMH: No daily data returned for SMH
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SMH: No daily data returned for SMH
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AAPL: No daily data returned for AAPL
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AAPL: No daily data returned for AAPL
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSFT: No daily data returned for MSFT
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSFT: No daily data returned for MSFT
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NVDA: No daily data returned for NVDA
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NVDA: No daily data returned for NVDA
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMZN: No daily data returned for AMZN
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMZN: No daily data returned for AMZN
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for META: No daily data returned for META
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for META: No daily data returned for META
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for GOOGL: No daily data returned for GOOGL
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for GOOGL: No daily data returned for GOOGL
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for TSLA: No daily data returned for TSLA
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for TSLA: No daily data returned for TSLA
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMD: No daily data returned for AMD
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AMD: No daily data returned for AMD
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ARM: No daily data returned for ARM
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ARM: No daily data returned for ARM
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AVGO: No daily data returned for AVGO
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AVGO: No daily data returned for AVGO
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for COIN: No daily data returned for COIN
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for COIN: No daily data returned for COIN
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSTR: No daily data returned for MSTR
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MSTR: No daily data returned for MSTR
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for PLTR: No daily data returned for PLTR
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for PLTR: No daily data returned for PLTR
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SHOP: No daily data returned for SHOP
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SHOP: No daily data returned for SHOP
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SNOW: No daily data returned for SNOW
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SNOW: No daily data returned for SNOW
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NET: No daily data returned for NET
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for NET: No daily data returned for NET
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for CRWD: No daily data returned for CRWD
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for CRWD: No daily data returned for CRWD
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DDOG: No daily data returned for DDOG
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DDOG: No daily data returned for DDOG
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIVN: No daily data returned for RIVN
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIVN: No daily data returned for RIVN
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SOFI: No daily data returned for SOFI
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SOFI: No daily data returned for SOFI
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for HOOD: No daily data returned for HOOD
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for HOOD: No daily data returned for HOOD
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MARA: No daily data returned for MARA
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for MARA: No daily data returned for MARA
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIOT: No daily data returned for RIOT
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for RIOT: No daily data returned for RIOT
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ROKU: No daily data returned for ROKU
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DKNG: No daily data returned for DKNG
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for UBER: No daily data returned for UBER
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for LYFT: No daily data returned for LYFT
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AFRM: No daily data returned for AFRM
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for ROKU: No daily data returned for ROKU
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for DKNG: No daily data returned for DKNG
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for UBER: No daily data returned for UBER
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for LYFT: No daily data returned for LYFT
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-01T15:52:41 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for AFRM: No daily data returned for AFRM
+2026-07-01T15:52:41 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-07-01T15:52:41 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-07-01T15:52:41 | INFO     | session_runner |   SPY     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T15:52:41 | INFO     | session_runner |   SPY     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T15:52:41 | INFO     | session_runner |   QQQ     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T15:52:41 | INFO     | session_runner |   QQQ     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T15:52:41 | INFO     | session_runner |   IWM     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T15:52:41 | INFO     | session_runner |   IWM     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T15:52:41 | INFO     | session_runner |   DIA     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T15:52:41 | INFO     | session_runner |   DIA     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T15:52:41 | INFO     | session_runner |   XLK     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T15:52:41 | INFO     | session_runner |   XLK     score=10.0  signal=NEUTRAL  REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop, atr_too_small, invalid_price, insufficient_underlying_volume
+2026-07-01T15:52:41 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-07-01T15:52:41 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-07-01T15:52:41 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-07-01T15:52:41 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-07-01T15:52:41 | INFO     | session_runner | [cycle 1] 11:52:41 ET | positions=0 | entries=0
+2026-07-01T15:52:41 | INFO     | session_runner | [cycle 1] 11:52:41 ET | positions=0 | entries=0
+2026-07-01T15:52:41 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-01T15:52:41 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-01T15:53:11 | INFO     | session_runner | [cycle 2] 11:53:11 ET | positions=0 | entries=0
+2026-07-01T15:53:11 | INFO     | session_runner | [cycle 2] 11:53:11 ET | positions=0 | entries=0
+2026-07-01T15:53:41 | INFO     | session_runner | [cycle 3] 11:53:41 ET | positions=0 | entries=0
+2026-07-01T15:53:41 | INFO     | session_runner | [cycle 3] 11:53:41 ET | positions=0 | entries=0
+2026-07-01T15:54:11 | INFO     | session_runner | [cycle 4] 11:54:11 ET | positions=0 | entries=0
+2026-07-01T15:54:11 | INFO     | session_runner | [cycle 4] 11:54:11 ET | positions=0 | entries=0
+2026-07-01T15:54:41 | INFO     | session_runner | [cycle 5] 11:54:41 ET | positions=0 | entries=0
+2026-07-01T15:54:41 | INFO     | session_runner | [cycle 5] 11:54:41 ET | positions=0 | entries=0
+2026-07-01T15:55:11 | INFO     | session_runner | [cycle 6] 11:55:11 ET | positions=0 | entries=0
+2026-07-01T15:55:11 | INFO     | session_runner | [cycle 6] 11:55:11 ET | positions=0 | entries=0
+2026-07-01T15:55:41 | INFO     | session_runner | [cycle 7] 11:55:41 ET | positions=0 | entries=0
+2026-07-01T15:55:41 | INFO     | session_runner | [cycle 7] 11:55:41 ET | positions=0 | entries=0
+2026-07-01T15:56:11 | INFO     | session_runner | [cycle 8] 11:56:11 ET | positions=0 | entries=0
+2026-07-01T15:56:11 | INFO     | session_runner | [cycle 8] 11:56:11 ET | positions=0 | entries=0

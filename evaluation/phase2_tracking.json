@@ -1,7 +1,7 @@
 {
   "protocol": "evaluation/phase2_eval_protocol.md",
   "created": "2026-06-13",
-  "last_updated": "2026-06-30",
+  "last_updated": "2026-07-01",
   "phase": 2,
   "session_count": {
     "target": 10,
@@ -717,6 +717,16 @@
   },
   "voided_attempts": [
     {
+      "intended_session": "S13",
+      "date": "2026-07-01",
+      "voided_at_et": "11:56 ET (last logged cycle 8 of window 2)",
+      "cycles_completed": 32,
+      "reason": "Killed before 12:30 ET with 0 positions (twice — VM teardown at 09:48 ET and 11:56 ET). yfinance daily data failure all session (all 38 symbols score=10.0/NEUTRAL) — no trading was possible regardless. Cron /loop job died with VM on first kill at 09:48 ET; user manually triggered relaunch at 11:51 ET. Second window killed at 11:56 ET with 39 min remaining.",
+      "broker_state_at_void": "0 positions, 0 open orders (EOD confirmed 14:48 ET, equity=$98,960.53)",
+      "excluded_from_phase2": true,
+      "note": "yfinance daily data failure (same pattern as S9/S10). Would have been zero-trade STANDBY session even if full window ran. CronCreate loop does not survive Firecracker VM teardown — cron is session-only and dies with the VM."
+    },
+    {
       "intended_session": "S12",
       "date": "2026-06-30",
       "voided_at_et": "10:49 ET (last logged cycle 26)",
@@ -747,5 +757,5 @@
       "fix_required": "Session runner must be executed on a persistent host (local machine, VPS, or persistent server) outside the ephemeral Claude Code remote container. The container cannot sustain a 3-hour background process through inactivity periods."
     }
   ],
-  "note": "Phase 2 tracking. S6: 3 trades (XLE -4, PLTR +24, DIA +15 carryover). S7: zero-trade standby (rvol < 0.50). S8: 3 trades (AAPL -12, PLTR +25, DIA -20; all DTE=0, all direct, all trailing_stop). data_clean=FALSE. S9: zero-trade standby (yfinance data failure, scores 10.0). data_clean=TRUE. S10: zero-trade standby (yfinance data failure, scores 10.0). data_clean=TRUE. MIDPOINT REACHED (5/10 sessions). S11 (2026-06-29): 2 completed trades (MSFT +1, RIVN -8; IWM cancelled), INTERRUPTED at 11:47 ET with RIVN open — validity TBD. S12 (2026-06-30): VOIDED (killed before 12:30 ET with 0 new positions). Sessions remaining to target: S12-S15 (4), or S11-S15 (5) if S11 voided."
+  "note": "Phase 2 tracking. S6: 3 trades (+35). S7: 0 trades (STANDBY). S8: 3 trades (-7, all DTE=0). S9: 0 trades (yfinance failure). S10: 0 trades (yfinance failure). S11: 2 trades (-7, valid). S12: VOIDED. S13: VOIDED (yfinance failure + VM kills). 6 valid sessions complete, 4 remaining. S14+ require active user engagement every <10 min OR external trigger to prevent VM teardown between turns."
 }

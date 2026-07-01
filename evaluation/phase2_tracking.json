@@ -101,8 +101,8 @@
     {
       "session": "S11",
       "date": "2026-06-29",
-      "validity": "TBD",
-      "validity_reason": "Session killed at 11:47 ET with RIVN open (43 min before 12:30 ET EOD exit). RIVN resolved in S12 via max_hold. 2 completed trades with confirmed broker fills. User decision required.",
+      "validity": "valid",
+      "validity_reason": "User confirmed: S11 counts as valid Phase 2 session. 2 broker-confirmed fills with known P&L. Carryover position resolved cleanly. Session window was interrupted but trade data is complete.",
       "pnl_journal": -7.0,
       "pnl_confirmed": -7.0,
       "pnl_note": "MSFT260629P00370000 trailing_stop +$1.00. RIVN260702C00017000 max_hold -$8.00 (entry S11 / exit S12, attributed to S11). IWM260629P00295000 stale_cancelled ($0 P&L). Net: -$7.00.",

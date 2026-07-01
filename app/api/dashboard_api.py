@@ -49,6 +49,8 @@ from .models import (
     get_db,
     init_db,
 )
+from .sessions_router import router as _sessions_router
+from .supervisor import _supervisor
 
 logger = logging.getLogger(__name__)
 
@@ -143,9 +145,12 @@ def create_app(
         allow_headers=["*"],
     )
 
+    app.include_router(_sessions_router)
+
     @app.on_event("startup")
     async def startup():
         await init_db()
+        _supervisor.set_broker(_broker)
         logger.info("Dashboard API started | live_trading=%s", settings.live_trading_enabled)
         if settings.live_trading_enabled:
             logger.warning("⚠️  LIVE TRADING IS ENABLED via API startup")

@@ -378,6 +378,30 @@ class DBSignalBridge(Base):
     created_at = Column(DateTime, server_default=func.now())
 
 
+class DBSupervisorSession(Base):
+    """Persisted record of each supervisor-managed session_runner invocation."""
+    __tablename__ = "supervisor_sessions"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    session_date = Column(String(10), nullable=False, index=True)
+    pid = Column(Integer)
+    status = Column(String(32), nullable=False, default="idle")
+    # idle / running / stopping / stopped / error
+    validity_state = Column(String(32))
+    # VALID / STANDBY / INVALID_DATA / INFRA_INTERRUPTED / BROKER_RISK
+    start_time = Column(DateTime)
+    stop_time = Column(DateTime)
+    last_heartbeat = Column(DateTime)
+    last_cycle = Column(Integer, default=0)
+    last_log_line = Column(Text)
+    last_error = Column(Text)
+    broker_snapshot = Column(Text)   # JSON blob: positions, orders, equity, ts
+    scanner_snapshot = Column(Text)  # JSON blob: last scan status
+    failure_reason = Column(Text)
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, onupdate=func.now(), server_default=func.now())
+
+
 class DBOrderStatusTransition(Base):
     """
     Telemetry: every broker order status change for a tracked order.

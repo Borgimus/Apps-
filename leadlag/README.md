@@ -1,5 +1,7 @@
 # ES/MES → SPY Lead-Lag Study
 
+> **VERDICT (2026-07-04): ES LEADS, NOT EXPLOITABLE** — see [FINDINGS.md](FINDINGS.md).
+
 Falsification-first research into whether CME E-mini S&P 500 futures lead SPY
 exploitably, with emphasis on the 09:30–10:00 ET opening session.
 

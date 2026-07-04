@@ -1,0 +1,319 @@
+{
+ "folds": [
+  {
+   "month": "2025-10",
+   "params": {
+    "min_downtrend_s": 15,
+    "min_correlation": 0.8,
+    "min_cum_decline_bps": 6,
+    "min_down_slope_bps": 0.1,
+    "flat_slope_bps": 0.25,
+    "min_dia_up_slope_bps": 0.1,
+    "min_dia_retrace": 0.15,
+    "min_divergence_z": 2.0,
+    "fixed_target_pct": 0.3,
+    "time_stop_s": 30
+   },
+   "oos": {
+    "n_trades": 5,
+    "n_days": 23,
+    "win_rate": 0.0,
+    "profit_factor": 0.0,
+    "expectancy_bps": -1.843759473134421,
+    "expectancy_usd": -4.538094991995626,
+    "sharpe_trade": -5.400470262788913,
+    "sharpe_daily_ann": -85.04943707167739,
+    "max_drawdown_usd": 18.341992609988665,
+    "max_drawdown_pct": 0.018342790242984876,
+    "avg_hold_s": 1.6,
+    "total_net_pnl": -22.690474959978133,
+    "skipped_entries": 0
+   }
+  },
+  {
+   "month": "2025-11",
+   "params": {
+    "min_downtrend_s": 15,
+    "min_correlation": 0.8,
+    "min_cum_decline_bps": 6,
+    "min_down_slope_bps": 0.1,
+    "flat_slope_bps": 0.25,
+    "min_dia_up_slope_bps": 0.1,
+    "min_dia_retrace": 0.15,
+    "min_divergence_z": 2.0,
+    "fixed_target_pct": 0.3,
+    "time_stop_s": 30
+   },
+   "oos": {
+    "n_trades": 2,
+    "n_days": 19,
+    "win_rate": 0.5,
+    "profit_factor": 2.955069583777325,
+    "expectancy_bps": 2.3035392991055392,
+    "expectancy_usd": 5.6695840000077276,
+    "sharpe_trade": 0.34992363052669617,
+    "sharpe_daily_ann": 5.548727066499068,
+    "max_drawdown_usd": 5.799879499987583,
+    "max_drawdown_pct": 0.005798885626225632,
+    "avg_hold_s": 11.0,
+    "total_net_pnl": 11.339168000015455,
+    "skipped_entries": 1
+   }
+  },
+  {
+   "month": "2025-12",
+   "params": {
+    "min_downtrend_s": 15,
+    "min_correlation": 0.8,
+    "min_cum_decline_bps": 8,
+    "min_down_slope_bps": 0.15,
+    "flat_slope_bps": 0.15,
+    "min_dia_up_slope_bps": 0.2,
+    "min_dia_retrace": 0.25,
+    "min_divergence_z": 2.0,
+    "fixed_target_pct": 0.2,
+    "time_stop_s": 30
+   },
+   "oos": {
+    "n_trades": 0,
+    "n_days": 22,
+    "win_rate": NaN,
+    "profit_factor": NaN,
+    "expectancy_bps": NaN,
+    "expectancy_usd": NaN,
+    "sharpe_trade": NaN,
+    "sharpe_daily_ann": NaN,
+    "max_drawdown_usd": NaN,
+    "max_drawdown_pct": NaN,
+    "avg_hold_s": NaN,
+    "total_net_pnl": NaN,
+    "skipped_entries": 0
+   }
+  },
+  {
+   "month": "2026-01",
+   "params": {
+    "min_downtrend_s": 15,
+    "min_correlation": 0.8,
+    "min_cum_decline_bps": 8,
+    "min_down_slope_bps": 0.15,
+    "flat_slope_bps": 0.15,
+    "min_dia_up_slope_bps": 0.2,
+    "min_dia_retrace": 0.25,
+    "min_divergence_z": 2.0,
+    "fixed_target_pct": 0.2,
+    "time_stop_s": 30
+   },
+   "oos": {
+    "n_trades": 0,
+    "n_days": 20,
+    "win_rate": NaN,
+    "profit_factor": NaN,
+    "expectancy_bps": NaN,
+    "expectancy_usd": NaN,
+    "sharpe_trade": NaN,
+    "sharpe_daily_ann": NaN,
+    "max_drawdown_usd": NaN,
+    "max_drawdown_pct": NaN,
+    "avg_hold_s": NaN,
+    "total_net_pnl": NaN,
+    "skipped_entries": 0
+   }
+  },
+  {
+   "month": "2026-02",
+   "params": {
+    "min_downtrend_s": 15,
+    "min_correlation": 0.8,
+    "min_cum_decline_bps": 8,
+    "min_down_slope_bps": 0.15,
+    "flat_slope_bps": 0.15,
+    "min_dia_up_slope_bps": 0.2,
+    "min_dia_retrace": 0.25,
+    "min_divergence_z": 2.0,
+    "fixed_target_pct": 0.2,
+    "time_stop_s": 30
+   },
+   "oos": {
+    "n_trades": 1,
+    "n_days": 19,
+    "win_rate": 1.0,
+    "profit_factor": Infinity,
+    "expectancy_bps": 1.3096036164883529,
+    "expectancy_usd": 3.2355021599868548,
+    "sharpe_trade": NaN,
+    "sharpe_daily_ann": NaN,
+    "max_drawdown_usd": -0.0,
+    "max_drawdown_pct": -0.0,
+    "avg_hold_s": 5.0,
+    "total_net_pnl": 3.2355021599868548,
+    "skipped_entries": 2
+   }
+  },
+  {
+   "month": "2026-03",
+   "params": {
+    "min_downtrend_s": 15,
+    "min_correlation": 0.8,
+    "min_cum_decline_bps": 8,
+    "min_down_slope_bps": 0.15,
+    "flat_slope_bps": 0.15,
+    "min_dia_up_slope_bps": 0.2,
+    "min_dia_retrace": 0.25,
+    "min_divergence_z": 2.0,
+    "fixed_target_pct": 0.2,
+    "time_stop_s": 30
+   },
+   "oos": {
+    "n_trades": 6,
+    "n_days": 22,
+    "win_rate": 0.16666666666666666,
+    "profit_factor": 0.026657691253387957,
+    "expectancy_bps": -2.0523326954239676,
+    "expectancy_usd": -5.111496827501271,
+    "sharpe_trade": -1.5180387573452188,
+    "sharpe_daily_ann": -22.12147405148313,
+    "max_drawdown_usd": 30.66898096501245,
+    "max_drawdown_pct": 0.030668980965012454,
+    "avg_hold_s": 3.0,
+    "total_net_pnl": -30.668980965007627,
+    "skipped_entries": 3
+   }
+  },
+  {
+   "month": "2026-04",
+   "params": {
+    "min_downtrend_s": 30,
+    "min_correlation": 0.7,
+    "min_cum_decline_bps": 12,
+    "min_down_slope_bps": 0.1,
+    "flat_slope_bps": 0.25,
+    "min_dia_up_slope_bps": 0.1,
+    "min_dia_retrace": 0.1,
+    "min_divergence_z": 2.0,
+    "fixed_target_pct": 0.2,
+    "time_stop_s": 30
+   },
+   "oos": {
+    "n_trades": 0,
+    "n_days": 21,
+    "win_rate": NaN,
+    "profit_factor": NaN,
+    "expectancy_bps": NaN,
+    "expectancy_usd": NaN,
+    "sharpe_trade": NaN,
+    "sharpe_daily_ann": NaN,
+    "max_drawdown_usd": NaN,
+    "max_drawdown_pct": NaN,
+    "avg_hold_s": NaN,
+    "total_net_pnl": NaN,
+    "skipped_entries": 0
+   }
+  },
+  {
+   "month": "2026-05",
+   "params": {
+    "min_downtrend_s": 30,
+    "min_correlation": 0.7,
+    "min_cum_decline_bps": 12,
+    "min_down_slope_bps": 0.1,
+    "flat_slope_bps": 0.25,
+    "min_dia_up_slope_bps": 0.1,
+    "min_dia_retrace": 0.1,
+    "min_divergence_z": 2.0,
+    "fixed_target_pct": 0.2,
+    "time_stop_s": 30
+   },
+   "oos": {
+    "n_trades": 0,
+    "n_days": 20,
+    "win_rate": NaN,
+    "profit_factor": NaN,
+    "expectancy_bps": NaN,
+    "expectancy_usd": NaN,
+    "sharpe_trade": NaN,
+    "sharpe_daily_ann": NaN,
+    "max_drawdown_usd": NaN,
+    "max_drawdown_pct": NaN,
+    "avg_hold_s": NaN,
+    "total_net_pnl": NaN,
+    "skipped_entries": 0
+   }
+  },
+  {
+   "month": "2026-06",
+   "params": {
+    "min_downtrend_s": 30,
+    "min_correlation": 0.7,
+    "min_cum_decline_bps": 12,
+    "min_down_slope_bps": 0.1,
+    "flat_slope_bps": 0.25,
+    "min_dia_up_slope_bps": 0.1,
+    "min_dia_retrace": 0.1,
+    "min_divergence_z": 2.0,
+    "fixed_target_pct": 0.2,
+    "time_stop_s": 30
+   },
+   "oos": {
+    "n_trades": 0,
+    "n_days": 21,
+    "win_rate": NaN,
+    "profit_factor": NaN,
+    "expectancy_bps": NaN,
+    "expectancy_usd": NaN,
+    "sharpe_trade": NaN,
+    "sharpe_daily_ann": NaN,
+    "max_drawdown_usd": NaN,
+    "max_drawdown_pct": NaN,
+    "avg_hold_s": NaN,
+    "total_net_pnl": NaN,
+    "skipped_entries": 0
+   }
+  },
+  {
+   "month": "2026-07",
+   "params": {
+    "min_downtrend_s": 30,
+    "min_correlation": 0.7,
+    "min_cum_decline_bps": 12,
+    "min_down_slope_bps": 0.1,
+    "flat_slope_bps": 0.25,
+    "min_dia_up_slope_bps": 0.1,
+    "min_dia_retrace": 0.1,
+    "min_divergence_z": 2.0,
+    "fixed_target_pct": 0.2,
+    "time_stop_s": 30
+   },
+   "oos": {
+    "n_trades": 0,
+    "n_days": 2,
+    "win_rate": NaN,
+    "profit_factor": NaN,
+    "expectancy_bps": NaN,
+    "expectancy_usd": NaN,
+    "sharpe_trade": NaN,
+    "sharpe_daily_ann": NaN,
+    "max_drawdown_usd": NaN,
+    "max_drawdown_pct": NaN,
+    "avg_hold_s": NaN,
+    "total_net_pnl": NaN,
+    "skipped_entries": 0
+   }
+  }
+ ],
+ "oos_pooled": {
+  "n_trades": 14,
+  "n_days": 189,
+  "win_rate": 0.21428571428571427,
+  "profit_factor": 0.3535792645704363,
+  "expectancy_bps": -1.1154365231083199,
+  "expectancy_usd": -2.7703418403559605,
+  "sharpe_trade": -0.42365022720552814,
+  "sharpe_daily_ann": -6.733835795426032,
+  "max_drawdown_usd": 34.43630341500102,
+  "max_drawdown_pct": 0.034437800936696475,
+  "avg_hold_s": 3.7857142857142856,
+  "total_net_pnl": -38.78478576498345,
+  "skipped_entries": 0
+ }
+}

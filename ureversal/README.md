@@ -4,10 +4,11 @@ Self-contained research + trading system for the opening-window (09:33–09:53 E
 SPY long strategy triggered by DIA leading SPY out of a mutual decline.
 Full mathematical definitions: [STRATEGY_SPEC.md](STRATEGY_SPEC.md).
 
-> ⛔ **Live trading is gated on validation.** The hypothesis must first pass
-> `python -m ureversal research` (§8 acceptance criteria: DIA lead-lag
-> significance, net-of-cost edge beating two null models, regime robustness).
-> Until that report says PASS, only `scan`/paper modes are appropriate.
+> ⛔ **VALIDATION RESULT: FAIL (2026-07-04).** One year of SIP tick data shows
+> SPY leads DIA (not the reverse) and the trigger's conditional return is
+> significantly *negative* — see [FINDINGS.md](FINDINGS.md) for the evidence
+> and proposed modifications. Do not trade this live in its long form. The
+> system remains fully functional for re-testing revised hypotheses.
 
 ## Quick start
 

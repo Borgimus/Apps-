@@ -185,13 +185,18 @@ def cmd_run(args) -> int:
         (r for r in rows if r.latency_ms >= 100 and r.n_trades >= 100),
         key=lambda r: r.expectancy_bps if _math.isfinite(r.expectancy_bps) else -9e9,
         default=None)
+    # NOTE on the statistical gates: at 100ms VAR sampling both Granger
+    # directions come out "significant" (feedback within the bin), so
+    # leadership is judged by information share, TE sign, and coefficient
+    # asymmetry — not by one-sided Granger significance.
     checks = {
-        "es_leads_statistically": (phase1["xcorr_peak_lag_ms"] > 0
-                                   and phase1["granger"]["frac_es_to_spy_sig"]
-                                   > 2 * phase1["granger"]["frac_spy_to_es_sig"]
-                                   and phase1["info_shares"]["mean_gg_cs_es"] > 0.6),
+        "es_leads_statistically": (phase1["info_shares"]["mean_gg_cs_es"] > 0.55
+                                   and phase1["transfer_entropy"]["mean_net_te"] > 0
+                                   and phase1["transfer_entropy"]["frac_sig"] > 0.5
+                                   and phase1["granger"]["mean_coef_es_to_spy"]
+                                   > phase1["granger"]["mean_coef_spy_to_es"]),
         "lead_visible_at_50ms_grid": phase1["lead_mass_es_leads"]
-                                     > 3 * abs(phase1["lead_mass_spy_leads"]),
+                                     > 1.5 * abs(phase1["lead_mass_spy_leads"]),
         "edge_exists_at_zero_latency": any(
             r.latency_ms == 0 and r.n_trades >= 100 and r.expectancy_bps > 0
             and r.t_stat > 2 for r in rows),

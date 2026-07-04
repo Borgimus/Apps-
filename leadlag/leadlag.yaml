@@ -30,7 +30,7 @@ phase2:
   n_regime_bins: 3              # vol / spread / volume terciles
 
 phase3:
-  impulse_thresholds_bps: [5, 10, 20]
+  impulse_thresholds_bps: [3, 5, 10]   # 20bp/500ms never occurs in low-vol regimes
   impulse_window_ms: 500        # ES move measured over this window
   quiet_pre_ms: 2000            # require |pre-move| < 40% of threshold
   response_horizon_ms: 10000

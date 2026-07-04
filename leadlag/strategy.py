@@ -52,23 +52,22 @@ def run_combo(cfg: Config, grids: list[Grid], lookback_ms: int, thr_bps: float,
     for g in grids:
         x_es, x_spy = g.x_es, g.x_spy
         n = len(g)
-        t = L
-        while t < n - lam - H - 1:
-            if not g.study[t]:
-                t += 1
+        mv = np.full(n, np.nan)
+        mv[L:] = x_es[L:] - x_es[:-L]
+        cand = np.where(g.study & np.isfinite(mv) & (np.abs(mv) >= thr))[0]
+        cand = cand[(cand >= L) & (cand < n - lam - H - 1)]
+        next_ok = -1
+        for t in cand:           # sparse: only signal-crossing steps
+            if t < next_ok:
                 continue
-            mv = x_es[t] - x_es[t - L]
-            if not np.isfinite(mv) or abs(mv) < thr:
-                t += 1
-                continue
-            side = 1 if mv > 0 else -1
+            side = 1 if mv[t] > 0 else -1
             e, xit = t + lam, t + lam + H
             pe, px_ = x_spy[e], x_spy[xit]
             if np.isfinite(pe) and np.isfinite(px_):
                 gross = side * (px_ - pe) * BPS
                 rets.append(gross - _cost_bps(cfg, math.exp(pe)))
-                when.append((g.day, t))
-            t = xit + 1          # one position at a time, no overlap
+                when.append((g.day, int(t)))
+            next_ok = xit + 1    # one position at a time, no overlap
     return np.array(rets), when
 
 

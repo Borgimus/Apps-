@@ -89,18 +89,20 @@ def info_shares(x_es: np.ndarray, x_spy: np.ndarray, mask: np.ndarray,
     z = xe - xs                       # log basis
     dz_es, dz_spy = np.diff(xe), np.diff(xs)
     ok = v[1:] & v[:-1] & np.isfinite(dz_es) & np.isfinite(dz_spy)
-    idx = np.where(ok)[0]
-    if len(idx) < 100 * (p + 1):
+    if ok.sum() < 100 * (p + 1):
         return None
-    # build lagged design on valid contiguous points
-    rows, ye, ys = [], [], []
-    for t in idx:
-        if t - p < 0 or not ok[t - p : t].all():
-            continue
-        lags = np.concatenate([[dz_es[t - j], dz_spy[t - j]] for j in range(1, p + 1)]) if p else np.array([])
-        rows.append(np.concatenate([[1.0, z[t]], lags]))
-        ye.append(dz_es[t]); ys.append(dz_spy[t])
-    X = np.array(rows); ye = np.array(ye); ys = np.array(ys)
+    # vectorized lagged design on points whose full lag window is valid
+    okc = np.ones(len(ok), dtype=bool)
+    for j in range(p + 1):
+        okc[p:] &= ok[p - j : len(ok) - j]
+    okc[:p] = False
+    t = np.where(okc)[0]
+    cols = [np.ones(len(t)), z[t]]
+    for j in range(1, p + 1):
+        cols.append(dz_es[t - j])
+        cols.append(dz_spy[t - j])
+    X = np.column_stack(cols)
+    ye, ys = dz_es[t], dz_spy[t]
     if len(X) < 100:
         return None
     coef_e, *_ = np.linalg.lstsq(X, ye, rcond=None)

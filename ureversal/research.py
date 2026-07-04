@@ -44,17 +44,19 @@ def _entry_bounds(cfg: Config, index: pd.DatetimeIndex) -> tuple[int, int, int]:
 
 
 def net_forward_return_bps(
-    bt: Backtester, price: np.ndarray, t: int, horizon_s: int, hard: int
+    bt: Backtester, price: np.ndarray, t: int, horizon_s: int, hard: int,
+    direction: str = "long",
 ) -> float | None:
-    """Buy next second, sell `horizon_s` later (capped at hard exit), net of
-    half-spread + slippage + fees, in bps."""
+    """Enter next second, exit `horizon_s` later (capped at hard exit), net of
+    half-spread + slippage + fees, in bps. direction='short' evaluates the
+    fade of the signal with identical cost treatment."""
     e, x = t + 1, min(t + 1 + horizon_s, hard)
     if x <= e or not (np.isfinite(price[e]) and np.isfinite(price[x])):
         return None
-    buy = bt._buy_px(price[e])
-    sell = bt._sell_px(price[x])
-    fees_bps = (2 * bt.commission + bt.sec_taf) / buy * BPS
-    return (sell / buy - 1) * BPS - fees_bps
+    fees_bps = (2 * bt.commission + bt.sec_taf) / price[e] * BPS
+    if direction == "long":
+        return (bt._sell_px(price[x]) / bt._buy_px(price[e]) - 1) * BPS - fees_bps
+    return (bt._sell_px(price[e]) / bt._buy_px(price[x]) - 1) * BPS - fees_bps
 
 
 def bootstrap_mean_ci(x: np.ndarray, iters: int, rng: np.random.Generator,
@@ -126,6 +128,7 @@ def run_study(
     sessions: dict[dt.date, pd.DataFrame],
     horizons: tuple[int, ...] = (30, 60, 120, 300),
     seed: int = 0,
+    direction: str = "long",
 ) -> dict:
     rng = np.random.default_rng(seed)
     rc = cfg.research
@@ -206,7 +209,7 @@ def run_study(
         for d, tr in all_events:
             f = feats[d]
             _, _, hard = _entry_bounds(cfg, f.index)
-            r = net_forward_return_bps(bt, np.exp(f.x_s), tr.t, H, hard)
+            r = net_forward_return_bps(bt, np.exp(f.x_s), tr.t, H, hard, direction)
             if r is not None:
                 actual.append(r)
         actual = np.array(actual)
@@ -219,7 +222,7 @@ def run_study(
             if last <= first:
                 continue
             for t in rng.integers(first, last + 1, rc["null_random_entries_per_day"]):
-                r = net_forward_return_bps(bt, np.exp(f.x_s), int(t), H, hard)
+                r = net_forward_return_bps(bt, np.exp(f.x_s), int(t), H, hard, direction)
                 if r is not None:
                     pool_a.append(r)
         pool_a = np.array(pool_a)
@@ -240,7 +243,7 @@ def run_study(
                 first, last, hard = _entry_bounds(cfg, fsh.index)
                 for tr in scan(fsh, p):
                     if first <= tr.t <= last:
-                        r = net_forward_return_bps(bt, np.exp(fsh.x_s), tr.t, H, hard)
+                        r = net_forward_return_bps(bt, np.exp(fsh.x_s), tr.t, H, hard, direction)
                         if r is not None:
                             pool_b.append(r)
         pool_b = np.array(pool_b)
@@ -284,7 +287,7 @@ def run_study(
         for d, tr in evs:
             f = feats[d]
             _, _, hard = _entry_bounds(cfg, f.index)
-            r = net_forward_return_bps(bt, np.exp(f.x_s), tr.t, Href, hard)
+            r = net_forward_return_bps(bt, np.exp(f.x_s), tr.t, Href, hard, direction)
             if r is not None:
                 rets.append(r)
         regime[reg] = {
@@ -307,7 +310,7 @@ def run_study(
 
     return {
         "meta": {
-            "feed": cfg.feed, "sessions": n_days,
+            "feed": cfg.feed, "sessions": n_days, "direction": direction,
             "first_day": str(days[0]) if days else None,
             "last_day": str(days[-1]) if days else None,
             "params": cfg.signals.__dict__, "reference_horizon_s": Href,

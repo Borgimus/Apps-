@@ -69,6 +69,8 @@ def clean_trades(trades: pd.DataFrame) -> pd.DataFrame:
     non-regular-way prints where flagged. Alpaca marks conditions in 'conditions';
     we drop the classic exclusions (Z: sold out of sequence, U/H: extended-hours
     prints inside our fetch buffer are impossible, C: cash sale, W: average price)."""
+    if trades.empty:
+        return trades
     if "conditions" in trades.columns:
         bad = {"Z", "C", "W", "4"}
         keep = trades["conditions"].apply(

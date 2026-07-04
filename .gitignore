@@ -86,3 +86,8 @@ reports/
 
 # Alembic versions cache
 alembic/versions/*.pyc
+
+# ureversal strategy
+ureversal_cache/
+ureversal_results/
+KILL_SWITCH

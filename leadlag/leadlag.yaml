@@ -1,0 +1,64 @@
+# ── ES/SPY Lead-Lag Study Configuration ──────────────────────────────────────
+
+instruments:
+  futures_symbol: ES.v.0        # Databento continuous, volume-rolled front month
+  futures_verify_symbol: MES.v.0  # fetched for a short sample only, to verify redundancy
+  equity: SPY
+
+data:
+  databento_dataset: GLBX.MDP3
+  cache_dir: ./leadlag_cache
+  # Opening-window scope (ET). Futures fetched with extra pre-open buffer so
+  # grids have history at 09:30:00 sharp.
+  fetch_start_et: "09:20:00"
+  fetch_end_et: "10:06:00"
+  study_start_et: "09:30:00"
+  study_end_et: "10:00:00"
+  history_start: "2021-01-04"
+  # SPY trades come from Alpaca SIP (keys via env), same window.
+
+grid:
+  base_dt_ms: 50                # master sampling grid
+  xcorr_lags_ms: [50, 100, 250, 500, 1000, 2000, 5000]
+  var_dt_ms: 100                # VAR / VECM / Granger sampling
+  var_lags: 10                  # p (in var_dt_ms steps → 1s of history)
+  te_dt_ms: 100                 # transfer entropy sampling
+  te_bins: 3
+
+phase2:
+  minute_buckets: [[0,5],[5,10],[10,15],[15,20],[20,30]]
+  n_regime_bins: 3              # vol / spread / volume terciles
+
+phase3:
+  impulse_thresholds_bps: [5, 10, 20]
+  impulse_window_ms: 500        # ES move measured over this window
+  quiet_pre_ms: 2000            # require |pre-move| < 40% of threshold
+  response_horizon_ms: 10000
+  min_gap_ms: 30000             # de-overlap events
+
+phase4:
+  imbalance_windows_ms: [1000, 5000]
+  forward_horizons_ms: [500, 1000, 5000]
+
+strategy:
+  # signal: ES log-return over lookback L exceeds threshold θ → trade SPY
+  lookback_ms: [250, 500, 1000]
+  threshold_bps: [2, 4, 8]
+  hold_ms: [1000, 5000, 15000]
+  latency_ms: [0, 50, 100, 250, 500, 1000]   # decision→fill delay sweep
+  spy_half_spread_usd: 0.01
+  slippage_bps: 0.2
+  commission_per_share: 0.0
+  sec_taf_per_share_sell: 0.000166
+  max_alloc_pct: 25
+  account_equity: 100000
+
+validation:
+  walk_forward_train_months: 6
+  walk_forward_test_months: 1
+  min_profit_factor: 1.2
+  min_trades_per_fold: 10
+  bootstrap_iters: 2000
+
+report:
+  out_dir: ./leadlag_results

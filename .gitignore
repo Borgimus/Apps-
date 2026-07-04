@@ -91,3 +91,7 @@ alembic/versions/*.pyc
 ureversal_cache/
 ureversal_results/
 KILL_SWITCH
+
+# leadlag study
+leadlag_cache/
+leadlag_results/

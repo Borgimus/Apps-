@@ -28,14 +28,16 @@ class SignalParams:
 
     slope_window_s: int = 20
     corr_window_s: int = 30
+    corr_ret_s: int = 3
+    downtrend_fill_frac: float = 0.8
     flat_window_s: int = 10
     reversal_window_s: int = 10
     zscore_window_s: int = 120
     episode_high_lookback_s: int = 120
     min_downtrend_s: int = 30
-    min_correlation: float = 0.70
-    min_down_slope_bps: float = 0.30
-    min_cum_decline_bps: float = 8.0
+    min_correlation: float = 0.60
+    min_down_slope_bps: float = 0.10
+    min_cum_decline_bps: float = 6.0
     flat_slope_bps: float = 0.15
     velocity_reduction_ratio: float = 0.5
     new_low_tolerance_bps: float = 1.0

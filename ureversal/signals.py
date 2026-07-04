@@ -129,11 +129,23 @@ def compute_features(bars: pd.DataFrame, target: str, leader: str,
     real_s = bars[(target, "real")].to_numpy(dtype=bool)
     real_d = bars[(leader, "real")].to_numpy(dtype=bool)
 
-    rs = np.diff(x_s, prepend=np.nan)
-    rd = np.diff(x_d, prepend=np.nan)
+    # Correlation uses overlapping k-second returns (k = corr_ret_s) — 1-second
+    # returns are Epps-degraded (median SPY/DIA 1s corr ≈ 0.46 on real SIP data
+    # vs ≈ 0.95 at minutes); k-second overlapping returns restore the coupling
+    # the downtrend gate is actually about.
+    k = max(p.corr_ret_s, 1)
+    n = len(x_s)
+
+    def lag(a: np.ndarray, fill) -> np.ndarray:
+        out = np.full(n, fill, dtype=a.dtype if a.dtype != bool else bool)
+        if n > k:
+            out[k:] = a[: n - k]
+        return out
+
+    rs = x_s - lag(x_s, np.nan)
+    rd = x_d - lag(x_d, np.nan)
     both_real = real_s & real_d
-    valid = both_real & np.roll(both_real, 1)
-    valid[0] = False
+    valid = both_real & lag(both_real, False)
     valid &= np.isfinite(rs) & np.isfinite(rd)
 
     slope_s_rev = rolling_slope(x_s, p.reversal_window_s)
@@ -199,7 +211,7 @@ class StateMachine:
 
     p: SignalParams
     state: State = State.IDLE
-    down_run: int = 0
+    down_hist: list = field(default_factory=list)  # decline_ok, last min_downtrend_s
     t_dn: int = -1
     t_bottom: int = -1
     last_decline_ok: int = -1
@@ -215,7 +227,7 @@ class StateMachine:
 
     def _reset(self) -> None:
         self.state = State.IDLE
-        self.down_run = 0
+        self.down_hist = []
         self.t_dn = self.t_bottom = self.last_decline_ok = -1
         self.hi_s = self.hi_d = math.nan
         self.lo_s = self.lo_d = math.inf
@@ -241,16 +253,25 @@ class StateMachine:
             and (f.hi_s[t] - f.x_s[t]) * BPS >= p.min_cum_decline_bps
             and (f.hi_d[t] - f.x_d[t]) * BPS >= p.min_cum_decline_bps
         )
-        self.down_run = self.down_run + 1 if decline_ok else 0
+        self.down_hist.append(bool(decline_ok))
+        if len(self.down_hist) > p.min_downtrend_s:
+            self.down_hist.pop(0)
         if decline_ok:
             self.last_decline_ok = t
 
         if self.state == State.IDLE:
-            if self.down_run >= p.min_downtrend_s:
+            # §3.1: conditions held in ≥ fill_frac of the last D_min seconds
+            # (strict consecutiveness is unattainable on noisy 1s data — a
+            # single second of correlation dip would reset the clock)
+            if (
+                decline_ok
+                and len(self.down_hist) >= p.min_downtrend_s
+                and sum(self.down_hist) >= p.downtrend_fill_frac * p.min_downtrend_s
+            ):
                 self.state = State.DOWNTREND
                 self.t_dn = t
                 self.hi_s, self.hi_d = f.hi_s[t], f.hi_d[t]
-                w0 = max(0, t - self.down_run + 1)
+                w0 = max(0, t - p.min_downtrend_s + 1)
                 self.lo_s = float(np.nanmin(f.x_s[w0 : t + 1]))
                 self.lo_d = float(np.nanmin(f.x_d[w0 : t + 1]))
                 self.t_last_low_s = t

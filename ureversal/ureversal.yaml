@@ -24,14 +24,16 @@ window:
 signals:
   slope_window_s: 20        # W_s
   corr_window_s: 30         # W_rho
+  corr_ret_s: 3             # k — correlation on overlapping k-second returns (Epps mitigation)
+  downtrend_fill_frac: 0.8  # f_dn — conditions must hold in >= this fraction of D_min
   flat_window_s: 10         # W_f
   reversal_window_s: 10     # W_r
   zscore_window_s: 120      # W_z
   episode_high_lookback_s: 120  # W_hi
   min_downtrend_s: 30       # D_min
-  min_correlation: 0.70     # rho_min
-  min_down_slope_bps: 0.30  # theta_down
-  min_cum_decline_bps: 8.0  # delta_min
+  min_correlation: 0.60     # rho_min (on 3s-return corr; 1s corr is Epps-degraded)
+  min_down_slope_bps: 0.10  # theta_down (real 20s slopes: p5 ~= -0.18 bps/s)
+  min_cum_decline_bps: 6.0  # delta_min
   flat_slope_bps: 0.15      # theta_flat
   velocity_reduction_ratio: 0.5   # kappa
   new_low_tolerance_bps: 1.0      # epsilon_low
@@ -92,11 +94,11 @@ optimize:
   min_trades_per_fold: 5
   grids:
     min_downtrend_s: [15, 30, 45]
-    min_correlation: [0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95]
-    min_cum_decline_bps: [5, 8, 12, 18]
-    min_down_slope_bps: [0.15, 0.30, 0.50]
+    min_correlation: [0.40, 0.50, 0.60, 0.70, 0.80]
+    min_cum_decline_bps: [4, 6, 8, 12]
+    min_down_slope_bps: [0.05, 0.10, 0.15, 0.25]
     flat_slope_bps: [0.10, 0.15, 0.25]
-    min_dia_up_slope_bps: [0.15, 0.30, 0.50]
+    min_dia_up_slope_bps: [0.10, 0.20, 0.30]
     min_dia_retrace: [0.05, 0.10, 0.15, 0.25]
     min_divergence_z: [1.0, 1.5, 2.0]
     fixed_target_pct: [0.10, 0.20, 0.30]

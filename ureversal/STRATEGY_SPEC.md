@@ -47,12 +47,18 @@ For window `W` seconds ending at `t`, the OLS slope of log price on time:
 
 ### 2.2 Rolling correlation
 
-Pearson correlation of the two instruments' 1-second log returns over window
-`W_ρ`:
+Pearson correlation over window `W_ρ` of **overlapping k-second log returns**
+(`k = corr_ret_s`, default 3):
 
 ```
-ρ_t(W_ρ) = corr( r^S_{t−W_ρ+1..t} , r^D_{t−W_ρ+1..t} )
+ρ_t(W_ρ) = corr( x^S_i − x^S_{i−k} , x^D_i − x^D_{i−k} )   for i in (t−W_ρ, t]
 ```
+
+k > 1 is an Epps-effect mitigation, calibrated on real SIP data: SPY/DIA
+1-second-return correlation has median ≈ 0.46 (asynchronous trading noise)
+even though the pair is ≈ 0.95-correlated at minute scale. 3-second
+overlapping returns restore the coupling that the downtrend gate is actually
+about; thresholds `ρ_min` are quoted on this measure.
 
 Seconds where either instrument had no trade (pure forward-fill) are excluded
 from the correlation sum; if fewer than `min_corr_obs` valid pairs remain, ρ is
@@ -88,8 +94,11 @@ any state ──(condition lapses / window ends)──► IDLE
 
 ### 3.1 State: DOWNTREND (Step 1 — mutual decline)
 
-Enter DOWNTREND when **all** of the following have held for `D_min`
-consecutive seconds (grid: 15, 30, 45):
+Enter DOWNTREND at the first second where the current second satisfies all
+conditions **and** they have held in at least `f_dn` (default 0.8) of the last
+`D_min` seconds (grid: 15, 30, 45). Strict consecutiveness is deliberately not
+required: on real 1-second data a single noisy second of correlation dip would
+reset the clock and the state would never be reached.
 
 | Condition | Definition |
 |---|---|
@@ -179,14 +188,16 @@ declared there; the walk-forward optimizer (§8.4) selects values. Defaults
 |---|---|---|---|
 | `W_s` | slope_window_s | 20 | 10, 20, 30 |
 | `W_ρ` | corr_window_s | 30 | 20, 30, 60 |
+| `k` | corr_ret_s | 3 | — |
+| `f_dn` | downtrend_fill_frac | 0.8 | — |
 | `W_f` | flat_window_s | 10 | 5, 10, 15 |
 | `W_r` | reversal_window_s | 10 | 5, 10, 15 |
 | `W_z` | zscore_window_s | 120 | — |
 | `W_hi` | episode_high_lookback_s | 120 | — |
 | `D_min` | min_downtrend_s | 30 | 15, 30, 45 |
-| `ρ_min` | min_correlation | 0.70 | 0.60 … 0.95 step 0.05 |
-| `θ_down` | min_down_slope_bps | 0.30 | 0.15, 0.30, 0.50 |
-| `δ_min` | min_cum_decline_bps | 8 | 5, 8, 12, 18 |
+| `ρ_min` | min_correlation | 0.60 | 0.40 … 0.80 (on k=3s returns) |
+| `θ_down` | min_down_slope_bps | 0.10 | 0.05, 0.10, 0.15, 0.25 — real 20s SPY slopes: p5 ≈ −0.18 bps/s |
+| `δ_min` | min_cum_decline_bps | 6 | 4, 6, 8, 12 |
 | `θ_flat` | flat_slope_bps | 0.15 | 0.10, 0.15, 0.25 |
 | `κ` | velocity_reduction_ratio | 0.5 | 0.3, 0.5, 0.7 |
 | `ε_low` | new_low_tolerance_bps | 1.0 | — |

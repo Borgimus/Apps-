@@ -1,0 +1,111 @@
+# ── SPY/DIA U-Reversal Strategy Configuration ────────────────────────────────
+# Single source of truth for research, backtest, replay, and live trading.
+# Optimization grids are declared under `optimize:`; scalar values are the
+# defaults used when a component is run without walk-forward selection.
+
+instruments:
+  target: SPY        # instrument traded
+  leader: DIA        # leading indicator instrument
+
+data:
+  feed: sip          # sip | iex  (free Alpaca keys only permit iex)
+  cache_dir: ./ureversal_cache
+  session_start_et: "09:28:00"   # fetch buffer before trading window
+  session_end_et: "09:56:00"
+  max_ffill_s: 5     # forward-fill gap limit for 1s bars
+  min_corr_obs: 10   # min valid return pairs for correlation to be defined
+
+window:
+  entry_start_et: "09:33:00"
+  entry_end_et: "09:53:00"
+  last_entry_et: "09:51:00"      # no entries after this
+  hard_exit_et: "09:54:30"       # flatten everything at this time
+
+signals:
+  slope_window_s: 20        # W_s
+  corr_window_s: 30         # W_rho
+  flat_window_s: 10         # W_f
+  reversal_window_s: 10     # W_r
+  zscore_window_s: 120      # W_z
+  episode_high_lookback_s: 120  # W_hi
+  min_downtrend_s: 30       # D_min
+  min_correlation: 0.70     # rho_min
+  min_down_slope_bps: 0.30  # theta_down
+  min_cum_decline_bps: 8.0  # delta_min
+  flat_slope_bps: 0.15      # theta_flat
+  velocity_reduction_ratio: 0.5   # kappa
+  new_low_tolerance_bps: 1.0      # epsilon_low
+  z_lookback_s: 15                # W_zl — recent-max window for the z gate
+  max_bottoming_s: 90             # T_bottom_max
+  min_dia_up_slope_bps: 0.30      # theta_up
+  min_dia_retrace: 0.10           # phi_retrace
+  max_spy_lead_slope_bps: 0.15    # theta_lead
+  min_divergence_z: 1.5           # z_min
+  exit_divergence_z: -1.0         # z_exit (0 fires instantly: trigger spike inflates z's rolling mean)
+
+exits:
+  mode: composite            # fixed | trailing_atr | trailing_pct | momentum | time | composite
+  fixed_target_pct: 0.20     # G, percent
+  stop_loss_pct: 0.15        # S, percent
+  trail_atr_mult: 2.0        # m_ATR
+  atr_window_s: 30           # W_atr
+  trail_pct: 0.10            # tau, percent
+  stall_seconds: 10          # N_stall
+  time_stop_s: 120           # H
+
+execution:
+  order_type: marketable_limit
+  limit_offset_cap_usd: 0.02   # cap on how far past the touch we will pay
+  fill_timeout_s: 2            # cancel entry if unfilled
+  slippage_bps: 0.5            # backtest cost model
+  half_spread_usd: {SPY: 0.01, DIA: 0.02}   # fallback when quotes unavailable
+  commission_per_share: 0.0
+  sec_taf_per_share_sell: 0.000166
+
+risk:
+  max_positions: 1
+  max_trades_per_day: 3
+  daily_loss_limit_pct: 1.0
+  consecutive_losing_days_halt: 3
+  max_alloc_pct: 25.0
+  account_equity_fallback: 100000
+  pdt_min_equity: 25000
+  pdt_max_daytrades_per_5d: 3
+  kill_switch_file: ./KILL_SWITCH
+
+live:
+  mode: paper                # paper | live  (live also requires LIVE_TRADING_ENABLED=true)
+  bar_publish_grace_ms: 150  # wait after second boundary before evaluating
+
+research:
+  min_sessions: 250
+  lead_lag_max_k: 10
+  bootstrap_iters: 2000
+  null_random_entries_per_day: 5
+  vix_terciles: true
+
+optimize:
+  # walk-forward: expanding train window, 1-month test folds
+  train_min_months: 3
+  test_fold_months: 1
+  objective: net_expectancy      # net_expectancy | sharpe | profit_factor
+  min_trades_per_fold: 5
+  grids:
+    min_downtrend_s: [15, 30, 45]
+    min_correlation: [0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95]
+    min_cum_decline_bps: [5, 8, 12, 18]
+    min_down_slope_bps: [0.15, 0.30, 0.50]
+    flat_slope_bps: [0.10, 0.15, 0.25]
+    min_dia_up_slope_bps: [0.15, 0.30, 0.50]
+    min_dia_retrace: [0.05, 0.10, 0.15, 0.25]
+    min_divergence_z: [1.0, 1.5, 2.0]
+    fixed_target_pct: [0.10, 0.20, 0.30]
+    time_stop_s: [30, 60, 120, 300]
+
+dashboard:
+  host: 127.0.0.1
+  port: 8001
+
+logging:
+  level: INFO
+  file: ./logs/ureversal.log

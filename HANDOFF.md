@@ -22,7 +22,7 @@ An intraday options trading research system operating under a **frozen evaluatio
 
 **Goal:** Collect 10 clean sessions (S6–S15) to answer 7 primary research questions (Q1–Q7) about signal quality, fill path, DTE, spread, scanner score, and strategy attribution.
 
-**Status:** 6 of 10 sessions complete (S11 validity TBD). 4 remaining (S12–S15).
+**Status:** 6 of 10 sessions complete. 4 remaining (S15–S18).
 
 | Session | Date | P&L | Trades | Wins | data_clean | Status | Running P&L |
 |---------|------|-----|--------|------|------------|--------|-------------|
@@ -31,44 +31,39 @@ An intraday options trading research system operating under a **frozen evaluatio
 | S8 | 2026-06-18 | -$7.00 | 3 | 1 | FALSE | complete | +$28.00 |
 | S9 | 2026-06-24 | $0.00 | 0 | — | TRUE | complete | +$28.00 |
 | S10 | 2026-06-25 | $0.00 | 0 | — | TRUE | complete | +$28.00 |
-| S11 | 2026-06-29 | -$7.00 | 2 | 1 | FALSE | **TBD** | +$21.00 |
-| S12 | 2026-06-30 | $0.00 | 0 | — | TRUE | **VOIDED** | — |
+| S11 | 2026-06-29 | -$7.00 | 2 | 1 | FALSE | **valid** | +$21.00 |
+| S12 | 2026-06-30 | $0.00 | 0 | — | — | **VOIDED** | — |
+| S13 | 2026-07-01 | $0.00 | 0 | — | — | **VOIDED** | — |
+| S14 | 2026-07-06 | $0.00 | 0 | — | — | **VOIDED** | — |
 
 **Phase 1 baseline (S1–S5, carry-forward):** -$276.00, 14 trades, 2 wins  
-**Combined P&L (all sessions incl. S11):** -$255.00, 22 trades, 6 wins, 27.3% win rate
+**Combined P&L (S6–S11 valid sessions):** -$255.00, 22 trades, 6 wins, 27.3% win rate
 
 **Midpoint analysis completed:** `research/phase2_midpoint_analysis_2026-06-25.md`  
 **Protocol document:** `evaluation/phase2_eval_protocol.md`  
 **Tracking file:** `evaluation/phase2_tracking.json`
 
-### S11 Validity Decision Required
-
-S11 (2026-06-29) was killed at 11:47 ET with RIVN open. Options:
-- **Count as valid (with data_clean=FALSE):** 2 broker-confirmed fills, P&L known, carryover resolved cleanly. Data is usable.
-- **Void:** Session window incomplete (killed 43 min before 12:30 ET EOD); RIVN exit by max_hold in S12, not S11's own logic.
-
-S12 (2026-06-30) is definitively VOIDED — killed before 12:30 ET with 0 new positions per protocol.
-
 ---
 
-## Next Immediate Task: Session 13 (S13)
+## Next Immediate Task: Session 15 (S15)
 
-S12 was voided. S13 is the next required session (or S12-retry on the next trading day).
+S11 confirmed valid (user decision). S12/S13/S14 voided (killed before 12:30 ET with 0 positions each). S15 is next required session.
 
 ### CRITICAL: VM Teardown Between Turns
 
 **Root cause confirmed:** Each Claude Code conversation turn runs in a Firecracker microVM. The VM is torn down completely after ~13 min of idle time between conversation turns. This is a hypervisor-level kill — no process survives (tmux servers, orphaned processes with their own PGID, keepalive processes — all die). This is why S11 and S12 had 2–3 windows each instead of a continuous 09:30–12:30 ET run.
 
-**S9/S10 succeeded because:** those sessions required Claude to actively monitor health checks at regular intervals (09:35, 09:45, 10:00, 11:00, 12:00 ET), which kept the VM alive. S11/S12 had longer idle gaps between health check turns.
+**S9/S10 succeeded because:** Claude made monitoring turns every 5–10 minutes throughout the session (not just at named checkpoints — the HANDOFF listed times were a sparse summary). No gap exceeded 13 minutes, so the VM never timed out. S11/S12/S13/S14 had longer idle gaps and were killed repeatedly.
 
 **Required fix for S13+:** Invoke the `/loop` skill at session launch with a 5–8 min interval. This creates periodic Claude turns that keep the VM alive and can detect/relaunch a killed session_runner within the loop interval.
 
-### Launch Sequence for S13
+### Launch Sequence for S15
 
 ```bash
-# 1. Start tmux and launch session_runner
-tmux new-session -d -s s13 -x 220 -y 50
-tmux send-keys -t s13 "until [ \$(TZ=America/New_York date +%H%M) -ge 1230 ]; do python -u scripts/session_runner.py --poll 30 --reconcile-interval 10 2>&1 | tee -a logs/session_YYYY-MM-DD.log; sleep 10; done" Enter
+# 1. Start tmux watchdog with today's date
+DATE=$(TZ=America/New_York date +%Y-%m-%d)
+tmux new-session -d -s s15 -x 220 -y 50
+tmux send-keys -t s15 "until [ \$(TZ=America/New_York date +%H%M) -ge 1230 ]; do python -u scripts/session_runner.py --poll 30 --reconcile-interval 10 2>&1 | tee -a logs/session_${DATE}.log; sleep 10; done" Enter
 ```
 
 Then immediately invoke `/loop` with a 6–7 min interval to keep the VM alive and monitor the session.
@@ -87,8 +82,8 @@ Then immediately invoke `/loop` with a 6–7 min interval to keep the VM alive a
 ### Required Health Checks
 Run at: 09:35, 09:45, 10:00, 11:00, 12:00 ET
 ```bash
-tmux list-sessions        # verify s11 alive
-tmux capture-pane -t s11 -p | tail -20    # see recent log lines
+tmux list-sessions        # verify s15 alive
+tmux capture-pane -t s15 -p | tail -20    # see recent log lines
 ```
 Verify: session alive, cycle count incrementing, positions=0 or tracked, entries=known
 

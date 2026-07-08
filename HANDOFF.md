@@ -22,7 +22,7 @@ An intraday options trading research system operating under a **frozen evaluatio
 
 **Goal:** Collect 10 clean sessions (S6–S15) to answer 7 primary research questions (Q1–Q7) about signal quality, fill path, DTE, spread, scanner score, and strategy attribution.
 
-**Status:** 6 of 10 sessions complete. 4 remaining (S15–S18).
+**Status:** 7 of 10 sessions complete. 3 remaining (S17, S18, S19).
 
 | Session | Date | P&L | Trades | Wins | data_clean | Status | Running P&L |
 |---------|------|-----|--------|------|------------|--------|-------------|
@@ -31,10 +31,12 @@ An intraday options trading research system operating under a **frozen evaluatio
 | S8 | 2026-06-18 | -$7.00 | 3 | 1 | FALSE | complete | +$28.00 |
 | S9 | 2026-06-24 | $0.00 | 0 | — | TRUE | complete | +$28.00 |
 | S10 | 2026-06-25 | $0.00 | 0 | — | TRUE | complete | +$28.00 |
-| S11 | 2026-06-29 | -$7.00 | 2 | 1 | FALSE | **valid** | +$21.00 |
+| S11 | 2026-06-29 | -$7.00 | 2 | 1 | FALSE | complete | +$21.00 |
 | S12 | 2026-06-30 | $0.00 | 0 | — | — | **VOIDED** | — |
 | S13 | 2026-07-01 | $0.00 | 0 | — | — | **VOIDED** | — |
 | S14 | 2026-07-06 | $0.00 | 0 | — | — | **VOIDED** | — |
+| S15 | 2026-07-07 | $0.00 | 0 | — | — | **VOIDED** | — |
+| S16 | 2026-07-08 | $0.00 | 0 | — | FALSE | complete | +$21.00 |
 
 **Phase 1 baseline (S1–S5, carry-forward):** -$276.00, 14 trades, 2 wins  
 **Combined P&L (S6–S11 valid sessions):** -$255.00, 22 trades, 6 wins, 27.3% win rate
@@ -45,9 +47,11 @@ An intraday options trading research system operating under a **frozen evaluatio
 
 ---
 
-## Next Immediate Task: Session 15 (S15)
+## Next Immediate Task: Session 17 (S17)
 
-S11 confirmed valid (user decision). S12/S13/S14 voided (killed before 12:30 ET with 0 positions each). S15 is next required session.
+S16 complete (7th valid session). 3 remaining. S17 is first session with both scanner AND
+signal generation using valid Alpaca credentials (fixes bdad282 + e226be6 both active).
+Expect actual entry signal evaluation for cleared candidates.
 
 ### CRITICAL: VM Teardown Between Turns
 
@@ -57,16 +61,20 @@ S11 confirmed valid (user decision). S12/S13/S14 voided (killed before 12:30 ET 
 
 **Required fix for S13+:** Invoke the `/loop` skill at session launch with a 5–8 min interval. This creates periodic Claude turns that keep the VM alive and can detect/relaunch a killed session_runner within the loop interval.
 
-### Launch Sequence for S15
+### Launch Sequence for S17
 
-```bash
-# 1. Start tmux watchdog with today's date
-DATE=$(TZ=America/New_York date +%Y-%m-%d)
-tmux new-session -d -s s15 -x 220 -y 50
-tmux send-keys -t s15 "until [ \$(TZ=America/New_York date +%H%M) -ge 1230 ]; do python -u scripts/session_runner.py --poll 30 --reconcile-interval 10 2>&1 | tee -a logs/session_${DATE}.log; sleep 10; done" Enter
+**Confirmed method (S16):** `Bash(run_in_background=True, timeout=14400000)` — harness-tracked background
+task keeps VM alive for the full 3-hour window. No tmux needed. No cron needed.
+
+```python
+Bash(
+    command="python -u scripts/session_runner.py --poll 30 --reconcile-interval 10 2>&1 | tee -a logs/session_YYYY-MM-DD.log",
+    timeout=14400000,
+    run_in_background=True  # system auto-sets this for long timeouts
+)
 ```
 
-Then immediately invoke `/loop` with a 6–7 min interval to keep the VM alive and monitor the session.
+Session runner auto-exits at 12:30 ET. Harness sends task-notification on completion.
 
 ### Why tmux + /loop (critical)
 - **tmux**: Protects the session_runner process from being killed when the Claude shell is recycled between turns. The `until` watchdog loop in tmux relaunches if the Python process dies.

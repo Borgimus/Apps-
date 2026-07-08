@@ -52,11 +52,21 @@ _YF_TO_ALPACA_TF = {
 def _make_alpaca_data_client() -> _httpx.Client:
     ca = os.getenv("REQUESTS_CA_BUNDLE") or os.getenv("SSL_CERT_FILE")
     verify = ca if ca and os.path.exists(ca) else True
+    api_key = os.getenv("ALPACA_API_KEY", "")
+    api_secret = os.getenv("ALPACA_SECRET_KEY", "")
+    if not api_key or not api_secret:
+        try:
+            from ..config import get_settings as _get_settings
+            _s = _get_settings()
+            api_key = api_key or (_s.alpaca_api_key or "")
+            api_secret = api_secret or (_s.alpaca_secret_key or "")
+        except Exception:
+            pass
     return _httpx.Client(
         base_url=_ALPACA_DATA_URL,
         headers={
-            "APCA-API-KEY-ID": os.getenv("ALPACA_API_KEY", ""),
-            "APCA-API-SECRET-KEY": os.getenv("ALPACA_SECRET_KEY", ""),
+            "APCA-API-KEY-ID": api_key,
+            "APCA-API-SECRET-KEY": api_secret,
             "Accept": "application/json",
         },
         verify=verify,

@@ -1,0 +1,191 @@
+{
+  "date": "2026-07-09",
+  "session_start": "2026-07-09 09:28:34 EDT",
+  "session_end": "2026-07-09 12:30:06 EDT",
+  "total_signals": 0,
+  "trades_submitted": 2,
+  "trades_filled": 2,
+  "trades_cancelled": 0,
+  "trades_rejected": 0,
+  "realized_pnl": 434.0,
+  "unrealized_pnl": 0,
+  "win_rate": 0.5,
+  "avg_win": 434.0,
+  "avg_loss": null,
+  "max_drawdown": 0.0,
+  "largest_win": 434.0,
+  "largest_loss": null,
+  "slippage_total": -0.020000000000000018,
+  "spread_cost_estimate": 8.999999999999996,
+  "fill_rate": 1.0,
+  "cancel_rate": 0.0,
+  "missed_fills_count": 0,
+  "time_to_fill_avg_secs": 44.395302,
+  "avg_spread_at_entry": 0.034855033157775016,
+  "avg_spread_at_exit": 0.01882498235709249,
+  "stop_loss_hit_pct": 0.0,
+  "take_profit_hit_pct": 0.5,
+  "eod_exit_pct": 0.0,
+  "fill_rate_by_mode": {
+    "marketable_limit": 1.0
+  },
+  "cancel_rate_by_mode": {
+    "marketable_limit": 0.0
+  },
+  "avg_fill_latency_by_mode": {
+    "marketable_limit": 44.395302
+  },
+  "cancel_reason_breakdown": {},
+  "scanned_symbols_count": 228,
+  "candidate_count_passed": 13,
+  "candidate_count_rejected": 215,
+  "selected_symbols": [
+    "RIVN",
+    "MARA",
+    "META",
+    "META",
+    "RIVN",
+    "MARA",
+    "RIVN",
+    "MARA",
+    "META",
+    "RIVN",
+    "MARA",
+    "META",
+    "MARA",
+    "RIVN",
+    "META",
+    "RIVN",
+    "MARA",
+    "META"
+  ],
+  "top_candidates": [
+    {
+      "symbol": "MARA",
+      "score": 75.0,
+      "signal_type": "LONG"
+    },
+    {
+      "symbol": "RIVN",
+      "score": 75.0,
+      "signal_type": "LONG"
+    },
+    {
+      "symbol": "MARA",
+      "score": 75.0,
+      "signal_type": "LONG"
+    },
+    {
+      "symbol": "RIVN",
+      "score": 70.0,
+      "signal_type": "LONG"
+    },
+    {
+      "symbol": "MARA",
+      "score": 70.0,
+      "signal_type": "LONG"
+    }
+  ],
+  "candidates_by_group": {
+    "mega_cap": 42,
+    "core_etfs": 54,
+    "liquid_growth": 66,
+    "high_beta_liquid": 66
+  },
+  "rejected_by_group": {
+    "mega_cap": 39,
+    "core_etfs": 54,
+    "liquid_growth": 65,
+    "high_beta_liquid": 57
+  },
+  "trades_by_group": {
+    "high_beta_liquid": 1,
+    "mega_cap": 1
+  },
+  "pnl_by_group": {
+    "high_beta_liquid": 0.0,
+    "mega_cap": 434.0
+  },
+  "liquidity_rejections": 70,
+  "pnl_by_symbol": {
+    "RIVN": 0.0,
+    "META": 434.0
+  },
+  "win_rate_by_symbol": {
+    "RIVN": 0.0,
+    "META": 1.0
+  },
+  "expectancy_by_symbol": {
+    "RIVN": 0.0,
+    "META": 434.0
+  },
+  "api_errors": 0,
+  "kill_switch_events": 0,
+  "by_strategy": [
+    {
+      "strategy_id": "orb",
+      "signals": 0,
+      "submitted": 2,
+      "fills": 2,
+      "cancels": 0,
+      "rejects": 0,
+      "realized_pnl": 434.0,
+      "wins": 1,
+      "losses": 0,
+      "win_rate": 0.5,
+      "avg_win": 434.0,
+      "avg_loss": null
+    }
+  ],
+  "scanner_standby_activated": true,
+  "standby_reason": "all_38_candidates_rejected_fallback_disabled",
+  "exit_spread_warning_count": 0,
+  "bridge_entries_count": 237,
+  "bridge_traded_count": 2,
+  "bridge_blocked_count": 0,
+  "bridge_skipped_count": 235,
+  "bridge_by_strategy": {
+    "rsi_trend": {
+      "traded": 0,
+      "blocked": 0,
+      "skipped": 234
+    },
+    "orb": {
+      "traded": 2,
+      "blocked": 0,
+      "skipped": 0
+    },
+    "vwap_reclaim": {
+      "traded": 0,
+      "blocked": 0,
+      "skipped": 1
+    }
+  },
+  "bridge_top_blocked_reasons": [],
+  "sample_size_warning": "Sample size too small for statistical conclusions (2 fill(s) this session). Win rate and PnL metrics require 30+ trades to be meaningful.",
+  "orb_signals_total": 2,
+  "orb_signals_traded": 2,
+  "orb_signals_blocked": 0,
+  "orb_signals_skipped": 0,
+  "orb_quality_distribution": {
+    "2": 2
+  },
+  "orb_slot_reserved_events": 0,
+  "orb_actual_pnl": 434.0,
+  "orb_avg_quality": 2.0,
+  "orb_top_blocked_reasons": [],
+  "orb_avg_fwd_pct_5m": null,
+  "orb_avg_fwd_pct_15m": null,
+  "orb_avg_fwd_pct_30m": null,
+  "pnl_by_strategy": {
+    "orb": 434.0
+  },
+  "notes": [
+    "Net profit session: $434.00",
+    "Scanner entered STANDBY \u2014 no new entries: all_38_candidates_rejected_fallback_disabled",
+    "Entry counter fix validated: entries increment on fill (not at order placement), exits tracked separately and do not consume entry capacity"
+  ],
+  "recommendations": [
+    "Review universe scan settings; consider adjusting min_scan_score or rvol threshold"
+  ]
+}

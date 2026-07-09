@@ -22,7 +22,7 @@ An intraday options trading research system operating under a **frozen evaluatio
 
 **Goal:** Collect 10 clean sessions (S6–S15) to answer 7 primary research questions (Q1–Q7) about signal quality, fill path, DTE, spread, scanner score, and strategy attribution.
 
-**Status:** 7 of 10 sessions complete. 3 remaining (S17, S18, S19).
+**Status:** 8 of 10 sessions complete. 2 remaining (S18, S19).
 
 | Session | Date | P&L | Trades | Wins | data_clean | Status | Running P&L |
 |---------|------|-----|--------|------|------------|--------|-------------|
@@ -37,6 +37,7 @@ An intraday options trading research system operating under a **frozen evaluatio
 | S14 | 2026-07-06 | $0.00 | 0 | — | — | **VOIDED** | — |
 | S15 | 2026-07-07 | $0.00 | 0 | — | — | **VOIDED** | — |
 | S16 | 2026-07-08 | $0.00 | 0 | — | FALSE | complete | +$21.00 |
+| S17 | 2026-07-09 | **+$434.00** | 2 | 1 | **TRUE** | complete | **+$455.00** |
 
 **Phase 1 baseline (S1–S5, carry-forward):** -$276.00, 14 trades, 2 wins  
 **Combined P&L (S6–S11 valid sessions):** -$255.00, 22 trades, 6 wins, 27.3% win rate
@@ -47,11 +48,11 @@ An intraday options trading research system operating under a **frozen evaluatio
 
 ---
 
-## Next Immediate Task: Session 17 (S17)
+## Next Immediate Task: Session 18 (S18)
 
-S16 complete (7th valid session). 3 remaining. S17 is first session with both scanner AND
-signal generation using valid Alpaca credentials (fixes bdad282 + e226be6 both active).
-Expect actual entry signal evaluation for cleared candidates.
+S17 complete (8th valid session). 2 remaining. S17 was first data_clean=TRUE session with fills:
+2 direct-fill trades, +$434.00 P&L. META LONG hit take_profit (100% gain, $4.35→$8.69, 49 min).
+RIVN LONG breakeven (trailing_stop at entry price). Signal bridge fully functional end-to-end.
 
 ### CRITICAL: VM Teardown Between Turns
 

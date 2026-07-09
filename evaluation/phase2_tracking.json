@@ -1,13 +1,13 @@
 {
   "protocol": "evaluation/phase2_eval_protocol.md",
   "created": "2026-06-13",
-  "last_updated": "2026-07-01",
+  "last_updated": "2026-07-09",
   "phase": 2,
   "session_count": {
     "target": 10,
-    "completed": 6,
-    "remaining": 4,
-    "note": "S11 counted as completed (validity TBD); S12 voided. S11 had 2 confirmed fills with broker-verified P&L.",
+    "completed": 8,
+    "remaining": 2,
+    "note": "8 of 10 complete. S12-S15 voided (VM teardown). S17 valid: 2 trades, +$434 P&L, data_clean=TRUE.",
     "midpoint_trigger": 5,
     "midpoint_reached": true,
     "final_trigger": 10,
@@ -135,8 +135,8 @@
           "universe_group": "mega_cap",
           "outcome": "win",
           "entry_fill": 0.69,
-          "exit_fill_journal": 0.70,
-          "exit_fill_actual": 0.70,
+          "exit_fill_journal": 0.7,
+          "exit_fill_actual": 0.7,
           "exit_reason": "trailing_stop",
           "entry_spread_pct": 4.44,
           "exit_spread_pct": null,
@@ -163,13 +163,13 @@
           "entry_fill": 0.29,
           "exit_fill_journal": 0.21,
           "exit_fill_actual": 0.21,
-          "exit_reason": "max_hold (carryover — resolved S12 startup)",
+          "exit_reason": "max_hold (carryover \u2014 resolved S12 startup)",
           "entry_spread_pct": 6.67,
           "exit_spread_pct": 41.5,
           "rvol": 0.681,
           "mfe": 0.0,
           "mae": -2.5,
-          "note": "Entry limit $0.31 filled at $0.29. Overnight carryover S11→S12. SessionRecovery re-linked to journal row 196. max_hold exit S12 cycle 1 (09:31 ET). Exit spread 41.5% > 10% threshold — WARNING, proceeded. P&L attributed to S11."
+          "note": "Entry limit $0.31 filled at $0.29. Overnight carryover S11\u2192S12. SessionRecovery re-linked to journal row 196. max_hold exit S12 cycle 1 (09:31 ET). Exit spread 41.5% > 10% threshold \u2014 WARNING, proceeded. P&L attributed to S11."
         },
         {
           "journal_id": 197,
@@ -203,7 +203,7 @@
       "date": "2026-06-25",
       "pnl_journal": 0.0,
       "pnl_confirmed": 0.0,
-      "pnl_note": "Zero-trade session. Scanner operated all 167 cycles (09:36–12:31 ET) but all 27 symbols rejected every scan. Primary rejection reasons: data_fetch_error + scanner_data_stale + low_volume_chop + atr_too_small + invalid_price + insufficient_underlying_volume. Scores at 10.0/NEUTRAL all session — yfinance daily data failures (No daily data returned) same pattern as S9 (2026-06-24). RVOL never cleared 0.50.",
+      "pnl_note": "Zero-trade session. Scanner operated all 167 cycles (09:36\u201312:31 ET) but all 27 symbols rejected every scan. Primary rejection reasons: data_fetch_error + scanner_data_stale + low_volume_chop + atr_too_small + invalid_price + insufficient_underlying_volume. Scores at 10.0/NEUTRAL all session \u2014 yfinance daily data failures (No daily data returned) same pattern as S9 (2026-06-24). RVOL never cleared 0.50.",
       "trades": 0,
       "wins": 0,
       "losses": 0,
@@ -213,17 +213,17 @@
       "recovered": 0,
       "direct": 0,
       "data_clean": true,
-      "data_clean_reason": "Zero-trade session — no fills to verify, no broker state, clean pre-session checks, clean EOD shutdown. 167 cycles completed without infrastructure interruption. tmux session survived full window. All 5 health checks passed (09:45, 10:00, 11:00, 12:00, EOD). 891 scan_results rows written, 0 signal_bridge rows, 0 trade_journal rows. Broker: 0 positions, 0 open orders at EOD. API errors: 0. Reconciler: 0 repaired, 0 flagged.",
+      "data_clean_reason": "Zero-trade session \u2014 no fills to verify, no broker state, clean pre-session checks, clean EOD shutdown. 167 cycles completed without infrastructure interruption. tmux session survived full window. All 5 health checks passed (09:45, 10:00, 11:00, 12:00, EOD). 891 scan_results rows written, 0 signal_bridge rows, 0 trade_journal rows. Broker: 0 positions, 0 open orders at EOD. API errors: 0. Reconciler: 0 repaired, 0 flagged.",
       "signal_bridge_available": false,
       "trades_detail": [],
-      "infra_notes": "Session launched via tmux (tmux new-session -d -s s10). 167 cycles, 09:36:07–12:31:37 ET. yfinance daily data fetch failed for all 27 symbols (No daily data returned) — same pattern as S9 (2026-06-24). Scores remained at 10.0/NEUTRAL all session. Midpoint trigger reached: this is session 5 of 10 in Phase 2. Midpoint review now due."
+      "infra_notes": "Session launched via tmux (tmux new-session -d -s s10). 167 cycles, 09:36:07\u201312:31:37 ET. yfinance daily data fetch failed for all 27 symbols (No daily data returned) \u2014 same pattern as S9 (2026-06-24). Scores remained at 10.0/NEUTRAL all session. Midpoint trigger reached: this is session 5 of 10 in Phase 2. Midpoint review now due."
     },
     {
       "session": "S9",
       "date": "2026-06-24",
       "pnl_journal": 0.0,
       "pnl_confirmed": 0.0,
-      "pnl_note": "Zero-trade session. Scanner operated all 165 cycles (09:39–12:30 ET) but all 27 symbols rejected every scan. Primary rejection reasons: data_fetch_error + scanner_data_stale + low_volume_chop + atr_too_small + invalid_price + insufficient_underlying_volume. Scores at 10.0/NEUTRAL all session — yfinance daily data failures (No daily data returned) degraded scoring further than prior STANDBY sessions where scores reached 48–70. RVOL never cleared 0.50.",
+      "pnl_note": "Zero-trade session. Scanner operated all 165 cycles (09:39\u201312:30 ET) but all 27 symbols rejected every scan. Primary rejection reasons: data_fetch_error + scanner_data_stale + low_volume_chop + atr_too_small + invalid_price + insufficient_underlying_volume. Scores at 10.0/NEUTRAL all session \u2014 yfinance daily data failures (No daily data returned) degraded scoring further than prior STANDBY sessions where scores reached 48\u201370. RVOL never cleared 0.50.",
       "trades": 0,
       "wins": 0,
       "losses": 0,
@@ -233,10 +233,10 @@
       "recovered": 0,
       "direct": 0,
       "data_clean": true,
-      "data_clean_reason": "Zero-trade session — no fills to verify, no broker state, clean pre-session checks, clean EOD shutdown. 165 cycles completed without infrastructure interruption. tmux session survived full window. All 5 health checks passed (09:35, 09:45, 10:00, 11:00, 12:00 ET). 864 scan_results rows written, 0 signal_bridge rows, 0 trade_journal rows. Broker: 0 positions, 0 open orders at EOD.",
+      "data_clean_reason": "Zero-trade session \u2014 no fills to verify, no broker state, clean pre-session checks, clean EOD shutdown. 165 cycles completed without infrastructure interruption. tmux session survived full window. All 5 health checks passed (09:35, 09:45, 10:00, 11:00, 12:00 ET). 864 scan_results rows written, 0 signal_bridge rows, 0 trade_journal rows. Broker: 0 positions, 0 open orders at EOD.",
       "signal_bridge_available": false,
       "trades_detail": [],
-      "infra_notes": "Session launched via tmux (tmux new-session -d -s s9) to survive shell recycling — all prior nohup/& attempts failed. 165 cycles, 09:39:02–12:30:21 ET. Reconciler clean all runs (0 repaired, 0 flagged). API errors: 0. yfinance daily data fetch failed for all 27 symbols (No daily data returned, 1d 2026-04-10 to 2026-06-25) — pre-existing infrastructure issue, same pattern as prior sessions but more severe today. Intraday data also degraded (atr_too_small, invalid_price), causing scores to remain at 10.0 vs 48–70 in prior STANDBY sessions. Two prior S9 attempts voided (2026-06-22 cycle 22, 2026-06-23 cycle 73) — both excluded from Phase 2 statistics."
+      "infra_notes": "Session launched via tmux (tmux new-session -d -s s9) to survive shell recycling \u2014 all prior nohup/& attempts failed. 165 cycles, 09:39:02\u201312:30:21 ET. Reconciler clean all runs (0 repaired, 0 flagged). API errors: 0. yfinance daily data fetch failed for all 27 symbols (No daily data returned, 1d 2026-04-10 to 2026-06-25) \u2014 pre-existing infrastructure issue, same pattern as prior sessions but more severe today. Intraday data also degraded (atr_too_small, invalid_price), causing scores to remain at 10.0 vs 48\u201370 in prior STANDBY sessions. Two prior S9 attempts voided (2026-06-22 cycle 22, 2026-06-23 cycle 73) \u2014 both excluded from Phase 2 statistics."
     },
     {
       "session": "S8",
@@ -453,6 +453,111 @@
           "note": "EOD sell limit 1.83 expired unfilled 6/15. Position carried to S7, re-linked via SessionRecovery fix, closed via max_hold rule (true entry time preserved) at S7 startup. Broker-confirmed fill 1.95, pnl=+15. Hold duration 79068s spans S6->S7 boundary."
         }
       ]
+    },
+    {
+      "session": "S16",
+      "date": "2026-07-08",
+      "validity": "valid",
+      "validity_reason": "Full window 09:28-12:30 ET, 265 cycles, broker clean throughout. data_clean=FALSE: 401 on get_intraday_bars() blocked all signal generation. Fix e226be6 deployed post-session.",
+      "pnl_journal": 0.0,
+      "pnl_confirmed": 0.0,
+      "pnl_note": "0 trades. AlpacaConfirmer selected valid contracts (RIVN, XLE, XLF, NVDA) but signal generation failed on 401 throughout. Fix active for S17.",
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "breakeven": 0,
+      "orb_trades": 0,
+      "vwap_trades": 0,
+      "recovered": 0,
+      "direct": 0,
+      "data_clean": false,
+      "data_clean_reason": "401 on _make_alpaca_data_client() in yfinance_data.py \u2014 os.getenv returned empty string; credentials live in pydantic settings. ~1508 ERROR log lines. Signal bridge: 0 entries. Fix e226be6 committed mid-session.",
+      "signal_bridge_available": false,
+      "trades_detail": [],
+      "infra_notes": "First session using Bash(run_in_background=True, timeout=14400000) \u2014 VM keepalive confirmed (265 continuous cycles, no teardown). S15 (tmux+cron) died at 10:58 ET; S16 ran full window."
+    },
+    {
+      "session": "S17",
+      "date": "2026-07-09",
+      "validity": "valid",
+      "validity_reason": "Full window 09:28-12:30 ET, 353 cycles, broker clean. Both auth fixes active (bdad282 + e226be6). First session with full pipeline authenticated end-to-end.",
+      "pnl_journal": 434.0,
+      "pnl_confirmed": 434.0,
+      "pnl_note": "RIVN260710C00018000 orb trailing_stop /bin/bash.00 (breakeven). META260710C00610000 orb take_profit +34.00. Broker equity 9,397.45 EOD (0 positions, 0 orders).",
+      "trades": 2,
+      "wins": 1,
+      "losses": 0,
+      "breakeven": 1,
+      "orb_trades": 2,
+      "vwap_trades": 0,
+      "recovered": 0,
+      "direct": 2,
+      "data_clean": true,
+      "data_clean_reason": "0 API errors. Reconciler clean all session (broker_pos=local_pos throughout). Both fills direct, broker-confirmed. EOD: broker_pos=0 local_pos=0.",
+      "signal_bridge_available": true,
+      "trades_detail": [
+        {
+          "journal_id": 198,
+          "symbol": "RIVN",
+          "contract": "RIVN260710C00018000",
+          "strategy": "orb",
+          "scanner_score": 70,
+          "signal": "LONG",
+          "signal_reasons": [
+            "orb_breakout",
+            "trend_up",
+            "atr_wide"
+          ],
+          "dte": 1,
+          "pnl_journal": 0.0,
+          "pnl_actual": 0.0,
+          "fill_path": "direct",
+          "asset_class": "single_stock",
+          "universe_group": "high_beta_liquid",
+          "outcome": "breakeven",
+          "entry_fill": 0.32,
+          "exit_fill": 0.32,
+          "exit_reason": "trailing_stop",
+          "entry_spread_pct": 2.99,
+          "open_interest": 6731,
+          "volume": 4858,
+          "hold_seconds": 817,
+          "signal_age_min": 0,
+          "age_bucket": "0-30"
+        },
+        {
+          "journal_id": 199,
+          "symbol": "META",
+          "contract": "META260710C00610000",
+          "strategy": "orb",
+          "scanner_score": 62,
+          "signal": "LONG",
+          "signal_reasons": [
+            "orb_breakout",
+            "trend_sideways",
+            "atr_wide"
+          ],
+          "dte": 1,
+          "pnl_journal": 434.0,
+          "pnl_actual": 434.0,
+          "fill_path": "direct",
+          "asset_class": "single_stock",
+          "universe_group": "mega_cap",
+          "outcome": "win",
+          "entry_fill": 4.35,
+          "exit_fill": 8.69,
+          "exit_reason": "take_profit",
+          "entry_spread_pct": 2.8,
+          "open_interest": 2530,
+          "volume": 9410,
+          "delta": 0.373,
+          "hold_seconds": 2936,
+          "signal_age_min": 0,
+          "age_bucket": "0-30",
+          "note": "Take profit triggered at 100% gain (.35 -> .69). Signal cleared at 11:29 ET, entered 11:30 ET, exited 12:19 ET."
+        }
+      ],
+      "infra_notes": "Background task method (bjmf5gls5). 353 continuous cycles 09:28-12:30 ET. No VM teardown. First session with both bdad282 + e226be6 auth fixes active. Signal generation functional end-to-end."
     }
   ],
   "cumulative": {
@@ -687,7 +792,7 @@
       "status": "indeterminate",
       "reason": "ORB N=5 (2 wins/5, pnl=-110, PF=17/127=0.134). VWAP N=17 (4 wins/17, pnl=-145, PF=65/210=0.310). S11 adds RIVN (ORB, loss -8) and MSFT (VWAP, win +1). ORB PF dropped further (0.143\u21920.134); VWAP PF improved slightly (0.305\u21920.310). Both below 1. VWAP now higher PF and better win rate. Still indeterminate \u2014 both unprofitable overall.",
       "orb_pf": 0.134,
-      "vwap_pf": 0.310
+      "vwap_pf": 0.31
     },
     "Q2_signal_age": {
       "status": "indeterminate",
@@ -704,7 +809,7 @@
     },
     "Q5_quality_scores": {
       "status": "indeterminate",
-      "reason": "S11 adds MSFT q=2 (win +1) and RIVN q=2 (loss -8). Quality=2 N=9 (3 wins/9, 33%, pnl=-103). Quality=3 N=5 unchanged (2 wins/5, 40%, pnl=-4). Quality=2 pnl deteriorates further (-96→-103) despite win rate holding. Quality=3 still best pnl. Gap widens: q=3 avg=-0.80/trade vs q=2 avg=-11.44/trade. Still indeterminate but q=3 advantage is strengthening."
+      "reason": "S11 adds MSFT q=2 (win +1) and RIVN q=2 (loss -8). Quality=2 N=9 (3 wins/9, 33%, pnl=-103). Quality=3 N=5 unchanged (2 wins/5, 40%, pnl=-4). Quality=2 pnl deteriorates further (-96\u2192-103) despite win rate holding. Quality=3 still best pnl. Gap widens: q=3 avg=-0.80/trade vs q=2 avg=-11.44/trade. Still indeterminate but q=3 advantage is strengthening."
     },
     "Q6_scanner_score": {
       "status": "indeterminate",
@@ -721,17 +826,17 @@
       "date": "2026-07-01",
       "voided_at_et": "11:56 ET (last logged cycle 8 of window 2)",
       "cycles_completed": 32,
-      "reason": "Killed before 12:30 ET with 0 positions (twice — VM teardown at 09:48 ET and 11:56 ET). yfinance daily data failure all session (all 38 symbols score=10.0/NEUTRAL) — no trading was possible regardless. Cron /loop job died with VM on first kill at 09:48 ET; user manually triggered relaunch at 11:51 ET. Second window killed at 11:56 ET with 39 min remaining.",
+      "reason": "Killed before 12:30 ET with 0 positions (twice \u2014 VM teardown at 09:48 ET and 11:56 ET). yfinance daily data failure all session (all 38 symbols score=10.0/NEUTRAL) \u2014 no trading was possible regardless. Cron /loop job died with VM on first kill at 09:48 ET; user manually triggered relaunch at 11:51 ET. Second window killed at 11:56 ET with 39 min remaining.",
       "broker_state_at_void": "0 positions, 0 open orders (EOD confirmed 14:48 ET, equity=$98,960.53)",
       "excluded_from_phase2": true,
-      "note": "yfinance daily data failure (same pattern as S9/S10). Would have been zero-trade STANDBY session even if full window ran. CronCreate loop does not survive Firecracker VM teardown — cron is session-only and dies with the VM."
+      "note": "yfinance daily data failure (same pattern as S9/S10). Would have been zero-trade STANDBY session even if full window ran. CronCreate loop does not survive Firecracker VM teardown \u2014 cron is session-only and dies with the VM."
     },
     {
       "intended_session": "S12",
       "date": "2026-06-30",
       "voided_at_et": "10:49 ET (last logged cycle 26)",
       "cycles_completed": 64,
-      "reason": "Killed before 12:30 ET with 0 new positions. Per protocol: 'If killed before 12:30 ET with 0 positions: VOIDED.' Three windows killed by Firecracker VM teardown. All 38 symbols STANDBY (low_volume_chop) every scan. RIVN carryover from S11 closed at cycle 1 of window 1 via max_hold — that trade attributed to S11 not S12.",
+      "reason": "Killed before 12:30 ET with 0 new positions. Per protocol: 'If killed before 12:30 ET with 0 positions: VOIDED.' Three windows killed by Firecracker VM teardown. All 38 symbols STANDBY (low_volume_chop) every scan. RIVN carryover from S11 closed at cycle 1 of window 1 via max_hold \u2014 that trade attributed to S11 not S12.",
       "broker_state_at_void": "0 positions, 0 open orders (EOD confirmed ~19:23 ET)",
       "excluded_from_phase2": true,
       "note": "RIVN260702C00017000 carryover from S11 correctly recovered and closed. P&L attributed to S11 per carryover convention."

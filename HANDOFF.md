@@ -52,54 +52,79 @@ An intraday options trading research system operating under a **frozen evaluatio
 
 ## Next Immediate Task: Session 19 (S19) — Final Session
 
-S18 complete (trade data documented; validity questionable). S19 is the final required session.
-
-**Before launching S19:** User must rule on S18 validity (see table above). Either way S19 is required.
+S18 marked valid (user confirmed). S19 is the 10th and final required session.
 
 **S17 recap:** +$434 (META take_profit 100% gain, RIVN breakeven). First data_clean=TRUE session with fills.
-**S18 recap:** -$32 (SOFI trailing_stop -$12, SPY trailing_stop -$10, MARA eod_exit -$10). 3 trades, 0 wins. 66-min late start due to VM teardown.
+**S18 recap:** -$53 (SOFI -$12, SPY -$10, MARA -$31 corrected). 3 trades, 0 wins. 66-min late start (VM teardown, user confirmed valid).
 
-### CRITICAL: VM Teardown Between Turns
+---
 
-**Root cause confirmed:** Each Claude Code conversation turn runs in a Firecracker microVM. The VM is torn down completely after ~13 min of idle time between conversation turns. This is a hypervisor-level kill — no process survives (tmux servers, orphaned processes with their own PGID, keepalive processes — all die). This is why S11 and S12 had 2–3 windows each instead of a continuous 09:30–12:30 ET run.
+### CRITICAL: VM Keepalive — Corrected Model
 
-**S9/S10 succeeded because:** Claude made monitoring turns every 5–10 minutes throughout the session (not just at named checkpoints — the HANDOFF listed times were a sparse summary). No gap exceeded 13 minutes, so the VM never timed out. S11/S12/S13/S14 had longer idle gaps and were killed repeatedly.
+**The background task alone does NOT prevent VM teardown.** This was confirmed by S18 failure analysis.
 
-**Required fix for S13+:** Invoke the `/loop` skill at session launch with a 5–8 min interval. This creates periodic Claude turns that keep the VM alive and can detect/relaunch a killed session_runner within the loop interval.
+**Actual mechanism:**
+- VM dies after **~13 minutes with no conversation turn** (user message, task notification, or hook response)
+- Background tasks only create a conversation turn at **completion** — not during execution
+- What kept S16/S17 alive: **active user monitoring** ("status", "position on meta?", etc.) — turns every 5-15 min, never exceeding the 13-min gap
 
-### Launch Sequence for S17
+**Why S18 first attempt died:**
+1. Session launched + readiness snapshot committed in one turn
+2. `stop-hook-git-check.sh` fired → forced a commit/push turn (exit code 2)
+3. That commit/push turn ended → 13-minute idle timer started
+4. User went idle for 91 min (09:01 → 10:32 ET) → VM torn down at ~09:14 ET
 
-**Confirmed method (S16):** `Bash(run_in_background=True, timeout=14400000)` — harness-tracked background
-task keeps VM alive for the full 3-hour window. No tmux needed. No cron needed.
+**The stop hook** (`/root/.claude/stop-hook-git-check.sh`) fires after **every** Claude turn. If there are uncommitted files, untracked files, or unpushed commits, it forces another response turn (exit 2). That forced turn resets the 13-minute idle timer and can be the last turn before a long idle gap.
 
-```python
-Bash(
-    command="python -u scripts/session_runner.py --poll 30 --reconcile-interval 10 2>&1 | tee -a logs/session_YYYY-MM-DD.log",
-    timeout=14400000,
-    run_in_background=True  # system auto-sets this for long timeouts
-)
+---
+
+### S19 Launch Protocol (Both safeguards required)
+
+#### Step 1 — Pre-launch: clean git state
+Commit and push **everything** before the session launch turn. No untracked files, no uncommitted changes. Run:
+```bash
+git status        # must show "nothing to commit, working tree clean"
+git log --oneline origin/HEAD..HEAD   # must show 0 unpushed commits
 ```
+This prevents the stop hook from forcing additional turns after the session launch.
 
-Session runner auto-exits at 12:30 ET. Harness sends task-notification on completion.
+#### Step 2 — Launch background task
+```bash
+python -u scripts/session_runner.py --poll 30 --reconcile-interval 10 \
+  2>&1 | tee -a logs/session_YYYY-MM-DD.log
+```
+Launched as `Bash(run_in_background=True, timeout=14400000)`.
 
-### Why tmux + /loop (critical)
-- **tmux**: Protects the session_runner process from being killed when the Claude shell is recycled between turns. The `until` watchdog loop in tmux relaunches if the Python process dies.
-- **`/loop`**: Keeps the Firecracker VM alive by creating periodic Claude turns. Without this, the VM dies after ~13 min idle and the tmux server itself is destroyed.
+#### Step 3 — Start /loop as heartbeat (REQUIRED — do not skip)
+Immediately after launching the background task, invoke the `/loop` skill with a 5-minute interval:
+```
+/loop 5m check session_runner status: tail -5 logs/session_YYYY-MM-DD.log and report cycle, positions, P&L
+```
+The loop creates a conversation turn every 5 minutes. No gap can exceed 13 min → VM stays alive.
+
+**Why both are needed:**
+- Background task: runs the session_runner process
+- /loop: keeps the VM alive via periodic turns AND monitors the session
+
+**If the /loop is not available or fails:** the user must send a message at least every 10 minutes during the session window (09:30-12:30 ET).
+
+#### Step 4 — Verify at session start
+Within the first loop cycle (5 min after launch), confirm:
+- Session log shows [cycle 1] at ~09:30 ET
+- `positions=0, entries=0` initially
+- No `STANDBY` in first scan (market should be liquid by 09:30)
+
+---
 
 ### Pre-Session Checklist
-1. Verify market is open and not a half-day
-2. Confirm no scheduled broker maintenance
-3. Check `LIVE_TRADING_ENABLED=false` in env
-4. Run pre-session scan: `python scripts/pre_session_scan.py` (runs ~6–8 min for 38 symbols)
-5. Launch via tmux before 09:30 ET
+1. Verify market is open (not a half-day or holiday)
+2. Check `LIVE_TRADING_ENABLED=false` in env
+3. Confirm `git status` is clean
+4. Confirm all prior session docs committed and pushed
+5. Launch background task (Step 2 above) before 09:30 ET
+6. Immediately start `/loop` (Step 3 above)
 
-### Required Health Checks
-Run at: 09:35, 09:45, 10:00, 11:00, 12:00 ET
-```bash
-tmux list-sessions        # verify s15 alive
-tmux capture-pane -t s15 -p | tail -20    # see recent log lines
-```
-Verify: session alive, cycle count incrementing, positions=0 or tracked, entries=known
+### Session Validity Rules
 
 ### Session Validity Rules
 - Must run full window (09:30–12:30 ET)

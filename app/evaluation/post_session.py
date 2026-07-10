@@ -132,6 +132,9 @@ async def _reconcile_positions(broker, pm, result: PostSessionResult):
         if orphaned:
             logger.warning("Post-session: %d orphaned broker position(s) not in local state: %s",
                            len(orphaned), list(orphaned)[:5])
+            # Defect fix: EOD limit exit may not have filled if bid moved before order.
+            # Close orphaned positions now to prevent untracked open risk at expiry.
+            await _close_orphaned_positions(broker, orphaned, broker_positions, result)
         if phantom:
             logger.warning("Post-session: %d phantom local position(s) not in broker: %s",
                            len(phantom), list(phantom)[:5])
@@ -141,6 +144,90 @@ async def _reconcile_positions(broker, pm, result: PostSessionResult):
         msg = f"Reconciliation error: {exc}"
         result.errors.append(msg)
         logger.warning("Post-session: %s", msg)
+
+
+async def _close_orphaned_positions(broker, orphaned_symbols, broker_positions, result: PostSessionResult):
+    """Close positions found at broker but absent from local state.
+
+    Occurs when the EOD limit sell order does not fill before the session runner
+    exits (bid moves away from the limit price between order placement and
+    execution). Cancels any stale exit orders and places a fresh limit at bid.
+    """
+    import asyncio
+    from decimal import Decimal
+    from app.brokers.broker_interface import OrderRequest, OrderSide, OrderType
+
+    pos_by_symbol = {p.option_symbol: p for p in broker_positions}
+
+    for symbol in list(orphaned_symbols):
+        pos = pos_by_symbol.get(symbol)
+        if pos is None:
+            continue
+
+        logger.warning("Post-session orphan close: attempting %s qty=%s", symbol, pos.quantity)
+        try:
+            # Cancel any open exit orders for this symbol first
+            try:
+                open_orders = await broker.get_orders()
+                for order in open_orders:
+                    if order.option_symbol == symbol:
+                        cancelled = await broker.cancel_order(order.order_id)
+                        logger.info(
+                            "Post-session orphan close: cancelled stale order %s for %s",
+                            order.order_id, symbol,
+                        )
+            except Exception as _oe:
+                logger.warning("Post-session orphan close: could not check/cancel orders for %s: %s", symbol, _oe)
+
+            # Get fresh quote
+            quote = await broker.get_option_quote(symbol)
+            bid = float(quote.bid)
+            if bid <= 0:
+                logger.warning("Post-session orphan close: zero bid for %s — cannot close", symbol)
+                result.errors.append(f"orphan_close_zero_bid:{symbol}")
+                continue
+
+            # Place limit sell at bid
+            req = OrderRequest(
+                symbol=getattr(pos, "symbol", symbol.split("2")[0]),
+                option_symbol=symbol,
+                side=OrderSide.SELL_TO_CLOSE,
+                quantity=int(pos.quantity),
+                order_type=OrderType.LIMIT,
+                limit_price=Decimal(str(round(bid, 2))),
+                notes="post_session_orphan_close",
+            )
+            order_result = await broker.place_option_order(req)
+            logger.info(
+                "Post-session orphan close: order placed %s | limit=%.2f | order_id=%s",
+                symbol, bid, order_result.order_id,
+            )
+
+            # Poll for fill up to 30 seconds
+            fill_price = None
+            for _ in range(6):
+                await asyncio.sleep(5)
+                try:
+                    status = await broker.get_order_status(order_result.order_id)
+                    if "FILL" in str(status.status).upper():
+                        resp = await broker._client.get(f"/v2/orders/{order_result.order_id}")
+                        data = resp.json()
+                        fill_price = float(data.get("filled_avg_price") or bid)
+                        logger.info(
+                            "Post-session orphan close: filled %s @ %.2f", symbol, fill_price,
+                        )
+                        break
+                except Exception:
+                    pass
+            else:
+                logger.warning(
+                    "Post-session orphan close: order for %s not filled within 30s", symbol,
+                )
+                result.errors.append(f"orphan_close_timeout:{symbol}")
+
+        except Exception as exc:
+            logger.error("Post-session orphan close failed for %s: %s", symbol, exc)
+            result.errors.append(f"orphan_close_error:{symbol}:{exc}")
 
 
 def _check_open_positions(pm, result: PostSessionResult):

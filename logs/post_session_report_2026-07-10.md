@@ -3,7 +3,7 @@
 **Session window:** 10:36–12:30 ET (late start — first 66 min missed)
 **Cycles:** 220
 **Validity:** QUESTIONABLE — VM teardown at ~09:05 ET caused 66-min late start. User must rule.
-**P&L:** -$32.00
+**P&L:** -$53.00 (corrected post-session — see MARA note below)
 **Trades:** 3 (0 wins, 3 losses)
 **data_clean:** FALSE
 
@@ -29,9 +29,13 @@ First scan at 10:35:57 ET. EOD exit at 12:30:34 ET. 220 cycles.
 |---|--------|----------|----------|-------|------|--------|------|-----|
 | 1 | SOFI | SOFI260710P00019000 | ORB | $0.30 | $0.18 | trailing_stop | 154s | -$12 |
 | 2 | SPY | SPY260710P00746000 | vwap_reclaim | $0.24* | $0.14 | trailing_stop | 62s | -$10 |
-| 3 | MARA | MARA260710P00014000 | vwap_reclaim | $1.49* | $1.39 | eod_exit | 3197s | -$10 |
+| 3 | MARA | MARA260710P00014000 | vwap_reclaim | $1.49* | **$1.18**† | post_session_close | 3197s | **-$31** |
+
+**Total: -$53.00**
 
 *SPY limit $0.27, filled $0.24. MARA limit $1.51, filled $1.49 (both better fills).
+
+†MARA: Session EOD exit limit $1.39 placed at 12:30:35 ET did not fill (market dropped to $1.16-$1.20 range). Stale order cancelled post-session; new limit sell $1.16 placed, filled at **$1.18** (Alpaca confirmed). Actual loss: -$31.
 
 All 3 positions were DTE=0 (same-day expiry). All 3 were short (put buyers).
 
@@ -51,11 +55,13 @@ All 3 positions were DTE=0 (same-day expiry). All 3 were short (put buyers).
 - Entry: limit $0.27, filled $0.24 @ 11:06 ET, fill in 45s
 - Exit: trailing_stop @ $0.14, 11:07 ET (hold 62s — 1 min, immediate reversal)
 
-**Trade 3 — MARA (vwap_reclaim, -$10):**
+**Trade 3 — MARA (vwap_reclaim, -$31):**
 - Scanner: score=62, signal=SHORT (atr_wide 10.95%, orb_breakdown, trend_sideways)
 - Contract: OI=5150, vol=795, spread=9.0% (at entry)
 - Entry: limit $1.51, filled $1.49 @ ~11:37 ET, fill in 48s
-- Exit: eod_exit @ $1.39 bid, 12:30 ET (hold 53 min, spread 10.9% > max 10%, forced)
+- Session exit attempt: EOD limit $1.39 placed 12:30:35 ET — DID NOT FILL (market dropped to $1.16 bid)
+- Post-session close: stale order cancelled; new limit $1.16 placed ~12:45 ET, filled at **$1.18** (Alpaca confirmed)
+- Actual P&L: ($1.18 - $1.49) × 100 = -$31
 
 ---
 
@@ -71,11 +77,15 @@ All 3 positions were DTE=0 (same-day expiry). All 3 were short (put buyers).
 
 ## Data Integrity
 
-**MARA orphaned position (post-session):** EOD limit sell placed at 12:30:35 ET; post-session check ran at 12:30:36 ET — 1-second timing race before fill confirmation. Local state already marked MARA closed at pnl=-10. The option (MARA DTE=0) expired today; if the limit order didn't fill, it would expire worthless at market close (net better outcome). P&L recorded as -$10 (entry $1.49 vs exit $1.39).
+**MARA: EOD exit failed — closed post-session at $1.18 (confirmed):**
+- Session EOD limit sell $1.39 placed 12:30:35 ET — market had fallen to bid $1.16, order never filled
+- Post-session: stale order 88d61d07 cancelled; new limit sell $1.16 placed (order 2862a874); Alpaca filled at **$1.18**
+- Corrected P&L for MARA: ($1.18-$1.49)×100 = **-$31** (session journal recorded -$10 at the unexecuted $1.39 price)
+- S18 total corrected: **-$53** (was -$32 in session journal)
 
-**Exit spread warnings:**
-- SOFI: 28.6% (trailing_stop, proceeded — spread threshold bypassed on non-EOD exits)
-- MARA: 10.9% (eod_exit forced, spread slightly > 10% max)
+**Exit spread warnings (during session):**
+- SOFI: 28.6% at trailing_stop exit (bid=$0.18, ask=$0.24 — proceeded)
+- MARA: 10.9% at EOD exit attempt (bid=$1.39, ask=$1.55 — order placed but did not fill)
 
 **api_errors:** 0
 **reconciler_warnings:** 0

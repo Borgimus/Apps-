@@ -38,11 +38,12 @@ An intraday options trading research system operating under a **frozen evaluatio
 | S15 | 2026-07-07 | $0.00 | 0 | — | — | **VOIDED** | — |
 | S16 | 2026-07-08 | $0.00 | 0 | — | FALSE | complete | +$21.00 |
 | S17 | 2026-07-09 | **+$434.00** | 2 | 1 | **TRUE** | complete | **+$455.00** |
-| S18 | 2026-07-10 | **-$32.00** | 3 | 0 | FALSE | **questionable** | +$423.00 if valid |
+| S18 | 2026-07-10 | **-$53.00** | 3 | 0 | FALSE | **questionable** | +$402.00 if valid |
 
 **Phase 1 baseline (S1–S5, carry-forward):** -$276.00, 14 trades, 2 wins  
 **Combined P&L (valid sessions through S17):** +$179.00, 24 trades, 7 wins, 29.2% win rate  
 **S18 validity:** VM teardown caused 66-min late start (10:36 vs 09:30 ET). Session traded 3 positions and ran to 12:30 ET EOD normally. User must decide: valid (1 remaining) or voided (2 remaining).
+**S18 P&L note:** Session journal recorded -$32 (MARA exit at $1.39 that didn't fill). Corrected: MARA exit actually filled at $1.18 post-session. Actual P&L: -$53.
 
 **Midpoint analysis completed:** `research/phase2_midpoint_analysis_2026-06-25.md`  
 **Protocol document:** `evaluation/phase2_eval_protocol.md`  

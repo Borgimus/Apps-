@@ -564,9 +564,9 @@
       "date": "2026-07-10",
       "validity": "questionable",
       "validity_reason": "VM teardown at ~09:05 ET (stop hook commit triggered turn end; user idle >13 min). Recovery required: git fetch origin + git reset --hard + pip install. Session relaunched at 10:36 ET — first 66 min of 09:30-12:30 window missed. Phase 2 protocol requires full window. User must rule on validity.",
-      "pnl_journal": -32.0,
-      "pnl_confirmed": -32.0,
-      "pnl_note": "SOFI260710P00019000 ORB trailing_stop -$12.00 (entry $0.30, exit $0.18, hold 154s). SPY260710P00746000 vwap_reclaim trailing_stop -$10.00 (entry $0.24, exit $0.14, hold 62s). MARA260710P00014000 vwap_reclaim eod_exit -$10.00 (entry $1.49, exit $1.39, hold 3197s). Net: -$32.00.",
+      "pnl_journal": -53.0,
+      "pnl_confirmed": -53.0,
+      "pnl_note": "SOFI260710P00019000 ORB trailing_stop -$12.00 (entry $0.30, exit $0.18, hold 154s). SPY260710P00746000 vwap_reclaim trailing_stop -$10.00 (entry $0.24, exit $0.14, hold 62s). MARA260710P00014000 vwap_reclaim post-session_close -$31.00 (entry $1.49, exit $1.18 confirmed fill). Net: -$53.00. Note: session_runner EOD exit placed limit=$1.39 at 12:30:35 ET — never filled (price dropped to $1.16-$1.20 range). Post-session manual close placed limit=$1.16 at ~12:45 ET, filled at $1.18.",
       "trades": 3,
       "wins": 0,
       "losses": 3,
@@ -576,7 +576,7 @@
       "recovered": 0,
       "direct": 3,
       "data_clean": false,
-      "data_clean_reason": "MARA260710P00014000 orphaned at post-session (timing race — EOD limit sell placed 12:30:35 ET, post-session check ran 12:30:36 ET before fill confirmation). 2 exit spread warnings: SOFI 28.6% (bid=0.18, ask=0.24, trailing_stop proceeded) and MARA 10.9% (bid=1.39, ask=1.55, forced EOD exit). api_errors=0, reconciler_warnings=0.",
+      "data_clean_reason": "MARA: session_runner EOD limit sell $1.39 placed 12:30:35 ET (did not fill — market dropped to $1.16-$1.20). Post-session stale order cancelled, new limit sell $1.16 placed, filled at $1.18. Corrected P&L: -$31 (was -$10 in session journal). 2 exit spread warnings during session: SOFI 28.6% (trailing_stop) and MARA 10.9% at EOD (forced exit that failed). api_errors=0, reconciler_warnings=0.",
       "signal_bridge_available": true,
       "trades_detail": [
         {
@@ -643,32 +643,32 @@
           "universe_group": "high_beta_liquid",
           "outcome": "loss",
           "entry_fill": 1.49,
-          "exit_fill": 1.39,
-          "exit_reason": "eod_exit",
+          "exit_fill": 1.18,
+          "exit_reason": "post_session_close",
           "entry_spread_pct": 9.0,
-          "exit_spread_pct": 10.9,
+          "exit_spread_pct": 6.25,
           "open_interest": 5150,
           "volume": 795,
           "hold_seconds": 3197,
-          "note": "Limit $1.51 filled at $1.49. EOD forced exit at bid $1.39 (spread 10.9% exceeded max, proceeded as forced). Orphaned at post-session check (timing race, fill likely confirmed shortly after)."
+          "note": "Limit $1.51 filled at $1.49. Session EOD exit limit $1.39 placed 12:30:35 ET did not fill (bid dropped to $1.16-$1.20). Stale order cancelled post-session; new limit $1.16 placed, filled at $1.18. Actual P&L: ($1.18-$1.49)x100 = -$31."
         }
       ],
       "infra_notes": "VM teardown at ~09:05 ET. Recovery: git fetch origin + git reset --hard origin/branch + pip install -r requirements.txt. Session relaunched as background task b0oeuin7a at 10:36 ET. 220 cycles, 10:36-12:30 ET. api_errors=0."
     }
   ],
   "cumulative": {
-    "note": "Includes Phase 1 baseline (S1-S5) plus Phase 2 S6-S18. S16: 0 trades (auth 401 blocker). S17: 2 trades (RIVN breakeven, META +434). S18: 3 trades (SOFI -12, SPY -10, MARA -10); validity questionable. Running Phase 2 P&L: +$455 through S17; -$32 S18 if valid = +$423.",
+    "note": "Includes Phase 1 baseline (S1-S5) plus Phase 2 S6-S18. S16: 0 trades (auth 401 blocker). S17: 2 trades (RIVN breakeven, META +434). S18: 3 trades (SOFI -12, SPY -10, MARA -31 post-session corrected); validity questionable. Running Phase 2 P&L: +$455 through S17; -$53 S18 if valid = +$402.",
     "sessions": 14,
     "trades": 27,
     "wins": 7,
     "losses": 18,
     "breakeven": 2,
-    "net_pnl": 147.0,
+    "net_pnl": 126.0,
     "gross_wins": 516.0,
-    "gross_losses": 369.0,
+    "gross_losses": 390.0,
     "win_rate": 0.2593,
-    "avg_pnl_per_trade": 5.44,
-    "profit_factor": 1.398,
+    "avg_pnl_per_trade": 4.67,
+    "profit_factor": 1.323,
     "recovered_fills": 15,
     "direct_fills": 12
   },

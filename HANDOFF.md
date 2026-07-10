@@ -59,60 +59,66 @@ S18 marked valid (user confirmed). S19 is the 10th and final required session.
 
 ---
 
-### CRITICAL: VM Keepalive — Corrected Model
+### CRITICAL: VM Keepalive — Correct Model
 
-**The background task alone does NOT prevent VM teardown.** This was confirmed by S18 failure analysis.
+**A successfully running background task keeps the VM alive.** Proven by S17: user messaged at 09:49 ET, did not message again until 11:14 ET (85-minute gap) — VM survived throughout because the background task was running the entire time.
 
 **Actual mechanism:**
-- VM dies after **~13 minutes with no conversation turn** (user message, task notification, or hook response)
-- Background tasks only create a conversation turn at **completion** — not during execution
-- What kept S16/S17 alive: **active user monitoring** ("status", "position on meta?", etc.) — turns every 5-15 min, never exceeding the 13-min gap
+- A Bash background task (`run_in_background=True`) holds an active process slot in the Firecracker container
+- While that process runs, the VM stays alive regardless of user message gaps
+- The VM only dies if: (a) the background task exits, leaving no active process, AND (b) no user message arrives within ~13 minutes
 
 **Why S18 first attempt died:**
-1. Session launched + readiness snapshot committed in one turn
-2. `stop-hook-git-check.sh` fired → forced a commit/push turn (exit code 2)
-3. That commit/push turn ended → 13-minute idle timer started
-4. User went idle for 91 min (09:01 → 10:32 ET) → VM torn down at ~09:14 ET
+1. Fresh VM started with no Python dependencies installed (fastapi, uvicorn, etc. absent)
+2. Background task launched: `python -u scripts/session_runner.py ...`
+3. Task immediately crashed with `ModuleNotFoundError: No module named 'fastapi'`
+4. No background task running → no keepalive → VM died ~13 min after last turn
+5. User went idle from 09:01 ET; VM torn down at ~09:14 ET
 
-**The stop hook** (`/root/.claude/stop-hook-git-check.sh`) fires after **every** Claude turn. If there are uncommitted files, untracked files, or unpushed commits, it forces another response turn (exit 2). That forced turn resets the 13-minute idle timer and can be the last turn before a long idle gap.
+**The stop hook** (`/root/.claude/stop-hook-git-check.sh`) fires after **every** Claude turn. If there are uncommitted/unpushed changes, it forces another turn (exit 2). This can be the last Claude turn before a long idle — but only matters if the background task then fails to start.
 
 ---
 
-### S19 Launch Protocol (Both safeguards required)
+### S19 Launch Protocol
 
 #### Step 1 — Pre-launch: clean git state
-Commit and push **everything** before the session launch turn. No untracked files, no uncommitted changes. Run:
+Commit and push **everything** before the session launch turn. No untracked files, no uncommitted changes.
 ```bash
 git status        # must show "nothing to commit, working tree clean"
 git log --oneline origin/HEAD..HEAD   # must show 0 unpushed commits
 ```
-This prevents the stop hook from forcing additional turns after the session launch.
+This prevents the stop hook from forcing additional turns after launch.
 
-#### Step 2 — Launch background task
+#### Step 2 — Install dependencies (CRITICAL on fresh VM)
+Before launching the background task, verify deps are installed:
+```bash
+python3 -c "import fastapi, uvicorn, sqlalchemy" 2>&1
+```
+If any import fails, run:
+```bash
+pip install -r requirements.txt
+```
+This is the root fix. If `session_runner.py` can't import its deps, the background task exits immediately and the VM loses its keepalive.
+
+#### Step 3 — Launch background task
 ```bash
 python -u scripts/session_runner.py --poll 30 --reconcile-interval 10 \
   2>&1 | tee -a logs/session_YYYY-MM-DD.log
 ```
 Launched as `Bash(run_in_background=True, timeout=14400000)`.
 
-#### Step 3 — Start /loop as heartbeat (REQUIRED — do not skip)
-Immediately after launching the background task, invoke the `/loop` skill with a 5-minute interval:
+#### Step 4 — Verify task actually started
+Check the log within ~60 seconds of launch:
+```bash
+tail -5 logs/session_YYYY-MM-DD.log
 ```
-/loop 5m check session_runner status: tail -5 logs/session_YYYY-MM-DD.log and report cycle, positions, P&L
+Must show `[cycle 1]` or startup log lines. If you see a Python traceback, the task has already died — fix the error and relaunch before ending the turn.
+
+#### Step 5 — Optional /loop for monitoring
+A `/loop` heartbeat is useful for monitoring (cycle count, P&L, position status) but is **not required for VM keepalive** as long as the background task is running. If desired:
 ```
-The loop creates a conversation turn every 5 minutes. No gap can exceed 13 min → VM stays alive.
-
-**Why both are needed:**
-- Background task: runs the session_runner process
-- /loop: keeps the VM alive via periodic turns AND monitors the session
-
-**If the /loop is not available or fails:** the user must send a message at least every 10 minutes during the session window (09:30-12:30 ET).
-
-#### Step 4 — Verify at session start
-Within the first loop cycle (5 min after launch), confirm:
-- Session log shows [cycle 1] at ~09:30 ET
-- `positions=0, entries=0` initially
-- No `STANDBY` in first scan (market should be liquid by 09:30)
+/loop 15m check session status: tail -5 logs/session_YYYY-MM-DD.log
+```
 
 ---
 
@@ -121,8 +127,9 @@ Within the first loop cycle (5 min after launch), confirm:
 2. Check `LIVE_TRADING_ENABLED=false` in env
 3. Confirm `git status` is clean
 4. Confirm all prior session docs committed and pushed
-5. Launch background task (Step 2 above) before 09:30 ET
-6. Immediately start `/loop` (Step 3 above)
+5. Run dependency check (Step 2 above)
+6. Launch background task (Step 3 above) before 09:30 ET
+7. Verify [cycle 1] appears in log before ending the turn (Step 4)
 
 ### Session Validity Rules
 

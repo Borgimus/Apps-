@@ -1,7 +1,7 @@
 # Project Handoff Document
-**Generated:** 2026-06-30  
+**Generated:** 2026-06-30 | **Updated:** 2026-07-10
 **Branch:** `claude/options-trading-research-system-TIU0p`  
-**Last commit:** pending (S11/S12 post-session documentation)
+**Last commit:** S18 EOD documentation
 
 ---
 
@@ -22,7 +22,7 @@ An intraday options trading research system operating under a **frozen evaluatio
 
 **Goal:** Collect 10 clean sessions (S6–S15) to answer 7 primary research questions (Q1–Q7) about signal quality, fill path, DTE, spread, scanner score, and strategy attribution.
 
-**Status:** 8 of 10 sessions complete. 2 remaining (S18, S19).
+**Status:** 9 of 10 sessions complete (S18 validity questionable — user must rule). 1 or 2 remaining.
 
 | Session | Date | P&L | Trades | Wins | data_clean | Status | Running P&L |
 |---------|------|-----|--------|------|------------|--------|-------------|
@@ -38,9 +38,11 @@ An intraday options trading research system operating under a **frozen evaluatio
 | S15 | 2026-07-07 | $0.00 | 0 | — | — | **VOIDED** | — |
 | S16 | 2026-07-08 | $0.00 | 0 | — | FALSE | complete | +$21.00 |
 | S17 | 2026-07-09 | **+$434.00** | 2 | 1 | **TRUE** | complete | **+$455.00** |
+| S18 | 2026-07-10 | **-$32.00** | 3 | 0 | FALSE | **questionable** | +$423.00 if valid |
 
 **Phase 1 baseline (S1–S5, carry-forward):** -$276.00, 14 trades, 2 wins  
-**Combined P&L (S6–S11 valid sessions):** -$255.00, 22 trades, 6 wins, 27.3% win rate
+**Combined P&L (valid sessions through S17):** +$179.00, 24 trades, 7 wins, 29.2% win rate  
+**S18 validity:** VM teardown caused 66-min late start (10:36 vs 09:30 ET). Session traded 3 positions and ran to 12:30 ET EOD normally. User must decide: valid (1 remaining) or voided (2 remaining).
 
 **Midpoint analysis completed:** `research/phase2_midpoint_analysis_2026-06-25.md`  
 **Protocol document:** `evaluation/phase2_eval_protocol.md`  
@@ -48,11 +50,14 @@ An intraday options trading research system operating under a **frozen evaluatio
 
 ---
 
-## Next Immediate Task: Session 18 (S18)
+## Next Immediate Task: Session 19 (S19) — Final Session
 
-S17 complete (8th valid session). 2 remaining. S17 was first data_clean=TRUE session with fills:
-2 direct-fill trades, +$434.00 P&L. META LONG hit take_profit (100% gain, $4.35→$8.69, 49 min).
-RIVN LONG breakeven (trailing_stop at entry price). Signal bridge fully functional end-to-end.
+S18 complete (trade data documented; validity questionable). S19 is the final required session.
+
+**Before launching S19:** User must rule on S18 validity (see table above). Either way S19 is required.
+
+**S17 recap:** +$434 (META take_profit 100% gain, RIVN breakeven). First data_clean=TRUE session with fills.
+**S18 recap:** -$32 (SOFI trailing_stop -$12, SPY trailing_stop -$10, MARA eod_exit -$10). 3 trades, 0 wins. 66-min late start due to VM teardown.
 
 ### CRITICAL: VM Teardown Between Turns
 

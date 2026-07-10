@@ -1,0 +1,1495 @@
+2026-07-10T14:34:39 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-10T14:34:39 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+Traceback (most recent call last):
+  File "/home/user/Apps-/scripts/session_runner.py", line 2004, in <module>
+    asyncio.run(run_session(args))
+  File "/usr/lib/python3.11/asyncio/runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/asyncio/base_events.py", line 654, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "/home/user/Apps-/scripts/session_runner.py", line 1373, in run_session
+    from app.api.models import AsyncSessionLocal, init_db
+  File "/home/user/Apps-/app/api/__init__.py", line 1, in <module>
+    from .dashboard_api import create_app
+  File "/home/user/Apps-/app/api/dashboard_api.py", line 31, in <module>
+    from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+ModuleNotFoundError: No module named 'fastapi'
+2026-07-10T14:35:40 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-10T14:35:40 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-10T14:35:42 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-07-10T14:35:42 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-07-10T14:35:42 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-07-10T14:35:42 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-07-10T14:35:42 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-07-10T14:35:42 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-07-10T14:35:43 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-07-10T14:35:43 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-07-10T14:35:43 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+2026-07-10T14:35:43 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-07-10  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Friday 2026-07-10 — trading day
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Friday 2026-07-10 — trading day
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: No prior session log today — first run of the day
+2026-07-10T14:35:43 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: No prior session log today — first run of the day
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Friday 2026-07-10 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-07-10T14:35:43 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Friday 2026-07-10 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-07-10T14:35:43 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-07-10T14:35:43 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Friday 2026-07-10 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-07-10T14:35:43 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-07-10T14:35:43 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-07-10 | starting_equity=99397.37
+2026-07-10T14:35:43 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-07-10 | starting_equity=99397.37
+2026-07-10T14:35:43 | INFO     | session_runner | Account: equity=99397.37 paper=True
+2026-07-10T14:35:43 | INFO     | session_runner | Account: equity=99397.37 paper=True
+2026-07-10T14:35:43 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-07-10T14:35:43 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-07-10T14:35:43 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-07-10T14:35:43 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-07-10T14:35:43 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-10T14:35:43 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-10T14:35:43 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-10T14:35:43 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-10T14:35:43 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-10T14:35:43 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-10T14:35:48 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-10T14:35:48 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-10T14:35:56 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-10T14:35:56 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-10T14:35:57 | INFO     | session_runner | Scan: 1 passed, 37 rejected
+2026-07-10T14:35:57 | INFO     | session_runner | Scan: 1 passed, 37 rejected
+2026-07-10T14:35:57 | INFO     | session_runner |   SOFI    score=50.0  signal=SHORT    reasons: atr=5.02% (wide-range), orb_breakdown, rsi=65 (ok)
+2026-07-10T14:35:57 | INFO     | session_runner |   SOFI    score=50.0  signal=SHORT    reasons: atr=5.02% (wide-range), orb_breakdown, rsi=65 (ok)
+2026-07-10T14:35:57 | INFO     | session_runner |   GOOGL   score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T14:35:57 | INFO     | session_runner |   GOOGL   score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T14:35:57 | INFO     | session_runner |   MSTR    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T14:35:57 | INFO     | session_runner |   MSTR    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T14:35:57 | INFO     | session_runner |   DKNG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-10T14:35:57 | INFO     | session_runner |   DKNG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-10T14:35:57 | INFO     | session_runner |   XLY     score=67.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T14:35:57 | INFO     | session_runner |   XLY     score=67.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T14:35:59 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SOFI260710P00019000 | delta=N/A | spread_pct=0.034 | OI=3168 | vol=12431
+2026-07-10T14:35:59 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SOFI260710P00019000 | delta=N/A | spread_pct=0.034 | OI=3168 | vol=12431
+2026-07-10T14:35:59 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SOFI | SOFI260710P00019000 | exp=2026-07-10 | spread=3.39% | OI=3168 | vol=12431
+2026-07-10T14:35:59 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SOFI | SOFI260710P00019000 | exp=2026-07-10 | spread=3.39% | OI=3168 | vol=12431
+2026-07-10T14:35:59 | INFO     | session_runner | AlpacaConfirmer: 1 confirmed symbols: ['SOFI']
+2026-07-10T14:35:59 | INFO     | session_runner | AlpacaConfirmer: 1 confirmed symbols: ['SOFI']
+2026-07-10T14:35:59 | INFO     | session_runner | Active symbols from scan: ['SOFI']
+2026-07-10T14:35:59 | INFO     | session_runner | Active symbols from scan: ['SOFI']
+2026-07-10T14:35:59 | INFO     | session_runner | [cycle 1] 10:35:59 ET | positions=0 | entries=0
+2026-07-10T14:35:59 | INFO     | session_runner | [cycle 1] 10:35:59 ET | positions=0 | entries=0
+2026-07-10T14:35:59 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T14:35:59 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T14:36:00 | INFO     | session_runner | [bridge:SOFI] rsi_trend ready: sufficient bars
+2026-07-10T14:36:00 | INFO     | session_runner | [bridge:SOFI] rsi_trend ready: sufficient bars
+2026-07-10T14:36:01 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SOFI260710P00019000 | delta=N/A | spread_pct=0.034 | OI=3168 | vol=13708
+2026-07-10T14:36:01 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SOFI260710P00019000 | delta=N/A | spread_pct=0.034 | OI=3168 | vol=13708
+2026-07-10T14:36:01 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN SOFI260710P00019000 | APPROVED | qty=1 | risk=$30.00
+2026-07-10T14:36:01 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN SOFI260710P00019000 | APPROVED | qty=1 | risk=$30.00
+2026-07-10T14:36:01 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SOFI260710P00019000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.3', 'order_class': 'simple'}
+2026-07-10T14:36:01 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SOFI260710P00019000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.3', 'order_class': 'simple'}
+2026-07-10T14:36:01 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=1 exits=0
+2026-07-10T14:36:01 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=1 exits=0
+2026-07-10T14:36:01 | INFO     | session_runner | Order placed: b82a2fea | SOFI260710P00019000 | limit=0.30 | status=pending_new
+2026-07-10T14:36:01 | INFO     | session_runner | Order placed: b82a2fea | SOFI260710P00019000 | limit=0.30 | status=pending_new
+2026-07-10T14:36:01 | INFO     | app.trading.trade_journal | Journal entry 1: short SOFI260710P00019000 @ 0.3000
+2026-07-10T14:36:01 | INFO     | app.trading.trade_journal | Journal entry 1: short SOFI260710P00019000 @ 0.3000
+2026-07-10T14:36:01 | INFO     | app.trading.fill_tracker | FillTracker registered b82a2fea | SOFI260710P00019000 | limit=0.3000
+2026-07-10T14:36:01 | INFO     | app.trading.fill_tracker | FillTracker registered b82a2fea | SOFI260710P00019000 | limit=0.3000
+2026-07-10T14:36:31 | INFO     | session_runner | [cycle 2] 10:36:31 ET | positions=0 | entries=0
+2026-07-10T14:36:31 | INFO     | session_runner | [cycle 2] 10:36:31 ET | positions=0 | entries=0
+2026-07-10T14:36:32 | INFO     | app.trading.fill_tracker | FillTracker: FILL b82a2fea @ 0.3000 (1/1 contracts)
+2026-07-10T14:36:32 | INFO     | app.trading.fill_tracker | FillTracker: FILL b82a2fea @ 0.3000 (1/1 contracts)
+2026-07-10T14:36:32 | INFO     | app.trading.trade_journal | Journal fill 1: filled=1 @ 0.3000 ttf=33s
+2026-07-10T14:36:32 | INFO     | app.trading.trade_journal | Journal fill 1: filled=1 @ 0.3000 ttf=33s
+2026-07-10T14:36:32 | INFO     | app.trading.position_manager | Position opened | SOFI260710P00019000 | entry=0.3000 | qty=1
+2026-07-10T14:36:32 | INFO     | app.trading.position_manager | Position opened | SOFI260710P00019000 | entry=0.3000 | qty=1
+2026-07-10T14:36:32 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=1 pending=0 exits=0
+2026-07-10T14:36:32 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=1 pending=0 exits=0
+2026-07-10T14:36:32 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-07-10T14:36:32 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-07-10T14:37:03 | INFO     | session_runner | [cycle 3] 10:37:03 ET | positions=1 | entries=1
+2026-07-10T14:37:03 | INFO     | session_runner | [cycle 3] 10:37:03 ET | positions=1 | entries=1
+2026-07-10T14:37:33 | INFO     | session_runner | [cycle 4] 10:37:33 ET | positions=1 | entries=1
+2026-07-10T14:37:33 | INFO     | session_runner | [cycle 4] 10:37:33 ET | positions=1 | entries=1
+2026-07-10T14:38:04 | INFO     | session_runner | [cycle 5] 10:38:04 ET | positions=1 | entries=1
+2026-07-10T14:38:04 | INFO     | session_runner | [cycle 5] 10:38:04 ET | positions=1 | entries=1
+2026-07-10T14:38:34 | INFO     | session_runner | [cycle 6] 10:38:34 ET | positions=1 | entries=1
+2026-07-10T14:38:34 | INFO     | session_runner | [cycle 6] 10:38:34 ET | positions=1 | entries=1
+2026-07-10T14:39:05 | INFO     | session_runner | [cycle 7] 10:39:05 ET | positions=1 | entries=1
+2026-07-10T14:39:05 | INFO     | session_runner | [cycle 7] 10:39:05 ET | positions=1 | entries=1
+2026-07-10T14:39:05 | INFO     | session_runner | Position exit | SOFI260710P00019000 | reason=trailing_stop | price=0.1800 | pnl=-12.00
+2026-07-10T14:39:05 | INFO     | session_runner | Position exit | SOFI260710P00019000 | reason=trailing_stop | price=0.1800 | pnl=-12.00
+2026-07-10T14:39:05 | WARNING  | session_runner | Exit spread warning | SOFI260710P00019000 | spread_pct=0.286 > max=0.100 | bid=0.1800 ask=0.2400 | reason=trailing_stop
+2026-07-10T14:39:05 | WARNING  | session_runner | Exit spread warning | SOFI260710P00019000 | spread_pct=0.286 > max=0.100 | bid=0.1800 ask=0.2400 | reason=trailing_stop
+2026-07-10T14:39:06 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SOFI260710P00019000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.18', 'order_class': 'simple'}
+2026-07-10T14:39:06 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SOFI260710P00019000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.18', 'order_class': 'simple'}
+2026-07-10T14:39:06 | INFO     | session_runner | Exit order placed | SOFI260710P00019000 | limit=0.1800 | order_id=1fe9aad2-4bc8-47d4-a8ab-bc4c7de80554
+2026-07-10T14:39:06 | INFO     | session_runner | Exit order placed | SOFI260710P00019000 | limit=0.1800 | order_id=1fe9aad2-4bc8-47d4-a8ab-bc4c7de80554
+2026-07-10T14:39:06 | INFO     | app.trading.position_manager | Loss recorded on SOFI260710P00019000 (pnl=-12.00) — cooldown active for 15 min
+2026-07-10T14:39:06 | INFO     | app.trading.position_manager | Loss recorded on SOFI260710P00019000 (pnl=-12.00) — cooldown active for 15 min
+2026-07-10T14:39:06 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=1 exits=1 daily_pnl=-12.00
+2026-07-10T14:39:06 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=1 exits=1 daily_pnl=-12.00
+2026-07-10T14:39:06 | INFO     | app.trading.trade_journal | Journal exit 1: reason=trailing_stop pnl=-12.00 hold=154s
+2026-07-10T14:39:06 | INFO     | app.trading.trade_journal | Journal exit 1: reason=trailing_stop pnl=-12.00 hold=154s
+2026-07-10T14:39:06 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-07-10T14:39:06 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-07-10T14:39:36 | INFO     | session_runner | [cycle 8] 10:39:36 ET | positions=0 | entries=1
+2026-07-10T14:39:36 | INFO     | session_runner | [cycle 8] 10:39:36 ET | positions=0 | entries=1
+2026-07-10T14:40:06 | INFO     | session_runner | [cycle 9] 10:40:06 ET | positions=0 | entries=1
+2026-07-10T14:40:06 | INFO     | session_runner | [cycle 9] 10:40:06 ET | positions=0 | entries=1
+2026-07-10T14:40:36 | INFO     | session_runner | [cycle 10] 10:40:36 ET | positions=0 | entries=1
+2026-07-10T14:40:36 | INFO     | session_runner | [cycle 10] 10:40:36 ET | positions=0 | entries=1
+2026-07-10T14:41:06 | INFO     | session_runner | [cycle 11] 10:41:06 ET | positions=0 | entries=1
+2026-07-10T14:41:06 | INFO     | session_runner | [cycle 11] 10:41:06 ET | positions=0 | entries=1
+2026-07-10T14:41:36 | INFO     | session_runner | [cycle 12] 10:41:36 ET | positions=0 | entries=1
+2026-07-10T14:41:36 | INFO     | session_runner | [cycle 12] 10:41:36 ET | positions=0 | entries=1
+2026-07-10T14:42:06 | INFO     | session_runner | [cycle 13] 10:42:06 ET | positions=0 | entries=1
+2026-07-10T14:42:06 | INFO     | session_runner | [cycle 13] 10:42:06 ET | positions=0 | entries=1
+2026-07-10T14:42:36 | INFO     | session_runner | [cycle 14] 10:42:36 ET | positions=0 | entries=1
+2026-07-10T14:42:36 | INFO     | session_runner | [cycle 14] 10:42:36 ET | positions=0 | entries=1
+2026-07-10T14:43:06 | INFO     | session_runner | [cycle 15] 10:43:06 ET | positions=0 | entries=1
+2026-07-10T14:43:06 | INFO     | session_runner | [cycle 15] 10:43:06 ET | positions=0 | entries=1
+2026-07-10T14:43:36 | INFO     | session_runner | [cycle 16] 10:43:36 ET | positions=0 | entries=1
+2026-07-10T14:43:36 | INFO     | session_runner | [cycle 16] 10:43:36 ET | positions=0 | entries=1
+2026-07-10T14:44:06 | INFO     | session_runner | [cycle 17] 10:44:06 ET | positions=0 | entries=1
+2026-07-10T14:44:06 | INFO     | session_runner | [cycle 17] 10:44:06 ET | positions=0 | entries=1
+2026-07-10T14:44:36 | INFO     | session_runner | [cycle 18] 10:44:36 ET | positions=0 | entries=1
+2026-07-10T14:44:36 | INFO     | session_runner | [cycle 18] 10:44:36 ET | positions=0 | entries=1
+2026-07-10T14:45:06 | INFO     | session_runner | [cycle 19] 10:45:06 ET | positions=0 | entries=1
+2026-07-10T14:45:06 | INFO     | session_runner | [cycle 19] 10:45:06 ET | positions=0 | entries=1
+2026-07-10T14:45:36 | INFO     | session_runner | [cycle 20] 10:45:36 ET | positions=0 | entries=1
+2026-07-10T14:45:36 | INFO     | session_runner | [cycle 20] 10:45:36 ET | positions=0 | entries=1
+2026-07-10T14:46:07 | INFO     | session_runner | [cycle 21] 10:46:07 ET | positions=0 | entries=1
+2026-07-10T14:46:07 | INFO     | session_runner | [cycle 21] 10:46:07 ET | positions=0 | entries=1
+2026-07-10T14:46:07 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T14:46:07 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T14:46:37 | INFO     | session_runner | [cycle 22] 10:46:37 ET | positions=0 | entries=1
+2026-07-10T14:46:37 | INFO     | session_runner | [cycle 22] 10:46:37 ET | positions=0 | entries=1
+2026-07-10T14:47:07 | INFO     | session_runner | [cycle 23] 10:47:07 ET | positions=0 | entries=1
+2026-07-10T14:47:07 | INFO     | session_runner | [cycle 23] 10:47:07 ET | positions=0 | entries=1
+2026-07-10T14:47:37 | INFO     | session_runner | [cycle 24] 10:47:37 ET | positions=0 | entries=1
+2026-07-10T14:47:37 | INFO     | session_runner | [cycle 24] 10:47:37 ET | positions=0 | entries=1
+2026-07-10T14:48:07 | INFO     | session_runner | [cycle 25] 10:48:07 ET | positions=0 | entries=1
+2026-07-10T14:48:07 | INFO     | session_runner | [cycle 25] 10:48:07 ET | positions=0 | entries=1
+2026-07-10T14:48:37 | INFO     | session_runner | [cycle 26] 10:48:37 ET | positions=0 | entries=1
+2026-07-10T14:48:37 | INFO     | session_runner | [cycle 26] 10:48:37 ET | positions=0 | entries=1
+2026-07-10T14:49:07 | INFO     | session_runner | [cycle 27] 10:49:07 ET | positions=0 | entries=1
+2026-07-10T14:49:07 | INFO     | session_runner | [cycle 27] 10:49:07 ET | positions=0 | entries=1
+2026-07-10T14:49:37 | INFO     | session_runner | [cycle 28] 10:49:37 ET | positions=0 | entries=1
+2026-07-10T14:49:37 | INFO     | session_runner | [cycle 28] 10:49:37 ET | positions=0 | entries=1
+2026-07-10T14:50:07 | INFO     | session_runner | [cycle 29] 10:50:07 ET | positions=0 | entries=1
+2026-07-10T14:50:07 | INFO     | session_runner | [cycle 29] 10:50:07 ET | positions=0 | entries=1
+2026-07-10T14:50:37 | INFO     | session_runner | [cycle 30] 10:50:37 ET | positions=0 | entries=1
+2026-07-10T14:50:37 | INFO     | session_runner | [cycle 30] 10:50:37 ET | positions=0 | entries=1
+2026-07-10T14:51:07 | INFO     | session_runner | [cycle 31] 10:51:07 ET | positions=0 | entries=1
+2026-07-10T14:51:07 | INFO     | session_runner | [cycle 31] 10:51:07 ET | positions=0 | entries=1
+2026-07-10T14:51:37 | INFO     | session_runner | [cycle 32] 10:51:37 ET | positions=0 | entries=1
+2026-07-10T14:51:37 | INFO     | session_runner | [cycle 32] 10:51:37 ET | positions=0 | entries=1
+2026-07-10T14:52:07 | INFO     | session_runner | [cycle 33] 10:52:07 ET | positions=0 | entries=1
+2026-07-10T14:52:07 | INFO     | session_runner | [cycle 33] 10:52:07 ET | positions=0 | entries=1
+2026-07-10T14:52:38 | INFO     | session_runner | [cycle 34] 10:52:38 ET | positions=0 | entries=1
+2026-07-10T14:52:38 | INFO     | session_runner | [cycle 34] 10:52:38 ET | positions=0 | entries=1
+2026-07-10T14:53:08 | INFO     | session_runner | [cycle 35] 10:53:08 ET | positions=0 | entries=1
+2026-07-10T14:53:08 | INFO     | session_runner | [cycle 35] 10:53:08 ET | positions=0 | entries=1
+2026-07-10T14:53:38 | INFO     | session_runner | [cycle 36] 10:53:38 ET | positions=0 | entries=1
+2026-07-10T14:53:38 | INFO     | session_runner | [cycle 36] 10:53:38 ET | positions=0 | entries=1
+2026-07-10T14:54:08 | INFO     | session_runner | [cycle 37] 10:54:08 ET | positions=0 | entries=1
+2026-07-10T14:54:08 | INFO     | session_runner | [cycle 37] 10:54:08 ET | positions=0 | entries=1
+2026-07-10T14:54:38 | INFO     | session_runner | [cycle 38] 10:54:38 ET | positions=0 | entries=1
+2026-07-10T14:54:38 | INFO     | session_runner | [cycle 38] 10:54:38 ET | positions=0 | entries=1
+2026-07-10T14:55:08 | INFO     | session_runner | [cycle 39] 10:55:08 ET | positions=0 | entries=1
+2026-07-10T14:55:08 | INFO     | session_runner | [cycle 39] 10:55:08 ET | positions=0 | entries=1
+2026-07-10T14:55:38 | INFO     | session_runner | [cycle 40] 10:55:38 ET | positions=0 | entries=1
+2026-07-10T14:55:38 | INFO     | session_runner | [cycle 40] 10:55:38 ET | positions=0 | entries=1
+2026-07-10T14:56:08 | INFO     | session_runner | [cycle 41] 10:56:08 ET | positions=0 | entries=1
+2026-07-10T14:56:08 | INFO     | session_runner | [cycle 41] 10:56:08 ET | positions=0 | entries=1
+2026-07-10T14:56:08 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T14:56:08 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T14:56:38 | INFO     | session_runner | [cycle 42] 10:56:38 ET | positions=0 | entries=1
+2026-07-10T14:56:38 | INFO     | session_runner | [cycle 42] 10:56:38 ET | positions=0 | entries=1
+2026-07-10T14:57:08 | INFO     | session_runner | [cycle 43] 10:57:08 ET | positions=0 | entries=1
+2026-07-10T14:57:08 | INFO     | session_runner | [cycle 43] 10:57:08 ET | positions=0 | entries=1
+2026-07-10T14:57:38 | INFO     | session_runner | [cycle 44] 10:57:38 ET | positions=0 | entries=1
+2026-07-10T14:57:38 | INFO     | session_runner | [cycle 44] 10:57:38 ET | positions=0 | entries=1
+2026-07-10T14:58:09 | INFO     | session_runner | [cycle 45] 10:58:09 ET | positions=0 | entries=1
+2026-07-10T14:58:09 | INFO     | session_runner | [cycle 45] 10:58:09 ET | positions=0 | entries=1
+2026-07-10T14:58:39 | INFO     | session_runner | [cycle 46] 10:58:39 ET | positions=0 | entries=1
+2026-07-10T14:58:39 | INFO     | session_runner | [cycle 46] 10:58:39 ET | positions=0 | entries=1
+2026-07-10T14:59:09 | INFO     | session_runner | [cycle 47] 10:59:09 ET | positions=0 | entries=1
+2026-07-10T14:59:09 | INFO     | session_runner | [cycle 47] 10:59:09 ET | positions=0 | entries=1
+2026-07-10T14:59:39 | INFO     | session_runner | [cycle 48] 10:59:39 ET | positions=0 | entries=1
+2026-07-10T14:59:39 | INFO     | session_runner | [cycle 48] 10:59:39 ET | positions=0 | entries=1
+2026-07-10T15:00:09 | INFO     | session_runner | [cycle 49] 11:00:09 ET | positions=0 | entries=1
+2026-07-10T15:00:09 | INFO     | session_runner | [cycle 49] 11:00:09 ET | positions=0 | entries=1
+2026-07-10T15:00:39 | INFO     | session_runner | [cycle 50] 11:00:39 ET | positions=0 | entries=1
+2026-07-10T15:00:39 | INFO     | session_runner | [cycle 50] 11:00:39 ET | positions=0 | entries=1
+2026-07-10T15:01:09 | INFO     | session_runner | [cycle 51] 11:01:09 ET | positions=0 | entries=1
+2026-07-10T15:01:09 | INFO     | session_runner | [cycle 51] 11:01:09 ET | positions=0 | entries=1
+2026-07-10T15:01:39 | INFO     | session_runner | [cycle 52] 11:01:39 ET | positions=0 | entries=1
+2026-07-10T15:01:39 | INFO     | session_runner | [cycle 52] 11:01:39 ET | positions=0 | entries=1
+2026-07-10T15:02:09 | INFO     | session_runner | [cycle 53] 11:02:09 ET | positions=0 | entries=1
+2026-07-10T15:02:09 | INFO     | session_runner | [cycle 53] 11:02:09 ET | positions=0 | entries=1
+2026-07-10T15:02:39 | INFO     | session_runner | [cycle 54] 11:02:39 ET | positions=0 | entries=1
+2026-07-10T15:02:39 | INFO     | session_runner | [cycle 54] 11:02:39 ET | positions=0 | entries=1
+2026-07-10T15:03:09 | INFO     | session_runner | [cycle 55] 11:03:09 ET | positions=0 | entries=1
+2026-07-10T15:03:09 | INFO     | session_runner | [cycle 55] 11:03:09 ET | positions=0 | entries=1
+2026-07-10T15:03:39 | INFO     | session_runner | [cycle 56] 11:03:39 ET | positions=0 | entries=1
+2026-07-10T15:03:39 | INFO     | session_runner | [cycle 56] 11:03:39 ET | positions=0 | entries=1
+2026-07-10T15:04:09 | INFO     | session_runner | [cycle 57] 11:04:09 ET | positions=0 | entries=1
+2026-07-10T15:04:09 | INFO     | session_runner | [cycle 57] 11:04:09 ET | positions=0 | entries=1
+2026-07-10T15:04:39 | INFO     | session_runner | [cycle 58] 11:04:39 ET | positions=0 | entries=1
+2026-07-10T15:04:39 | INFO     | session_runner | [cycle 58] 11:04:39 ET | positions=0 | entries=1
+2026-07-10T15:05:09 | INFO     | session_runner | [cycle 59] 11:05:09 ET | positions=0 | entries=1
+2026-07-10T15:05:09 | INFO     | session_runner | [cycle 59] 11:05:09 ET | positions=0 | entries=1
+2026-07-10T15:05:39 | INFO     | session_runner | [cycle 60] 11:05:39 ET | positions=0 | entries=1
+2026-07-10T15:05:39 | INFO     | session_runner | [cycle 60] 11:05:39 ET | positions=0 | entries=1
+2026-07-10T15:06:09 | INFO     | session_runner | [cycle 61] 11:06:09 ET | positions=0 | entries=1
+2026-07-10T15:06:09 | INFO     | session_runner | [cycle 61] 11:06:09 ET | positions=0 | entries=1
+2026-07-10T15:06:10 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T15:06:10 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T15:06:10 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-10T15:06:10 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-10T15:06:10 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-10T15:06:10 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-10T15:06:10 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-10T15:06:10 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-10T15:06:10 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-10T15:06:10 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-10T15:06:14 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-10T15:06:14 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-10T15:06:19 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-10T15:06:19 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-10T15:06:20 | INFO     | session_runner | Scan: 1 passed, 37 rejected
+2026-07-10T15:06:20 | INFO     | session_runner | Scan: 1 passed, 37 rejected
+2026-07-10T15:06:20 | INFO     | session_runner |   SOFI    score=60.0  signal=SHORT    reasons: rvol=1.08x (normal), atr=5.05% (wide-range), orb_breakdown
+2026-07-10T15:06:20 | INFO     | session_runner |   SOFI    score=60.0  signal=SHORT    reasons: rvol=1.08x (normal), atr=5.05% (wide-range), orb_breakdown
+2026-07-10T15:06:20 | INFO     | session_runner |   GOOGL   score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T15:06:20 | INFO     | session_runner |   GOOGL   score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T15:06:20 | INFO     | session_runner |   MSTR    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T15:06:20 | INFO     | session_runner |   MSTR    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T15:06:20 | INFO     | session_runner |   DKNG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-10T15:06:20 | INFO     | session_runner |   DKNG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-10T15:06:20 | INFO     | session_runner |   IWM     score=62.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T15:06:20 | INFO     | session_runner |   IWM     score=62.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T15:06:22 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for SOFI SignalDirection.SHORT | total_candidates=32
+2026-07-10T15:06:22 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for SOFI SignalDirection.SHORT | total_candidates=32
+2026-07-10T15:06:22 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for SOFI (signal=SHORT)
+2026-07-10T15:06:22 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for SOFI (signal=SHORT)
+2026-07-10T15:06:22 | INFO     | session_runner | AlpacaConfirmer: 0 confirmed symbols: []
+2026-07-10T15:06:22 | INFO     | session_runner | AlpacaConfirmer: 0 confirmed symbols: []
+2026-07-10T15:06:22 | WARNING  | session_runner | Re-scan returned no confirmed symbols — falling back to ['SPY']
+2026-07-10T15:06:22 | WARNING  | session_runner | Re-scan returned no confirmed symbols — falling back to ['SPY']
+2026-07-10T15:06:23 | INFO     | session_runner | [bridge:SPY] rsi_trend ready: sufficient bars
+2026-07-10T15:06:23 | INFO     | session_runner | [bridge:SPY] rsi_trend ready: sufficient bars
+2026-07-10T15:06:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260710P00746000 | delta=N/A | spread_pct=0.038 | OI=5133 | vol=29657
+2026-07-10T15:06:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260710P00746000 | delta=N/A | spread_pct=0.038 | OI=5133 | vol=29657
+2026-07-10T15:06:23 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN SPY260710P00746000 | APPROVED | qty=1 | risk=$27.00
+2026-07-10T15:06:23 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN SPY260710P00746000 | APPROVED | qty=1 | risk=$27.00
+2026-07-10T15:06:23 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SPY260710P00746000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.27', 'order_class': 'simple'}
+2026-07-10T15:06:23 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SPY260710P00746000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.27', 'order_class': 'simple'}
+2026-07-10T15:06:23 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=1 pending=1 exits=1
+2026-07-10T15:06:23 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=1 pending=1 exits=1
+2026-07-10T15:06:23 | INFO     | session_runner | Order placed: a3bcf2e9 | SPY260710P00746000 | limit=0.27 | status=pending_new
+2026-07-10T15:06:23 | INFO     | session_runner | Order placed: a3bcf2e9 | SPY260710P00746000 | limit=0.27 | status=pending_new
+2026-07-10T15:06:23 | INFO     | app.trading.trade_journal | Journal entry 2: short SPY260710P00746000 @ 0.2700
+2026-07-10T15:06:23 | INFO     | app.trading.trade_journal | Journal entry 2: short SPY260710P00746000 @ 0.2700
+2026-07-10T15:06:24 | INFO     | app.trading.fill_tracker | FillTracker registered a3bcf2e9 | SPY260710P00746000 | limit=0.2700
+2026-07-10T15:06:24 | INFO     | app.trading.fill_tracker | FillTracker registered a3bcf2e9 | SPY260710P00746000 | limit=0.2700
+2026-07-10T15:06:54 | INFO     | session_runner | [cycle 62] 11:06:54 ET | positions=0 | entries=1
+2026-07-10T15:06:54 | INFO     | session_runner | [cycle 62] 11:06:54 ET | positions=0 | entries=1
+2026-07-10T15:06:54 | INFO     | app.trading.fill_tracker | FillTracker: FILL a3bcf2e9 @ 0.2400 (1/1 contracts)
+2026-07-10T15:06:54 | INFO     | app.trading.fill_tracker | FillTracker: FILL a3bcf2e9 @ 0.2400 (1/1 contracts)
+2026-07-10T15:06:54 | INFO     | app.trading.trade_journal | Journal fill 2: filled=1 @ 0.2400 ttf=45s
+2026-07-10T15:06:54 | INFO     | app.trading.trade_journal | Journal fill 2: filled=1 @ 0.2400 ttf=45s
+2026-07-10T15:06:54 | INFO     | app.trading.position_manager | Position opened | SPY260710P00746000 | entry=0.2400 | qty=1
+2026-07-10T15:06:54 | INFO     | app.trading.position_manager | Position opened | SPY260710P00746000 | entry=0.2400 | qty=1
+2026-07-10T15:06:54 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=2 pending=0 exits=1
+2026-07-10T15:06:54 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=2 pending=0 exits=1
+2026-07-10T15:06:54 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-07-10T15:06:54 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-07-10T15:07:24 | INFO     | session_runner | [cycle 63] 11:07:24 ET | positions=1 | entries=2
+2026-07-10T15:07:24 | INFO     | session_runner | [cycle 63] 11:07:24 ET | positions=1 | entries=2
+2026-07-10T15:07:55 | INFO     | session_runner | [cycle 64] 11:07:55 ET | positions=1 | entries=2
+2026-07-10T15:07:55 | INFO     | session_runner | [cycle 64] 11:07:55 ET | positions=1 | entries=2
+2026-07-10T15:07:56 | INFO     | session_runner | Position exit | SPY260710P00746000 | reason=trailing_stop | price=0.1400 | pnl=-10.00
+2026-07-10T15:07:56 | INFO     | session_runner | Position exit | SPY260710P00746000 | reason=trailing_stop | price=0.1400 | pnl=-10.00
+2026-07-10T15:07:56 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SPY260710P00746000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.14', 'order_class': 'simple'}
+2026-07-10T15:07:56 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SPY260710P00746000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.14', 'order_class': 'simple'}
+2026-07-10T15:07:56 | INFO     | session_runner | Exit order placed | SPY260710P00746000 | limit=0.1400 | order_id=88796296-1466-476b-9455-09ee7f167849
+2026-07-10T15:07:56 | INFO     | session_runner | Exit order placed | SPY260710P00746000 | limit=0.1400 | order_id=88796296-1466-476b-9455-09ee7f167849
+2026-07-10T15:07:56 | INFO     | app.trading.position_manager | Loss recorded on SPY260710P00746000 (pnl=-10.00) — cooldown active for 15 min
+2026-07-10T15:07:56 | INFO     | app.trading.position_manager | Loss recorded on SPY260710P00746000 (pnl=-10.00) — cooldown active for 15 min
+2026-07-10T15:07:56 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=2 exits=2 daily_pnl=-22.00
+2026-07-10T15:07:56 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=2 exits=2 daily_pnl=-22.00
+2026-07-10T15:07:56 | INFO     | app.trading.trade_journal | Journal exit 2: reason=trailing_stop pnl=-10.00 hold=62s
+2026-07-10T15:07:56 | INFO     | app.trading.trade_journal | Journal exit 2: reason=trailing_stop pnl=-10.00 hold=62s
+2026-07-10T15:07:56 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-07-10T15:07:56 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-07-10T15:08:26 | INFO     | session_runner | [cycle 65] 11:08:26 ET | positions=0 | entries=2
+2026-07-10T15:08:26 | INFO     | session_runner | [cycle 65] 11:08:26 ET | positions=0 | entries=2
+2026-07-10T15:08:56 | INFO     | session_runner | [cycle 66] 11:08:56 ET | positions=0 | entries=2
+2026-07-10T15:08:56 | INFO     | session_runner | [cycle 66] 11:08:56 ET | positions=0 | entries=2
+2026-07-10T15:09:26 | INFO     | session_runner | [cycle 67] 11:09:26 ET | positions=0 | entries=2
+2026-07-10T15:09:26 | INFO     | session_runner | [cycle 67] 11:09:26 ET | positions=0 | entries=2
+2026-07-10T15:09:56 | INFO     | session_runner | [cycle 68] 11:09:56 ET | positions=0 | entries=2
+2026-07-10T15:09:56 | INFO     | session_runner | [cycle 68] 11:09:56 ET | positions=0 | entries=2
+2026-07-10T15:10:26 | INFO     | session_runner | [cycle 69] 11:10:26 ET | positions=0 | entries=2
+2026-07-10T15:10:26 | INFO     | session_runner | [cycle 69] 11:10:26 ET | positions=0 | entries=2
+2026-07-10T15:10:56 | INFO     | session_runner | [cycle 70] 11:10:56 ET | positions=0 | entries=2
+2026-07-10T15:10:56 | INFO     | session_runner | [cycle 70] 11:10:56 ET | positions=0 | entries=2
+2026-07-10T15:11:26 | INFO     | session_runner | [cycle 71] 11:11:26 ET | positions=0 | entries=2
+2026-07-10T15:11:26 | INFO     | session_runner | [cycle 71] 11:11:26 ET | positions=0 | entries=2
+2026-07-10T15:11:56 | INFO     | session_runner | [cycle 72] 11:11:56 ET | positions=0 | entries=2
+2026-07-10T15:11:56 | INFO     | session_runner | [cycle 72] 11:11:56 ET | positions=0 | entries=2
+2026-07-10T15:12:26 | INFO     | session_runner | [cycle 73] 11:12:26 ET | positions=0 | entries=2
+2026-07-10T15:12:26 | INFO     | session_runner | [cycle 73] 11:12:26 ET | positions=0 | entries=2
+2026-07-10T15:12:56 | INFO     | session_runner | [cycle 74] 11:12:56 ET | positions=0 | entries=2
+2026-07-10T15:12:56 | INFO     | session_runner | [cycle 74] 11:12:56 ET | positions=0 | entries=2
+2026-07-10T15:13:26 | INFO     | session_runner | [cycle 75] 11:13:26 ET | positions=0 | entries=2
+2026-07-10T15:13:26 | INFO     | session_runner | [cycle 75] 11:13:26 ET | positions=0 | entries=2
+2026-07-10T15:13:57 | INFO     | session_runner | [cycle 76] 11:13:57 ET | positions=0 | entries=2
+2026-07-10T15:13:57 | INFO     | session_runner | [cycle 76] 11:13:57 ET | positions=0 | entries=2
+2026-07-10T15:14:27 | INFO     | session_runner | [cycle 77] 11:14:27 ET | positions=0 | entries=2
+2026-07-10T15:14:27 | INFO     | session_runner | [cycle 77] 11:14:27 ET | positions=0 | entries=2
+2026-07-10T15:14:57 | INFO     | session_runner | [cycle 78] 11:14:57 ET | positions=0 | entries=2
+2026-07-10T15:14:57 | INFO     | session_runner | [cycle 78] 11:14:57 ET | positions=0 | entries=2
+2026-07-10T15:15:27 | INFO     | session_runner | [cycle 79] 11:15:27 ET | positions=0 | entries=2
+2026-07-10T15:15:27 | INFO     | session_runner | [cycle 79] 11:15:27 ET | positions=0 | entries=2
+2026-07-10T15:15:57 | INFO     | session_runner | [cycle 80] 11:15:57 ET | positions=0 | entries=2
+2026-07-10T15:15:57 | INFO     | session_runner | [cycle 80] 11:15:57 ET | positions=0 | entries=2
+2026-07-10T15:16:27 | INFO     | session_runner | [cycle 81] 11:16:27 ET | positions=0 | entries=2
+2026-07-10T15:16:27 | INFO     | session_runner | [cycle 81] 11:16:27 ET | positions=0 | entries=2
+2026-07-10T15:16:27 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T15:16:27 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T15:16:57 | INFO     | session_runner | [cycle 82] 11:16:57 ET | positions=0 | entries=2
+2026-07-10T15:16:57 | INFO     | session_runner | [cycle 82] 11:16:57 ET | positions=0 | entries=2
+2026-07-10T15:17:27 | INFO     | session_runner | [cycle 83] 11:17:27 ET | positions=0 | entries=2
+2026-07-10T15:17:27 | INFO     | session_runner | [cycle 83] 11:17:27 ET | positions=0 | entries=2
+2026-07-10T15:17:57 | INFO     | session_runner | [cycle 84] 11:17:57 ET | positions=0 | entries=2
+2026-07-10T15:17:57 | INFO     | session_runner | [cycle 84] 11:17:57 ET | positions=0 | entries=2
+2026-07-10T15:18:27 | INFO     | session_runner | [cycle 85] 11:18:27 ET | positions=0 | entries=2
+2026-07-10T15:18:27 | INFO     | session_runner | [cycle 85] 11:18:27 ET | positions=0 | entries=2
+2026-07-10T15:18:57 | INFO     | session_runner | [cycle 86] 11:18:57 ET | positions=0 | entries=2
+2026-07-10T15:18:57 | INFO     | session_runner | [cycle 86] 11:18:57 ET | positions=0 | entries=2
+2026-07-10T15:19:27 | INFO     | session_runner | [cycle 87] 11:19:27 ET | positions=0 | entries=2
+2026-07-10T15:19:27 | INFO     | session_runner | [cycle 87] 11:19:27 ET | positions=0 | entries=2
+2026-07-10T15:19:57 | INFO     | session_runner | [cycle 88] 11:19:57 ET | positions=0 | entries=2
+2026-07-10T15:19:57 | INFO     | session_runner | [cycle 88] 11:19:57 ET | positions=0 | entries=2
+2026-07-10T15:20:28 | INFO     | session_runner | [cycle 89] 11:20:28 ET | positions=0 | entries=2
+2026-07-10T15:20:28 | INFO     | session_runner | [cycle 89] 11:20:28 ET | positions=0 | entries=2
+2026-07-10T15:20:58 | INFO     | session_runner | [cycle 90] 11:20:58 ET | positions=0 | entries=2
+2026-07-10T15:20:58 | INFO     | session_runner | [cycle 90] 11:20:58 ET | positions=0 | entries=2
+2026-07-10T15:21:28 | INFO     | session_runner | [cycle 91] 11:21:28 ET | positions=0 | entries=2
+2026-07-10T15:21:28 | INFO     | session_runner | [cycle 91] 11:21:28 ET | positions=0 | entries=2
+2026-07-10T15:21:58 | INFO     | session_runner | [cycle 92] 11:21:58 ET | positions=0 | entries=2
+2026-07-10T15:21:58 | INFO     | session_runner | [cycle 92] 11:21:58 ET | positions=0 | entries=2
+2026-07-10T15:22:28 | INFO     | session_runner | [cycle 93] 11:22:28 ET | positions=0 | entries=2
+2026-07-10T15:22:28 | INFO     | session_runner | [cycle 93] 11:22:28 ET | positions=0 | entries=2
+2026-07-10T15:22:58 | INFO     | session_runner | [cycle 94] 11:22:58 ET | positions=0 | entries=2
+2026-07-10T15:22:58 | INFO     | session_runner | [cycle 94] 11:22:58 ET | positions=0 | entries=2
+2026-07-10T15:23:28 | INFO     | session_runner | [cycle 95] 11:23:28 ET | positions=0 | entries=2
+2026-07-10T15:23:28 | INFO     | session_runner | [cycle 95] 11:23:28 ET | positions=0 | entries=2
+2026-07-10T15:23:58 | INFO     | session_runner | [cycle 96] 11:23:58 ET | positions=0 | entries=2
+2026-07-10T15:23:58 | INFO     | session_runner | [cycle 96] 11:23:58 ET | positions=0 | entries=2
+2026-07-10T15:24:28 | INFO     | session_runner | [cycle 97] 11:24:28 ET | positions=0 | entries=2
+2026-07-10T15:24:28 | INFO     | session_runner | [cycle 97] 11:24:28 ET | positions=0 | entries=2
+2026-07-10T15:24:58 | INFO     | session_runner | [cycle 98] 11:24:58 ET | positions=0 | entries=2
+2026-07-10T15:24:58 | INFO     | session_runner | [cycle 98] 11:24:58 ET | positions=0 | entries=2
+2026-07-10T15:25:28 | INFO     | session_runner | [cycle 99] 11:25:28 ET | positions=0 | entries=2
+2026-07-10T15:25:28 | INFO     | session_runner | [cycle 99] 11:25:28 ET | positions=0 | entries=2
+2026-07-10T15:25:58 | INFO     | session_runner | [cycle 100] 11:25:58 ET | positions=0 | entries=2
+2026-07-10T15:25:58 | INFO     | session_runner | [cycle 100] 11:25:58 ET | positions=0 | entries=2
+2026-07-10T15:26:28 | INFO     | session_runner | [cycle 101] 11:26:28 ET | positions=0 | entries=2
+2026-07-10T15:26:28 | INFO     | session_runner | [cycle 101] 11:26:28 ET | positions=0 | entries=2
+2026-07-10T15:26:29 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T15:26:29 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T15:26:59 | INFO     | session_runner | [cycle 102] 11:26:59 ET | positions=0 | entries=2
+2026-07-10T15:26:59 | INFO     | session_runner | [cycle 102] 11:26:59 ET | positions=0 | entries=2
+2026-07-10T15:27:29 | INFO     | session_runner | [cycle 103] 11:27:29 ET | positions=0 | entries=2
+2026-07-10T15:27:29 | INFO     | session_runner | [cycle 103] 11:27:29 ET | positions=0 | entries=2
+2026-07-10T15:27:59 | INFO     | session_runner | [cycle 104] 11:27:59 ET | positions=0 | entries=2
+2026-07-10T15:27:59 | INFO     | session_runner | [cycle 104] 11:27:59 ET | positions=0 | entries=2
+2026-07-10T15:28:29 | INFO     | session_runner | [cycle 105] 11:28:29 ET | positions=0 | entries=2
+2026-07-10T15:28:29 | INFO     | session_runner | [cycle 105] 11:28:29 ET | positions=0 | entries=2
+2026-07-10T15:28:59 | INFO     | session_runner | [cycle 106] 11:28:59 ET | positions=0 | entries=2
+2026-07-10T15:28:59 | INFO     | session_runner | [cycle 106] 11:28:59 ET | positions=0 | entries=2
+2026-07-10T15:29:29 | INFO     | session_runner | [cycle 107] 11:29:29 ET | positions=0 | entries=2
+2026-07-10T15:29:29 | INFO     | session_runner | [cycle 107] 11:29:29 ET | positions=0 | entries=2
+2026-07-10T15:29:59 | INFO     | session_runner | [cycle 108] 11:29:59 ET | positions=0 | entries=2
+2026-07-10T15:29:59 | INFO     | session_runner | [cycle 108] 11:29:59 ET | positions=0 | entries=2
+2026-07-10T15:30:29 | INFO     | session_runner | [cycle 109] 11:30:29 ET | positions=0 | entries=2
+2026-07-10T15:30:29 | INFO     | session_runner | [cycle 109] 11:30:29 ET | positions=0 | entries=2
+2026-07-10T15:30:59 | INFO     | session_runner | [cycle 110] 11:30:59 ET | positions=0 | entries=2
+2026-07-10T15:30:59 | INFO     | session_runner | [cycle 110] 11:30:59 ET | positions=0 | entries=2
+2026-07-10T15:31:29 | INFO     | session_runner | [cycle 111] 11:31:29 ET | positions=0 | entries=2
+2026-07-10T15:31:29 | INFO     | session_runner | [cycle 111] 11:31:29 ET | positions=0 | entries=2
+2026-07-10T15:31:59 | INFO     | session_runner | [cycle 112] 11:31:59 ET | positions=0 | entries=2
+2026-07-10T15:31:59 | INFO     | session_runner | [cycle 112] 11:31:59 ET | positions=0 | entries=2
+2026-07-10T15:32:29 | INFO     | session_runner | [cycle 113] 11:32:29 ET | positions=0 | entries=2
+2026-07-10T15:32:29 | INFO     | session_runner | [cycle 113] 11:32:29 ET | positions=0 | entries=2
+2026-07-10T15:32:59 | INFO     | session_runner | [cycle 114] 11:32:59 ET | positions=0 | entries=2
+2026-07-10T15:32:59 | INFO     | session_runner | [cycle 114] 11:32:59 ET | positions=0 | entries=2
+2026-07-10T15:33:29 | INFO     | session_runner | [cycle 115] 11:33:29 ET | positions=0 | entries=2
+2026-07-10T15:33:29 | INFO     | session_runner | [cycle 115] 11:33:29 ET | positions=0 | entries=2
+2026-07-10T15:33:59 | INFO     | session_runner | [cycle 116] 11:33:59 ET | positions=0 | entries=2
+2026-07-10T15:33:59 | INFO     | session_runner | [cycle 116] 11:33:59 ET | positions=0 | entries=2
+2026-07-10T15:34:29 | INFO     | session_runner | [cycle 117] 11:34:29 ET | positions=0 | entries=2
+2026-07-10T15:34:29 | INFO     | session_runner | [cycle 117] 11:34:29 ET | positions=0 | entries=2
+2026-07-10T15:34:59 | INFO     | session_runner | [cycle 118] 11:34:59 ET | positions=0 | entries=2
+2026-07-10T15:34:59 | INFO     | session_runner | [cycle 118] 11:34:59 ET | positions=0 | entries=2
+2026-07-10T15:35:29 | INFO     | session_runner | [cycle 119] 11:35:29 ET | positions=0 | entries=2
+2026-07-10T15:35:29 | INFO     | session_runner | [cycle 119] 11:35:29 ET | positions=0 | entries=2
+2026-07-10T15:35:59 | INFO     | session_runner | [cycle 120] 11:35:59 ET | positions=0 | entries=2
+2026-07-10T15:35:59 | INFO     | session_runner | [cycle 120] 11:35:59 ET | positions=0 | entries=2
+2026-07-10T15:36:29 | INFO     | session_runner | [cycle 121] 11:36:29 ET | positions=0 | entries=2
+2026-07-10T15:36:29 | INFO     | session_runner | [cycle 121] 11:36:29 ET | positions=0 | entries=2
+2026-07-10T15:36:30 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T15:36:30 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T15:36:30 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-10T15:36:30 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-10T15:36:30 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-10T15:36:30 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-10T15:36:30 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-10T15:36:30 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-10T15:36:30 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-10T15:36:30 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-10T15:36:34 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-10T15:36:34 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-10T15:36:40 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-10T15:36:40 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-10T15:36:42 | INFO     | session_runner | Scan: 3 passed, 35 rejected
+2026-07-10T15:36:42 | INFO     | session_runner | Scan: 3 passed, 35 rejected
+2026-07-10T15:36:42 | INFO     | session_runner |   NVDA    score=62.0  signal=LONG     reasons: atr=3.24% (wide-range), orb_breakout, trend_sideways
+2026-07-10T15:36:42 | INFO     | session_runner |   NVDA    score=62.0  signal=LONG     reasons: atr=3.24% (wide-range), orb_breakout, trend_sideways
+2026-07-10T15:36:42 | INFO     | session_runner |   MARA    score=62.0  signal=SHORT    reasons: atr=10.95% (wide-range), orb_breakdown, trend_sideways
+2026-07-10T15:36:42 | INFO     | session_runner |   MARA    score=62.0  signal=SHORT    reasons: atr=10.95% (wide-range), orb_breakdown, trend_sideways
+2026-07-10T15:36:42 | INFO     | session_runner |   SOFI    score=55.0  signal=SHORT    reasons: rvol=1.16x (normal), atr=5.02% (wide-range), orb_breakdown
+2026-07-10T15:36:42 | INFO     | session_runner |   SOFI    score=55.0  signal=SHORT    reasons: rvol=1.16x (normal), atr=5.02% (wide-range), orb_breakdown
+2026-07-10T15:36:42 | INFO     | session_runner |   GOOGL   score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T15:36:42 | INFO     | session_runner |   GOOGL   score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T15:36:42 | INFO     | session_runner |   MSTR    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T15:36:42 | INFO     | session_runner |   MSTR    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-10T15:36:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710P00014000 | delta=N/A | spread_pct=0.090 | OI=5150 | vol=795
+2026-07-10T15:36:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710P00014000 | delta=N/A | spread_pct=0.090 | OI=5150 | vol=795
+2026-07-10T15:36:43 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MARA | MARA260710P00014000 | exp=2026-07-10 | spread=9.00% | OI=5150 | vol=795
+2026-07-10T15:36:43 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MARA | MARA260710P00014000 | exp=2026-07-10 | spread=9.00% | OI=5150 | vol=795
+2026-07-10T15:36:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260710C00210000 | delta=N/A | spread_pct=0.024 | OI=53568 | vol=336845
+2026-07-10T15:36:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260710C00210000 | delta=N/A | spread_pct=0.024 | OI=53568 | vol=336845
+2026-07-10T15:36:43 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed NVDA | NVDA260710C00210000 | exp=2026-07-10 | spread=2.41% | OI=53568 | vol=336845
+2026-07-10T15:36:43 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed NVDA | NVDA260710C00210000 | exp=2026-07-10 | spread=2.41% | OI=53568 | vol=336845
+2026-07-10T15:36:44 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SOFI260710P00019000 | delta=N/A | spread_pct=0.043 | OI=3168 | vol=24007
+2026-07-10T15:36:44 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SOFI260710P00019000 | delta=N/A | spread_pct=0.043 | OI=3168 | vol=24007
+2026-07-10T15:36:44 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SOFI | SOFI260710P00019000 | exp=2026-07-10 | spread=4.26% | OI=3168 | vol=24007
+2026-07-10T15:36:44 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SOFI | SOFI260710P00019000 | exp=2026-07-10 | spread=4.26% | OI=3168 | vol=24007
+2026-07-10T15:36:44 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['NVDA', 'MARA', 'SOFI']
+2026-07-10T15:36:44 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['NVDA', 'MARA', 'SOFI']
+2026-07-10T15:36:44 | INFO     | session_runner | Re-scan updated active symbols: ['NVDA', 'MARA', 'SOFI']
+2026-07-10T15:36:44 | INFO     | session_runner | Re-scan updated active symbols: ['NVDA', 'MARA', 'SOFI']
+2026-07-10T15:36:45 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:36:45 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:36:46 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-10T15:36:46 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-10T15:36:46 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710P00014000 | delta=N/A | spread_pct=0.090 | OI=5150 | vol=795
+2026-07-10T15:36:46 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710P00014000 | delta=N/A | spread_pct=0.090 | OI=5150 | vol=795
+2026-07-10T15:36:46 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN MARA260710P00014000 | APPROVED | qty=1 | risk=$151.00
+2026-07-10T15:36:46 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN MARA260710P00014000 | APPROVED | qty=1 | risk=$151.00
+2026-07-10T15:36:46 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'MARA260710P00014000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '1.51', 'order_class': 'simple'}
+2026-07-10T15:36:46 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'MARA260710P00014000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '1.51', 'order_class': 'simple'}
+2026-07-10T15:36:46 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=2 pending=1 exits=2
+2026-07-10T15:36:46 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=2 pending=1 exits=2
+2026-07-10T15:36:46 | INFO     | session_runner | Order placed: c8f172f7 | MARA260710P00014000 | limit=1.51 | status=pending_new
+2026-07-10T15:36:46 | INFO     | session_runner | Order placed: c8f172f7 | MARA260710P00014000 | limit=1.51 | status=pending_new
+2026-07-10T15:36:46 | INFO     | app.trading.trade_journal | Journal entry 3: short MARA260710P00014000 @ 1.5100
+2026-07-10T15:36:46 | INFO     | app.trading.trade_journal | Journal entry 3: short MARA260710P00014000 @ 1.5100
+2026-07-10T15:36:46 | INFO     | app.trading.fill_tracker | FillTracker registered c8f172f7 | MARA260710P00014000 | limit=1.5100
+2026-07-10T15:36:46 | INFO     | app.trading.fill_tracker | FillTracker registered c8f172f7 | MARA260710P00014000 | limit=1.5100
+2026-07-10T15:36:46 | INFO     | session_runner | Max symbols traded per day (3) reached
+2026-07-10T15:36:46 | INFO     | session_runner | Max symbols traded per day (3) reached
+2026-07-10T15:37:17 | INFO     | session_runner | [cycle 122] 11:37:17 ET | positions=0 | entries=2
+2026-07-10T15:37:17 | INFO     | session_runner | [cycle 122] 11:37:17 ET | positions=0 | entries=2
+2026-07-10T15:37:17 | INFO     | app.trading.fill_tracker | FillTracker: FILL c8f172f7 @ 1.4900 (1/1 contracts)
+2026-07-10T15:37:17 | INFO     | app.trading.fill_tracker | FillTracker: FILL c8f172f7 @ 1.4900 (1/1 contracts)
+2026-07-10T15:37:17 | INFO     | app.trading.trade_journal | Journal fill 3: filled=1 @ 1.4900 ttf=48s
+2026-07-10T15:37:17 | INFO     | app.trading.trade_journal | Journal fill 3: filled=1 @ 1.4900 ttf=48s
+2026-07-10T15:37:17 | INFO     | app.trading.position_manager | Position opened | MARA260710P00014000 | entry=1.4900 | qty=1
+2026-07-10T15:37:17 | INFO     | app.trading.position_manager | Position opened | MARA260710P00014000 | entry=1.4900 | qty=1
+2026-07-10T15:37:17 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=3 pending=0 exits=2
+2026-07-10T15:37:17 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=3 pending=0 exits=2
+2026-07-10T15:37:17 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-07-10T15:37:17 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-07-10T15:37:19 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:37:19 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:37:49 | INFO     | session_runner | [cycle 123] 11:37:49 ET | positions=1 | entries=3
+2026-07-10T15:37:49 | INFO     | session_runner | [cycle 123] 11:37:49 ET | positions=1 | entries=3
+2026-07-10T15:37:51 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:37:51 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:38:21 | INFO     | session_runner | [cycle 124] 11:38:21 ET | positions=1 | entries=3
+2026-07-10T15:38:21 | INFO     | session_runner | [cycle 124] 11:38:21 ET | positions=1 | entries=3
+2026-07-10T15:38:22 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:38:22 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:38:52 | INFO     | session_runner | [cycle 125] 11:38:52 ET | positions=1 | entries=3
+2026-07-10T15:38:52 | INFO     | session_runner | [cycle 125] 11:38:52 ET | positions=1 | entries=3
+2026-07-10T15:38:53 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:38:53 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:39:23 | INFO     | session_runner | [cycle 126] 11:39:23 ET | positions=1 | entries=3
+2026-07-10T15:39:23 | INFO     | session_runner | [cycle 126] 11:39:23 ET | positions=1 | entries=3
+2026-07-10T15:39:24 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:39:24 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:39:54 | INFO     | session_runner | [cycle 127] 11:39:54 ET | positions=1 | entries=3
+2026-07-10T15:39:54 | INFO     | session_runner | [cycle 127] 11:39:54 ET | positions=1 | entries=3
+2026-07-10T15:39:56 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:39:56 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:40:26 | INFO     | session_runner | [cycle 128] 11:40:26 ET | positions=1 | entries=3
+2026-07-10T15:40:26 | INFO     | session_runner | [cycle 128] 11:40:26 ET | positions=1 | entries=3
+2026-07-10T15:40:28 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:40:28 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:40:58 | INFO     | session_runner | [cycle 129] 11:40:58 ET | positions=1 | entries=3
+2026-07-10T15:40:58 | INFO     | session_runner | [cycle 129] 11:40:58 ET | positions=1 | entries=3
+2026-07-10T15:41:00 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:41:00 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:41:30 | INFO     | session_runner | [cycle 130] 11:41:30 ET | positions=1 | entries=3
+2026-07-10T15:41:30 | INFO     | session_runner | [cycle 130] 11:41:30 ET | positions=1 | entries=3
+2026-07-10T15:41:31 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:41:31 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:42:01 | INFO     | session_runner | [cycle 131] 11:42:01 ET | positions=1 | entries=3
+2026-07-10T15:42:01 | INFO     | session_runner | [cycle 131] 11:42:01 ET | positions=1 | entries=3
+2026-07-10T15:42:04 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:42:04 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:42:34 | INFO     | session_runner | [cycle 132] 11:42:34 ET | positions=1 | entries=3
+2026-07-10T15:42:34 | INFO     | session_runner | [cycle 132] 11:42:34 ET | positions=1 | entries=3
+2026-07-10T15:42:35 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:42:35 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:43:05 | INFO     | session_runner | [cycle 133] 11:43:05 ET | positions=1 | entries=3
+2026-07-10T15:43:05 | INFO     | session_runner | [cycle 133] 11:43:05 ET | positions=1 | entries=3
+2026-07-10T15:43:06 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:43:06 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:43:36 | INFO     | session_runner | [cycle 134] 11:43:36 ET | positions=1 | entries=3
+2026-07-10T15:43:36 | INFO     | session_runner | [cycle 134] 11:43:36 ET | positions=1 | entries=3
+2026-07-10T15:43:38 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:43:38 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:44:08 | INFO     | session_runner | [cycle 135] 11:44:08 ET | positions=1 | entries=3
+2026-07-10T15:44:08 | INFO     | session_runner | [cycle 135] 11:44:08 ET | positions=1 | entries=3
+2026-07-10T15:44:10 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:44:10 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:44:40 | INFO     | session_runner | [cycle 136] 11:44:40 ET | positions=1 | entries=3
+2026-07-10T15:44:40 | INFO     | session_runner | [cycle 136] 11:44:40 ET | positions=1 | entries=3
+2026-07-10T15:44:42 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:44:42 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:45:12 | INFO     | session_runner | [cycle 137] 11:45:12 ET | positions=1 | entries=3
+2026-07-10T15:45:12 | INFO     | session_runner | [cycle 137] 11:45:12 ET | positions=1 | entries=3
+2026-07-10T15:45:13 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:45:13 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:45:43 | INFO     | session_runner | [cycle 138] 11:45:43 ET | positions=1 | entries=3
+2026-07-10T15:45:43 | INFO     | session_runner | [cycle 138] 11:45:43 ET | positions=1 | entries=3
+2026-07-10T15:45:45 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:45:45 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:46:15 | INFO     | session_runner | [cycle 139] 11:46:15 ET | positions=1 | entries=3
+2026-07-10T15:46:15 | INFO     | session_runner | [cycle 139] 11:46:15 ET | positions=1 | entries=3
+2026-07-10T15:46:17 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:46:17 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:46:47 | INFO     | session_runner | [cycle 140] 11:46:47 ET | positions=1 | entries=3
+2026-07-10T15:46:47 | INFO     | session_runner | [cycle 140] 11:46:47 ET | positions=1 | entries=3
+2026-07-10T15:46:47 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T15:46:47 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T15:46:49 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:46:49 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:47:19 | INFO     | session_runner | [cycle 141] 11:47:19 ET | positions=1 | entries=3
+2026-07-10T15:47:19 | INFO     | session_runner | [cycle 141] 11:47:19 ET | positions=1 | entries=3
+2026-07-10T15:47:21 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:47:21 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:47:51 | INFO     | session_runner | [cycle 142] 11:47:51 ET | positions=1 | entries=3
+2026-07-10T15:47:51 | INFO     | session_runner | [cycle 142] 11:47:51 ET | positions=1 | entries=3
+2026-07-10T15:47:52 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:47:52 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:48:22 | INFO     | session_runner | [cycle 143] 11:48:22 ET | positions=1 | entries=3
+2026-07-10T15:48:22 | INFO     | session_runner | [cycle 143] 11:48:22 ET | positions=1 | entries=3
+2026-07-10T15:48:23 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:48:23 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:48:53 | INFO     | session_runner | [cycle 144] 11:48:53 ET | positions=1 | entries=3
+2026-07-10T15:48:53 | INFO     | session_runner | [cycle 144] 11:48:53 ET | positions=1 | entries=3
+2026-07-10T15:48:55 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:48:55 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:49:25 | INFO     | session_runner | [cycle 145] 11:49:25 ET | positions=1 | entries=3
+2026-07-10T15:49:25 | INFO     | session_runner | [cycle 145] 11:49:25 ET | positions=1 | entries=3
+2026-07-10T15:49:26 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:49:26 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:49:56 | INFO     | session_runner | [cycle 146] 11:49:56 ET | positions=1 | entries=3
+2026-07-10T15:49:56 | INFO     | session_runner | [cycle 146] 11:49:56 ET | positions=1 | entries=3
+2026-07-10T15:49:59 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:49:59 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:50:29 | INFO     | session_runner | [cycle 147] 11:50:29 ET | positions=1 | entries=3
+2026-07-10T15:50:29 | INFO     | session_runner | [cycle 147] 11:50:29 ET | positions=1 | entries=3
+2026-07-10T15:50:31 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:50:31 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:51:01 | INFO     | session_runner | [cycle 148] 11:51:01 ET | positions=1 | entries=3
+2026-07-10T15:51:01 | INFO     | session_runner | [cycle 148] 11:51:01 ET | positions=1 | entries=3
+2026-07-10T15:51:03 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:51:03 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:51:33 | INFO     | session_runner | [cycle 149] 11:51:33 ET | positions=1 | entries=3
+2026-07-10T15:51:33 | INFO     | session_runner | [cycle 149] 11:51:33 ET | positions=1 | entries=3
+2026-07-10T15:51:34 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:51:34 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:52:04 | INFO     | session_runner | [cycle 150] 11:52:04 ET | positions=1 | entries=3
+2026-07-10T15:52:04 | INFO     | session_runner | [cycle 150] 11:52:04 ET | positions=1 | entries=3
+2026-07-10T15:52:06 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:52:06 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:52:36 | INFO     | session_runner | [cycle 151] 11:52:36 ET | positions=1 | entries=3
+2026-07-10T15:52:36 | INFO     | session_runner | [cycle 151] 11:52:36 ET | positions=1 | entries=3
+2026-07-10T15:52:38 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:52:38 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:53:08 | INFO     | session_runner | [cycle 152] 11:53:08 ET | positions=1 | entries=3
+2026-07-10T15:53:08 | INFO     | session_runner | [cycle 152] 11:53:08 ET | positions=1 | entries=3
+2026-07-10T15:53:09 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:53:09 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:53:39 | INFO     | session_runner | [cycle 153] 11:53:39 ET | positions=1 | entries=3
+2026-07-10T15:53:39 | INFO     | session_runner | [cycle 153] 11:53:39 ET | positions=1 | entries=3
+2026-07-10T15:53:40 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:53:40 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:54:10 | INFO     | session_runner | [cycle 154] 11:54:10 ET | positions=1 | entries=3
+2026-07-10T15:54:10 | INFO     | session_runner | [cycle 154] 11:54:10 ET | positions=1 | entries=3
+2026-07-10T15:54:12 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:54:12 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:54:42 | INFO     | session_runner | [cycle 155] 11:54:42 ET | positions=1 | entries=3
+2026-07-10T15:54:42 | INFO     | session_runner | [cycle 155] 11:54:42 ET | positions=1 | entries=3
+2026-07-10T15:54:44 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:54:44 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:55:14 | INFO     | session_runner | [cycle 156] 11:55:14 ET | positions=1 | entries=3
+2026-07-10T15:55:14 | INFO     | session_runner | [cycle 156] 11:55:14 ET | positions=1 | entries=3
+2026-07-10T15:55:15 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:55:15 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:55:45 | INFO     | session_runner | [cycle 157] 11:55:45 ET | positions=1 | entries=3
+2026-07-10T15:55:45 | INFO     | session_runner | [cycle 157] 11:55:45 ET | positions=1 | entries=3
+2026-07-10T15:55:47 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:55:47 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:56:17 | INFO     | session_runner | [cycle 158] 11:56:17 ET | positions=1 | entries=3
+2026-07-10T15:56:17 | INFO     | session_runner | [cycle 158] 11:56:17 ET | positions=1 | entries=3
+2026-07-10T15:56:18 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:56:18 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:56:48 | INFO     | session_runner | [cycle 159] 11:56:48 ET | positions=1 | entries=3
+2026-07-10T15:56:48 | INFO     | session_runner | [cycle 159] 11:56:48 ET | positions=1 | entries=3
+2026-07-10T15:56:49 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T15:56:49 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T15:56:52 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:56:52 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:57:22 | INFO     | session_runner | [cycle 160] 11:57:22 ET | positions=1 | entries=3
+2026-07-10T15:57:22 | INFO     | session_runner | [cycle 160] 11:57:22 ET | positions=1 | entries=3
+2026-07-10T15:57:24 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:57:24 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:57:54 | INFO     | session_runner | [cycle 161] 11:57:54 ET | positions=1 | entries=3
+2026-07-10T15:57:54 | INFO     | session_runner | [cycle 161] 11:57:54 ET | positions=1 | entries=3
+2026-07-10T15:57:55 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:57:55 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:58:25 | INFO     | session_runner | [cycle 162] 11:58:25 ET | positions=1 | entries=3
+2026-07-10T15:58:25 | INFO     | session_runner | [cycle 162] 11:58:25 ET | positions=1 | entries=3
+2026-07-10T15:58:27 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:58:27 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:58:57 | INFO     | session_runner | [cycle 163] 11:58:57 ET | positions=1 | entries=3
+2026-07-10T15:58:57 | INFO     | session_runner | [cycle 163] 11:58:57 ET | positions=1 | entries=3
+2026-07-10T15:58:58 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:58:58 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:59:28 | INFO     | session_runner | [cycle 164] 11:59:28 ET | positions=1 | entries=3
+2026-07-10T15:59:28 | INFO     | session_runner | [cycle 164] 11:59:28 ET | positions=1 | entries=3
+2026-07-10T15:59:31 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T15:59:31 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:00:01 | INFO     | session_runner | [cycle 165] 12:00:01 ET | positions=1 | entries=3
+2026-07-10T16:00:01 | INFO     | session_runner | [cycle 165] 12:00:01 ET | positions=1 | entries=3
+2026-07-10T16:00:02 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:00:02 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:00:32 | INFO     | session_runner | [cycle 166] 12:00:32 ET | positions=1 | entries=3
+2026-07-10T16:00:32 | INFO     | session_runner | [cycle 166] 12:00:32 ET | positions=1 | entries=3
+2026-07-10T16:00:34 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:00:34 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:01:04 | INFO     | session_runner | [cycle 167] 12:01:04 ET | positions=1 | entries=3
+2026-07-10T16:01:04 | INFO     | session_runner | [cycle 167] 12:01:04 ET | positions=1 | entries=3
+2026-07-10T16:01:06 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:01:06 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:01:36 | INFO     | session_runner | [cycle 168] 12:01:36 ET | positions=1 | entries=3
+2026-07-10T16:01:36 | INFO     | session_runner | [cycle 168] 12:01:36 ET | positions=1 | entries=3
+2026-07-10T16:01:37 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:01:37 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:02:07 | INFO     | session_runner | [cycle 169] 12:02:07 ET | positions=1 | entries=3
+2026-07-10T16:02:07 | INFO     | session_runner | [cycle 169] 12:02:07 ET | positions=1 | entries=3
+2026-07-10T16:02:09 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:02:09 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:02:39 | INFO     | session_runner | [cycle 170] 12:02:39 ET | positions=1 | entries=3
+2026-07-10T16:02:39 | INFO     | session_runner | [cycle 170] 12:02:39 ET | positions=1 | entries=3
+2026-07-10T16:02:40 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:02:40 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:03:10 | INFO     | session_runner | [cycle 171] 12:03:10 ET | positions=1 | entries=3
+2026-07-10T16:03:10 | INFO     | session_runner | [cycle 171] 12:03:10 ET | positions=1 | entries=3
+2026-07-10T16:03:12 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:03:12 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:03:42 | INFO     | session_runner | [cycle 172] 12:03:42 ET | positions=1 | entries=3
+2026-07-10T16:03:42 | INFO     | session_runner | [cycle 172] 12:03:42 ET | positions=1 | entries=3
+2026-07-10T16:03:44 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:03:44 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:04:14 | INFO     | session_runner | [cycle 173] 12:04:14 ET | positions=1 | entries=3
+2026-07-10T16:04:14 | INFO     | session_runner | [cycle 173] 12:04:14 ET | positions=1 | entries=3
+2026-07-10T16:04:15 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:04:15 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:04:45 | INFO     | session_runner | [cycle 174] 12:04:45 ET | positions=1 | entries=3
+2026-07-10T16:04:45 | INFO     | session_runner | [cycle 174] 12:04:45 ET | positions=1 | entries=3
+2026-07-10T16:04:47 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:04:47 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:05:17 | INFO     | session_runner | [cycle 175] 12:05:17 ET | positions=1 | entries=3
+2026-07-10T16:05:17 | INFO     | session_runner | [cycle 175] 12:05:17 ET | positions=1 | entries=3
+2026-07-10T16:05:18 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:05:18 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:05:48 | INFO     | session_runner | [cycle 176] 12:05:48 ET | positions=1 | entries=3
+2026-07-10T16:05:48 | INFO     | session_runner | [cycle 176] 12:05:48 ET | positions=1 | entries=3
+2026-07-10T16:05:50 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:05:50 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:06:20 | INFO     | session_runner | [cycle 177] 12:06:20 ET | positions=1 | entries=3
+2026-07-10T16:06:20 | INFO     | session_runner | [cycle 177] 12:06:20 ET | positions=1 | entries=3
+2026-07-10T16:06:22 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:06:22 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:06:52 | INFO     | session_runner | [cycle 178] 12:06:52 ET | positions=1 | entries=3
+2026-07-10T16:06:52 | INFO     | session_runner | [cycle 178] 12:06:52 ET | positions=1 | entries=3
+2026-07-10T16:06:52 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T16:06:52 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T16:06:53 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-10T16:06:53 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-10T16:06:53 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-10T16:06:53 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-10T16:06:53 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-10T16:06:53 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-10T16:06:53 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-10T16:06:53 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-10T16:06:56 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-10T16:06:56 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-10T16:07:03 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-10T16:07:03 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-10T16:07:05 | INFO     | session_runner | Scan: 5 passed, 33 rejected
+2026-07-10T16:07:05 | INFO     | session_runner | Scan: 5 passed, 33 rejected
+2026-07-10T16:07:05 | INFO     | session_runner |   MARA    score=62.0  signal=SHORT    reasons: atr=11.00% (wide-range), orb_breakdown, trend_sideways
+2026-07-10T16:07:05 | INFO     | session_runner |   MARA    score=62.0  signal=SHORT    reasons: atr=11.00% (wide-range), orb_breakdown, trend_sideways
+2026-07-10T16:07:05 | INFO     | session_runner |   NVDA    score=57.0  signal=LONG     reasons: atr=3.27% (wide-range), orb_breakout, trend_sideways
+2026-07-10T16:07:05 | INFO     | session_runner |   NVDA    score=57.0  signal=LONG     reasons: atr=3.27% (wide-range), orb_breakout, trend_sideways
+2026-07-10T16:07:05 | INFO     | session_runner |   SOFI    score=55.0  signal=SHORT    reasons: rvol=1.23x (normal), atr=5.00% (wide-range), orb_breakdown
+2026-07-10T16:07:05 | INFO     | session_runner |   SOFI    score=55.0  signal=SHORT    reasons: rvol=1.23x (normal), atr=5.00% (wide-range), orb_breakdown
+2026-07-10T16:07:05 | INFO     | session_runner |   HOOD    score=50.0  signal=LONG     reasons: atr=6.24% (wide-range), trend_up, rsi=62 (healthy)
+2026-07-10T16:07:05 | INFO     | session_runner |   HOOD    score=50.0  signal=LONG     reasons: atr=6.24% (wide-range), trend_up, rsi=62 (healthy)
+2026-07-10T16:07:05 | INFO     | session_runner |   META    score=47.0  signal=SHORT    reasons: rvol=1.62x (elevated), atr=4.58% (wide-range), trend_sideways
+2026-07-10T16:07:05 | INFO     | session_runner |   META    score=47.0  signal=SHORT    reasons: rvol=1.62x (elevated), atr=4.58% (wide-range), trend_sideways
+2026-07-10T16:07:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710P00014000 | delta=N/A | spread_pct=0.068 | OI=5150 | vol=803
+2026-07-10T16:07:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710P00014000 | delta=N/A | spread_pct=0.068 | OI=5150 | vol=803
+2026-07-10T16:07:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MARA | MARA260710P00014000 | exp=2026-07-10 | spread=6.80% | OI=5150 | vol=803
+2026-07-10T16:07:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MARA | MARA260710P00014000 | exp=2026-07-10 | spread=6.80% | OI=5150 | vol=803
+2026-07-10T16:07:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for SOFI SignalDirection.SHORT | total_candidates=32
+2026-07-10T16:07:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for SOFI SignalDirection.SHORT | total_candidates=32
+2026-07-10T16:07:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for SOFI (signal=SHORT)
+2026-07-10T16:07:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for SOFI (signal=SHORT)
+2026-07-10T16:07:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.090 | OI=2887 | vol=9738
+2026-07-10T16:07:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.090 | OI=2887 | vol=9738
+2026-07-10T16:07:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed HOOD | HOOD260710C00114000 | exp=2026-07-10 | spread=8.96% | OI=2887 | vol=9738
+2026-07-10T16:07:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed HOOD | HOOD260710C00114000 | exp=2026-07-10 | spread=8.96% | OI=2887 | vol=9738
+2026-07-10T16:07:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260710C00212500 | delta=N/A | spread_pct=0.061 | OI=26383 | vol=134877
+2026-07-10T16:07:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260710C00212500 | delta=N/A | spread_pct=0.061 | OI=26383 | vol=134877
+2026-07-10T16:07:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed NVDA | NVDA260710C00212500 | exp=2026-07-10 | spread=6.06% | OI=26383 | vol=134877
+2026-07-10T16:07:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed NVDA | NVDA260710C00212500 | exp=2026-07-10 | spread=6.06% | OI=26383 | vol=134877
+2026-07-10T16:07:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for META SignalDirection.SHORT | total_candidates=215
+2026-07-10T16:07:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for META SignalDirection.SHORT | total_candidates=215
+2026-07-10T16:07:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for META (signal=SHORT)
+2026-07-10T16:07:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for META (signal=SHORT)
+2026-07-10T16:07:06 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['MARA', 'NVDA', 'HOOD']
+2026-07-10T16:07:06 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['MARA', 'NVDA', 'HOOD']
+2026-07-10T16:07:06 | INFO     | session_runner | Re-scan updated active symbols: ['MARA', 'NVDA', 'HOOD']
+2026-07-10T16:07:06 | INFO     | session_runner | Re-scan updated active symbols: ['MARA', 'NVDA', 'HOOD']
+2026-07-10T16:07:07 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:07:07 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:07:09 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:07:09 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:07:10 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.029 | OI=2887 | vol=9738
+2026-07-10T16:07:10 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.029 | OI=2887 | vol=9738
+2026-07-10T16:07:10 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:07:10 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:07:10 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:07:10 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:07:10 | INFO     | app.trading.trade_journal | Journal rejection 4: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:07:10 | INFO     | app.trading.trade_journal | Journal rejection 4: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:07:40 | INFO     | session_runner | [cycle 179] 12:07:40 ET | positions=1 | entries=3
+2026-07-10T16:07:40 | INFO     | session_runner | [cycle 179] 12:07:40 ET | positions=1 | entries=3
+2026-07-10T16:07:41 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:07:41 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:07:42 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:07:42 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:07:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.057 | OI=5738 | vol=11630
+2026-07-10T16:07:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.057 | OI=5738 | vol=11630
+2026-07-10T16:07:43 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:07:43 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:07:43 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:07:43 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:07:43 | INFO     | app.trading.trade_journal | Journal rejection 5: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:07:43 | INFO     | app.trading.trade_journal | Journal rejection 5: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:08:13 | INFO     | session_runner | [cycle 180] 12:08:13 ET | positions=1 | entries=3
+2026-07-10T16:08:13 | INFO     | session_runner | [cycle 180] 12:08:13 ET | positions=1 | entries=3
+2026-07-10T16:08:15 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:08:15 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:08:15 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:08:15 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:08:16 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.089 | OI=4295 | vol=8837
+2026-07-10T16:08:16 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.089 | OI=4295 | vol=8837
+2026-07-10T16:08:16 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:08:16 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:08:16 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:08:16 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:08:16 | INFO     | app.trading.trade_journal | Journal rejection 6: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:08:16 | INFO     | app.trading.trade_journal | Journal rejection 6: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:08:46 | INFO     | session_runner | [cycle 181] 12:08:46 ET | positions=1 | entries=3
+2026-07-10T16:08:46 | INFO     | session_runner | [cycle 181] 12:08:46 ET | positions=1 | entries=3
+2026-07-10T16:08:48 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:08:48 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:08:48 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:08:48 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:08:49 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.054 | OI=4295 | vol=8837
+2026-07-10T16:08:49 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.054 | OI=4295 | vol=8837
+2026-07-10T16:08:49 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:08:49 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:08:49 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:08:49 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:08:49 | INFO     | app.trading.trade_journal | Journal rejection 7: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:08:49 | INFO     | app.trading.trade_journal | Journal rejection 7: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:09:19 | INFO     | session_runner | [cycle 182] 12:09:19 ET | positions=1 | entries=3
+2026-07-10T16:09:19 | INFO     | session_runner | [cycle 182] 12:09:19 ET | positions=1 | entries=3
+2026-07-10T16:09:21 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:09:21 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:09:22 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:09:22 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:09:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.073 | OI=4881 | vol=12719
+2026-07-10T16:09:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.073 | OI=4881 | vol=12719
+2026-07-10T16:09:24 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:09:24 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:09:24 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:09:24 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:09:24 | INFO     | app.trading.trade_journal | Journal rejection 8: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:09:24 | INFO     | app.trading.trade_journal | Journal rejection 8: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:09:54 | INFO     | session_runner | [cycle 183] 12:09:54 ET | positions=1 | entries=3
+2026-07-10T16:09:54 | INFO     | session_runner | [cycle 183] 12:09:54 ET | positions=1 | entries=3
+2026-07-10T16:09:55 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:09:55 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:09:56 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:09:56 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:09:57 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.061 | OI=2887 | vol=9756
+2026-07-10T16:09:57 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.061 | OI=2887 | vol=9756
+2026-07-10T16:09:57 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:09:57 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:09:57 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:09:57 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:09:57 | INFO     | app.trading.trade_journal | Journal rejection 9: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:09:57 | INFO     | app.trading.trade_journal | Journal rejection 9: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:10:27 | INFO     | session_runner | [cycle 184] 12:10:27 ET | positions=1 | entries=3
+2026-07-10T16:10:27 | INFO     | session_runner | [cycle 184] 12:10:27 ET | positions=1 | entries=3
+2026-07-10T16:10:28 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:10:28 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:10:29 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:10:29 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:10:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.068 | OI=4295 | vol=8873
+2026-07-10T16:10:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.068 | OI=4295 | vol=8873
+2026-07-10T16:10:30 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:10:30 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:10:30 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:10:30 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:10:30 | INFO     | app.trading.trade_journal | Journal rejection 10: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:10:30 | INFO     | app.trading.trade_journal | Journal rejection 10: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:11:00 | INFO     | session_runner | [cycle 185] 12:11:00 ET | positions=1 | entries=3
+2026-07-10T16:11:00 | INFO     | session_runner | [cycle 185] 12:11:00 ET | positions=1 | entries=3
+2026-07-10T16:11:03 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:11:03 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:11:04 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:11:04 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:11:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.014 | OI=4881 | vol=13017
+2026-07-10T16:11:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.014 | OI=4881 | vol=13017
+2026-07-10T16:11:05 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:11:05 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:11:05 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:11:05 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:11:05 | INFO     | app.trading.trade_journal | Journal rejection 11: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:11:05 | INFO     | app.trading.trade_journal | Journal rejection 11: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:11:35 | INFO     | session_runner | [cycle 186] 12:11:35 ET | positions=1 | entries=3
+2026-07-10T16:11:35 | INFO     | session_runner | [cycle 186] 12:11:35 ET | positions=1 | entries=3
+2026-07-10T16:11:37 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:11:37 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:11:37 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:11:37 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:11:38 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.069 | OI=4881 | vol=13017
+2026-07-10T16:11:38 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.069 | OI=4881 | vol=13017
+2026-07-10T16:11:39 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:11:39 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:11:39 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:11:39 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:11:39 | INFO     | app.trading.trade_journal | Journal rejection 12: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:11:39 | INFO     | app.trading.trade_journal | Journal rejection 12: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:12:09 | INFO     | session_runner | [cycle 187] 12:12:09 ET | positions=1 | entries=3
+2026-07-10T16:12:09 | INFO     | session_runner | [cycle 187] 12:12:09 ET | positions=1 | entries=3
+2026-07-10T16:12:10 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:12:10 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:12:11 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:12:11 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:12:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.024 | OI=4295 | vol=9259
+2026-07-10T16:12:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.024 | OI=4295 | vol=9259
+2026-07-10T16:12:12 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:12:12 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:12:12 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:12:12 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:12:12 | INFO     | app.trading.trade_journal | Journal rejection 13: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:12:12 | INFO     | app.trading.trade_journal | Journal rejection 13: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:12:42 | INFO     | session_runner | [cycle 188] 12:12:42 ET | positions=1 | entries=3
+2026-07-10T16:12:42 | INFO     | session_runner | [cycle 188] 12:12:42 ET | positions=1 | entries=3
+2026-07-10T16:12:43 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:12:43 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:12:44 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:12:44 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:12:45 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.061 | OI=5738 | vol=12546
+2026-07-10T16:12:45 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.061 | OI=5738 | vol=12546
+2026-07-10T16:12:45 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:12:45 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:12:45 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:12:45 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:12:45 | INFO     | app.trading.trade_journal | Journal rejection 14: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:12:45 | INFO     | app.trading.trade_journal | Journal rejection 14: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:13:15 | INFO     | session_runner | [cycle 189] 12:13:15 ET | positions=1 | entries=3
+2026-07-10T16:13:15 | INFO     | session_runner | [cycle 189] 12:13:15 ET | positions=1 | entries=3
+2026-07-10T16:13:17 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:13:17 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:13:18 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:13:18 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:13:19 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.057 | OI=5738 | vol=12556
+2026-07-10T16:13:19 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.057 | OI=5738 | vol=12556
+2026-07-10T16:13:19 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:13:19 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:13:19 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:13:19 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:13:19 | INFO     | app.trading.trade_journal | Journal rejection 15: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:13:19 | INFO     | app.trading.trade_journal | Journal rejection 15: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:13:49 | INFO     | session_runner | [cycle 190] 12:13:49 ET | positions=1 | entries=3
+2026-07-10T16:13:49 | INFO     | session_runner | [cycle 190] 12:13:49 ET | positions=1 | entries=3
+2026-07-10T16:13:51 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:13:51 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:13:52 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:13:52 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:13:52 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.057 | OI=5738 | vol=12556
+2026-07-10T16:13:52 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.057 | OI=5738 | vol=12556
+2026-07-10T16:13:52 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:13:52 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:13:52 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:13:52 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:13:52 | INFO     | app.trading.trade_journal | Journal rejection 16: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:13:52 | INFO     | app.trading.trade_journal | Journal rejection 16: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:14:22 | INFO     | session_runner | [cycle 191] 12:14:22 ET | positions=1 | entries=3
+2026-07-10T16:14:22 | INFO     | session_runner | [cycle 191] 12:14:22 ET | positions=1 | entries=3
+2026-07-10T16:14:24 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:14:24 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:14:25 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:14:25 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:14:26 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.060 | OI=4295 | vol=9282
+2026-07-10T16:14:26 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.060 | OI=4295 | vol=9282
+2026-07-10T16:14:26 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:14:26 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:14:26 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:14:26 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:14:26 | INFO     | app.trading.trade_journal | Journal rejection 17: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:14:26 | INFO     | app.trading.trade_journal | Journal rejection 17: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:14:56 | INFO     | session_runner | [cycle 192] 12:14:56 ET | positions=1 | entries=3
+2026-07-10T16:14:56 | INFO     | session_runner | [cycle 192] 12:14:56 ET | positions=1 | entries=3
+2026-07-10T16:14:59 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:14:59 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:15:00 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:15:00 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:15:02 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.071 | OI=2887 | vol=10154
+2026-07-10T16:15:02 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.071 | OI=2887 | vol=10154
+2026-07-10T16:15:02 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:15:02 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:15:02 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:15:02 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:15:02 | INFO     | app.trading.trade_journal | Journal rejection 18: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:15:02 | INFO     | app.trading.trade_journal | Journal rejection 18: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:15:32 | INFO     | session_runner | [cycle 193] 12:15:32 ET | positions=1 | entries=3
+2026-07-10T16:15:32 | INFO     | session_runner | [cycle 193] 12:15:32 ET | positions=1 | entries=3
+2026-07-10T16:15:33 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:15:33 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:15:34 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:15:34 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:15:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.049 | OI=2887 | vol=10154
+2026-07-10T16:15:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.049 | OI=2887 | vol=10154
+2026-07-10T16:15:37 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:15:37 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:15:37 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:15:37 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:15:37 | INFO     | app.trading.trade_journal | Journal rejection 19: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:15:37 | INFO     | app.trading.trade_journal | Journal rejection 19: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:16:07 | INFO     | session_runner | [cycle 194] 12:16:07 ET | positions=1 | entries=3
+2026-07-10T16:16:07 | INFO     | session_runner | [cycle 194] 12:16:07 ET | positions=1 | entries=3
+2026-07-10T16:16:09 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:16:09 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:16:09 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:16:09 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:16:10 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.048 | OI=2887 | vol=10649
+2026-07-10T16:16:10 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.048 | OI=2887 | vol=10649
+2026-07-10T16:16:10 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:16:10 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:16:10 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:16:10 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:16:10 | INFO     | app.trading.trade_journal | Journal rejection 20: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:16:10 | INFO     | app.trading.trade_journal | Journal rejection 20: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:16:40 | INFO     | session_runner | [cycle 195] 12:16:40 ET | positions=1 | entries=3
+2026-07-10T16:16:40 | INFO     | session_runner | [cycle 195] 12:16:40 ET | positions=1 | entries=3
+2026-07-10T16:16:42 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:16:42 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:16:43 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:16:43 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:16:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.043 | OI=2887 | vol=10649
+2026-07-10T16:16:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.043 | OI=2887 | vol=10649
+2026-07-10T16:16:44 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:16:44 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:16:44 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:16:44 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:16:44 | INFO     | app.trading.trade_journal | Journal rejection 21: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:16:44 | INFO     | app.trading.trade_journal | Journal rejection 21: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:17:14 | INFO     | session_runner | [cycle 196] 12:17:14 ET | positions=1 | entries=3
+2026-07-10T16:17:14 | INFO     | session_runner | [cycle 196] 12:17:14 ET | positions=1 | entries=3
+2026-07-10T16:17:14 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T16:17:14 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T16:17:16 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:17:16 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:17:17 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:17:17 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:17:17 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.087 | OI=5738 | vol=12809
+2026-07-10T16:17:17 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.087 | OI=5738 | vol=12809
+2026-07-10T16:17:17 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:17:17 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:17:17 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:17:17 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:17:17 | INFO     | app.trading.trade_journal | Journal rejection 22: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:17:17 | INFO     | app.trading.trade_journal | Journal rejection 22: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:17:47 | INFO     | session_runner | [cycle 197] 12:17:47 ET | positions=1 | entries=3
+2026-07-10T16:17:47 | INFO     | session_runner | [cycle 197] 12:17:47 ET | positions=1 | entries=3
+2026-07-10T16:17:49 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:17:49 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:17:50 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:17:50 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:17:50 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.069 | OI=2887 | vol=10766
+2026-07-10T16:17:50 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.069 | OI=2887 | vol=10766
+2026-07-10T16:17:51 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:17:51 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:17:51 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:17:51 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:17:51 | INFO     | app.trading.trade_journal | Journal rejection 23: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:17:51 | INFO     | app.trading.trade_journal | Journal rejection 23: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:18:21 | INFO     | session_runner | [cycle 198] 12:18:21 ET | positions=1 | entries=3
+2026-07-10T16:18:21 | INFO     | session_runner | [cycle 198] 12:18:21 ET | positions=1 | entries=3
+2026-07-10T16:18:22 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:18:22 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:18:23 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:18:23 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:18:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.051 | OI=5738 | vol=12816
+2026-07-10T16:18:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.051 | OI=5738 | vol=12816
+2026-07-10T16:18:23 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:18:23 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:18:23 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:18:23 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:18:23 | INFO     | app.trading.trade_journal | Journal rejection 24: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:18:23 | INFO     | app.trading.trade_journal | Journal rejection 24: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:18:54 | INFO     | session_runner | [cycle 199] 12:18:54 ET | positions=1 | entries=3
+2026-07-10T16:18:54 | INFO     | session_runner | [cycle 199] 12:18:54 ET | positions=1 | entries=3
+2026-07-10T16:18:55 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:18:55 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:18:56 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:18:56 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:18:57 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.087 | OI=2887 | vol=10945
+2026-07-10T16:18:57 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.087 | OI=2887 | vol=10945
+2026-07-10T16:18:57 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:18:57 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:18:57 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:18:57 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:18:57 | INFO     | app.trading.trade_journal | Journal rejection 25: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:18:57 | INFO     | app.trading.trade_journal | Journal rejection 25: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:19:27 | INFO     | session_runner | [cycle 200] 12:19:27 ET | positions=1 | entries=3
+2026-07-10T16:19:27 | INFO     | session_runner | [cycle 200] 12:19:27 ET | positions=1 | entries=3
+2026-07-10T16:19:28 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:19:28 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:19:29 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:19:29 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:19:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.059 | OI=4295 | vol=10129
+2026-07-10T16:19:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.059 | OI=4295 | vol=10129
+2026-07-10T16:19:30 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:19:30 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:19:30 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:19:30 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:19:30 | INFO     | app.trading.trade_journal | Journal rejection 26: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:19:30 | INFO     | app.trading.trade_journal | Journal rejection 26: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:20:00 | INFO     | session_runner | [cycle 201] 12:20:00 ET | positions=1 | entries=3
+2026-07-10T16:20:00 | INFO     | session_runner | [cycle 201] 12:20:00 ET | positions=1 | entries=3
+2026-07-10T16:20:01 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:20:01 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:20:02 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:20:02 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:20:03 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.090 | OI=4295 | vol=10142
+2026-07-10T16:20:03 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.090 | OI=4295 | vol=10142
+2026-07-10T16:20:04 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:20:04 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:20:04 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:20:04 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:20:04 | INFO     | app.trading.trade_journal | Journal rejection 27: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:20:04 | INFO     | app.trading.trade_journal | Journal rejection 27: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:20:34 | INFO     | session_runner | [cycle 202] 12:20:34 ET | positions=1 | entries=3
+2026-07-10T16:20:34 | INFO     | session_runner | [cycle 202] 12:20:34 ET | positions=1 | entries=3
+2026-07-10T16:20:35 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:20:35 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:20:36 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:20:36 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:20:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.025 | OI=4881 | vol=14050
+2026-07-10T16:20:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.025 | OI=4881 | vol=14050
+2026-07-10T16:20:37 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:20:37 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:20:37 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:20:37 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:20:37 | INFO     | app.trading.trade_journal | Journal rejection 28: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:20:37 | INFO     | app.trading.trade_journal | Journal rejection 28: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:21:07 | INFO     | session_runner | [cycle 203] 12:21:07 ET | positions=1 | entries=3
+2026-07-10T16:21:07 | INFO     | session_runner | [cycle 203] 12:21:07 ET | positions=1 | entries=3
+2026-07-10T16:21:08 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:21:08 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:21:09 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:21:09 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:21:10 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.078 | OI=4295 | vol=10153
+2026-07-10T16:21:10 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.078 | OI=4295 | vol=10153
+2026-07-10T16:21:10 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:21:10 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:21:10 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:21:10 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:21:10 | INFO     | app.trading.trade_journal | Journal rejection 29: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:21:10 | INFO     | app.trading.trade_journal | Journal rejection 29: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:21:40 | INFO     | session_runner | [cycle 204] 12:21:40 ET | positions=1 | entries=3
+2026-07-10T16:21:40 | INFO     | session_runner | [cycle 204] 12:21:40 ET | positions=1 | entries=3
+2026-07-10T16:21:42 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:21:42 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:21:42 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:21:42 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:21:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.085 | OI=2887 | vol=11054
+2026-07-10T16:21:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.085 | OI=2887 | vol=11054
+2026-07-10T16:21:43 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:21:43 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:21:43 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:21:43 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:21:43 | INFO     | app.trading.trade_journal | Journal rejection 30: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:21:43 | INFO     | app.trading.trade_journal | Journal rejection 30: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:22:14 | INFO     | session_runner | [cycle 205] 12:22:14 ET | positions=1 | entries=3
+2026-07-10T16:22:14 | INFO     | session_runner | [cycle 205] 12:22:14 ET | positions=1 | entries=3
+2026-07-10T16:22:16 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:22:16 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:22:16 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:22:16 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:22:17 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.093 | OI=4881 | vol=14203
+2026-07-10T16:22:17 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.093 | OI=4881 | vol=14203
+2026-07-10T16:22:17 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:22:17 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:22:17 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:22:17 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:22:17 | INFO     | app.trading.trade_journal | Journal rejection 31: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:22:17 | INFO     | app.trading.trade_journal | Journal rejection 31: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:22:48 | INFO     | session_runner | [cycle 206] 12:22:48 ET | positions=1 | entries=3
+2026-07-10T16:22:48 | INFO     | session_runner | [cycle 206] 12:22:48 ET | positions=1 | entries=3
+2026-07-10T16:22:49 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:22:49 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:22:50 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:22:50 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:22:50 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.090 | OI=4881 | vol=14203
+2026-07-10T16:22:50 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.090 | OI=4881 | vol=14203
+2026-07-10T16:22:51 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:22:51 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:22:51 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:22:51 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:22:51 | INFO     | app.trading.trade_journal | Journal rejection 32: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:22:51 | INFO     | app.trading.trade_journal | Journal rejection 32: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:23:21 | INFO     | session_runner | [cycle 207] 12:23:21 ET | positions=1 | entries=3
+2026-07-10T16:23:21 | INFO     | session_runner | [cycle 207] 12:23:21 ET | positions=1 | entries=3
+2026-07-10T16:23:22 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:23:22 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:23:23 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:23:23 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:23:24 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.071 | OI=4881 | vol=14207
+2026-07-10T16:23:24 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.071 | OI=4881 | vol=14207
+2026-07-10T16:23:24 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:23:24 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:23:24 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:23:24 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:23:24 | INFO     | app.trading.trade_journal | Journal rejection 33: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:23:24 | INFO     | app.trading.trade_journal | Journal rejection 33: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:23:54 | INFO     | session_runner | [cycle 208] 12:23:54 ET | positions=1 | entries=3
+2026-07-10T16:23:54 | INFO     | session_runner | [cycle 208] 12:23:54 ET | positions=1 | entries=3
+2026-07-10T16:23:56 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:23:56 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:23:56 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:23:56 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:23:57 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.053 | OI=4881 | vol=14207
+2026-07-10T16:23:57 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.053 | OI=4881 | vol=14207
+2026-07-10T16:23:57 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:23:57 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:23:57 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:23:57 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:23:57 | INFO     | app.trading.trade_journal | Journal rejection 34: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:23:57 | INFO     | app.trading.trade_journal | Journal rejection 34: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:24:27 | INFO     | session_runner | [cycle 209] 12:24:27 ET | positions=1 | entries=3
+2026-07-10T16:24:27 | INFO     | session_runner | [cycle 209] 12:24:27 ET | positions=1 | entries=3
+2026-07-10T16:24:29 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:24:29 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:24:29 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:24:29 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:24:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.050 | OI=2887 | vol=11430
+2026-07-10T16:24:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.050 | OI=2887 | vol=11430
+2026-07-10T16:24:30 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:24:30 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:24:30 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:24:30 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:24:30 | INFO     | app.trading.trade_journal | Journal rejection 35: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:24:30 | INFO     | app.trading.trade_journal | Journal rejection 35: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:25:01 | INFO     | session_runner | [cycle 210] 12:25:01 ET | positions=1 | entries=3
+2026-07-10T16:25:01 | INFO     | session_runner | [cycle 210] 12:25:01 ET | positions=1 | entries=3
+2026-07-10T16:25:02 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:25:02 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:25:02 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:25:02 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:25:04 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.070 | OI=4295 | vol=10182
+2026-07-10T16:25:04 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00112000 | delta=N/A | spread_pct=0.070 | OI=4295 | vol=10182
+2026-07-10T16:25:04 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:25:04 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00112000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:25:04 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:25:04 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:25:04 | INFO     | app.trading.trade_journal | Journal rejection 36: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:25:04 | INFO     | app.trading.trade_journal | Journal rejection 36: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:25:34 | INFO     | session_runner | [cycle 211] 12:25:34 ET | positions=1 | entries=3
+2026-07-10T16:25:34 | INFO     | session_runner | [cycle 211] 12:25:34 ET | positions=1 | entries=3
+2026-07-10T16:25:35 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:25:35 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:25:36 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:25:36 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:25:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.089 | OI=4881 | vol=14256
+2026-07-10T16:25:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.089 | OI=4881 | vol=14256
+2026-07-10T16:25:37 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:25:37 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:25:37 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:25:37 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:25:37 | INFO     | app.trading.trade_journal | Journal rejection 37: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:25:37 | INFO     | app.trading.trade_journal | Journal rejection 37: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:26:07 | INFO     | session_runner | [cycle 212] 12:26:07 ET | positions=1 | entries=3
+2026-07-10T16:26:07 | INFO     | session_runner | [cycle 212] 12:26:07 ET | positions=1 | entries=3
+2026-07-10T16:26:09 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:26:09 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:26:09 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:26:09 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:26:10 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.077 | OI=2887 | vol=11486
+2026-07-10T16:26:10 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.077 | OI=2887 | vol=11486
+2026-07-10T16:26:10 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:26:10 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:26:10 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:26:10 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:26:10 | INFO     | app.trading.trade_journal | Journal rejection 38: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:26:10 | INFO     | app.trading.trade_journal | Journal rejection 38: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:26:40 | INFO     | session_runner | [cycle 213] 12:26:40 ET | positions=1 | entries=3
+2026-07-10T16:26:40 | INFO     | session_runner | [cycle 213] 12:26:40 ET | positions=1 | entries=3
+2026-07-10T16:26:42 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:26:42 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:26:42 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:26:42 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:26:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.098 | OI=5738 | vol=13271
+2026-07-10T16:26:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.098 | OI=5738 | vol=13271
+2026-07-10T16:26:43 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:26:43 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:26:43 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:26:43 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:26:43 | INFO     | app.trading.trade_journal | Journal rejection 39: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:26:43 | INFO     | app.trading.trade_journal | Journal rejection 39: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:27:13 | INFO     | session_runner | [cycle 214] 12:27:13 ET | positions=1 | entries=3
+2026-07-10T16:27:13 | INFO     | session_runner | [cycle 214] 12:27:13 ET | positions=1 | entries=3
+2026-07-10T16:27:15 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:27:15 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:27:16 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:27:16 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:27:16 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.035 | OI=2887 | vol=11508
+2026-07-10T16:27:16 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.035 | OI=2887 | vol=11508
+2026-07-10T16:27:16 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:27:16 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:27:16 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:27:16 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:27:16 | INFO     | app.trading.trade_journal | Journal rejection 40: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:27:16 | INFO     | app.trading.trade_journal | Journal rejection 40: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:27:46 | INFO     | session_runner | [cycle 215] 12:27:46 ET | positions=1 | entries=3
+2026-07-10T16:27:46 | INFO     | session_runner | [cycle 215] 12:27:46 ET | positions=1 | entries=3
+2026-07-10T16:27:47 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T16:27:47 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-10T16:27:49 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:27:49 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:27:50 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:27:50 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:27:50 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.018 | OI=2887 | vol=11508
+2026-07-10T16:27:50 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.018 | OI=2887 | vol=11508
+2026-07-10T16:27:50 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:27:50 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:27:50 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:27:50 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:27:50 | INFO     | app.trading.trade_journal | Journal rejection 41: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:27:50 | INFO     | app.trading.trade_journal | Journal rejection 41: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:28:20 | INFO     | session_runner | [cycle 216] 12:28:20 ET | positions=1 | entries=3
+2026-07-10T16:28:20 | INFO     | session_runner | [cycle 216] 12:28:20 ET | positions=1 | entries=3
+2026-07-10T16:28:22 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:28:22 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:28:22 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:28:22 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:28:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.083 | OI=5738 | vol=13329
+2026-07-10T16:28:23 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00115000 | delta=N/A | spread_pct=0.083 | OI=5738 | vol=13329
+2026-07-10T16:28:23 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:28:23 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00115000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:28:23 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:28:23 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:28:23 | INFO     | app.trading.trade_journal | Journal rejection 42: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:28:23 | INFO     | app.trading.trade_journal | Journal rejection 42: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:28:53 | INFO     | session_runner | [cycle 217] 12:28:53 ET | positions=1 | entries=3
+2026-07-10T16:28:53 | INFO     | session_runner | [cycle 217] 12:28:53 ET | positions=1 | entries=3
+2026-07-10T16:28:55 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:28:55 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:28:55 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:28:55 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:28:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.097 | OI=4881 | vol=14338
+2026-07-10T16:28:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.097 | OI=4881 | vol=14338
+2026-07-10T16:28:56 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:28:56 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:28:56 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:28:56 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:28:56 | INFO     | app.trading.trade_journal | Journal rejection 43: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:28:56 | INFO     | app.trading.trade_journal | Journal rejection 43: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:29:26 | INFO     | session_runner | [cycle 218] 12:29:26 ET | positions=1 | entries=3
+2026-07-10T16:29:26 | INFO     | session_runner | [cycle 218] 12:29:26 ET | positions=1 | entries=3
+2026-07-10T16:29:28 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:29:28 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:29:28 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:29:28 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:29:29 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.072 | OI=2887 | vol=11512
+2026-07-10T16:29:29 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00114000 | delta=N/A | spread_pct=0.072 | OI=2887 | vol=11512
+2026-07-10T16:29:29 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:29:29 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00114000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:29:29 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:29:29 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:29:29 | INFO     | app.trading.trade_journal | Journal rejection 44: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:29:29 | INFO     | app.trading.trade_journal | Journal rejection 44: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:29:59 | INFO     | session_runner | [cycle 219] 12:29:59 ET | positions=1 | entries=3
+2026-07-10T16:29:59 | INFO     | session_runner | [cycle 219] 12:29:59 ET | positions=1 | entries=3
+2026-07-10T16:30:01 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:30:01 | INFO     | session_runner | [bridge:NVDA] rsi_trend ready: sufficient bars
+2026-07-10T16:30:01 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:30:01 | INFO     | session_runner | [bridge:HOOD] rsi_trend ready: sufficient bars
+2026-07-10T16:30:03 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.047 | OI=4881 | vol=14478
+2026-07-10T16:30:03 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00113000 | delta=N/A | spread_pct=0.047 | OI=4881 | vol=14478
+2026-07-10T16:30:04 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:30:04 | WARNING  | app.risk.risk_manager | RiskManager: REJECTED OrderSide.BUY_TO_OPEN HOOD260710C00113000 | REJECTED | Max entries per day reached: 3/3
+2026-07-10T16:30:04 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:30:04 | INFO     | session_runner | Risk rejected HOOD: Max entries per day reached: 3/3
+2026-07-10T16:30:04 | INFO     | app.trading.trade_journal | Journal rejection 45: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:30:04 | INFO     | app.trading.trade_journal | Journal rejection 45: HOOD — Max entries per day reached: 3/3
+2026-07-10T16:30:34 | INFO     | session_runner | [cycle 220] 12:30:34 ET | positions=1 | entries=3
+2026-07-10T16:30:34 | INFO     | session_runner | [cycle 220] 12:30:34 ET | positions=1 | entries=3
+2026-07-10T16:30:34 | WARNING  | session_runner | EOD time reached — cancelling pending orders and liquidating all positions
+2026-07-10T16:30:34 | WARNING  | session_runner | EOD time reached — cancelling pending orders and liquidating all positions
+2026-07-10T16:30:34 | WARNING  | session_runner | EOD liquidation: closing 1 position(s)
+2026-07-10T16:30:34 | WARNING  | session_runner | EOD liquidation: closing 1 position(s)
+2026-07-10T16:30:35 | WARNING  | session_runner | Exit spread warning | MARA260710P00014000 | spread_pct=0.109 > max=0.100 | bid=1.3900 ask=1.5500 | reason=eod_exit (proceeding)
+2026-07-10T16:30:35 | WARNING  | session_runner | Exit spread warning | MARA260710P00014000 | spread_pct=0.109 > max=0.100 | bid=1.3900 ask=1.5500 | reason=eod_exit (proceeding)
+2026-07-10T16:30:35 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'MARA260710P00014000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '1.39', 'order_class': 'simple'}
+2026-07-10T16:30:35 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'MARA260710P00014000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '1.39', 'order_class': 'simple'}
+2026-07-10T16:30:35 | INFO     | session_runner | EOD exit order placed | MARA260710P00014000 | limit=1.3900 | order_id=88d61d07-ab79-4434-8ae0-aafc835abd83
+2026-07-10T16:30:35 | INFO     | session_runner | EOD exit order placed | MARA260710P00014000 | limit=1.3900 | order_id=88d61d07-ab79-4434-8ae0-aafc835abd83
+2026-07-10T16:30:35 | INFO     | app.trading.position_manager | Loss recorded on MARA260710P00014000 (pnl=-10.00) — cooldown active for 15 min
+2026-07-10T16:30:35 | INFO     | app.trading.position_manager | Loss recorded on MARA260710P00014000 (pnl=-10.00) — cooldown active for 15 min
+2026-07-10T16:30:35 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=3 exits=3 daily_pnl=-32.00
+2026-07-10T16:30:35 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=3 exits=3 daily_pnl=-32.00
+2026-07-10T16:30:35 | INFO     | app.trading.trade_journal | Journal exit 3: reason=eod_exit pnl=-10.00 hold=3197s
+2026-07-10T16:30:35 | INFO     | app.trading.trade_journal | Journal exit 3: reason=eod_exit pnl=-10.00 hold=3197s
+2026-07-10T16:30:35 | INFO     | session_runner | EOD closed MARA260710P00014000 pnl=-10.00
+2026-07-10T16:30:35 | INFO     | session_runner | EOD closed MARA260710P00014000 pnl=-10.00
+2026-07-10T16:30:35 | INFO     | session_runner | EOD complete — exiting session loop
+2026-07-10T16:30:35 | INFO     | session_runner | EOD complete — exiting session loop
+2026-07-10T16:30:35 | INFO     | session_runner | Shutdown: 0 position(s) open, 0 order(s) pending
+2026-07-10T16:30:35 | INFO     | session_runner | Shutdown: 0 position(s) open, 0 order(s) pending
+2026-07-10T16:30:35 | INFO     | session_runner | Health report: {"session_date": "2026-07-10", "generated_at": "2026-07-10T12:30:35.957641-04:00", "api_errors": 0, "reconciliation_warnings": [], "trades": {"total_closed": 3, "wins": 0, "losses": 3, "win_rate": 0.0, "still_open": 0, "rejected": 42, "cancelled": 0}, "realized_pnl": -32.0, "unrealized_pnl": 0, "avg_win": 0.0, "avg_loss": -10.67, "max_drawdown": 0.0, "orders": {"submitted": 3, "filled": 3, "partial_fills": 0, "cancelled": 0, "stale_cancels": 0, "rejected": 42, "status_breakdown": {"filled": 3}}, "by_strategy": {"orb": {"trades": 1, "wins": 0, "losses": 1, "pnl": -12.0, "win_rate": 0.0}, "vwap_reclaim": {"trades": 2, "wins": 0, "losses": 2, "pnl": -20.0, "win_rate": 0.0}}}
+2026-07-10T16:30:35 | INFO     | session_runner | Health report: {"session_date": "2026-07-10", "generated_at": "2026-07-10T12:30:35.957641-04:00", "api_errors": 0, "reconciliation_warnings": [], "trades": {"total_closed": 3, "wins": 0, "losses": 3, "win_rate": 0.0, "still_open": 0, "rejected": 42, "cancelled": 0}, "realized_pnl": -32.0, "unrealized_pnl": 0, "avg_win": 0.0, "avg_loss": -10.67, "max_drawdown": 0.0, "orders": {"submitted": 3, "filled": 3, "partial_fills": 0, "cancelled": 0, "stale_cancels": 0, "rejected": 42, "status_breakdown": {"filled": 3}}, "by_strategy": {"orb": {"trades": 1, "wins": 0, "losses": 1, "pnl": -12.0, "win_rate": 0.0}, "vwap_reclaim": {"trades": 2, "wins": 0, "losses": 2, "pnl": -20.0, "win_rate": 0.0}}}
+2026-07-10T16:30:35 | INFO     | session_runner | Health report written to logs/session_2026-07-10.json
+2026-07-10T16:30:35 | INFO     | session_runner | Health report written to logs/session_2026-07-10.json
+2026-07-10T16:30:36 | WARNING  | app.evaluation.post_session | Post-session: 1 orphaned broker position(s) not in local state: ['MARA260710P00014000']
+2026-07-10T16:30:36 | WARNING  | app.evaluation.post_session | Post-session: 1 orphaned broker position(s) not in local state: ['MARA260710P00014000']
+2026-07-10T16:30:37 | WARNING  | app.evaluation.orb_forward_performance | ORB forward perf: yfinance fetch for SOFI failed — Too Many Requests. Rate limited. Try after a while.
+2026-07-10T16:30:37 | WARNING  | app.evaluation.orb_forward_performance | ORB forward perf: yfinance fetch for SOFI failed — Too Many Requests. Rate limited. Try after a while.
+2026-07-10T16:30:37 | INFO     | app.evaluation.orb_forward_performance | ORB forward performance: updated 0/1 rows for 2026-07-10
+2026-07-10T16:30:37 | INFO     | app.evaluation.orb_forward_performance | ORB forward performance: updated 0/1 rows for 2026-07-10
+2026-07-10T16:30:37 | INFO     | app.evaluation.post_session | Post-session: ORB forward performance: 0 rows updated
+2026-07-10T16:30:37 | INFO     | app.evaluation.post_session | Post-session: ORB forward performance: 0 rows updated
+2026-07-10T16:30:37 | INFO     | app.evaluation.post_session | Post-session: evaluation report saved → evaluation/reports/2026-07-10.json
+2026-07-10T16:30:37 | INFO     | app.evaluation.post_session | Post-session: evaluation report saved → evaluation/reports/2026-07-10.json
+2026-07-10T16:30:37 | INFO     | app.evaluation.ledger | Evaluation ledger saved to evaluation/ledger.json (23 session(s))
+2026-07-10T16:30:37 | INFO     | app.evaluation.ledger | Evaluation ledger saved to evaluation/ledger.json (23 session(s))
+2026-07-10T16:30:37 | INFO     | app.evaluation.post_session | Post-session complete | date=2026-07-10 | cancelled=0 | report=evaluation/reports/2026-07-10.json | ledger=True
+2026-07-10T16:30:37 | INFO     | app.evaluation.post_session | Post-session complete | date=2026-07-10 | cancelled=0 | report=evaluation/reports/2026-07-10.json | ledger=True
+2026-07-10T16:30:37 | INFO     | session_runner | Post-session evaluation | report=evaluation/reports/2026-07-10.json | ledger_updated=True | errors=none
+2026-07-10T16:30:37 | INFO     | session_runner | Post-session evaluation | report=evaluation/reports/2026-07-10.json | ledger_updated=True | errors=none
+2026-07-10T16:30:37 | INFO     | session_runner | Session complete | cycles=220 | placed=2 | pnl=-32.00
+2026-07-10T16:30:37 | INFO     | session_runner | Session complete | cycles=220 | placed=2 | pnl=-32.00
+
+  Session complete — 220 cycles | 2 orders | P&L $-32.00
+

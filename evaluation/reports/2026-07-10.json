@@ -1,0 +1,212 @@
+{
+  "date": "2026-07-10",
+  "session_start": "2026-07-10 10:35:59 EDT",
+  "session_end": "2026-07-10 12:30:35 EDT",
+  "total_signals": 0,
+  "trades_submitted": 3,
+  "trades_filled": 3,
+  "trades_cancelled": 0,
+  "trades_rejected": 42,
+  "realized_pnl": -32.00000000000001,
+  "unrealized_pnl": 0,
+  "win_rate": 0.0,
+  "avg_win": null,
+  "avg_loss": -10.66666666666667,
+  "max_drawdown": 32.00000000000001,
+  "largest_win": null,
+  "largest_loss": -12.0,
+  "slippage_total": -0.050000000000000044,
+  "spread_cost_estimate": 7.500000000000006,
+  "fill_rate": 1.0,
+  "cancel_rate": 0.0,
+  "missed_fills_count": 0,
+  "time_to_fill_avg_secs": 41.87150933333333,
+  "avg_spread_at_entry": 0.05386651735507499,
+  "avg_spread_at_exit": 0.17733990147783243,
+  "stop_loss_hit_pct": 0.0,
+  "take_profit_hit_pct": 0.0,
+  "eod_exit_pct": 0.3333333333333333,
+  "fill_rate_by_mode": {
+    "marketable_limit": 1.0
+  },
+  "cancel_rate_by_mode": {
+    "marketable_limit": 0.0
+  },
+  "avg_fill_latency_by_mode": {
+    "marketable_limit": 41.87150933333333
+  },
+  "cancel_reason_breakdown": {},
+  "scanned_symbols_count": 152,
+  "candidate_count_passed": 10,
+  "candidate_count_rejected": 142,
+  "selected_symbols": [
+    "SOFI",
+    "MARA",
+    "HOOD",
+    "NVDA",
+    "SOFI",
+    "MARA",
+    "NVDA",
+    "HOOD",
+    "NVDA",
+    "MARA",
+    "SOFI",
+    "HOOD",
+    "MARA",
+    "NVDA",
+    "HOOD"
+  ],
+  "top_candidates": [
+    {
+      "symbol": "NVDA",
+      "score": 62.0,
+      "signal_type": "LONG"
+    },
+    {
+      "symbol": "MARA",
+      "score": 62.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "MARA",
+      "score": 62.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "SOFI",
+      "score": 60.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "NVDA",
+      "score": 57.0,
+      "signal_type": "LONG"
+    }
+  ],
+  "candidates_by_group": {
+    "high_beta_liquid": 44,
+    "mega_cap": 28,
+    "liquid_growth": 44,
+    "core_etfs": 36
+  },
+  "rejected_by_group": {
+    "mega_cap": 25,
+    "liquid_growth": 44,
+    "high_beta_liquid": 37,
+    "core_etfs": 36
+  },
+  "trades_by_group": {
+    "high_beta_liquid": 2,
+    "core_etfs": 1
+  },
+  "pnl_by_group": {
+    "high_beta_liquid": -22.000000000000007,
+    "core_etfs": -9.999999999999998
+  },
+  "liquidity_rejections": 48,
+  "pnl_by_symbol": {
+    "MARA": -10.0,
+    "SPY": -10.0,
+    "SOFI": -12.0
+  },
+  "win_rate_by_symbol": {
+    "MARA": 0.0,
+    "SPY": 0.0,
+    "SOFI": 0.0
+  },
+  "expectancy_by_symbol": {
+    "MARA": -10.0,
+    "SPY": -10.0,
+    "SOFI": -12.0
+  },
+  "api_errors": 0,
+  "kill_switch_events": 0,
+  "by_strategy": [
+    {
+      "strategy_id": "orb",
+      "signals": 0,
+      "submitted": 1,
+      "fills": 1,
+      "cancels": 0,
+      "rejects": 0,
+      "realized_pnl": -12.0,
+      "wins": 0,
+      "losses": 1,
+      "win_rate": 0.0,
+      "avg_win": null,
+      "avg_loss": -12.0
+    },
+    {
+      "strategy_id": "vwap_reclaim",
+      "signals": 0,
+      "submitted": 2,
+      "fills": 2,
+      "cancels": 0,
+      "rejects": 42,
+      "realized_pnl": -20.000000000000007,
+      "wins": 0,
+      "losses": 2,
+      "win_rate": 0.0,
+      "avg_win": null,
+      "avg_loss": -10.000000000000004
+    }
+  ],
+  "scanner_standby_activated": false,
+  "standby_reason": null,
+  "exit_spread_warning_count": 2,
+  "bridge_entries_count": 289,
+  "bridge_traded_count": 3,
+  "bridge_blocked_count": 42,
+  "bridge_skipped_count": 244,
+  "bridge_by_strategy": {
+    "orb": {
+      "traded": 1,
+      "blocked": 0,
+      "skipped": 0
+    },
+    "rsi_trend": {
+      "traded": 0,
+      "blocked": 0,
+      "skipped": 242
+    },
+    "vwap_reclaim": {
+      "traded": 2,
+      "blocked": 42,
+      "skipped": 2
+    }
+  },
+  "bridge_top_blocked_reasons": [
+    "risk: Max entries per day reached: 3/3"
+  ],
+  "sample_size_warning": "Sample size too small for statistical conclusions (3 fill(s) this session). Win rate and PnL metrics require 30+ trades to be meaningful.",
+  "orb_signals_total": 1,
+  "orb_signals_traded": 1,
+  "orb_signals_blocked": 0,
+  "orb_signals_skipped": 0,
+  "orb_quality_distribution": {
+    "2": 1
+  },
+  "orb_slot_reserved_events": 0,
+  "orb_actual_pnl": -12.0,
+  "orb_avg_quality": 2.0,
+  "orb_top_blocked_reasons": [],
+  "orb_avg_fwd_pct_5m": null,
+  "orb_avg_fwd_pct_15m": null,
+  "orb_avg_fwd_pct_30m": null,
+  "pnl_by_strategy": {
+    "orb": -12.0,
+    "vwap_reclaim": -20.000000000000007
+  },
+  "notes": [
+    "93% of signals were rejected (42/45)",
+    "Win rate 0% is below 40%",
+    "Net loss session: $-32.00",
+    "2 exit spread warning(s) \u2014 spread exceeded max_spread_pct at exit",
+    "Entry counter fix validated: entries increment on fill (not at order placement), exits tracked separately and do not consume entry capacity"
+  ],
+  "recommendations": [
+    "Review signal filters \u2014 high rejection rate may indicate overly strict criteria or poor market fit",
+    "Win rate below 40%; consider tightening entry criteria or adjusting profit/stop targets",
+    "Wide exit spreads recorded; consider using marketable_limit exit mode or tighter spread gate"
+  ]
+}

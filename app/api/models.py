@@ -53,7 +53,10 @@ async def _migrate_schema(conn) -> None:
         ("trade_journal", "mae",                "FLOAT"),
         ("trade_journal", "exit_quote_bid",     "FLOAT"),
         ("trade_journal", "exit_order_id",      "VARCHAR(128)"),
-        ("scan_results",  "universe_group",     "VARCHAR(32)"),
+        ("positions",     "journal_id",             "INTEGER"),
+        ("positions",     "exit_pending",           "BOOLEAN"),
+        ("positions",     "exit_triggered_reason",  "VARCHAR(32)"),
+        ("scan_results",  "universe_group",         "VARCHAR(32)"),
         ("signal_bridge", "confluence_count",             "INTEGER"),
         ("signal_bridge", "reconciliation_passed",         "BOOLEAN"),
         ("signal_bridge", "underlying_price_at_signal",    "FLOAT"),
@@ -128,6 +131,9 @@ class DBPosition(Base):
     strategy_id = Column(String(64))
     opened_at = Column(DateTime)
     updated_at = Column(DateTime, onupdate=func.now(), server_default=func.now())
+    journal_id = Column(Integer, index=True)             # FK to trade_journal.id
+    exit_pending = Column(Boolean, default=False)        # True while exit order is outstanding
+    exit_triggered_reason = Column(String(32))           # reason that triggered the exit order
 
 
 class DBBacktestResult(Base):

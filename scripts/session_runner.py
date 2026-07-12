@@ -127,6 +127,66 @@ def _compute_strategy_readiness(strategies: list, now_et: datetime) -> list:
     return result
 
 
+# ── DBPosition sync ──────────────────────────────────────────────────────────
+
+async def _sync_positions_to_db(db, pm) -> None:
+    """
+    Upsert all open PositionManager positions into the DBPosition table so the
+    dashboard API (a separate process in the supervisor model) can serve them
+    without access to the in-memory PositionManager.
+
+    Called once per poll cycle, after fill processing and position monitoring.
+    Stale rows (positions that are no longer open) are deleted.
+    """
+    from app.api.models import DBPosition
+    from sqlalchemy import delete, select
+
+    open_positions = pm.open_positions()
+    active_syms = {p.option_symbol for p in open_positions}
+
+    # Remove rows for positions that are no longer open
+    if active_syms:
+        await db.execute(
+            delete(DBPosition).where(DBPosition.option_symbol.not_in(list(active_syms)))
+        )
+    else:
+        await db.execute(delete(DBPosition))
+        await db.commit()
+        return
+
+    # Load existing rows once to avoid per-row SELECTs
+    existing_rows = (await db.execute(select(DBPosition))).scalars().all()
+    existing_map = {r.option_symbol: r for r in existing_rows}
+
+    for pos in open_positions:
+        unrealized = round((pos.current_price - pos.entry_price) * pos.quantity * 100, 2)
+        row = existing_map.get(pos.option_symbol)
+        if row is not None:
+            row.quantity = pos.quantity
+            row.avg_cost = pos.entry_price
+            row.current_price = pos.current_price
+            row.unrealized_pnl = unrealized
+            row.strategy_id = pos.strategy_id
+            row.exit_pending = pos.exit_pending
+            row.exit_triggered_reason = pos.exit_triggered_reason
+        else:
+            db.add(DBPosition(
+                symbol=pos.symbol,
+                option_symbol=pos.option_symbol,
+                quantity=pos.quantity,
+                avg_cost=pos.entry_price,
+                current_price=pos.current_price,
+                unrealized_pnl=unrealized,
+                strategy_id=pos.strategy_id,
+                opened_at=pos.entry_time,
+                exit_pending=pos.exit_pending,
+                exit_triggered_reason=pos.exit_triggered_reason,
+                journal_id=pos.journal_id,
+            ))
+
+    await db.commit()
+
+
 # ── EXIT_PENDING helpers ──────────────────────────────────────────────────────
 
 async def _place_exit_order(
@@ -137,6 +197,7 @@ async def _place_exit_order(
     reason: str,
     is_mandatory: bool,
     current_bid: Optional[float] = None,
+    journal=None,
 ) -> None:
     """Fetch bid if needed, place a sell-to-close limit, and mark EXIT_PENDING."""
     from app.brokers.broker_interface import (
@@ -184,6 +245,9 @@ async def _place_exit_order(
             exit_quote_bid=exit_quote_bid,
             now=now,
         )
+        if journal is not None and pos.journal_id:
+            await journal.mark_exit_pending(pos.journal_id, order.order_id, float(_lp))
+            await journal.commit()
         logger.info(
             "Exit order placed | %s | limit=%.4f | order_id=%s | reason=%s",
             pos.option_symbol, float(_lp), order.order_id[:8], reason,
@@ -308,7 +372,7 @@ async def _poll_pending_exit(
         )
         pm.clear_exit_pending(pos.option_symbol)
         if is_mandatory:
-            await _place_exit_order(pos, broker, pm, now, reason, is_mandatory)
+            await _place_exit_order(pos, broker, pm, now, reason, is_mandatory, journal=journal)
         # Non-mandatory: Phase 2 will re-evaluate on next cycle
         return False
 
@@ -357,7 +421,7 @@ async def _poll_pending_exit(
     pm.clear_exit_pending(pos.option_symbol)
 
     if is_mandatory:
-        await _place_exit_order(pos, broker, pm, now, reason, is_mandatory, current_bid=current_bid)
+        await _place_exit_order(pos, broker, pm, now, reason, is_mandatory, current_bid=current_bid, journal=journal)
     else:
         # Re-evaluate condition at current price before re-placing
         current_price = float(quote.mid) if float(quote.mid) > 0 else current_bid
@@ -368,6 +432,7 @@ async def _poll_pending_exit(
                 pos, broker, pm, now, new_reason,
                 new_reason in _MANDATORY_EXIT_REASONS,
                 current_bid=current_bid,
+                journal=journal,
             )
         else:
             logger.info(
@@ -481,6 +546,7 @@ async def monitor_positions(
             pos, broker, pm, now, reason,
             reason in _MANDATORY_EXIT_REASONS,
             current_bid=_exit_bid,
+            journal=journal,
         )
 
     return closed
@@ -578,6 +644,9 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
                 label=f"eod_exit_order({pos.option_symbol})",
             )
             pm.mark_exit_pending(pos.option_symbol, order.order_id, float(_lp), "eod_exit", True, _bid, now)
+            if journal and pos.journal_id:
+                await journal.mark_exit_pending(pos.journal_id, order.order_id, float(_lp))
+                await journal.commit()
             logger.info(
                 "EOD exit order placed | %s | limit=%.4f | order_id=%s",
                 pos.option_symbol, float(_lp), order.order_id[:8],
@@ -676,6 +745,9 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
                 try:
                     _new_ord = await _retry(lambda: broker.place_option_order(_rq), label=f"eod_requeue({pos.option_symbol})")
                     pm.mark_exit_pending(pos.option_symbol, _new_ord.order_id, float(_new_lp), "eod_exit", True, _new_bid, poll_now)
+                    if journal and pos.journal_id:
+                        await journal.mark_exit_pending(pos.journal_id, _new_ord.order_id, float(_new_lp))
+                        await journal.commit()
                     logger.info("EOD re-queued | %s | limit=%.4f | order_id=%s", pos.option_symbol, float(_new_lp), _new_ord.order_id[:8])
                 except Exception as exc:
                     logger.error("EOD re-queue failed for %s: %s", pos.option_symbol, exc)
@@ -701,6 +773,9 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
                     )
                     _rp_ord = await _retry(lambda: broker.place_option_order(_rp), label=f"eod_reprice({pos.option_symbol})")
                     pm.mark_exit_pending(pos.option_symbol, _rp_ord.order_id, float(_new_lp), "eod_exit", True, _cur_bid, poll_now)
+                    if journal and pos.journal_id:
+                        await journal.mark_exit_pending(pos.journal_id, _rp_ord.order_id, float(_new_lp))
+                        await journal.commit()
                     logger.info("EOD repriced | %s | %.4f → %.4f | order_id=%s", pos.option_symbol, pos.exit_order_limit_price, float(_new_lp), _rp_ord.order_id[:8])
                 except Exception as exc:
                     logger.warning("EOD reprice for %s failed: %s", pos.option_symbol, exc)
@@ -1830,7 +1905,7 @@ async def run_session(args: argparse.Namespace):
     if store:
         try:
             recovery_result = await SessionRecovery().recover(
-                broker, pm, fill_tracker, store, today_str, journal=journal
+                broker, pm, fill_tracker, store, today_str, journal=journal, risk=risk
             )
             for w in recovery_result.warnings:
                 logger.warning("Recovery: %s", w)
@@ -2040,6 +2115,12 @@ async def run_session(args: argparse.Namespace):
         closed = await monitor_positions(broker, pm, journal, risk, now, args.dry_run, alert_service=alert_service, settings=settings)
         if closed:
             logger.info("Closed %d position(s) this cycle", closed)
+
+        # Sync open positions to DB so the API process can serve them
+        try:
+            await _sync_positions_to_db(db_session, pm)
+        except Exception as _sync_exc:
+            logger.debug("DBPosition sync failed (non-fatal): %s", _sync_exc)
 
         # Periodic re-scan (skip in fill-test mode)
         if (

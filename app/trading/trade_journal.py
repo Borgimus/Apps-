@@ -358,6 +358,73 @@ class TradeJournal:
         )
         self._db.add(row)
 
+    # ── Exit-pending tracking ──────────────────────────────────────────────────
+
+    async def mark_exit_pending(
+        self,
+        journal_id: int,
+        exit_order_id: str,
+        exit_limit_price: float,
+    ) -> None:
+        """
+        Record the exit order ID the moment an exit order is placed.
+        Called before the fill is confirmed so the order is recoverable
+        after a process restart.  record_exit() will overwrite exit_order_id
+        again with the same value (idempotent) when the fill is confirmed.
+        """
+        row = await self._db.get(DBTradeJournal, journal_id)
+        if row is None:
+            logger.warning("Journal record %d not found for mark_exit_pending", journal_id)
+            return
+        row.exit_order_id = exit_order_id
+        logger.debug(
+            "Journal mark_exit_pending %d: order=%s limit=%.4f",
+            journal_id,
+            exit_order_id[:8] if exit_order_id else "?",
+            exit_limit_price,
+        )
+
+    async def get_session_summary(self, session_date: str) -> dict:
+        """
+        Return entry count and cumulative realized PnL for a session date.
+        Used by SessionRecovery to restore RiskManager daily counters.
+
+        entries: rows with real entry attempts (status open or closed,
+                 rejection_reason is null).
+        pnl    : sum of realized_pnl for closed trades only.
+        """
+        from decimal import Decimal
+        from sqlalchemy import func, select
+        result = await self._db.execute(
+            select(
+                func.count().label("entries"),
+                func.coalesce(func.sum(DBTradeJournal.realized_pnl), 0.0).label("pnl"),
+            ).where(
+                DBTradeJournal.session_date == session_date,
+                DBTradeJournal.status.in_(["open", "closed"]),
+                DBTradeJournal.rejection_reason.is_(None),
+            )
+        )
+        row = result.one()
+        return {"entries": int(row.entries), "pnl": Decimal(str(row.pnl))}
+
+    async def get_open_with_exit_order(self, session_date: str):
+        """
+        Return open journal rows that have an exit_order_id set.
+        Used by SessionRecovery to restore EXIT_PENDING state after a restart:
+        any open row with exit_order_id means an exit order was placed but not
+        yet confirmed before the process crashed.
+        """
+        from sqlalchemy import select
+        result = await self._db.execute(
+            select(DBTradeJournal).where(
+                DBTradeJournal.session_date == session_date,
+                DBTradeJournal.status == "open",
+                DBTradeJournal.exit_order_id.isnot(None),
+            )
+        )
+        return list(result.scalars().all())
+
     # ── Commit ────────────────────────────────────────────────────────────────
 
     async def commit(self):

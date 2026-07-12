@@ -72,6 +72,7 @@ class SessionRecovery:
         store: PendingOrderStore,
         session_date: str,
         journal=None,
+        risk=None,
     ) -> RecoveryResult:
         result = RecoveryResult()
         now = datetime.now(tz=ET)
@@ -208,6 +209,48 @@ class SessionRecovery:
             msg = f"Could not check broker open orders: {exc}"
             logger.warning("Recovery: %s", msg)
             result.warnings.append(msg)
+
+        # ── Step 5: Restore RiskManager daily counters from trade_journal ────
+        if journal is not None and risk is not None:
+            try:
+                summary = await journal.get_session_summary(session_date)
+                risk.restore_daily_counters(
+                    entries=summary["entries"],
+                    pnl=summary["pnl"],
+                    pending=result.pending_orders_loaded,
+                )
+            except Exception as exc:
+                msg = f"Failed to restore risk counters from DB: {exc}"
+                logger.error("Recovery: %s", msg)
+                result.errors.append(msg)
+
+        # ── Step 6: Re-mark EXIT_PENDING for positions with outstanding exits ─
+        if journal is not None:
+            try:
+                exit_rows = await journal.get_open_with_exit_order(session_date)
+                for row in exit_rows:
+                    if not pm.has_position(row.option_symbol):
+                        continue
+                    pm.mark_exit_pending(
+                        option_symbol=row.option_symbol,
+                        order_id=row.exit_order_id,
+                        limit_price=0.0,  # unknown after restart; reprice will trigger
+                        reason="recovered_exit",
+                        is_mandatory=True,
+                        exit_quote_bid=None,
+                        now=now,
+                    )
+                    logger.info(
+                        "Recovery: re-marked EXIT_PENDING for %s "
+                        "(order %s from prior session)",
+                        row.option_symbol,
+                        (row.exit_order_id or "")[:8],
+                    )
+                    result.pending_orders_loaded += 1
+            except Exception as exc:
+                msg = f"Failed to restore EXIT_PENDING state: {exc}"
+                logger.error("Recovery: %s", msg)
+                result.errors.append(msg)
 
         logger.info(
             "Recovery complete: %d pending orders, %d broker positions, "

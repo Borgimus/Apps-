@@ -172,6 +172,36 @@ class RiskManager:
         else:
             self.record_entry_pending()
 
+    def restore_daily_counters(
+        self,
+        entries: int,
+        pnl: Decimal,
+        pending: int,
+    ) -> None:
+        """
+        Restore daily counters from persistent state after a process restart.
+        Must be called after start_session() so _session_date is set.
+
+        entries: filled-entry count from trade_journal (status open or closed,
+                 rejection_reason is null).
+        pnl    : sum of realized_pnl for closed trades today.
+        pending: pending-order count from DBPendingOrder.
+        """
+        if self._session_date is None:
+            raise RuntimeError("restore_daily_counters called before start_session()")
+        prev_entries = self._entries_today
+        prev_pending = self._pending_entries
+        self._entries_today = max(self._entries_today, entries)
+        self._pending_entries = max(self._pending_entries, pending)
+        self._daily_pnl = pnl  # DB sum of realized PnL is authoritative
+        logger.info(
+            "RiskManager: counters restored from DB "
+            "| entries %d→%d | pending %d→%d | pnl %.2f",
+            prev_entries, self._entries_today,
+            prev_pending, self._pending_entries,
+            float(self._daily_pnl),
+        )
+
     # ── Main check ────────────────────────────────────────────────────────────
 
     def check_order(

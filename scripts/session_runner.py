@@ -82,6 +82,11 @@ async def _retry(coro_fn, label: str = "", max_retries: int = 3):
     raise last_exc
 
 
+# ── Exit state constants ──────────────────────────────────────────────────────
+
+_MANDATORY_EXIT_REASONS = frozenset({"stop_loss", "max_hold", "eod_exit", "daily_loss", "kill_switch"})
+
+
 # ── Stale quote detection ─────────────────────────────────────────────────────
 
 def _is_stale(fetched_at: Optional[datetime], max_age_secs: int = 60) -> bool:
@@ -122,6 +127,256 @@ def _compute_strategy_readiness(strategies: list, now_et: datetime) -> list:
     return result
 
 
+# ── EXIT_PENDING helpers ──────────────────────────────────────────────────────
+
+async def _place_exit_order(
+    pos,
+    broker,
+    pm,
+    now: datetime,
+    reason: str,
+    is_mandatory: bool,
+    current_bid: Optional[float] = None,
+) -> None:
+    """Fetch bid if needed, place a sell-to-close limit, and mark EXIT_PENDING."""
+    from app.brokers.broker_interface import (
+        OrderRequest as _OReq,
+        OrderSide as _OSide,
+        OrderType as _OType,
+    )
+    if current_bid is None:
+        try:
+            quote = await _retry(
+                lambda p=pos: broker.get_option_quote(p.option_symbol),
+                label=f"exit_quote({pos.option_symbol})",
+            )
+            current_bid = float(quote.bid) if float(quote.bid) > 0 else None
+        except Exception:
+            current_bid = None
+
+    exit_quote_bid = current_bid
+    _remaining = max(1, pos.quantity - pos.confirmed_fill_qty)
+    fallback = pos.current_price if pos.current_price > 0 else pos.entry_price
+    _lp = Decimal(str(round(
+        current_bid if (current_bid and current_bid > 0) else fallback * 0.98, 2
+    )))
+    _req = _OReq(
+        symbol=pos.symbol,
+        option_symbol=pos.option_symbol,
+        side=_OSide.SELL_TO_CLOSE,
+        quantity=_remaining,
+        order_type=_OType.LIMIT,
+        limit_price=_lp,
+        strategy_id=pos.strategy_id,
+        notes=f"exit:{reason}",
+    )
+    try:
+        order = await _retry(
+            lambda: broker.place_option_order(_req),
+            label=f"exit_order({pos.option_symbol})",
+        )
+        pm.mark_exit_pending(
+            pos.option_symbol,
+            order_id=order.order_id,
+            limit_price=float(_lp),
+            reason=reason,
+            is_mandatory=is_mandatory,
+            exit_quote_bid=exit_quote_bid,
+            now=now,
+        )
+        logger.info(
+            "Exit order placed | %s | limit=%.4f | order_id=%s | reason=%s",
+            pos.option_symbol, float(_lp), order.order_id[:8], reason,
+        )
+    except Exception as exc:
+        logger.error(
+            "Exit order placement failed for %s: %s — position remains open (retry next cycle)",
+            pos.option_symbol, exc,
+        )
+
+
+async def _poll_pending_exit(
+    pos,
+    broker,
+    pm,
+    journal,
+    risk,
+    now: datetime,
+    alert_service=None,
+) -> bool:
+    """
+    Service one EXIT_PENDING position: check broker fill, close on confirmation,
+    reprice on material bid move.  Returns True if position was fully closed.
+    """
+    from app.brokers.broker_interface import OrderStatus as _OStatus
+
+    _terminal = (_OStatus.CANCELLED, _OStatus.CANCELED, _OStatus.REJECTED, _OStatus.EXPIRED)
+
+    # ── Fetch order status ──────────────────────────────────────────────────
+    try:
+        order = await _retry(
+            lambda oid=pos.exit_order_id: broker.get_order_status(oid),
+            label=f"order_status({pos.exit_order_id[:8] if pos.exit_order_id else '?'})",
+        )
+    except Exception as exc:
+        logger.warning("Cannot fetch exit order status for %s: %s", pos.option_symbol, exc)
+        return False
+
+    status = order.status
+    broker_qty = order.filled_quantity
+    broker_price = float(order.filled_price) if order.filled_price else 0.0
+
+    # Accumulate any new partial fills before evaluating status
+    if broker_qty > pos.confirmed_fill_qty and broker_price > 0:
+        pm.record_partial_fill(pos.option_symbol, broker_qty - pos.confirmed_fill_qty, broker_price)
+        pos = pm.get_position(pos.option_symbol)
+        if pos is None:
+            return True
+
+    # ── Fully filled ────────────────────────────────────────────────────────
+    fully_filled = (
+        status == _OStatus.FILLED
+        or (status == _OStatus.PARTIALLY_FILLED and broker_qty >= pos.quantity)
+    )
+    if fully_filled:
+        avg_fill = (
+            pos.confirmed_fill_value / pos.confirmed_fill_qty
+            if pos.confirmed_fill_qty > 0
+            else broker_price
+        )
+        pnl = (avg_fill - pos.entry_price) * 100 * pos.quantity
+        hold_secs = (now - pos.entry_time).total_seconds()
+        pm.close_confirmed(pos.option_symbol, avg_fill, pnl)
+        risk.record_exit(Decimal(str(pnl)))
+        if pos.journal_id and journal:
+            _mfe = round((pos.peak_price - pos.entry_price) * 100 * pos.quantity, 2)
+            _mae = round((pos.trough_price - pos.entry_price) * 100 * pos.quantity, 2)
+            await journal.record_exit(
+                journal_id=pos.journal_id,
+                exit_time=order.filled_at or now,
+                exit_price=avg_fill,
+                exit_reason=pos.exit_triggered_reason,
+                realized_pnl=pnl,
+                hold_duration_secs=hold_secs,
+                filled_quantity=pos.quantity,
+                exit_bid=pos.exit_quote_bid,
+                peak_price=pos.peak_price,
+                trough_price=pos.trough_price,
+                mfe=_mfe,
+                mae=_mae,
+                exit_order_id=pos.exit_order_id,
+                exit_quote_bid=pos.exit_quote_bid,
+            )
+            await journal.log_event(
+                event="exit",
+                message=f"{pos.option_symbol} closed: {pos.exit_triggered_reason} pnl={pnl:.2f}",
+                level="info",
+                symbol=pos.symbol,
+                data={
+                    "reason": pos.exit_triggered_reason,
+                    "pnl": round(pnl, 2),
+                    "hold_secs": round(hold_secs),
+                    "fill_price": avg_fill,
+                    "exit_order_id": pos.exit_order_id,
+                },
+            )
+            await journal.commit()
+        if alert_service:
+            from app.utils.alerting import AlertEvent
+            _r = pos.exit_triggered_reason
+            _aevent = (
+                AlertEvent.STOP_LOSS if _r == "stop_loss" else
+                AlertEvent.TAKE_PROFIT if _r in ("take_profit", "trailing_stop") else
+                None
+            )
+            if _aevent:
+                await alert_service.send(
+                    _aevent,
+                    f"{pos.option_symbol} {_r} pnl={pnl:.2f}",
+                    data={"symbol": pos.symbol, "reason": _r, "pnl": round(pnl, 2)},
+                )
+        return True
+
+    # ── Terminal: cancelled / rejected / expired ────────────────────────────
+    if status in _terminal:
+        reason = pos.exit_triggered_reason
+        is_mandatory = pos.exit_is_mandatory
+        logger.warning(
+            "Exit order %s for %s terminal status: %s",
+            pos.exit_order_id[:8] if pos.exit_order_id else "?",
+            pos.option_symbol, status,
+        )
+        pm.clear_exit_pending(pos.option_symbol)
+        if is_mandatory:
+            await _place_exit_order(pos, broker, pm, now, reason, is_mandatory)
+        # Non-mandatory: Phase 2 will re-evaluate on next cycle
+        return False
+
+    # ── Still open: check for material bid move (bid < limit − $0.01) ───────
+    try:
+        quote = await _retry(
+            lambda p=pos: broker.get_option_quote(p.option_symbol),
+            label=f"exit_reprice_quote({pos.option_symbol})",
+        )
+        current_bid = float(quote.bid) if float(quote.bid) > 0 else 0.0
+    except Exception:
+        return False
+
+    if current_bid <= 0 or current_bid >= pos.exit_order_limit_price - 0.01:
+        return False  # order still competitive
+
+    logger.info(
+        "Material bid move | %s | order=%s | limit=%.4f → bid=%.4f",
+        pos.option_symbol, pos.exit_order_id[:8] if pos.exit_order_id else "?",
+        pos.exit_order_limit_price, current_bid,
+    )
+    try:
+        await broker.cancel_order(pos.exit_order_id)
+    except Exception as exc:
+        logger.warning("Cancel stale exit for %s failed: %s", pos.option_symbol, exc)
+        return False
+
+    # Confirm cancellation before re-placing
+    try:
+        cancelled = await _retry(
+            lambda oid=pos.exit_order_id: broker.get_order_status(oid),
+            label=f"cancel_confirm({pos.exit_order_id[:8] if pos.exit_order_id else '?'})",
+        )
+        if cancelled.status not in (_OStatus.CANCELLED, _OStatus.CANCELED):
+            logger.warning(
+                "Cancel unconfirmed for %s (status=%s) — leaving as-is",
+                pos.option_symbol, cancelled.status,
+            )
+            return False
+    except Exception as exc:
+        logger.warning("Cannot confirm cancel for %s: %s — leaving as-is", pos.option_symbol, exc)
+        return False
+
+    reason = pos.exit_triggered_reason
+    is_mandatory = pos.exit_is_mandatory
+    pm.clear_exit_pending(pos.option_symbol)
+
+    if is_mandatory:
+        await _place_exit_order(pos, broker, pm, now, reason, is_mandatory, current_bid=current_bid)
+    else:
+        # Re-evaluate condition at current price before re-placing
+        current_price = float(quote.mid) if float(quote.mid) > 0 else current_bid
+        pm.update_price(pos.option_symbol, current_price)
+        new_reason = pm.should_exit(pos.option_symbol, current_price, now)
+        if new_reason:
+            await _place_exit_order(
+                pos, broker, pm, now, new_reason,
+                new_reason in _MANDATORY_EXIT_REASONS,
+                current_bid=current_bid,
+            )
+        else:
+            logger.info(
+                "Exit condition %s no longer holds for %s after bid move — position stays open",
+                reason, pos.option_symbol,
+            )
+    return False
+
+
 # ── Position monitor (update + exit) ─────────────────────────────────────────
 
 async def monitor_positions(
@@ -135,14 +390,29 @@ async def monitor_positions(
     settings=None,
 ) -> int:
     """
-    For every open position, fetch a live quote, check exit conditions,
-    and close if triggered.  Returns number of positions closed.
+    Phase 1: service EXIT_PENDING positions — poll broker fill status, close on
+    confirmation, reprice on material bid move.
+    Phase 2: evaluate exit conditions for non-pending positions — place exit
+    orders but never close locally without broker confirmation.
+    Returns number of positions fully closed this cycle.
     """
     closed = 0
+
+    # ── Phase 1: service EXIT_PENDING positions ──────────────────────────────
     for pos in list(pm.open_positions()):
-        # Fetch live quote with retry
-        _exit_bid: float | None = None
-        _exit_ask: float | None = None
+        if not pos.exit_pending or dry_run:
+            continue
+        was_closed = await _poll_pending_exit(pos, broker, pm, journal, risk, now, alert_service)
+        if was_closed:
+            closed += 1
+
+    # ── Phase 2: evaluate exit conditions for non-pending positions ──────────
+    for pos in list(pm.open_positions()):
+        if pos.exit_pending:
+            continue
+
+        _exit_bid: Optional[float] = None
+        _exit_ask: Optional[float] = None
         try:
             quote = await _retry(
                 lambda p=pos: broker.get_option_quote(p.option_symbol),
@@ -152,296 +422,302 @@ async def monitor_positions(
             _exit_bid = float(quote.bid)
             _exit_ask = float(quote.ask)
         except Exception:
-            current_price = pos.entry_price  # hold without data
+            current_price = pos.entry_price
 
         pm.update_price(pos.option_symbol, current_price)
         reason = pm.should_exit(pos.option_symbol, current_price, now)
 
-        if reason:
-            # Exit limit orders are placed at bid; use bid as the accounting price
-            # so P&L reflects realistic execution rather than the midpoint.
-            _exit_price_pnl = (
-                _exit_bid if (_exit_bid is not None and _exit_bid > 0) else current_price
-            )
-            pnl = (_exit_price_pnl - pos.entry_price) * 100 * pos.quantity
-            hold_secs = (now - pos.entry_time).total_seconds()
-            logger.info(
-                "Position exit | %s | reason=%s | price=%.4f | pnl=%.2f",
-                pos.option_symbol, reason, _exit_price_pnl, pnl,
-            )
+        if not reason:
+            continue
 
-            # ── Exit spread awareness ──────────────────────────────────────
-            # Warn when spread is wide, but never block emergency exits.
-            _emergency_reasons = ("stop_loss", "eod_exit")
-            if (
-                settings is not None
-                and _exit_bid is not None
-                and _exit_ask is not None
-                and _exit_ask > 0
-            ):
-                _mid = (_exit_bid + _exit_ask) / 2
-                if _mid > 0:
-                    _spread_pct = (_exit_ask - _exit_bid) / _mid
-                    _max_spread = getattr(settings.risk, "max_spread_pct", 0.10)
-                    if _spread_pct > _max_spread:
-                        logger.warning(
-                            "Exit spread warning | %s | spread_pct=%.3f > max=%.3f | "
-                            "bid=%.4f ask=%.4f | reason=%s",
-                            pos.option_symbol, _spread_pct, _max_spread,
-                            _exit_bid, _exit_ask, reason,
-                        )
-                        if journal:
-                            await journal.log_event(
-                                event="exit_spread_warning",
-                                message=(
-                                    f"{pos.option_symbol} wide spread on exit: "
-                                    f"spread_pct={_spread_pct:.3f} > max={_max_spread:.3f}"
-                                ),
-                                level="warning",
-                                symbol=pos.symbol,
-                                data={
-                                    "reason": reason,
-                                    "spread_pct": round(_spread_pct, 4),
-                                    "max_spread_pct": _max_spread,
-                                    "bid": _exit_bid,
-                                    "ask": _exit_ask,
-                                    "is_emergency": reason in _emergency_reasons,
-                                },
-                            )
-                            await journal.commit()
+        _exit_price_est = _exit_bid if (_exit_bid and _exit_bid > 0) else current_price
+        logger.info(
+            "Exit triggered | %s | reason=%s | bid=%.4f | pnl_est=%.2f",
+            pos.option_symbol, reason, _exit_price_est,
+            (_exit_price_est - pos.entry_price) * 100 * pos.quantity,
+        )
 
-            if not dry_run:
-                # Place exit order with broker before removing from local state
-                from app.brokers.broker_interface import (
-                    OrderRequest as _OReq,
-                    OrderSide as _OSide,
-                    OrderType as _OType,
-                    OrderStatus as _OStatus,
-                )
-
-                # Cancel any existing open sell order for this symbol (Bug D fix).
-                # Alpaca returns 403 if we place a new sell while one is already open.
-                try:
-                    _open_orders = await broker.get_orders(status=None, limit=50)
-                    for _o in _open_orders:
-                        if (
-                            _o.option_symbol == pos.option_symbol
-                            and _o.side == _OSide.SELL_TO_CLOSE
-                            and _o.status not in (_OStatus.FILLED, _OStatus.CANCELLED, _OStatus.REJECTED)
-                        ):
-                            logger.warning(
-                                "Cancelling stale exit order %s for %s (limit=%.4f) "
-                                "before placing fresh exit at current bid",
-                                _o.order_id[:8], pos.option_symbol, float(_o.limit_price),
-                            )
-                            await broker.cancel_order(_o.order_id)
-                except Exception as _chk_exc:
+        # Spread warning — never blocks exit
+        if settings and _exit_bid and _exit_ask and _exit_ask > 0:
+            _mid = (_exit_bid + _exit_ask) / 2
+            if _mid > 0:
+                _spread_pct = (_exit_ask - _exit_bid) / _mid
+                _max_spread = getattr(settings.risk, "max_spread_pct", 0.10)
+                if _spread_pct > _max_spread:
                     logger.warning(
-                        "Could not check/cancel existing exit orders for %s: %s — proceeding",
-                        pos.option_symbol, _chk_exc,
+                        "Exit spread warning | %s | spread_pct=%.3f > max=%.3f | "
+                        "bid=%.4f ask=%.4f | reason=%s",
+                        pos.option_symbol, _spread_pct, _max_spread,
+                        _exit_bid, _exit_ask, reason,
                     )
-
-                _exit_lp = Decimal(str(round(
-                    _exit_bid if (_exit_bid or 0) > 0 else current_price * 0.98, 2
-                )))
-                _exit_req = _OReq(
-                    symbol=pos.symbol,
-                    option_symbol=pos.option_symbol,
-                    side=_OSide.SELL_TO_CLOSE,
-                    quantity=pos.quantity,
-                    order_type=_OType.LIMIT,
-                    limit_price=_exit_lp,
-                    strategy_id=pos.strategy_id,
-                    notes=f"exit:{reason}",
-                )
-                try:
-                    _exit_order = await _retry(
-                        lambda: broker.place_option_order(_exit_req),
-                        label=f"exit_order({pos.option_symbol})",
-                    )
-                    logger.info(
-                        "Exit order placed | %s | limit=%.4f | order_id=%s",
-                        pos.option_symbol, float(_exit_lp), _exit_order.order_id,
-                    )
-                except Exception as _exit_exc:
-                    logger.error(
-                        "Exit order placement failed for %s: %s — position closed locally only",
-                        pos.option_symbol, _exit_exc,
-                    )
-                pm_pos = pm.close(pos.option_symbol, _exit_price_pnl, pnl)
-                risk.record_exit(Decimal(str(pnl)))
-                if pos.journal_id and journal:
-                    _mfe = round((pos.peak_price - pos.entry_price) * 100 * pos.quantity, 2)
-                    _mae = round((pos.trough_price - pos.entry_price) * 100 * pos.quantity, 2)
-                    await journal.record_exit(
-                        journal_id=pos.journal_id,
-                        exit_time=now,
-                        exit_price=_exit_price_pnl,
-                        exit_reason=reason,
-                        realized_pnl=pnl,
-                        hold_duration_secs=hold_secs,
-                        exit_bid=_exit_bid,
-                        exit_ask=_exit_ask,
-                        peak_price=pos.peak_price,
-                        trough_price=pos.trough_price,
-                        mfe=_mfe,
-                        mae=_mae,
-                    )
-                    await journal.log_event(
-                        event="exit",
-                        message=f"{pos.option_symbol} closed: {reason} pnl={pnl:.2f}",
-                        level="info",
-                        symbol=pos.symbol,
-                        data={"reason": reason, "pnl": round(pnl, 2), "hold_secs": round(hold_secs)},
-                    )
-                    await journal.commit()
-                if alert_service:
-                    from app.utils.alerting import AlertEvent
-                    if reason == "stop_loss":
-                        alert_event = AlertEvent.STOP_LOSS
-                    elif reason in ("take_profit", "trailing_stop"):
-                        alert_event = AlertEvent.TAKE_PROFIT
-                    else:
-                        alert_event = None
-                    if alert_event:
-                        await alert_service.send(
-                            alert_event,
-                            f"{pos.option_symbol} {reason} pnl={pnl:.2f}",
-                            data={"symbol": pos.symbol, "reason": reason, "pnl": round(pnl, 2)},
+                    if journal:
+                        await journal.log_event(
+                            event="exit_spread_warning",
+                            message=(
+                                f"{pos.option_symbol} wide spread on exit: "
+                                f"spread_pct={_spread_pct:.3f} > max={_max_spread:.3f}"
+                            ),
+                            level="warning",
+                            symbol=pos.symbol,
+                            data={
+                                "reason": reason,
+                                "spread_pct": round(_spread_pct, 4),
+                                "max_spread_pct": _max_spread,
+                                "bid": _exit_bid,
+                                "ask": _exit_ask,
+                            },
                         )
-            else:
-                logger.info("DRY RUN: would close %s (%s)", pos.option_symbol, reason)
-                pm.close(pos.option_symbol, current_price, pnl)
+                        await journal.commit()
+
+        if dry_run:
+            _pnl_dry = (_exit_price_est - pos.entry_price) * 100 * pos.quantity
+            logger.info("DRY RUN: would close %s (%s)", pos.option_symbol, reason)
+            pm.close(pos.option_symbol, _exit_price_est, _pnl_dry)
             closed += 1
+            continue
+
+        # Place exit order; position stays open until broker confirms fill
+        await _place_exit_order(
+            pos, broker, pm, now, reason,
+            reason in _MANDATORY_EXIT_REASONS,
+            current_bid=_exit_bid,
+        )
+
     return closed
 
 
 # ── EOD force-close all positions ────────────────────────────────────────────
 
 async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool, settings=None):
-    """Force-close every open position at end-of-day."""
+    """
+    Force-close every open position at end-of-day.
+
+    Places exit orders and polls for up to 90 seconds for broker confirmation.
+    Positions are not removed from local state until fills are confirmed.
+    Any position still EXIT_PENDING after 90s remains open for post_session
+    orphan-close recovery.
+    """
     positions = pm.open_positions()
     if not positions:
         return
-    logger.warning("EOD liquidation: closing %d position(s)", len(positions))
+    logger.warning("EOD liquidation: %d position(s) to close", len(positions))
+
+    if dry_run:
+        for pos in list(positions):
+            pnl = (pos.current_price - pos.entry_price) * 100 * pos.quantity
+            pm.close_confirmed(pos.option_symbol, pos.current_price, pnl)
+            logger.info("DRY RUN: EOD closed %s pnl=%.2f", pos.option_symbol, pnl)
+        return
+
+    from app.brokers.broker_interface import (
+        OrderRequest as _OReq,
+        OrderSide as _OSide,
+        OrderType as _OType,
+        OrderStatus as _OStatus,
+    )
+    _terminal = (_OStatus.CANCELLED, _OStatus.CANCELED, _OStatus.REJECTED, _OStatus.EXPIRED)
+
+    # ── Phase 1: place EOD orders for positions not already EXIT_PENDING ─────
     for pos in list(positions):
+        if pos.exit_pending:
+            # Already has an exit order — upgrade to mandatory EOD
+            pos.exit_is_mandatory = True
+            pos.exit_triggered_reason = "eod_exit"
+            logger.info(
+                "EOD: %s already EXIT_PENDING (order=%s) — upgraded to mandatory",
+                pos.option_symbol, pos.exit_order_id[:8] if pos.exit_order_id else "none",
+            )
+            continue
+
         try:
             quote = await _retry(
                 lambda p=pos: broker.get_option_quote(p.option_symbol),
                 label=f"eod_quote({pos.option_symbol})",
             )
-            _eod_bid_pre = float(quote.bid) if float(quote.bid) > 0 else None
-            _eod_ask_pre = float(quote.ask) if float(quote.ask) > 0 else None
-            # Use bid as exit price (EOD limit placed at bid); fall back to mid if bid unavailable.
-            _eod_mid = float(quote.mid) if float(quote.mid) > 0 else 0.0
-            exit_price = _eod_bid_pre if _eod_bid_pre else (_eod_mid if _eod_mid > 0 else pos.entry_price)
+            _bid = float(quote.bid) if float(quote.bid) > 0 else None
+            _ask = float(quote.ask) if float(quote.ask) > 0 else None
         except Exception:
-            exit_price = pos.entry_price
-            _eod_bid_pre = None
-            _eod_ask_pre = None
+            _bid = None
+            _ask = None
 
-        pnl = (exit_price - pos.entry_price) * 100 * pos.quantity
-        hold_secs = (now - pos.entry_time).total_seconds()
-
-        # ── Exit spread awareness (EOD is always emergency — log only) ────
-        if (
-            settings is not None
-            and _eod_bid_pre is not None
-            and _eod_ask_pre is not None
-            and _eod_ask_pre > 0
-        ):
-            _eod_mid = (_eod_bid_pre + _eod_ask_pre) / 2
-            if _eod_mid > 0:
-                _eod_spread_pct = (_eod_ask_pre - _eod_bid_pre) / _eod_mid
-                _eod_max_spread = getattr(settings.risk, "max_spread_pct", 0.10)
-                if _eod_spread_pct > _eod_max_spread:
+        if settings and _bid and _ask and _ask > 0:
+            _mid = (_bid + _ask) / 2
+            if _mid > 0:
+                _sp = (_ask - _bid) / _mid
+                _max_sp = getattr(settings.risk, "max_spread_pct", 0.10)
+                if _sp > _max_sp:
                     logger.warning(
-                        "Exit spread warning | %s | spread_pct=%.3f > max=%.3f | "
-                        "bid=%.4f ask=%.4f | reason=eod_exit (proceeding)",
-                        pos.option_symbol, _eod_spread_pct, _eod_max_spread,
-                        _eod_bid_pre, _eod_ask_pre,
+                        "EOD spread warning | %s | spread_pct=%.3f bid=%.4f ask=%.4f (proceeding)",
+                        pos.option_symbol, _sp, _bid, _ask,
                     )
                     if journal:
                         await journal.log_event(
                             event="exit_spread_warning",
-                            message=(
-                                f"{pos.option_symbol} wide spread on EOD exit: "
-                                f"spread_pct={_eod_spread_pct:.3f} > max={_eod_max_spread:.3f}"
-                            ),
+                            message=f"{pos.option_symbol} wide spread on EOD exit: spread_pct={_sp:.3f}",
                             level="warning",
                             symbol=pos.symbol,
-                            data={
-                                "reason": "eod_exit",
-                                "spread_pct": round(_eod_spread_pct, 4),
-                                "max_spread_pct": _eod_max_spread,
-                                "bid": _eod_bid_pre,
-                                "ask": _eod_ask_pre,
-                                "is_emergency": True,
-                            },
+                            data={"reason": "eod_exit", "spread_pct": round(_sp, 4), "bid": _bid, "ask": _ask},
                         )
                         await journal.commit()
 
-        if not dry_run:
-            # Place exit order with broker before removing from local state
-            from app.brokers.broker_interface import (
-                OrderRequest as _OReq,
-                OrderSide as _OSide,
-                OrderType as _OType,
+        fallback = pos.current_price if pos.current_price > 0 else pos.entry_price
+        _lp = Decimal(str(round(_bid if (_bid and _bid > 0) else fallback * 0.98, 2)))
+        _req = _OReq(
+            symbol=pos.symbol,
+            option_symbol=pos.option_symbol,
+            side=_OSide.SELL_TO_CLOSE,
+            quantity=pos.quantity,
+            order_type=_OType.LIMIT,
+            limit_price=_lp,
+            strategy_id=pos.strategy_id,
+            notes="exit:eod_exit",
+        )
+        try:
+            order = await _retry(
+                lambda: broker.place_option_order(_req),
+                label=f"eod_exit_order({pos.option_symbol})",
             )
+            pm.mark_exit_pending(pos.option_symbol, order.order_id, float(_lp), "eod_exit", True, _bid, now)
+            logger.info(
+                "EOD exit order placed | %s | limit=%.4f | order_id=%s",
+                pos.option_symbol, float(_lp), order.order_id[:8],
+            )
+        except Exception as exc:
+            logger.error(
+                "EOD exit order failed for %s: %s — marking EXIT_PENDING for orphan recovery",
+                pos.option_symbol, exc,
+            )
+            pm.mark_exit_pending(pos.option_symbol, "", float(_lp), "eod_exit", True, _bid, now)
+
+    # ── Phase 2: 90-second polling loop ──────────────────────────────────────
+    _deadline = now + timedelta(seconds=90)
+    _poll_secs = 5
+
+    while datetime.now(tz=ET) < _deadline:
+        pending = [p for p in pm.open_positions() if p.exit_pending and p.exit_order_id]
+        if not pending:
+            break
+        await asyncio.sleep(_poll_secs)
+        poll_now = datetime.now(tz=ET)
+
+        for pos in list(pending):
             try:
-                _eod_quote = await _retry(
-                    lambda p=pos: broker.get_option_quote(p.option_symbol),
-                    label=f"eod_exit_quote({pos.option_symbol})",
+                order = await _retry(
+                    lambda oid=pos.exit_order_id: broker.get_order_status(oid),
+                    label=f"eod_poll({pos.option_symbol})",
                 )
-                _eod_bid = float(_eod_quote.bid) if float(_eod_quote.bid) > 0 else exit_price * 0.98
+            except Exception as exc:
+                logger.warning("EOD: cannot poll %s: %s", pos.option_symbol, exc)
+                continue
+
+            status = order.status
+            broker_qty = order.filled_quantity
+            broker_price = float(order.filled_price) if order.filled_price else 0.0
+
+            if broker_qty > pos.confirmed_fill_qty and broker_price > 0:
+                pm.record_partial_fill(pos.option_symbol, broker_qty - pos.confirmed_fill_qty, broker_price)
+                pos = pm.get_position(pos.option_symbol)
+                if pos is None:
+                    continue
+
+            fully_filled = (
+                status == _OStatus.FILLED
+                or (status == _OStatus.PARTIALLY_FILLED and broker_qty >= pos.quantity)
+            )
+            if fully_filled:
+                avg_fill = (
+                    pos.confirmed_fill_value / pos.confirmed_fill_qty
+                    if pos.confirmed_fill_qty > 0 else broker_price
+                )
+                pnl = (avg_fill - pos.entry_price) * 100 * pos.quantity
+                hold_secs = (poll_now - pos.entry_time).total_seconds()
+                pm.close_confirmed(pos.option_symbol, avg_fill, pnl)
+                risk.record_exit(Decimal(str(pnl)))
+                if pos.journal_id and journal:
+                    _mfe = round((pos.peak_price - pos.entry_price) * 100 * pos.quantity, 2)
+                    _mae = round((pos.trough_price - pos.entry_price) * 100 * pos.quantity, 2)
+                    await journal.record_exit(
+                        journal_id=pos.journal_id,
+                        exit_time=order.filled_at or poll_now,
+                        exit_price=avg_fill,
+                        exit_reason="eod_exit",
+                        realized_pnl=pnl,
+                        hold_duration_secs=hold_secs,
+                        filled_quantity=pos.quantity,
+                        exit_bid=pos.exit_quote_bid,
+                        peak_price=pos.peak_price,
+                        trough_price=pos.trough_price,
+                        mfe=_mfe,
+                        mae=_mae,
+                        exit_order_id=pos.exit_order_id,
+                        exit_quote_bid=pos.exit_quote_bid,
+                    )
+                    await journal.commit()
+                logger.info("EOD confirmed | %s | fill=%.4f | pnl=%.2f", pos.option_symbol, avg_fill, pnl)
+                continue
+
+            if status in _terminal:
+                # Re-place immediately — EOD is always mandatory
+                pm.clear_exit_pending(pos.option_symbol)
+                try:
+                    _q = await _retry(lambda p=pos: broker.get_option_quote(p.option_symbol), label=f"eod_requeue_q({pos.option_symbol})")
+                    _new_bid = float(_q.bid) if float(_q.bid) > 0 else None
+                except Exception:
+                    _new_bid = None
+                _rem = max(1, pos.quantity - pos.confirmed_fill_qty)
+                fallback2 = pos.current_price if pos.current_price > 0 else pos.entry_price
+                _new_lp = Decimal(str(round(_new_bid if (_new_bid and _new_bid > 0) else fallback2 * 0.98, 2)))
+                _rq = _OReq(
+                    symbol=pos.symbol, option_symbol=pos.option_symbol,
+                    side=_OSide.SELL_TO_CLOSE, quantity=_rem,
+                    order_type=_OType.LIMIT, limit_price=_new_lp,
+                    strategy_id=pos.strategy_id, notes="exit:eod_exit",
+                )
+                try:
+                    _new_ord = await _retry(lambda: broker.place_option_order(_rq), label=f"eod_requeue({pos.option_symbol})")
+                    pm.mark_exit_pending(pos.option_symbol, _new_ord.order_id, float(_new_lp), "eod_exit", True, _new_bid, poll_now)
+                    logger.info("EOD re-queued | %s | limit=%.4f | order_id=%s", pos.option_symbol, float(_new_lp), _new_ord.order_id[:8])
+                except Exception as exc:
+                    logger.error("EOD re-queue failed for %s: %s", pos.option_symbol, exc)
+                continue
+
+            # Still open: reprice if bid moved materially
+            try:
+                _q = await _retry(lambda p=pos: broker.get_option_quote(p.option_symbol), label=f"eod_reprice_q({pos.option_symbol})")
+                _cur_bid = float(_q.bid) if float(_q.bid) > 0 else None
             except Exception:
-                _eod_bid = exit_price * 0.98
-            _eod_lp = Decimal(str(round(_eod_bid, 2)))
-            _eod_req = _OReq(
-                symbol=pos.symbol,
-                option_symbol=pos.option_symbol,
-                side=_OSide.SELL_TO_CLOSE,
-                quantity=pos.quantity,
-                order_type=_OType.LIMIT,
-                limit_price=_eod_lp,
-                strategy_id=pos.strategy_id,
-                notes="exit:eod_exit",
+                _cur_bid = None
+
+            if _cur_bid and _cur_bid < pos.exit_order_limit_price - 0.01:
+                try:
+                    await broker.cancel_order(pos.exit_order_id)
+                    _rem = max(1, pos.quantity - pos.confirmed_fill_qty)
+                    _new_lp = Decimal(str(round(_cur_bid, 2)))
+                    _rp = _OReq(
+                        symbol=pos.symbol, option_symbol=pos.option_symbol,
+                        side=_OSide.SELL_TO_CLOSE, quantity=_rem,
+                        order_type=_OType.LIMIT, limit_price=_new_lp,
+                        strategy_id=pos.strategy_id, notes="exit:eod_exit",
+                    )
+                    _rp_ord = await _retry(lambda: broker.place_option_order(_rp), label=f"eod_reprice({pos.option_symbol})")
+                    pm.mark_exit_pending(pos.option_symbol, _rp_ord.order_id, float(_new_lp), "eod_exit", True, _cur_bid, poll_now)
+                    logger.info("EOD repriced | %s | %.4f → %.4f | order_id=%s", pos.option_symbol, pos.exit_order_limit_price, float(_new_lp), _rp_ord.order_id[:8])
+                except Exception as exc:
+                    logger.warning("EOD reprice for %s failed: %s", pos.option_symbol, exc)
+
+    # ── Phase 3: log unresolved positions for post_session orphan recovery ────
+    unresolved = [p for p in pm.open_positions() if p.exit_pending]
+    if unresolved:
+        logger.warning(
+            "EOD: %d position(s) still EXIT_PENDING after 90s — post_session orphan recovery required",
+            len(unresolved),
+        )
+        for pos in unresolved:
+            logger.warning(
+                "EOD unresolved | %s | order_id=%s | qty=%d | confirmed_qty=%d | reason=%s",
+                pos.option_symbol, pos.exit_order_id or "none",
+                pos.quantity, pos.confirmed_fill_qty, pos.exit_triggered_reason,
             )
-            try:
-                _eod_order = await _retry(
-                    lambda: broker.place_option_order(_eod_req),
-                    label=f"eod_exit_order({pos.option_symbol})",
-                )
-                logger.info(
-                    "EOD exit order placed | %s | limit=%.4f | order_id=%s",
-                    pos.option_symbol, float(_eod_lp), _eod_order.order_id,
-                )
-            except Exception as _eod_exc:
-                logger.error(
-                    "EOD exit order failed for %s: %s — closed locally only",
-                    pos.option_symbol, _eod_exc,
-                )
-            pm.close(pos.option_symbol, exit_price, pnl)
-            risk.record_exit(Decimal(str(pnl)))
-            if pos.journal_id and journal:
-                _eod_mfe = round((pos.peak_price - pos.entry_price) * 100 * pos.quantity, 2)
-                _eod_mae = round((pos.trough_price - pos.entry_price) * 100 * pos.quantity, 2)
-                await journal.record_exit(
-                    journal_id=pos.journal_id,
-                    exit_time=now,
-                    exit_price=exit_price,
-                    exit_reason="eod_exit",
-                    realized_pnl=pnl,
-                    hold_duration_secs=hold_secs,
-                    peak_price=pos.peak_price,
-                    trough_price=pos.trough_price,
-                    mfe=_eod_mfe,
-                    mae=_eod_mae,
-                )
-                await journal.commit()
-        else:
-            pm.close(pos.option_symbol, exit_price, pnl)
-        logger.info("EOD closed %s pnl=%.2f", pos.option_symbol, pnl)
 
 
 # ── No-signal diagnostics ────────────────────────────────────────────────────

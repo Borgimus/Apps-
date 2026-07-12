@@ -114,8 +114,14 @@ class TradeJournal:
         trough_price: Optional[float] = None,
         mfe: Optional[float] = None,
         mae: Optional[float] = None,
+        exit_order_id: Optional[str] = None,
+        exit_quote_bid: Optional[float] = None,
     ):
-        """Update an open entry with exit details and mark it closed."""
+        """Update an open entry with exit details and mark it closed.
+
+        exit_price must be the broker's actual average fill price.
+        exit_quote_bid is the pre-order bid retained for slippage analysis.
+        """
         row = await self._db.get(DBTradeJournal, journal_id)
         if row is None:
             logger.warning("Journal record %d not found for exit update", journal_id)
@@ -148,6 +154,10 @@ class TradeJournal:
             row.mfe = mfe
         if mae is not None:
             row.mae = mae
+        if exit_order_id is not None:
+            row.exit_order_id = exit_order_id
+        if exit_quote_bid is not None:
+            row.exit_quote_bid = exit_quote_bid
         row.status = "closed"
         logger.info(
             "Journal exit %d: reason=%s pnl=%.2f hold=%.0fs",

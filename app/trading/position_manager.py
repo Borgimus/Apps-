@@ -48,6 +48,17 @@ class OpenPosition:
     eod_exit_time: time = time(15, 45)
     journal_id: Optional[int] = None   # DB row id for update-on-exit
 
+    # Exit state machine (EXIT_PENDING)
+    exit_pending: bool = False
+    exit_order_id: Optional[str] = None
+    exit_order_limit_price: float = 0.0
+    exit_order_placed_at: Optional[datetime] = None
+    exit_triggered_reason: Optional[str] = None
+    exit_is_mandatory: bool = False
+    exit_quote_bid: Optional[float] = None   # pre-order bid for slippage analysis
+    confirmed_fill_qty: int = 0              # broker-confirmed fills accumulated
+    confirmed_fill_value: float = 0.0        # sum(qty × price) for weighted avg
+
     def __post_init__(self):
         if self.current_price == 0.0:
             self.current_price = self.entry_price
@@ -73,6 +84,9 @@ class PositionManager:
 
     def has_position(self, option_symbol: str) -> bool:
         return option_symbol in self._positions
+
+    def get_position(self, option_symbol: str) -> Optional["OpenPosition"]:
+        return self._positions.get(option_symbol)
 
     def has_position_for_symbol(self, symbol: str) -> bool:
         return any(p.symbol == symbol for p in self._positions.values())
@@ -149,6 +163,8 @@ class PositionManager:
         pos = self._positions.get(option_symbol)
         if pos is None:
             return None
+        if pos.exit_pending:
+            return None  # exit order already outstanding — don't re-trigger
 
         # Stop loss: price fell stop_loss_pct below entry
         if current_price <= pos.entry_price * (1.0 - pos.stop_loss_pct):
@@ -190,6 +206,82 @@ class PositionManager:
             )
         return pos
 
+    # ── EXIT_PENDING state machine ────────────────────────────────────────────
+
+    def mark_exit_pending(
+        self,
+        option_symbol: str,
+        order_id: str,
+        limit_price: float,
+        reason: str,
+        is_mandatory: bool,
+        exit_quote_bid: Optional[float] = None,
+        now: Optional[datetime] = None,
+    ) -> None:
+        """Record that an exit order has been placed; blocks should_exit() until resolved."""
+        pos = self._positions.get(option_symbol)
+        if pos is None:
+            return
+        pos.exit_pending = True
+        pos.exit_order_id = order_id
+        pos.exit_order_limit_price = limit_price
+        pos.exit_order_placed_at = now or datetime.now(tz=ET)
+        pos.exit_triggered_reason = reason
+        pos.exit_is_mandatory = is_mandatory
+        if exit_quote_bid is not None:
+            pos.exit_quote_bid = exit_quote_bid
+        logger.info(
+            "Exit pending | %s | order=%s | limit=%.4f | reason=%s | mandatory=%s",
+            option_symbol, (order_id[:8] if order_id else "none"),
+            limit_price, reason, is_mandatory,
+        )
+
+    def clear_exit_pending(self, option_symbol: str) -> None:
+        """Clear EXIT_PENDING state; position re-enters normal exit evaluation."""
+        pos = self._positions.get(option_symbol)
+        if pos is None:
+            return
+        pos.exit_pending = False
+        pos.exit_order_id = None
+        pos.exit_order_limit_price = 0.0
+        pos.exit_order_placed_at = None
+        pos.exit_triggered_reason = None
+        pos.exit_is_mandatory = False
+        logger.info("Exit pending cleared | %s", option_symbol)
+
+    def record_partial_fill(
+        self, option_symbol: str, filled_qty: int, filled_price: float
+    ) -> None:
+        """Accumulate broker-confirmed partial fill data."""
+        pos = self._positions.get(option_symbol)
+        if pos is None:
+            return
+        pos.confirmed_fill_qty += filled_qty
+        pos.confirmed_fill_value += filled_qty * filled_price
+        logger.info(
+            "Partial fill | %s | +%d @ %.4f | total_confirmed=%d",
+            option_symbol, filled_qty, filled_price, pos.confirmed_fill_qty,
+        )
+
+    def close_confirmed(
+        self, option_symbol: str, exit_price: float, pnl: float
+    ) -> Optional[OpenPosition]:
+        """Close using broker-confirmed fill price. Updates cooldown on loss."""
+        pos = self._positions.pop(option_symbol, None)
+        if pos is None:
+            return None
+        if pnl < 0:
+            self._last_loss_time = datetime.now(tz=ET)
+            logger.info(
+                "Loss recorded on %s (pnl=%.2f) — cooldown active for %d min",
+                option_symbol, pnl, self._s.cooldown_after_loss_minutes,
+            )
+        logger.info(
+            "Position closed (confirmed) | %s | exit=%.4f | pnl=%.2f",
+            option_symbol, exit_price, pnl,
+        )
+        return pos
+
     def to_dict_list(self) -> list:
         """Serialise all open positions for the dashboard supervision API."""
         from datetime import datetime as _dt
@@ -229,5 +321,10 @@ class PositionManager:
                 "max_hold_minutes": p.max_hold_minutes,
                 "eod_exit_time": p.eod_exit_time.strftime("%H:%M"),
                 "hold_minutes": hold_minutes,
+                "exit_pending": p.exit_pending,
+                "exit_order_id": p.exit_order_id,
+                "exit_triggered_reason": p.exit_triggered_reason,
+                "exit_is_mandatory": p.exit_is_mandatory,
+                "confirmed_fill_qty": p.confirmed_fill_qty,
             })
         return result

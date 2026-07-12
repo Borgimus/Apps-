@@ -51,6 +51,8 @@ async def _migrate_schema(conn) -> None:
         ("trade_journal", "trough_price",       "FLOAT"),
         ("trade_journal", "mfe",                "FLOAT"),
         ("trade_journal", "mae",                "FLOAT"),
+        ("trade_journal", "exit_quote_bid",     "FLOAT"),
+        ("trade_journal", "exit_order_id",      "VARCHAR(128)"),
         ("scan_results",  "universe_group",     "VARCHAR(32)"),
         ("signal_bridge", "confluence_count",             "INTEGER"),
         ("signal_bridge", "reconciliation_passed",         "BOOLEAN"),
@@ -210,6 +212,8 @@ class DBTradeJournal(Base):
     exit_bid = Column(Float)                         # bid at time of exit
     exit_ask = Column(Float)                         # ask at time of exit
     exit_spread_pct = Column(Float)                  # (ask-bid)/mid at exit
+    exit_quote_bid = Column(Float)                   # pre-order bid (slippage reference)
+    exit_order_id = Column(String(128))              # broker exit order id
 
     # Rejection
     rejection_reason = Column(Text)

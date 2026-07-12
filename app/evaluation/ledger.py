@@ -32,7 +32,12 @@ from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
-_LEDGER_VERSION = "1"
+_LEDGER_VERSION = "2"
+
+# First session date for which ALL P1–P7 defect fixes are in effect.
+# Sessions on or after this date are eligible for Phase 3 (clean cohort) analysis.
+# Sessions before this date are Phase 1/2 engineering evidence only.
+PHASE3_START = "2026-07-12"
 
 
 # ── Data classes ──────────────────────────────────────────────────────────────
@@ -62,6 +67,9 @@ class LedgerEntry:
     reject_reasons: Dict[str, int] = field(default_factory=dict)
     data_clean: bool = False
     notes: Optional[str] = None
+    # Phase 3 cohort fields (auto-set by add_session; backfilled manually for prior sessions)
+    phase: str = "pre_phase3"
+    contamination_flags: List[str] = field(default_factory=list)
 
 
 # ── Ledger class ──────────────────────────────────────────────────────────────
@@ -83,8 +91,10 @@ class EvaluationLedger:
             "version": _LEDGER_VERSION,
             "created_at": self._created_at,
             "last_updated": self._last_updated,
+            "phase3_start_date": PHASE3_START,
             "sessions": [asdict(s) for s in self.sessions],
             "cumulative": self.compute_cumulative(),
+            "phase3_cumulative": self.compute_cumulative(phase3_only=True),
         }
         self.ledger_file.write_text(json.dumps(data, indent=2, default=str))
         logger.info("Evaluation ledger saved to %s (%d session(s))", self.ledger_file, len(self.sessions))
@@ -145,6 +155,7 @@ class EvaluationLedger:
                 _accumulate_spread(t, by_spread)
                 _accumulate_reject(t, reject_reasons)
 
+        phase = "phase3" if r.date >= PHASE3_START else "pre_phase3"
         entry = LedgerEntry(
             date=r.date,
             total_trades=wins + losses,
@@ -166,6 +177,7 @@ class EvaluationLedger:
             by_delta_bucket=by_delta,
             by_spread_bucket=by_spread,
             reject_reasons=reject_reasons,
+            phase=phase,
         )
 
         # Replace if same date already present
@@ -176,24 +188,29 @@ class EvaluationLedger:
 
     # ── Cumulative stats ──────────────────────────────────────────────────────
 
-    def compute_cumulative(self) -> Dict[str, Any]:
-        if not self.sessions:
+    def compute_cumulative(self, phase3_only: bool = False) -> Dict[str, Any]:
+        sessions = (
+            [s for s in self.sessions if s.phase == "phase3"]
+            if phase3_only
+            else self.sessions
+        )
+        if not sessions:
             return _empty_cumulative()
 
-        total_wins = sum(s.wins for s in self.sessions)
-        total_losses = sum(s.losses for s in self.sessions)
+        total_wins = sum(s.wins for s in sessions)
+        total_losses = sum(s.losses for s in sessions)
         total_trades = total_wins + total_losses
-        total_pnl = sum(s.realized_pnl for s in self.sessions)
+        total_pnl = sum(s.realized_pnl for s in sessions)
         expectancy = (total_pnl / total_trades) if total_trades else 0.0
         win_rate = (total_wins / total_trades) if total_trades else None
 
         # Profit factor
         wins_sum = sum(
-            s.realized_pnl for s in self.sessions
+            s.realized_pnl for s in sessions
             if s.realized_pnl > 0
         )
         losses_sum = abs(sum(
-            s.realized_pnl for s in self.sessions
+            s.realized_pnl for s in sessions
             if s.realized_pnl < 0
         ))
         profit_factor = (wins_sum / losses_sum) if losses_sum > 0 else None
@@ -202,7 +219,7 @@ class EvaluationLedger:
         cum_pnl = 0.0
         peak = 0.0
         max_drawdown = 0.0
-        for s in sorted(self.sessions, key=lambda x: x.date):
+        for s in sorted(sessions, key=lambda x: x.date):
             cum_pnl += s.realized_pnl
             if cum_pnl > peak:
                 peak = cum_pnl
@@ -211,19 +228,19 @@ class EvaluationLedger:
                 max_drawdown = dd
 
         # Merge per-dimension dicts
-        pnl_by_strategy = _merge_dimension(self.sessions, "by_strategy")
-        pnl_by_hour = _merge_dimension(self.sessions, "by_entry_hour")
-        pnl_by_delta = _merge_dimension(self.sessions, "by_delta_bucket")
-        pnl_by_spread = _merge_dimension(self.sessions, "by_spread_bucket")
+        pnl_by_strategy = _merge_dimension(sessions, "by_strategy")
+        pnl_by_hour = _merge_dimension(sessions, "by_entry_hour")
+        pnl_by_delta = _merge_dimension(sessions, "by_delta_bucket")
+        pnl_by_spread = _merge_dimension(sessions, "by_spread_bucket")
 
         # Reject reasons
         reject_counts: Dict[str, int] = {}
-        for s in self.sessions:
+        for s in sessions:
             for reason, cnt in s.reject_reasons.items():
                 reject_counts[reason] = reject_counts.get(reason, 0) + cnt
 
         return {
-            "trading_days": len(self.sessions),
+            "trading_days": len(sessions),
             "total_trades": total_trades,
             "total_pnl": round(total_pnl, 2),
             "expectancy": round(expectancy, 2),

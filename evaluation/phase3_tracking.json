@@ -1,0 +1,51 @@
+{
+  "protocol": "phase3_eval_protocol.md",
+  "phase": 3,
+  "phase3_start_date": "2026-07-12",
+  "created": "2026-07-12",
+  "last_updated": "2026-07-12",
+  "note": "Phase 3 cohort. All sessions on or after 2026-07-12 with all P1-P7 fixes applied. Pre-phase-3 sessions (P1/P2 phases) are engineering evidence only — see evaluation/ledger.json contamination_flags.",
+  "phase3_sessions": [],
+  "cumulative": {
+    "note": "Phase 3 clean cohort only. All 7 defect-fix priorities applied.",
+    "sessions": 0,
+    "trades": 0,
+    "wins": 0,
+    "losses": 0,
+    "breakeven": 0,
+    "net_pnl": 0.0,
+    "gross_wins": 0.0,
+    "gross_losses": 0.0,
+    "win_rate": null,
+    "avg_pnl_per_trade": null,
+    "profit_factor": null
+  },
+  "dimensions": {
+    "note": "Reset for Phase 3. No trades yet.",
+    "strategy": {},
+    "quality_score": {},
+    "dte": {},
+    "asset_class": {},
+    "signal_age_minutes": {},
+    "scanner_score": {},
+    "fill_path": {}
+  },
+  "minimum_observations": {
+    "note": "No dimension has reached minimum observation count yet.",
+    "quality_score": {"required": 3, "current": {}},
+    "dte": {"required": 3, "current": {}},
+    "universe_group": {"required": 3, "current": {}},
+    "signal_age": {"required": 3, "current": {}},
+    "strategy": {"required": 3, "current": {}},
+    "iv_quartile": {"required": 3, "current": {}}
+  },
+  "primary_questions_status": {
+    "Q1_orb_vs_vwap": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
+    "Q2_signal_age": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
+    "Q3_dte": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
+    "Q4_etf_vs_single_stock": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
+    "Q5_quality_scores": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
+    "Q6_scanner_score": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
+    "Q7_fill_path": {"status": "insufficient_data", "phase3_obs": 0, "required": 3}
+  }
+}

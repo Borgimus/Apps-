@@ -1900,18 +1900,18 @@ async def run_session(args: argparse.Namespace):
         now = datetime.now(tz=ET)
         cycle += 1
 
-        # Kill switch
-        if settings.is_kill_switch_active():
-            logger.warning("Kill switch active — halting order placement")
+        # Kill switch — halts new entries only; exits, reconciliation, and EOD
+        # liquidation continue on every cycle so open positions are managed.
+        kill_switch_active = settings.is_kill_switch_active()
+        if kill_switch_active:
+            logger.warning("Kill switch active — new entries halted, exits continue")
             if not kill_switch_alerted:
                 await alert_service.send(
                     AlertEvent.KILL_SWITCH,
-                    "Kill switch activated — order placement halted",
+                    "Kill switch activated — new entries halted, exits and EOD continue",
                     data={"cycle": cycle},
                 )
                 kill_switch_alerted = True
-            await asyncio.sleep(args.poll)
-            continue
         else:
             kill_switch_alerted = False
 
@@ -2060,8 +2060,8 @@ async def run_session(args: argparse.Namespace):
             _scan_store["active_symbols"] = list(active_symbols)
             _last_scan_at = now
 
-        # Only open new positions if not past EOD
-        if now < eod_time:
+        # Only open new positions if not past EOD and kill switch is not active
+        if now < eod_time and not kill_switch_active:
             # Guard: block all new entries when a reconciliation mismatch is unresolved
             if _recon_has_mismatch:
                 logger.info(

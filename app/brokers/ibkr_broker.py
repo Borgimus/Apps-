@@ -93,6 +93,16 @@ class IBKRBroker(BrokerInterface):
         logger.info("Connected to IBKR TWS/Gateway at %s:%d", self._host, self._port)
         return self._ib
 
+    def verify_paper_endpoint(self) -> tuple:
+        """Port-based check (independent of config flags). Paper: 7497 or 4002."""
+        if self._is_paper:
+            return True, f"port={self._port} is a known IBKR paper port"
+        return (
+            False,
+            f"port={self._port} is a live IBKR port "
+            f"(paper ports: 7497/TWS, 4002/Gateway)",
+        )
+
     # ── Account ───────────────────────────────────────────────────────────────
 
     async def get_account(self) -> AccountInfo:

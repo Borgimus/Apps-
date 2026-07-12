@@ -62,6 +62,9 @@ class PaperBroker(BrokerInterface):
     def set_data_source(self, data_source):
         self._data_source = data_source
 
+    def verify_paper_endpoint(self) -> tuple:
+        return True, "in-process paper broker — always paper"
+
     # ── Account ───────────────────────────────────────────────────────────────
 
     async def get_account(self) -> AccountInfo:

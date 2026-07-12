@@ -102,6 +102,31 @@ class AlpacaBroker(BrokerInterface):
             is_paper=self._is_paper,
         )
 
+    def verify_paper_endpoint(self) -> tuple:
+        """
+        Check URL hostname and API key prefix independently.
+        Paper: base_url contains 'paper-api', key starts with 'PK'.
+        Live:  base_url contains 'api.alpaca.markets' (no 'paper'), key starts with 'AK'.
+        """
+        url_is_paper = "paper-api" in self._base_url.lower()
+        key_prefix = self._api_key[:2].upper() if len(self._api_key) >= 2 else ""
+        key_is_paper = key_prefix == "PK"
+
+        if url_is_paper and key_is_paper:
+            return True, f"url=paper-api key_prefix=PK base_url={self._base_url}"
+
+        issues = []
+        if not url_is_paper:
+            issues.append(
+                f"base_url={self._base_url!r} does not contain 'paper-api' "
+                f"(expected https://paper-api.alpaca.markets)"
+            )
+        if not key_is_paper:
+            issues.append(
+                f"api_key prefix={key_prefix!r} (PK=paper, AK=live — check which account key was used)"
+            )
+        return False, "; ".join(issues)
+
     # ── Positions ─────────────────────────────────────────────────────────────
 
     async def get_positions(self) -> List[Position]:

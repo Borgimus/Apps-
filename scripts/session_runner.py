@@ -1792,6 +1792,25 @@ async def run_session(args: argparse.Namespace):
         acct = await _retry(broker.get_account, label="get_account")
         risk.start_session(acct.equity)
         logger.info("Account: equity=%.2f paper=%s", float(acct.equity), acct.is_paper)
+
+        # Validate paper endpoint independently of LIVE_TRADING_ENABLED flag.
+        # URL hostname and API key prefix are checked against known paper patterns;
+        # a mismatch (e.g. live Alpaca key against paper URL, or live URL with flag=false)
+        # is treated as a critical misconfiguration and aborts the session.
+        _paper_ok, _paper_reason = broker.verify_paper_endpoint()
+        if not _paper_ok:
+            logger.critical(
+                "ABORT: broker failed paper endpoint validation: %s — "
+                "check ALPACA_BASE_URL (must be paper-api.alpaca.markets), "
+                "API key prefix (must be PK for Alpaca paper), "
+                "and LIVE_TRADING_ENABLED=false",
+                _paper_reason,
+            )
+            await broker.close()
+            await db_session.close()
+            sys.exit(1)
+        logger.info("Paper endpoint verified | %s", _paper_reason)
+
         # Update liquidity filter cost cap now that equity is known (Bug fix: prevents
         # deep-ITM contracts with delta=N/A being selected and rejected every cycle).
         _max_contract_cost = float(acct.equity) * settings.risk.max_risk_per_trade

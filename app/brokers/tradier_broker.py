@@ -83,6 +83,20 @@ class TradierBroker(BrokerInterface):
                 "LIVE TRADING MODE: TradierBroker is connected to the live endpoint."
             )
 
+    def verify_paper_endpoint(self) -> tuple:
+        """
+        Check URL hostname independently.
+        Paper/sandbox: base_url contains 'sandbox'.
+        Live:          base_url contains 'api.tradier.com'.
+        """
+        if "sandbox" in self._base_url.lower():
+            return True, f"url=sandbox base_url={self._base_url}"
+        return (
+            False,
+            f"base_url={self._base_url!r} does not contain 'sandbox' "
+            f"(expected https://sandbox.tradier.com/v1)",
+        )
+
     # ── Account ───────────────────────────────────────────────────────────────
 
     async def get_account(self) -> AccountInfo:

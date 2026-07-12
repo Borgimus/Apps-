@@ -236,3 +236,14 @@ class BrokerInterface(abc.ABC):
         raise NotImplementedError(
             f"{self.__class__.__name__} does not implement get_orders"
         )
+
+    def verify_paper_endpoint(self) -> tuple:
+        """
+        Independently verify this is a paper/sandbox endpoint without relying
+        on the LIVE_TRADING_ENABLED config flag.
+
+        Returns (is_paper: bool, reason: str).  Called once at session startup;
+        a False result aborts the session.  Subclasses override with URL- and
+        credential-based checks specific to their broker.
+        """
+        return True, "no_independent_check_available"

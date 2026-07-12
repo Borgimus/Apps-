@@ -169,5 +169,5 @@ def configure_logging(
     )
 
 
-# Backwards-compat alias used by paper_trader.py and main.py
+# Alias kept for callers that import setup_logging by name
 setup_logging = configure_logging

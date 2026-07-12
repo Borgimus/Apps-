@@ -16,7 +16,7 @@ A modular Python system for researching, backtesting, and paper-trading day-trad
 | `app/risk/` | Pre-trade risk manager with hard-coded guardrails |
 | `app/backtesting/` | Vectorised backtester with P&L reports |
 | `app/api/` | FastAPI dashboard + WebSocket signal stream |
-| `paper_trader.py` | Full intraday trading loop (paper mode by default) |
+| `scripts/session_runner.py` | Hardened unattended trading loop |
 | `main.py` | CLI entry point |
 
 ---
@@ -116,49 +116,11 @@ uvicorn app.api.dashboard_api:app --reload
 # Docs: http://127.0.0.1:8000/docs
 ```
 
-To start the dashboard with a live broker connection (and the trading loop
-running in the background), use `python paper_trader.py` instead.
+To start the dashboard with a live broker connection and the trading loop
+running in the background, use `python scripts/session_runner.py` (which
+starts the trading loop) and `python main.py dashboard` (which starts the
+API) in separate processes, or run them together via `docker-compose up`.
 
-### Manual paper-trading loop (dry run — no orders placed)
-
-Fetches today's 5-minute SPY bars, runs ORB/VWAP/RSI strategies, selects
-live Alpaca contracts, runs full risk checks, and logs every decision.
-**No orders are submitted.**
-
-```bash
-python scripts/paper_loop.py --dry-run
-```
-
-Optional flags:
-
-```bash
-# Cancel unfilled orders older than 20 minutes, then dry-run:
-python scripts/paper_loop.py --dry-run --cancel-stale 20
-
-# Show internal library logs (useful for debugging):
-python scripts/paper_loop.py --dry-run --log-level INFO
-
-# Different symbol:
-python scripts/paper_loop.py --dry-run --symbol QQQ
-```
-
-### Manual paper-trading loop (places Alpaca paper limit orders)
-
-Same pipeline as dry-run, but actually submits limit orders to Alpaca's
-paper account.  **Limit orders only — market orders are always rejected.**
-
-```bash
-python scripts/paper_loop.py
-```
-
-Orders are placed during the valid session window (09:45–15:45 ET by default)
-and respect all risk guardrails (max 3 trades/day, 2% daily loss cap, etc.).
-
-To cancel stale unfilled orders from previous runs:
-
-```bash
-python scripts/paper_loop.py --cancel-stale 15   # cancel orders > 15 min old
-```
 
 ### Kill switch
 
@@ -303,7 +265,7 @@ Test coverage includes:
 
 ## Unattended Session Runner
 
-`scripts/session_runner.py` is the hardened, crash-safe replacement for `paper_trader.py`.
+`scripts/session_runner.py` is the hardened, crash-safe trading loop.
 It is designed to run unattended and restart automatically after a crash.
 
 ```bash
@@ -501,7 +463,6 @@ if settings.live_trading_enabled:
 │   ├── session_runner.py  # Hardened unattended trading loop
 │   └── integration_test.py
 ├── tests/               # pytest unit tests
-├── paper_trader.py      # Legacy intraday loop
 ├── main.py              # CLI entry point
 ├── Dockerfile
 ├── docker-compose.yml

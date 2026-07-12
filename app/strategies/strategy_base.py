@@ -3,7 +3,7 @@ Base class for all trading strategies.
 
 Each strategy receives OHLCV + indicator data and emits Signal objects.
 Strategies are decoupled from order placement — they only produce signals.
-The paper_trader or live engine consumes signals and decides on execution.
+The session runner or live engine consumes signals and decides on execution.
 """
 
 from __future__ import annotations

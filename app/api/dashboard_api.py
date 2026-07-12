@@ -54,10 +54,9 @@ from .supervisor import _supervisor
 
 logger = logging.getLogger(__name__)
 
-# Shared broker instance — set by paper_trader or main.py at startup
+# Shared broker instance — set by main.py or session_runner at startup
 _broker = None
 _risk_manager = None
-_paper_trader = None
 _position_manager = None   # app.trading.PositionManager — set externally
 _fill_tracker = None       # app.trading.FillTracker — set externally
 _scan_store: dict = {}     # latest scan results — updated by session runner
@@ -117,15 +116,13 @@ class BacktestRunRequest(BaseModel):
 def create_app(
     broker=None,
     risk_manager=None,
-    paper_trader=None,
     position_manager=None,
     fill_tracker=None,
     scan_results_store: Optional[dict] = None,
 ) -> FastAPI:
-    global _broker, _risk_manager, _paper_trader, _position_manager, _fill_tracker, _scan_store
+    global _broker, _risk_manager, _position_manager, _fill_tracker, _scan_store
     _broker = broker
     _risk_manager = risk_manager
-    _paper_trader = paper_trader
     _position_manager = position_manager
     _fill_tracker = fill_tracker
     if scan_results_store is not None:

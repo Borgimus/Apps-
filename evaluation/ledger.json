@@ -1588,7 +1588,9 @@
       "rsi_trend_diagnostic_only": 232,
       "pending_order_exists": 1,
       "SMH_cost_cap_orb_strikes": 4
-    }
+    },
+    "interpretation_warning": "ENGINEERING EVIDENCE ONLY. This cumulative covers all 23 pre-phase3 sessions. All sessions carry pre-phase3 contamination flags (P2\u2013P6 defects). Do not use total_pnl, win_rate, expectancy, or profit_factor for strategy-performance conclusions. Use phase3_cumulative for clean-cohort analysis.",
+    "evidence_type": "pre_phase3_mixed"
   },
   "phase3_start_date": "2026-07-12",
   "phase3_cumulative": {
@@ -1603,6 +1605,8 @@
     "pnl_by_entry_hour": {},
     "pnl_by_delta_bucket": {},
     "pnl_by_spread_bucket": {},
-    "reject_counts_by_reason": {}
+    "reject_counts_by_reason": {},
+    "evidence_type": "phase3_clean_cohort",
+    "note": "Phase 3 clean cohort (sessions >= 2026-07-12, all P1-P7 fixes applied). Currently empty \u2014 no Phase 3 sessions have run yet. This is the authoritative source for strategy-performance analysis."
   }
 }

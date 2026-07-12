@@ -196,7 +196,9 @@
           "note": "DTE=0 day order $0.19 placed, never filled. Expired market close June 29."
         }
       ],
-      "infra_notes": "3 windows: 09:39-09:44 ET (11 cycles STANDBY), 10:38-10:50 ET (22 cycles STANDBY), 11:29-11:47 ET (16 cycles, fills cycle 3, MSFT exit cycle 8). VM killed by Firecracker teardown between turns. yfinance 429 hit bars fetch in window 3 (pre-Alpaca fix). Fix deployed after S11."
+      "infra_notes": "3 windows: 09:39-09:44 ET (11 cycles STANDBY), 10:38-10:50 ET (22 cycles STANDBY), 11:29-11:47 ET (16 cycles, fills cycle 3, MSFT exit cycle 8). VM killed by Firecracker teardown between turns. yfinance 429 hit bars fetch in window 3 (pre-Alpaca fix). Fix deployed after S11.",
+      "evidence_type": "engineering_evidence_only",
+      "phase": "pre_phase3"
     },
     {
       "session": "S10",
@@ -216,7 +218,9 @@
       "data_clean_reason": "Zero-trade session \u2014 no fills to verify, no broker state, clean pre-session checks, clean EOD shutdown. 167 cycles completed without infrastructure interruption. tmux session survived full window. All 5 health checks passed (09:45, 10:00, 11:00, 12:00, EOD). 891 scan_results rows written, 0 signal_bridge rows, 0 trade_journal rows. Broker: 0 positions, 0 open orders at EOD. API errors: 0. Reconciler: 0 repaired, 0 flagged.",
       "signal_bridge_available": false,
       "trades_detail": [],
-      "infra_notes": "Session launched via tmux (tmux new-session -d -s s10). 167 cycles, 09:36:07\u201312:31:37 ET. yfinance daily data fetch failed for all 27 symbols (No daily data returned) \u2014 same pattern as S9 (2026-06-24). Scores remained at 10.0/NEUTRAL all session. Midpoint trigger reached: this is session 5 of 10 in Phase 2. Midpoint review now due."
+      "infra_notes": "Session launched via tmux (tmux new-session -d -s s10). 167 cycles, 09:36:07\u201312:31:37 ET. yfinance daily data fetch failed for all 27 symbols (No daily data returned) \u2014 same pattern as S9 (2026-06-24). Scores remained at 10.0/NEUTRAL all session. Midpoint trigger reached: this is session 5 of 10 in Phase 2. Midpoint review now due.",
+      "evidence_type": "engineering_evidence_only",
+      "phase": "pre_phase3"
     },
     {
       "session": "S9",
@@ -236,7 +240,9 @@
       "data_clean_reason": "Zero-trade session \u2014 no fills to verify, no broker state, clean pre-session checks, clean EOD shutdown. 165 cycles completed without infrastructure interruption. tmux session survived full window. All 5 health checks passed (09:35, 09:45, 10:00, 11:00, 12:00 ET). 864 scan_results rows written, 0 signal_bridge rows, 0 trade_journal rows. Broker: 0 positions, 0 open orders at EOD.",
       "signal_bridge_available": false,
       "trades_detail": [],
-      "infra_notes": "Session launched via tmux (tmux new-session -d -s s9) to survive shell recycling \u2014 all prior nohup/& attempts failed. 165 cycles, 09:39:02\u201312:30:21 ET. Reconciler clean all runs (0 repaired, 0 flagged). API errors: 0. yfinance daily data fetch failed for all 27 symbols (No daily data returned, 1d 2026-04-10 to 2026-06-25) \u2014 pre-existing infrastructure issue, same pattern as prior sessions but more severe today. Intraday data also degraded (atr_too_small, invalid_price), causing scores to remain at 10.0 vs 48\u201370 in prior STANDBY sessions. Two prior S9 attempts voided (2026-06-22 cycle 22, 2026-06-23 cycle 73) \u2014 both excluded from Phase 2 statistics."
+      "infra_notes": "Session launched via tmux (tmux new-session -d -s s9) to survive shell recycling \u2014 all prior nohup/& attempts failed. 165 cycles, 09:39:02\u201312:30:21 ET. Reconciler clean all runs (0 repaired, 0 flagged). API errors: 0. yfinance daily data fetch failed for all 27 symbols (No daily data returned, 1d 2026-04-10 to 2026-06-25) \u2014 pre-existing infrastructure issue, same pattern as prior sessions but more severe today. Intraday data also degraded (atr_too_small, invalid_price), causing scores to remain at 10.0 vs 48\u201370 in prior STANDBY sessions. Two prior S9 attempts voided (2026-06-22 cycle 22, 2026-06-23 cycle 73) \u2014 both excluded from Phase 2 statistics.",
+      "evidence_type": "engineering_evidence_only",
+      "phase": "pre_phase3"
     },
     {
       "session": "S8",
@@ -336,7 +342,9 @@
           "note": "DIA exit spread 45% (bid=0.31, ask=0.49) far exceeded 10% threshold. Session runner issued WARNING and proceeded with exit. ORB strategy."
         }
       ],
-      "infra_notes": "356 cycles. 18 reconciler runs all clean (0 repaired, 0 flagged). 0 API errors. DIA exit spread warning: 45% > 10% max (bid=0.31, ask=0.49). Max entries per day (3/3) reached at ~12:29 ET \u2014 MSTR rejected on that basis, confirming rvol improved in afternoon session. PLTR exit spread warning not triggered (7.18% < 10%). AAPL exit spread warning at 10.37% (just over threshold)."
+      "infra_notes": "356 cycles. 18 reconciler runs all clean (0 repaired, 0 flagged). 0 API errors. DIA exit spread warning: 45% > 10% max (bid=0.31, ask=0.49). Max entries per day (3/3) reached at ~12:29 ET \u2014 MSTR rejected on that basis, confirming rvol improved in afternoon session. PLTR exit spread warning not triggered (7.18% < 10%). AAPL exit spread warning at 10.37% (just over threshold).",
+      "evidence_type": "engineering_evidence_only",
+      "phase": "pre_phase3"
     },
     {
       "session": "S7",
@@ -356,7 +364,9 @@
       "data_clean_reason": "Zero-trade session \u2014 no fills to verify, no broker state, clean pre-session checks, clean EOD shutdown. 360 cycles completed without incident.",
       "signal_bridge_available": true,
       "trades_detail": [],
-      "infra_notes": "Note: A prior S7 attempt on 2026-06-16 was invalidated due to sandbox VM reboot mid-session (process killed externally at cycle 24 ~09:58 ET, no positions open). That attempt was voided and excluded from evaluation. This 2026-06-17 run is the official Session 7."
+      "infra_notes": "Note: A prior S7 attempt on 2026-06-16 was invalidated due to sandbox VM reboot mid-session (process killed externally at cycle 24 ~09:58 ET, no positions open). That attempt was voided and excluded from evaluation. This 2026-06-17 run is the official Session 7.",
+      "evidence_type": "engineering_evidence_only",
+      "phase": "pre_phase3"
     },
     {
       "session": "S6",
@@ -452,7 +462,9 @@
           "exit_spread_pct": null,
           "note": "EOD sell limit 1.83 expired unfilled 6/15. Position carried to S7, re-linked via SessionRecovery fix, closed via max_hold rule (true entry time preserved) at S7 startup. Broker-confirmed fill 1.95, pnl=+15. Hold duration 79068s spans S6->S7 boundary."
         }
-      ]
+      ],
+      "evidence_type": "engineering_evidence_only",
+      "phase": "pre_phase3"
     },
     {
       "session": "S16",
@@ -474,7 +486,9 @@
       "data_clean_reason": "401 on _make_alpaca_data_client() in yfinance_data.py \u2014 os.getenv returned empty string; credentials live in pydantic settings. ~1508 ERROR log lines. Signal bridge: 0 entries. Fix e226be6 committed mid-session.",
       "signal_bridge_available": false,
       "trades_detail": [],
-      "infra_notes": "First session using Bash(run_in_background=True, timeout=14400000) \u2014 VM keepalive confirmed (265 continuous cycles, no teardown). S15 (tmux+cron) died at 10:58 ET; S16 ran full window."
+      "infra_notes": "First session using Bash(run_in_background=True, timeout=14400000) \u2014 VM keepalive confirmed (265 continuous cycles, no teardown). S15 (tmux+cron) died at 10:58 ET; S16 ran full window.",
+      "evidence_type": "engineering_evidence_only",
+      "phase": "pre_phase3"
     },
     {
       "session": "S17",
@@ -557,7 +571,9 @@
           "note": "Take profit triggered at 100% gain (.35 -> .69). Signal cleared at 11:29 ET, entered 11:30 ET, exited 12:19 ET."
         }
       ],
-      "infra_notes": "Background task method (bjmf5gls5). 353 continuous cycles 09:28-12:30 ET. No VM teardown. First session with both bdad282 + e226be6 auth fixes active. Signal generation functional end-to-end."
+      "infra_notes": "Background task method (bjmf5gls5). 353 continuous cycles 09:28-12:30 ET. No VM teardown. First session with both bdad282 + e226be6 auth fixes active. Signal generation functional end-to-end.",
+      "evidence_type": "engineering_evidence_only",
+      "phase": "pre_phase3"
     },
     {
       "session": "S18",
@@ -660,7 +676,9 @@
           "note": "Limit $1.51 filled at $1.49. Session EOD exit limit $1.39 placed 12:30:35 ET did not fill (bid dropped to $1.16-$1.20). Stale order cancelled post-session; new limit $1.16 placed, filled at $1.18. Actual P&L: ($1.18-$1.49)x100 = -$31."
         }
       ],
-      "infra_notes": "VM teardown at ~09:05 ET. Recovery: git fetch origin + git reset --hard origin/branch + pip install -r requirements.txt. Session relaunched as background task b0oeuin7a at 10:36 ET. 220 cycles, 10:36-12:30 ET. api_errors=0."
+      "infra_notes": "VM teardown at ~09:05 ET. Recovery: git fetch origin + git reset --hard origin/branch + pip install -r requirements.txt. Session relaunched as background task b0oeuin7a at 10:36 ET. 220 cycles, 10:36-12:30 ET. api_errors=0.",
+      "evidence_type": "engineering_evidence_only",
+      "phase": "pre_phase3"
     }
   ],
   "cumulative": {
@@ -900,7 +918,9 @@
       "epistemic_status": "DERIVED+INFERRED",
       "contamination": "all supporting sessions carry pre-phase3 contamination flags; S6/S8 data_clean=FALSE",
       "phase3_verdict": "insufficient_data",
-      "note": "ORB PF 0.143, VWAP PF 0.305 \u2014 DERIVED from contaminated sessions. 'Indeterminate' conclusion is INFERRED. Cannot be used as performance conclusion."
+      "note": "ORB PF 0.143, VWAP PF 0.305 \u2014 DERIVED from contaminated sessions. 'Indeterminate' conclusion is INFERRED. Cannot be used as performance conclusion.",
+      "evidence_category": "strategy_performance_hypothesis",
+      "pre_phase3_use": "NONE \u2014 ORB never completed a full round-trip in any uncontaminated session before Phase 3. Phase 3 data required before any ORB vs. VWAP comparison is valid."
     },
     "Q2_signal_age": {
       "status": "indeterminate",
@@ -908,7 +928,9 @@
       "note": "30-60 min bucket 0% win rate is DERIVED. 'No clear monotonic relationship' is INFERRED. Small N and contaminated source.",
       "epistemic_status": "DERIVED+INFERRED",
       "contamination": "all supporting sessions carry pre-phase3 contamination flags; S1/S2 quality/age estimated from post-session reports",
-      "phase3_verdict": "insufficient_data"
+      "phase3_verdict": "insufficient_data",
+      "evidence_category": "infrastructure_behavior",
+      "pre_phase3_use": "STRUCTURAL \u2014 signal age distribution and its causes (STANDBY duration, scanner cycle) are observable from pre-phase3 data. Age\u2192outcome correlations require Phase 3 data."
     },
     "Q3_dte": {
       "status": "indeterminate",
@@ -916,7 +938,9 @@
       "epistemic_status": "DERIVED+INFERRED",
       "contamination": "DTE=0 counts from Phase 1 (contaminated) and S8 (data_clean=FALSE); DTE=2-3 from S6 only (data_clean=FALSE)",
       "phase3_verdict": "insufficient_data",
-      "note": "DTE=0 ~20% win rate is stable across multiple sessions (DERIVED, partially INFERRED as structural). DTE=2-3 50% from one session (S6) \u2014 confounded with session/market regime."
+      "note": "DTE=0 ~20% win rate is stable across multiple sessions (DERIVED, partially INFERRED as structural). DTE=2-3 50% from one session (S6) \u2014 confounded with session/market regime.",
+      "evidence_category": "strategy_performance_hypothesis",
+      "pre_phase3_use": "LIMITED \u2014 DTE=0 ~20% win rate is observed across multiple contaminated sessions (DERIVED, partially structural). DTE bucket comparisons require Phase 3 data with uncontaminated exit prices."
     },
     "Q4_etf_vs_single_stock": {
       "status": "indeterminate",
@@ -924,7 +948,9 @@
       "epistemic_status": "DERIVED+INFERRED",
       "contamination": "all supporting sessions carry pre-phase3 contamination flags",
       "phase3_verdict": "insufficient_data",
-      "note": "ETF 18.75% win rate vs single-stock 50% is DERIVED. 'Pattern potentially supported' is INFERRED. N=6 single-stock trades across contaminated sessions."
+      "note": "ETF 18.75% win rate vs single-stock 50% is DERIVED. 'Pattern potentially supported' is INFERRED. N=6 single-stock trades across contaminated sessions.",
+      "evidence_category": "strategy_performance_hypothesis",
+      "pre_phase3_use": "NONE \u2014 all pre-phase3 single-stock wins occurred in sessions with contamination flags. Phase 3 data required."
     },
     "Q5_quality_scores": {
       "status": "indeterminate",
@@ -932,7 +958,9 @@
       "epistemic_status": "DERIVED+INFERRED",
       "contamination": "S1/S2 quality estimated; S6/S8/S11 data_clean=FALSE",
       "phase3_verdict": "insufficient_data",
-      "note": "Q=3 best average P&L (-0.80/trade) is DERIVED. 'Advantage strengthening' is INFERRED. Q=4 has 0/2 wins \u2014 contradicts quality=4 win in trade_autopsy; driven by different sessions."
+      "note": "Q=3 best average P&L (-0.80/trade) is DERIVED. 'Advantage strengthening' is INFERRED. Q=4 has 0/2 wins \u2014 contradicts quality=4 win in trade_autopsy; driven by different sessions.",
+      "evidence_category": "strategy_performance_hypothesis",
+      "pre_phase3_use": "NONE \u2014 quality score predictive value cannot be assessed from contaminated P&L data. Phase 3 data required."
     },
     "Q6_scanner_score": {
       "status": "indeterminate",
@@ -940,7 +968,9 @@
       "epistemic_status": "DERIVED+INFERRED",
       "contamination": "all supporting sessions carry pre-phase3 contamination flags",
       "phase3_verdict": "insufficient_data",
-      "note": "50-59 bucket has highest win rate (57%) but negative P&L \u2014 DERIVED, INFERRED as asymmetric loss structure. 60-69 and 70+ below minimum N=3."
+      "note": "50-59 bucket has highest win rate (57%) but negative P&L \u2014 DERIVED, INFERRED as asymmetric loss structure. 60-69 and 70+ below minimum N=3.",
+      "evidence_category": "strategy_performance_hypothesis",
+      "pre_phase3_use": "NONE \u2014 scanner score vs outcome analysis requires uncontaminated P&L. Phase 3 data required."
     },
     "Q7_fill_path": {
       "status": "indeterminate",
@@ -948,7 +978,9 @@
       "epistemic_status": "DERIVED+INFERRED",
       "contamination": "fill path confounded with session phase \u2014 recovered fills = Phase 1 (contaminated), direct fills = Phase 2 S6/S8/S11 (data_clean=FALSE). Do not cite as evidence for fill mechanism.",
       "phase3_verdict": "insufficient_data",
-      "note": "60% vs 13% win rate is DERIVED. 'Consistently outperform' is INFERRED but the confound is explicitly noted in phase2_midpoint_analysis. This comparison is not a valid test of fill path effect."
+      "note": "60% vs 13% win rate is DERIVED. 'Consistently outperform' is INFERRED but the confound is explicitly noted in phase2_midpoint_analysis. This comparison is not a valid test of fill path effect.",
+      "evidence_category": "infrastructure_behavior",
+      "pre_phase3_use": "STRUCTURAL \u2014 fill path mechanics (Pattern A vs Pattern B) are observable infrastructure behavior. P&L comparison by fill path is INVALID (confounded with session phase). See research/pre_phase3_engineering_evidence.md Finding 1."
     }
   },
   "voided_attempts": [
@@ -993,7 +1025,7 @@
       "fix_required": "Session runner must be executed on a persistent host (local machine, VPS, or persistent server) outside the ephemeral Claude Code remote container. The container cannot sustain a 3-hour background process through inactivity periods."
     }
   ],
-  "note": "Phase 2 tracking. S6: 3 trades (+35). S7: 0 trades (STANDBY). S8: 3 trades (-7, all DTE=0). S9: 0 trades (yfinance failure). S10: 0 trades (yfinance failure). S11: 2 trades (-7, valid). S12: VOIDED. S13: VOIDED (yfinance failure + VM kills). 6 valid sessions complete, 4 remaining. S14+ require active user engagement every <10 min OR external trigger to prevent VM teardown between turns.",
+  "note": "Pre-phase3 session tracking. All sessions are engineering evidence only \u2014 infrastructure behavior, defect manifestations, and system mechanics. No strategy-performance conclusions may be drawn from this data. Phase 3 strategy-performance tracking: evaluation/phase3_tracking.json. Engineering findings catalog: research/pre_phase3_engineering_evidence.md.",
   "epistemic_status": {
     "overall": "pre_phase3_evidence_only",
     "note": "All data in this tracking file comes from sessions before the Phase 3 boundary (2026-07-12). All PnL statistics, win rates, and question assessments carry pre-phase3 contamination flags. This file represents engineering evidence and directional hypotheses only \u2014 not strategy-performance conclusions. See evaluation/phase3_eval_protocol.md Section 11.",

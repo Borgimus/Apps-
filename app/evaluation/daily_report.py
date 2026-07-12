@@ -151,6 +151,13 @@ class DailyReport:
     notes: List[str] = field(default_factory=list)
     recommendations: List[str] = field(default_factory=list)
 
+    # Cohort phase — set by build_daily_report(); governs interpretation framing
+    # "pre_phase3": engineering evidence only (all sessions before 2026-07-12)
+    # "phase3":     clean evaluation cohort (all P1-P7 fixes applied)
+    phase: str = "pre_phase3"
+    # Human-readable framing used in report headers and alert messages
+    evidence_type: str = "engineering_evidence_only"
+
 
 # ── Builder ───────────────────────────────────────────────────────────────────
 
@@ -160,7 +167,16 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
     from sqlalchemy import func, select
     from app.api.models import DBSessionLog, DBSignal, DBTradeJournal
 
-    report = DailyReport(date=session_date, session_start=None, session_end=None)
+    from app.evaluation.ledger import PHASE3_START
+    _phase = "phase3" if session_date >= PHASE3_START else "pre_phase3"
+    _evidence_type = "clean_evaluation" if _phase == "phase3" else "engineering_evidence_only"
+    report = DailyReport(
+        date=session_date,
+        session_start=None,
+        session_end=None,
+        phase=_phase,
+        evidence_type=_evidence_type,
+    )
 
     # ── Session start / end from session logs ─────────────────────────────────
     logs = (
@@ -873,7 +889,18 @@ def to_markdown(report: DailyReport) -> str:
     notes_md = "\n".join(f"- {n}" for n in r.notes) or "- None"
     recs_md = "\n".join(f"- {rc}" for rc in r.recommendations) or "- None"
 
+    phase_banner = (
+        "> **Engineering evidence only** — this session predates the Phase 3 clean-cohort boundary "
+        "(2026-07-12). P&L and win-rate statistics in this report cannot be used as "
+        "strategy-performance conclusions. See `research/pre_phase3_engineering_evidence.md`."
+        if r.phase == "pre_phase3"
+        else "> **Phase 3 clean evaluation** — all P1–P7 defect fixes applied. "
+        "This session is eligible for the clean-cohort analysis after acceptance criteria are met."
+    )
+
     return f"""# Daily Evaluation Report — {r.date}
+
+{phase_banner}
 
 **Session:** {r.session_start or "unknown"} → {r.session_end or "unknown"}
 

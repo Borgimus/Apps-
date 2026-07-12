@@ -40,6 +40,9 @@ google-services.json
 .env.local
 *.pem
 
+# Session exports (contain source snapshots, never commit)
+export_session_*.json
+
 # Kill switch
 KILL_SWITCH
 

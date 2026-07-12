@@ -1,5 +1,27 @@
 # Signal Staleness Analysis
 
+## Claims Registry
+
+> **Data source:** 2026-05-29, 2026-06-02 — both pre-phase3 sessions with Bug C and FillTracker bugs active  
+> **All claims in this document carry `[CONTAMINATED SOURCE]`**  
+> See `research/epistemic_standards.md` for category definitions.
+
+| # | Claim summary | Tag | Contaminated |
+|---|---------------|-----|--------------|
+| 1 | 72.5% of actionable signals were older than 60 min; fresh signals (<15 min) were <1% of population | `DERIVED` | yes |
+| 2 | Signal aging is a structural property: signals generated once per bar, carried forward through poll cycle | `INFERRED` | yes |
+| 3 | Quality is not monotone with age; quality-4 signal (DIA) was 96 min old | `OBSERVED` / `INFERRED` | yes |
+| 4 | H1 INCONCLUSIVE: age alone does not discriminate wins from losses at n=5 | `DERIVED` / `INFERRED` | yes |
+| 5 | H2 NOT SUPPORTED: fresh signals had 0% win rate; stale signals had 33% win rate | `DERIVED` / `INFERRED` | yes |
+| 6 | H3 CONSISTENT: quality-4 = only win; quality 2-3 = all losses (confounds not ruled out) | `OBSERVED` / `INFERRED` | yes |
+| 7 | H4 NOT SUPPORTED: scanner score inversely correlated with outcome in this sample | `DERIVED` / `INFERRED` | yes |
+| 8 | Scanner scores may underrate reversion setups (speculative explanation for H4) | `SPECULATIVE` | yes |
+| 9 | IV at entry was the strongest dollar-loss predictor (from 2 data points: DIA vs COIN) | `INFERRED` | yes |
+| 10 | All 5 executed trades had sub-normal volume (rvol < 1.0) | `OBSERVED` | yes |
+| 11 | Minimum ~30 executed trades required for meaningful correlation analysis | `SPECULATIVE` | — |
+
+
+
 **Sessions:** 2026-05-29, 2026-06-02  
 **Signal bridge rows:** 857 total; 639 excluded (rsi_trend diagnostic); **218 analyzed**  
 **Executed trades with age data:** 5

@@ -1,5 +1,22 @@
 # Trade Counting Semantics Analysis
 
+## Claims Registry
+
+> **Data source:** Code analysis (session-independent) + 2026-05-29 session trace (pre-phase3, contaminated)  
+> **Code-structure observations are not contaminated; session-trace inferences are**  
+> See `research/epistemic_standards.md` for category definitions.
+
+| # | Claim summary | Tag | Contaminated |
+|---|---------------|-----|--------------|
+| 1 | record_trade() is called at order placement (not fill confirmation); exit orders also increment the counter | `OBSERVED` | no (code) |
+| 2 | FillTracker._handle_fill() receives risk parameter but never calls record_trade() | `OBSERVED` | no (code) |
+| 3 | Exit orders bypass check_order() entirely but still consume counter slots | `OBSERVED` / `INFERRED` | no (code) |
+| 4 | Effective entries per session = ⌊max_trades_per_day / 2⌋ (each round-trip costs 2 counter units) | `DERIVED` | no (arithmetic) |
+| 5 | Design intent: max_trades_per_day was intended to limit filled entry orders, not round-trips | `INFERRED` | no (docstring analysis) |
+| 6 | ORB block on 2026-05-29 was entirely caused by the counter bug, not ORB signal quality | `INFERRED` | yes |
+
+
+
 *Research only — no code changes. Generated 2026-06-01.*
 
 ---

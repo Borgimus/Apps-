@@ -1,4 +1,26 @@
 # S17 Deep Analysis — META +$434 (2026-07-09)
+## Claims Registry
+
+> **Data source:** S17 (2026-07-09) — data_clean=TRUE under Phase 2 criteria; carries P2/P6 contamination flags under Phase 3  
+> **N=2 filled trades. All trade-outcome claims apply to a single session.**  
+> See `research/epistemic_standards.md` for category definitions.
+
+| # | Claim summary | Tag | Contaminated |
+|---|---------------|-----|--------------|
+| 1 | META selection was fully systematic; no manual intervention | `INFERRED` | yes |
+| 2 | META appeared at 11:29 ET rescan because rvol and ORB breakout cleared simultaneously | `INFERRED` | yes |
+| 3 | META leverage ratio ~66×; underlying needed ~1.5–2% move for 100% option premium gain | `DERIVED` | yes |
+| 4 | Scanner score does not predict option profitability; RIVN (score 70) worse than META (score 62) | `INFERRED` | yes (n=2, same session) |
+| 5 | MARA counterfactual: earlier entry might have captured a larger gain | `SPECULATIVE` | — |
+| 6 | Large-cap fresh ORB is the primary alpha source in this system | `SPECULATIVE` | yes (n=1 win) |
+| 7 | DTE=1 / large-cap / 0.35–0.45 delta is the system's core winning setup | `SPECULATIVE` | yes (n=1 win) |
+| 8 | trend_sideways was favorable context for META (coiled before breakout) | `SPECULATIVE` | yes (post-hoc, n=1) |
+| 9 | RIVN spike-and-reverse consistent with low-priced volatile stock behavior | `INFERRED` | yes (n=1) |
+| 10 | META move was more likely sustained because of institutional following vs. retail momentum | `SPECULATIVE` | — |
+| 11 | META selection was systematic; outcome magnitude involved directional luck | `INFERRED` / `SPECULATIVE` | yes |
+| 12 | max_active_positions=1 creates path dependency; first entry likely to be lower quality | `INFERRED` / `SPECULATIVE` | yes |
+
+
 
 ---
 

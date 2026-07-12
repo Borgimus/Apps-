@@ -1,4 +1,29 @@
 # Phase 2 Midpoint Analysis
+
+## Claims Registry
+
+> **Data source:** S1–S10; S6 (data_clean=FALSE), S8 (data_clean=FALSE), S9/S10 excluded as sentinel data  
+> **Phase 3 contamination flags apply to all claims; S6/S8 carry additional Phase 2 `data_clean=FALSE` flags**  
+> See `research/epistemic_standards.md` for category definitions.
+
+| # | Claim summary | Tag | Contaminated |
+|---|---------------|-----|--------------|
+| 1 | Direct fills: 60% win rate, +$25 avg P&L. Recovered fills: 13.3% win rate, −$18.67 avg P&L | `DERIVED` | yes |
+| 2 | Fill path and session phase are nearly perfectly correlated — do not cite the 60% vs 13% as evidence for fill mechanism | `INFERRED` | yes |
+| 3 | ATR component is non-discriminating within the passing candidate set (86.4% of candidates have wide ATR) | `DERIVED` / `INFERRED` | partially (S6/S8 in scan_results) |
+| 4 | Trend alignment dominates score variance; trend_up candidates score 6.7 pts higher than sideways | `DERIVED` / `INFERRED` | partially |
+| 5 | DTE=0 win rate ~20%, stable across Phase 1 and S8 (n=10) — tentatively structural, not noise | `DERIVED` / `INFERRED` | yes |
+| 6 | DTE=2-3 50% win rate (n=4, S6 only) — single session, single market regime; not a fair comparison to DTE=0 | `DERIVED` / `INFERRED` | yes (S6 data_clean=FALSE) |
+| 7 | All 3 observed ORB forward-price windows moved against the trade direction | `OBSERVED` | yes |
+| 8 | ORB appears to be entering too late (signal age 66–90 min post-ORB-window) | `INFERRED` | yes |
+| 9 | VWAP profit factor (0.305) higher than ORB (0.143); both below 1; both unprofitable | `DERIVED` | yes |
+| 10 | PLTR: 2/2 wins; accounts for 86% of Phase 2 gross wins — Phase 2 P&L depends entirely on PLTR | `DERIVED` | yes (S6 data_clean=FALSE) |
+| 11 | PLTR barely cleared RVOL gate (0.502, 0.505); may indicate conviction signals | `SPECULATIVE` | yes |
+| 12 | S9/S10 are data-failure sessions (empty yfinance DataFrames), not true STANDBY | `INFERRED` | yes |
+| 13 | DTE=0 win rate of ~20% is likely structural (consistent across multiple phases) | `INFERRED` | yes |
+| 14 | liquid_growth candidates score highest (57.9 avg) and show most directional movement | `DERIVED` / `INFERRED` | partially |
+
+
 **Generated:** 2026-06-25  
 **Sessions completed:** S6–S10 (5 of 10)  
 **Trades in dataset:** 20 (14 Phase 1 + 6 Phase 2; S9/S10 contributed 0)  

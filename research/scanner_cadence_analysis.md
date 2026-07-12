@@ -1,5 +1,25 @@
 # Scanner Cadence Analysis
 
+## Claims Registry
+
+> **Data source:** 2026-05-29, 2026-06-02 — pre-phase3; code analysis is session-independent  
+> **Execution-behavior claims carry `[CONTAMINATED SOURCE]`; code/config observations do not**  
+> See `research/epistemic_standards.md` for category definitions.
+
+| # | Claim summary | Tag | Contaminated |
+|---|---------------|-----|--------------|
+| 1 | UNIVERSE_SCAN_INTERVAL_MINUTES = 30 (default; no .env override) | `OBSERVED` | no |
+| 2 | Effective cadence = 30 min ± 30 s (scanner triggers within one poll cycle of interval elapsing) | `INFERRED` | no (code logic) |
+| 3 | No documented rationale for 30-min interval found in code or commit history | `OBSERVED` | no |
+| 4 | Alignment with market microstructure cycles as historical rationale | `SPECULATIVE` | — |
+| 5 | 6,318 yfinance calls/day at 5-min cadence carries throttling risk | `INFERRED` | no |
+| 6 | 1-min cadence (31,590 calls/day) carries significant throttling risk | `SPECULATIVE` | — |
+| 7 | Confirmed candidate count is independent of cadence; reflects market conditions | `INFERRED` | yes |
+| 8 | Faster scanning provides ≤15 min signal-age improvement for most signals; STANDBY dominates | `INFERRED` | yes |
+| 9 | Only SNOW would meaningfully benefit from 15-min cadence | `DERIVED` | yes |
+
+
+
 **Sessions:** 2026-05-29, 2026-06-02  
 **Signals analyzed:** 11 unique (quality > 0, grouped by session × symbol × strategy × direction)  
 **Bridge rows:** 218  

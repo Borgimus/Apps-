@@ -1,4 +1,19 @@
 # Account Ledger Reconciliation
+
+## Claims Registry
+
+> **Data source:** 2026-05-11 – 2026-06-12; Period A (pre-fix) and Period B (Bug D) are contaminated; Period C (S1–S5) carries Phase 3 contamination flags  
+> See `research/epistemic_standards.md` for category definitions.
+
+| # | Claim summary | Tag | Contaminated |
+|---|---------------|-----|--------------|
+| 1 | Period A actual loss ($341.93) exceeds ledger loss ($288.50) by $53.43; unattributed portion ~$43.43 | `DERIVED` | yes (Bug C active) |
+| 2 | Known Period A corrections: AMZN fill not seen (−$6.00), META midpoint exit (−$4.00); both from Bug C/FillTracker bugs | `OBSERVED` | yes |
+| 3 | Period B favorable $5.48 difference attributed to Bug D duplicate exit artifact | `INFERRED` | yes (Bug D) |
+| 4 | Period C $17.11 favorable residual attributed to EOD fill price rounding; below $1/trade threshold | `INFERRED` | yes (Phase 3 flags) |
+| 5 | All S1–S5 trade_journal rows are status=cancelled or rejected; no status=closed — confirms Pattern A reconciler bypass | `INFERRED` | yes |
+
+
 **Generated:** 2026-06-12  
 **Scope:** All trading sessions 2026-05-11 through 2026-06-12  
 **Account:** Alpaca paper (paper-api.alpaca.markets)

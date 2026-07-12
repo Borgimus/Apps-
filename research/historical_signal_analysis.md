@@ -1,5 +1,23 @@
 # Historical Signal Analysis
 
+## Claims Registry
+
+> **Data source:** 2026-05-11 – 2026-05-29 — pre-phase3, Bug A/B active, FillTracker defects active  
+> **All claims in this document carry `[CONTAMINATED SOURCE]`**  
+> See `research/epistemic_standards.md` for category definitions.
+
+| # | Claim summary | Tag | Contaminated |
+|---|---------------|-----|--------------|
+| 1 | ORB: 0 trades executed; 103 evaluations all blocked/skipped because risk limit was exhausted by VWAP trades | `OBSERVED` / `INFERRED` | yes |
+| 2 | RSI_trend: all 639 evaluations skipped (rsi_trend_diagnostic_only mode; permanently non-executable) | `OBSERVED` | yes |
+| 3 | Quality ≥2 signals reached execution; quality=1 signals never evaluated (risk limit already exhausted) | `INFERRED` | yes |
+| 4 | Exit spreads consistently 1.3–3.5× wider than entry spreads across all adverse-exit trades | `DERIVED` | yes |
+| 5 | The trade counter bug (exits consuming entry slots) caused all ORB blocks — not signal quality | `INFERRED` | yes |
+| 6 | Effective entries per session = ⌊max_trades_per_day / 2⌋ under the buggy counter semantics | `DERIVED` | yes |
+| 7 | All executed trades had sub-normal volume (rvol < 1.0); reduces generalizability of staleness findings | `OBSERVED` / `INFERRED` | yes |
+
+
+
 *Generated 2026-06-01T15:10:38Z UTC  |  Research-only — no parameter changes recommended*
 
 ---

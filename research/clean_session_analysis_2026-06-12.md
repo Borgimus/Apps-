@@ -1,5 +1,25 @@
 # Clean Session Historical Analysis — 2026-06-12
 
+## Claims Registry
+
+> **Data source:** S1–S5 (2026-06-05 – 2026-06-12) — clean under Phase 2 criteria; carry P2/P6 contamination flags under Phase 3  
+> S1/S2 lack signal_bridge data (estimated from post-session reports)  
+> See `research/epistemic_standards.md` for category definitions.
+
+| # | Claim summary | Tag | Phase 3 contaminated |
+|---|---------------|-----|----------------------|
+| 1 | Win rate 2/14 = 14.3%; expectancy −$19.71/trade; profit factor 0.058 | `DERIVED` | yes (P2/P6 flags) |
+| 2 | All 14 fills went through reconciler recovery (Pattern A: stale-cancel 422 → reconciler) | `OBSERVED` | yes |
+| 3 | trade_journal has no status=closed rows for S1–S5 (reconciler bypass of journal exit recording) | `OBSERVED` | yes |
+| 4 | All 11 vwap_reclaim completed trades were losses or breakeven | `OBSERVED` | yes |
+| 5 | ORB P&L dominated by 1 outlier (SMH −$99); insufficient to conclude ORB > VWAP | `DERIVED` / `INFERRED` | yes |
+| 6 | Quality=2 (4 trades): all losses. No dimension has reached minimum threshold (n=3) for conclusions | `OBSERVED` / `INFERRED` | yes |
+| 7 | No positive scanner score → P&L correlation visible (sample too small) | `DERIVED` / `INFERRED` | yes |
+| 8 | All 5 sessions had STANDBY ≥ 1 hr (rvol < 0.5 for first 60–140 min every session) | `OBSERVED` | yes |
+| 9 | Quality=2 losses all confounded: all vwap_reclaim, all DTE=0, all core_etfs — cannot isolate quality | `INFERRED` | yes |
+
+
+
 **Trigger:** 5 clean sessions complete (per `evaluation/post_fix_eval_protocol.md` Section 8)
 **Analysis Date:** 2026-06-12
 **Protocol status:** EVIDENCE COLLECTION ONLY — no parameter changes, no threshold adjustments

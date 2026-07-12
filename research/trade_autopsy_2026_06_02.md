@@ -1,5 +1,25 @@
 # Trade Autopsy — 2026-06-02
 
+## Claims Registry
+
+> **Data source:** 2026-06-02 — pre-phase3, Bug C active (exit P&L recorded at midpoint, not bid)  
+> **All claims carry `[CONTAMINATED SOURCE]` — P&L figures are incorrect; exit prices overstate actual gains**  
+> See `research/epistemic_standards.md` for category definitions.
+
+| # | Claim summary | Tag | Contaminated |
+|---|---------------|-----|--------------|
+| 1 | DIA: quality 4/4, confluence 5; scanner SHORT was a false negative (vwap_reclaim correctly identified overextension) | `INFERRED` | yes |
+| 2 | Scanner/strategy direction disagreement was not a negative signal in this trade (n=1) | `INFERRED` | yes (n=1) |
+| 3 | COIN: ORB signal was 121.6 min old; underlying had moved $4.18 above breakdown level by entry time | `OBSERVED` | yes |
+| 4 | COIN: sub-normal volume (rvol=0.51) reduced directional conviction | `INFERRED` | yes |
+| 5 | META: 1-day expiry + $7.08 OTM + quality=2 + confluence=1 = structurally poor combination | `INFERRED` | yes |
+| 6 | Quality score outperformed scanner score as outcome predictor in this session (n=3, same session) | `DERIVED` / `INFERRED` | yes (n=3 only) |
+| 7 | Signal staleness of 121.6 min (COIN) coincided with worst trade; staleness was a credible risk factor | `INFERRED` | yes (n=1) |
+| 8 | High IV (83.66%) magnified COIN dollar loss independently of direction | `INFERRED` | yes |
+| 9 | COIN/META losses concentrated in poor-quality signals; sub-normal volume + stale signals + high IV compound risk | `INFERRED` | yes (n=3 only) |
+
+
+
 **3 trades executed. 1 win, 2 losses. Daily PnL: -$128.50.**
 
 > No intraday position marks are stored. MFE/MAE are bounded by known entry and exit prices only. Underlying prices at exit are delta-approximated — treat as directional indicators, not precise values.

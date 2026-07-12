@@ -566,7 +566,7 @@
       "validity_reason": "User confirmed valid. VM teardown at ~09:05 ET caused 66-min late start (10:36 ET). Session traded 3 positions to EOD 12:30 ET. MARA post-session close confirmed by Alpaca (filled $1.18). All positions resolved, 0 open orders at close.",
       "pnl_journal": -53.0,
       "pnl_confirmed": -53.0,
-      "pnl_note": "SOFI260710P00019000 ORB trailing_stop -$12.00 (entry $0.30, exit $0.18, hold 154s). SPY260710P00746000 vwap_reclaim trailing_stop -$10.00 (entry $0.24, exit $0.14, hold 62s). MARA260710P00014000 vwap_reclaim post-session_close -$31.00 (entry $1.49, exit $1.18 confirmed fill). Net: -$53.00. Note: session_runner EOD exit placed limit=$1.39 at 12:30:35 ET — never filled (price dropped to $1.16-$1.20 range). Post-session manual close placed limit=$1.16 at ~12:45 ET, filled at $1.18.",
+      "pnl_note": "SOFI260710P00019000 ORB trailing_stop -$12.00 (entry $0.30, exit $0.18, hold 154s). SPY260710P00746000 vwap_reclaim trailing_stop -$10.00 (entry $0.24, exit $0.14, hold 62s). MARA260710P00014000 vwap_reclaim post-session_close -$31.00 (entry $1.49, exit $1.18 confirmed fill). Net: -$53.00. Note: session_runner EOD exit placed limit=$1.39 at 12:30:35 ET \u2014 never filled (price dropped to $1.16-$1.20 range). Post-session manual close placed limit=$1.16 at ~12:45 ET, filled at $1.18.",
       "trades": 3,
       "wins": 0,
       "losses": 3,
@@ -576,7 +576,7 @@
       "recovered": 0,
       "direct": 3,
       "data_clean": false,
-      "data_clean_reason": "MARA: session_runner EOD limit sell $1.39 placed 12:30:35 ET (did not fill — market dropped to $1.16-$1.20). Post-session stale order cancelled, new limit sell $1.16 placed, filled at $1.18. Corrected P&L: -$31 (was -$10 in session journal). 2 exit spread warnings during session: SOFI 28.6% (trailing_stop) and MARA 10.9% at EOD (forced exit that failed). api_errors=0, reconciler_warnings=0.",
+      "data_clean_reason": "MARA: session_runner EOD limit sell $1.39 placed 12:30:35 ET (did not fill \u2014 market dropped to $1.16-$1.20). Post-session stale order cancelled, new limit sell $1.16 placed, filled at $1.18. Corrected P&L: -$31 (was -$10 in session journal). 2 exit spread warnings during session: SOFI 28.6% (trailing_stop) and MARA 10.9% at EOD (forced exit that failed). api_errors=0, reconciler_warnings=0.",
       "signal_bridge_available": true,
       "trades_detail": [
         {
@@ -586,7 +586,10 @@
           "strategy": "orb",
           "scanner_score": 50,
           "signal": "SHORT",
-          "signal_reasons": ["atr_wide", "orb_breakdown"],
+          "signal_reasons": [
+            "atr_wide",
+            "orb_breakdown"
+          ],
           "dte": 0,
           "pnl_journal": -12.0,
           "pnl_actual": -12.0,
@@ -594,7 +597,7 @@
           "asset_class": "single_stock",
           "universe_group": "high_beta_liquid",
           "outcome": "loss",
-          "entry_fill": 0.30,
+          "entry_fill": 0.3,
           "exit_fill": 0.18,
           "exit_reason": "trailing_stop",
           "entry_spread_pct": 3.39,
@@ -634,7 +637,11 @@
           "strategy": "vwap_reclaim",
           "scanner_score": 62,
           "signal": "SHORT",
-          "signal_reasons": ["atr_wide", "orb_breakdown", "trend_sideways"],
+          "signal_reasons": [
+            "atr_wide",
+            "orb_breakdown",
+            "trend_sideways"
+          ],
           "dte": 0,
           "pnl_journal": -10.0,
           "pnl_actual": -10.0,
@@ -854,7 +861,8 @@
         "pnl": 25.0,
         "note": "Added MSFT +1 (win) and RIVN -8 (loss) from S11"
       }
-    }
+    },
+    "epistemic_note": "All dimension statistics are DERIVED from pre-phase3 sessions carrying contamination flags. No dimension has reached Phase 3 minimum observations (n=3 per bucket). All patterns are INFERRED and must be re-evaluated with Phase 3 data before any action."
   },
   "minimum_observations": {
     "note": "Minimum 3 per bucket before dimension comparisons. Updated through S11.",
@@ -888,32 +896,59 @@
       "status": "indeterminate",
       "reason": "ORB N=5 (2 wins/5, pnl=-110, PF=17/127=0.134). VWAP N=17 (4 wins/17, pnl=-145, PF=65/210=0.310). S11 adds RIVN (ORB, loss -8) and MSFT (VWAP, win +1). ORB PF dropped further (0.143\u21920.134); VWAP PF improved slightly (0.305\u21920.310). Both below 1. VWAP now higher PF and better win rate. Still indeterminate \u2014 both unprofitable overall.",
       "orb_pf": 0.134,
-      "vwap_pf": 0.31
+      "vwap_pf": 0.31,
+      "epistemic_status": "DERIVED+INFERRED",
+      "contamination": "all supporting sessions carry pre-phase3 contamination flags; S6/S8 data_clean=FALSE",
+      "phase3_verdict": "insufficient_data",
+      "note": "ORB PF 0.143, VWAP PF 0.305 \u2014 DERIVED from contaminated sessions. 'Indeterminate' conclusion is INFERRED. Cannot be used as performance conclusion."
     },
     "Q2_signal_age": {
       "status": "indeterminate",
       "reason": "S11 adds MSFT 100.1min and RIVN 105.1min, both in 90-120 bucket. 90-120 N=5 (2 wins/5, pnl=-63). <30 N=4 (+13), 30-60 N=4 (-97), 60-90 N=4 (-87), 90-120 N=5 (-63). 30-60 remains weakest (0 wins, pnl=-97). <30 still only positive bucket. 90-120 improves to 2 wins from 1 but still negative pnl. No clear monotonic age\u2192performance relationship.",
-      "note": "All four primary age buckets at N\u22653. 30-60 worst. <30 only positive. 90-120 shows 40% win rate but -63 pnl."
+      "note": "30-60 min bucket 0% win rate is DERIVED. 'No clear monotonic relationship' is INFERRED. Small N and contaminated source.",
+      "epistemic_status": "DERIVED+INFERRED",
+      "contamination": "all supporting sessions carry pre-phase3 contamination flags; S1/S2 quality/age estimated from post-session reports",
+      "phase3_verdict": "insufficient_data"
     },
     "Q3_dte": {
       "status": "indeterminate",
-      "reason": "S11 adds MSFT DTE=0 (win +1) and RIVN DTE=3 (loss -8). DTE=0 N=11 (3 wins/11, 27%, pnl=-116). DTE=2-3 N=5 (2 wins/5, 40%, pnl=-72). DTE=0 win rate improves slightly (20%\u219227%) but pnl essentially unchanged (-117\u2192-116). DTE=2-3 win rate drops (50%\u219240%) with RIVN loss adding to pnl drag. DTE=2-3 still shows better win rate than DTE=0 but gap narrowing."
+      "reason": "S11 adds MSFT DTE=0 (win +1) and RIVN DTE=3 (loss -8). DTE=0 N=11 (3 wins/11, 27%, pnl=-116). DTE=2-3 N=5 (2 wins/5, 40%, pnl=-72). DTE=0 win rate improves slightly (20%\u219227%) but pnl essentially unchanged (-117\u2192-116). DTE=2-3 win rate drops (50%\u219240%) with RIVN loss adding to pnl drag. DTE=2-3 still shows better win rate than DTE=0 but gap narrowing.",
+      "epistemic_status": "DERIVED+INFERRED",
+      "contamination": "DTE=0 counts from Phase 1 (contaminated) and S8 (data_clean=FALSE); DTE=2-3 from S6 only (data_clean=FALSE)",
+      "phase3_verdict": "insufficient_data",
+      "note": "DTE=0 ~20% win rate is stable across multiple sessions (DERIVED, partially INFERRED as structural). DTE=2-3 50% from one session (S6) \u2014 confounded with session/market regime."
     },
     "Q4_etf_vs_single_stock": {
       "status": "indeterminate",
-      "reason": "S11 adds MSFT (win +1) and RIVN (loss -8) both to single-stock. Single-stock N=6 (3 wins/6, 50%, pnl=-37, avg=-6.17/trade). ETF N=16 unchanged (3 wins/16, 18.75%, pnl=-218, avg=-13.63/trade). Single-stock win rate holds at 50% vs ETF 18.75%. Avg pnl improves slightly (-7.50\u2192-6.17). Pattern POTENTIALLY SUPPORTED but single-stock pnl remains negative overall despite better win rate."
+      "reason": "S11 adds MSFT (win +1) and RIVN (loss -8) both to single-stock. Single-stock N=6 (3 wins/6, 50%, pnl=-37, avg=-6.17/trade). ETF N=16 unchanged (3 wins/16, 18.75%, pnl=-218, avg=-13.63/trade). Single-stock win rate holds at 50% vs ETF 18.75%. Avg pnl improves slightly (-7.50\u2192-6.17). Pattern POTENTIALLY SUPPORTED but single-stock pnl remains negative overall despite better win rate.",
+      "epistemic_status": "DERIVED+INFERRED",
+      "contamination": "all supporting sessions carry pre-phase3 contamination flags",
+      "phase3_verdict": "insufficient_data",
+      "note": "ETF 18.75% win rate vs single-stock 50% is DERIVED. 'Pattern potentially supported' is INFERRED. N=6 single-stock trades across contaminated sessions."
     },
     "Q5_quality_scores": {
       "status": "indeterminate",
-      "reason": "S11 adds MSFT q=2 (win +1) and RIVN q=2 (loss -8). Quality=2 N=9 (3 wins/9, 33%, pnl=-103). Quality=3 N=5 unchanged (2 wins/5, 40%, pnl=-4). Quality=2 pnl deteriorates further (-96\u2192-103) despite win rate holding. Quality=3 still best pnl. Gap widens: q=3 avg=-0.80/trade vs q=2 avg=-11.44/trade. Still indeterminate but q=3 advantage is strengthening."
+      "reason": "S11 adds MSFT q=2 (win +1) and RIVN q=2 (loss -8). Quality=2 N=9 (3 wins/9, 33%, pnl=-103). Quality=3 N=5 unchanged (2 wins/5, 40%, pnl=-4). Quality=2 pnl deteriorates further (-96\u2192-103) despite win rate holding. Quality=3 still best pnl. Gap widens: q=3 avg=-0.80/trade vs q=2 avg=-11.44/trade. Still indeterminate but q=3 advantage is strengthening.",
+      "epistemic_status": "DERIVED+INFERRED",
+      "contamination": "S1/S2 quality estimated; S6/S8/S11 data_clean=FALSE",
+      "phase3_verdict": "insufficient_data",
+      "note": "Q=3 best average P&L (-0.80/trade) is DERIVED. 'Advantage strengthening' is INFERRED. Q=4 has 0/2 wins \u2014 contradicts quality=4 win in trade_autopsy; driven by different sessions."
     },
     "Q6_scanner_score": {
       "status": "indeterminate",
-      "reason": "S11 adds MSFT score=70 (70+ bucket, win +1) and RIVN score=60 (60-69 bucket, loss -8). Score 60-69 N=2 (0 wins, pnl=-12). Score 70+ N=1 (1 win, pnl=+1). Both below N=3 minimum. Existing buckets unchanged: <40 N=3 (0 wins, -82), 40-49 N=4 (0 wins, -46), 50-59 N=7 (4 wins 57%, -116). 60-69 now 0/2 wins with another loss (RIVN). 70+ positive pnl but N=1 only. Still indeterminate \u2014 60-69 and 70+ both below minimum."
+      "reason": "S11 adds MSFT score=70 (70+ bucket, win +1) and RIVN score=60 (60-69 bucket, loss -8). Score 60-69 N=2 (0 wins, pnl=-12). Score 70+ N=1 (1 win, pnl=+1). Both below N=3 minimum. Existing buckets unchanged: <40 N=3 (0 wins, -82), 40-49 N=4 (0 wins, -46), 50-59 N=7 (4 wins 57%, -116). 60-69 now 0/2 wins with another loss (RIVN). 70+ positive pnl but N=1 only. Still indeterminate \u2014 60-69 and 70+ both below minimum.",
+      "epistemic_status": "DERIVED+INFERRED",
+      "contamination": "all supporting sessions carry pre-phase3 contamination flags",
+      "phase3_verdict": "insufficient_data",
+      "note": "50-59 bucket has highest win rate (57%) but negative P&L \u2014 DERIVED, INFERRED as asymmetric loss structure. 60-69 and 70+ below minimum N=3."
     },
     "Q7_fill_path": {
       "status": "indeterminate",
-      "reason": "S11 adds MSFT (direct, win +1) and RIVN (direct, loss -8). Recovered N=15 unchanged (2 wins/15, 13%, pnl=-280, avg=-18.67/trade). Direct N=7 (4 wins/7, 57%, pnl=+25, avg=+3.57/trade). Direct pnl eroded from +32 to +25 with RIVN loss, but still positive. Direct win rate holds at 57% (vs 13% recovered). Gap remains large. Pattern potentially SUPPORTED \u2014 direct fills consistently outperform recovered across sessions S6 through S11."
+      "reason": "S11 adds MSFT (direct, win +1) and RIVN (direct, loss -8). Recovered N=15 unchanged (2 wins/15, 13%, pnl=-280, avg=-18.67/trade). Direct N=7 (4 wins/7, 57%, pnl=+25, avg=+3.57/trade). Direct pnl eroded from +32 to +25 with RIVN loss, but still positive. Direct win rate holds at 57% (vs 13% recovered). Gap remains large. Pattern potentially SUPPORTED \u2014 direct fills consistently outperform recovered across sessions S6 through S11.",
+      "epistemic_status": "DERIVED+INFERRED",
+      "contamination": "fill path confounded with session phase \u2014 recovered fills = Phase 1 (contaminated), direct fills = Phase 2 S6/S8/S11 (data_clean=FALSE). Do not cite as evidence for fill mechanism.",
+      "phase3_verdict": "insufficient_data",
+      "note": "60% vs 13% win rate is DERIVED. 'Consistently outperform' is INFERRED but the confound is explicitly noted in phase2_midpoint_analysis. This comparison is not a valid test of fill path effect."
     }
   },
   "voided_attempts": [
@@ -958,5 +993,11 @@
       "fix_required": "Session runner must be executed on a persistent host (local machine, VPS, or persistent server) outside the ephemeral Claude Code remote container. The container cannot sustain a 3-hour background process through inactivity periods."
     }
   ],
-  "note": "Phase 2 tracking. S6: 3 trades (+35). S7: 0 trades (STANDBY). S8: 3 trades (-7, all DTE=0). S9: 0 trades (yfinance failure). S10: 0 trades (yfinance failure). S11: 2 trades (-7, valid). S12: VOIDED. S13: VOIDED (yfinance failure + VM kills). 6 valid sessions complete, 4 remaining. S14+ require active user engagement every <10 min OR external trigger to prevent VM teardown between turns."
+  "note": "Phase 2 tracking. S6: 3 trades (+35). S7: 0 trades (STANDBY). S8: 3 trades (-7, all DTE=0). S9: 0 trades (yfinance failure). S10: 0 trades (yfinance failure). S11: 2 trades (-7, valid). S12: VOIDED. S13: VOIDED (yfinance failure + VM kills). 6 valid sessions complete, 4 remaining. S14+ require active user engagement every <10 min OR external trigger to prevent VM teardown between turns.",
+  "epistemic_status": {
+    "overall": "pre_phase3_evidence_only",
+    "note": "All data in this tracking file comes from sessions before the Phase 3 boundary (2026-07-12). All PnL statistics, win rates, and question assessments carry pre-phase3 contamination flags. This file represents engineering evidence and directional hypotheses only \u2014 not strategy-performance conclusions. See evaluation/phase3_eval_protocol.md Section 11.",
+    "standards_doc": "research/epistemic_standards.md",
+    "phase3_tracking": "evaluation/phase3_tracking.json"
+  }
 }

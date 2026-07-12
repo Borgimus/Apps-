@@ -1,5 +1,25 @@
 # Signal Age Origin Analysis
 
+## Claims Registry
+
+> **Data source:** 2026-05-29, 2026-06-02 — both pre-phase3 sessions with active defects  
+> **All claims in this document carry `[CONTAMINATED SOURCE]`**  
+> See `research/epistemic_standards.md` for category definitions.
+
+| # | Claim summary | Tag | Contaminated |
+|---|---------------|-----|--------------|
+| 1 | Bridge entries occur within 2 seconds of scanner cycle; poll cycle does not produce independent entries | `OBSERVED` / `INFERRED` | yes |
+| 2 | STANDBY duration is the dominant source of initial signal age | `INFERRED` | yes |
+| 3 | Scanner-to-first-eval is consistently 30.2–30.3 min for all 11 signals (effective evaluation clock = scanner, not poll) | `DERIVED` / `INFERRED` | yes |
+| 4 | Signal age variance is entirely in bar-to-scanner; scanner-to-eval is constant | `DERIVED` | yes |
+| 5 | Queue latency is zero for all 5 traded signals (evaluated once, immediately submitted) | `OBSERVED` | yes |
+| 6 | Fill latency contributes <3% of total age for signals with initial age ≥60 min | `DERIVED` | yes |
+| 7 | H5 SUPPORTED: initial signal age is bounded below by scanner cycle (~30 min) | `OBSERVED` / `INFERRED` | yes |
+| 8 | H6 SUPPORTED: STANDBY duration directly drives initial age for early-session bars | `DERIVED` / `INFERRED` | yes |
+| 9 | Without sessions in normal-volume regime, structural age causes cannot be disentangled from signal quality | `INFERRED` | yes |
+
+
+
 **Sessions:** 2026-05-29, 2026-06-02  
 **Unique signals analyzed:** 11 (quality > 0, grouped by session × symbol × strategy × direction)  
 **Bridge rows analyzed:** 218 (each bridge row = one poll-cycle evaluation of one signal)  

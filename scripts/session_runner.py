@@ -2043,7 +2043,7 @@ async def run_session(args: argparse.Namespace):
 
     cycle = 0
     eod_liquidated = False
-    session_placed = 0
+    entry_orders_placed = 0      # entry orders only; exit orders are not counted here
     kill_switch_alerted = False
     _entries_placed: dict = {}   # {strategy_id: count} — entries only (not exits)
 
@@ -2263,7 +2263,7 @@ async def run_session(args: argparse.Namespace):
                             "Max symbols traded per day (%d) reached", _max_sym_per_day
                         )
                         break
-                session_placed += placed
+                entry_orders_placed += placed
 
         if _shutdown_requested:
             break
@@ -2380,15 +2380,15 @@ async def run_session(args: argparse.Namespace):
             logger.error("Post-session evaluation failed: %s", exc)
 
     logger.info(
-        "Session complete | cycles=%d | placed=%d | pnl=%.2f",
-        cycle, session_placed, float(risk.daily_pnl),
+        "Session complete | cycles=%d | entry_orders_placed=%d | pnl=%.2f",
+        cycle, entry_orders_placed, float(risk.daily_pnl),
     )
-    print(f"\n  Session complete — {cycle} cycles | {session_placed} orders | P&L ${float(risk.daily_pnl):.2f}\n")
+    print(f"\n  Session complete — {cycle} cycles | {entry_orders_placed} entry order(s) | P&L ${float(risk.daily_pnl):.2f}\n")
 
     await alert_service.send(
         AlertEvent.SESSION_STOPPED,
-        f"Session stopped | cycles={cycle} | placed={session_placed} | pnl={float(risk.daily_pnl):.2f}",
-        data={"cycles": cycle, "placed": session_placed, "pnl": float(risk.daily_pnl), "api_errors": api_errors},
+        f"Session stopped | cycles={cycle} | entry_orders_placed={entry_orders_placed} | pnl={float(risk.daily_pnl):.2f}",
+        data={"cycles": cycle, "entry_orders_placed": entry_orders_placed, "pnl": float(risk.daily_pnl), "api_errors": api_errors},
     )
 
     await broker.close()

@@ -1,7 +1,7 @@
 {
   "version": "2",
   "created_at": "2026-05-11T12:07:54.394379",
-  "last_updated": "2026-07-13T12:22:42.445679",
+  "last_updated": "2026-07-13T16:34:48.402684",
   "phase3_start_date": "2026-07-12",
   "sessions": [
     {
@@ -1437,24 +1437,52 @@
     },
     {
       "date": "2026-07-13",
-      "total_trades": 0,
+      "total_trades": 1,
       "wins": 0,
-      "losses": 0,
-      "realized_pnl": 0,
+      "losses": 1,
+      "realized_pnl": -1.0000000000000009,
       "unrealized_pnl": 0,
-      "max_drawdown_session": 0.0,
-      "slippage_total": 0,
-      "spread_cost_total": 0,
+      "max_drawdown_session": 1.0000000000000009,
+      "slippage_total": -0.020000000000000018,
+      "spread_cost_total": 1.5000000000000013,
       "api_errors": 0,
       "kill_switch_events": 0,
-      "trades_submitted": 0,
-      "trades_filled": 0,
+      "trades_submitted": 1,
+      "trades_filled": 1,
       "trades_cancelled": 0,
       "trades_rejected": 0,
-      "by_strategy": {},
-      "by_entry_hour": {},
-      "by_delta_bucket": {},
-      "by_spread_bucket": {},
+      "by_strategy": {
+        "vwap_reclaim": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -1.0000000000000009
+        }
+      },
+      "by_entry_hour": {
+        "12:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -1.0
+        }
+      },
+      "by_delta_bucket": {
+        "low (<0.30)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -1.0
+        }
+      },
+      "by_spread_bucket": {
+        "moderate (5-10%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -1.0
+        }
+      },
       "reject_reasons": {},
       "data_clean": false,
       "notes": null,
@@ -1464,10 +1492,10 @@
   ],
   "cumulative": {
     "trading_days": 24,
-    "total_trades": 33,
-    "total_pnl": -602.5,
-    "expectancy": -18.26,
-    "win_rate": 0.2424,
+    "total_trades": 34,
+    "total_pnl": -603.5,
+    "expectancy": -17.75,
+    "win_rate": 0.2353,
     "profit_factor": 0.44,
     "max_drawdown": 1034.5,
     "pnl_by_strategy": {
@@ -1496,18 +1524,18 @@
         "pnl": -109.5
       },
       "vwap_reclaim": {
-        "trades": 26,
+        "trades": 27,
         "wins": 4,
-        "losses": 21,
-        "pnl": -815.0
+        "losses": 22,
+        "pnl": -816.0
       }
     },
     "pnl_by_entry_hour": {
       "12:00": {
-        "trades": 6,
+        "trades": 7,
         "wins": 2,
-        "losses": 4,
-        "pnl": -479.0
+        "losses": 5,
+        "pnl": -480.0
       },
       "09:00": {
         "trades": 1,
@@ -1536,10 +1564,10 @@
         "pnl": -305.5
       },
       "low (<0.30)": {
-        "trades": 3,
+        "trades": 4,
         "wins": 1,
-        "losses": 2,
-        "pnl": -188.0
+        "losses": 3,
+        "pnl": -189.0
       },
       "target (0.40-0.50)": {
         "trades": 7,
@@ -1556,10 +1584,10 @@
     },
     "pnl_by_spread_bucket": {
       "moderate (5-10%)": {
-        "trades": 22,
+        "trades": 23,
         "wins": 6,
-        "losses": 15,
-        "pnl": -865.5
+        "losses": 16,
+        "pnl": -866.5
       },
       "tight (<5%)": {
         "trades": 13,
@@ -1619,16 +1647,44 @@
   },
   "phase3_cumulative": {
     "trading_days": 1,
-    "total_trades": 0,
-    "total_pnl": 0,
-    "expectancy": 0.0,
-    "win_rate": null,
-    "profit_factor": null,
-    "max_drawdown": 0.0,
-    "pnl_by_strategy": {},
-    "pnl_by_entry_hour": {},
-    "pnl_by_delta_bucket": {},
-    "pnl_by_spread_bucket": {},
+    "total_trades": 1,
+    "total_pnl": -1.0,
+    "expectancy": -1.0,
+    "win_rate": 0.0,
+    "profit_factor": 0.0,
+    "max_drawdown": 1.0,
+    "pnl_by_strategy": {
+      "vwap_reclaim": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "pnl": -1.0
+      }
+    },
+    "pnl_by_entry_hour": {
+      "12:00": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "pnl": -1.0
+      }
+    },
+    "pnl_by_delta_bucket": {
+      "low (<0.30)": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "pnl": -1.0
+      }
+    },
+    "pnl_by_spread_bucket": {
+      "moderate (5-10%)": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "pnl": -1.0
+      }
+    },
     "reject_counts_by_reason": {}
   }
 }

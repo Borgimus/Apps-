@@ -40,6 +40,8 @@ class ReconciliationResult:
     local_pending_orders: int = 0
     repaired: List[str] = field(default_factory=list)
     flagged: List[str] = field(default_factory=list)
+    orders_confirmed: bool = False    # True iff broker.get_orders() succeeded
+    positions_confirmed: bool = False  # True iff broker.get_positions() succeeded
 
 
 class Reconciler:
@@ -170,6 +172,8 @@ class Reconciler:
             logger.debug("Reconciler: broker.get_positions() not available")
         except Exception as exc:
             logger.warning("Reconciler: position check failed: %s", exc)
+        else:
+            result.positions_confirmed = True
 
         # ── Order reconciliation ──────────────────────────────────────────────
         try:
@@ -196,12 +200,24 @@ class Reconciler:
             logger.debug("Reconciler: broker.get_orders() not available")
         except Exception as exc:
             logger.warning("Reconciler: order check failed: %s", exc)
+        else:
+            result.orders_confirmed = True
+
+        # ── Clear RECON_BLOCKED when broker order state is confirmed ─────────
+        # Recovery sets RECON_BLOCKED when broker.get_orders() was unavailable
+        # or local/broker state was inconsistent.  Once get_orders() succeeds
+        # here, broker order state is current and new entries are safe.
+        # Positions confirmation is tracked separately but does not gate this.
+        if risk is not None and result.orders_confirmed:
+            risk.clear_recon_blocked()
 
         logger.info(
             "Reconciliation done: broker_pos=%d local_pos=%d "
-            "broker_orders=%d local_pending=%d repaired=%d flagged=%d",
+            "broker_orders=%d local_pending=%d repaired=%d flagged=%d "
+            "orders_confirmed=%s positions_confirmed=%s",
             result.broker_positions, result.local_positions,
             result.broker_open_orders, result.local_pending_orders,
             len(result.repaired), len(result.flagged),
+            result.orders_confirmed, result.positions_confirmed,
         )
         return result

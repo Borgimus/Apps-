@@ -875,3 +875,224 @@ class TestBrokerDerivedPendingEntries:
 
         # All DB orders absent at broker: _pending_entries = 0
         assert risk._pending_entries == 0
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# P6-bis: RECON_BLOCKED — fail-closed when broker order state is unknown
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _make_risk_manager():
+    """RiskManager with MagicMock settings suitable for recon_blocked tests."""
+    from app.risk.risk_manager import RiskManager
+    settings = MagicMock()
+    settings.risk.max_trades_per_day = 3
+    settings.risk.max_daily_loss = 0.10
+    settings.risk.max_risk_per_trade = 0.02
+    settings.risk.max_spread_pct = 0.10
+    settings.risk.min_open_interest = 0
+    settings.risk.min_volume = 0
+    settings.risk.earnings_blackout_days = 0
+    settings.risk.allow_earnings_trades = True
+    settings.risk.min_underlying_price = 0
+    settings.risk.min_underlying_avg_volume = 0
+    settings.universe.max_active_positions = 2
+    settings.universe.max_symbols_traded_day = 3
+    settings.universe.max_contracts_per_position = 1
+    settings.is_kill_switch_active.return_value = False
+    settings.live_trading_enabled = False
+    settings.market_open = "09:30"
+    settings.market_close = "16:00"
+    settings.no_trade_open_buffer_minutes = 5
+    settings.no_trade_close_buffer_minutes = 5
+    rm = RiskManager(settings)
+    rm.start_session(Decimal("50000"))
+    return rm
+
+
+def _make_entry_request():
+    """Minimal entry OrderRequest that would pass all checks except recon_blocked."""
+    from app.brokers.broker_interface import OrderRequest, OrderSide, OrderType
+    from decimal import Decimal
+    return OrderRequest(
+        symbol="SPY",
+        option_symbol="SPY240115C00450000",
+        side=OrderSide.BUY_TO_OPEN,
+        quantity=1,
+        order_type=OrderType.LIMIT,
+        limit_price=Decimal("2.00"),
+        strategy_id="orb",
+    )
+
+
+class TestReconBlocked:
+    """
+    RECON_BLOCKED prevents new entries when broker order state is unknown.
+
+    Scenarios:
+      1. Broker unavailable, DB pending=0 — entries blocked
+      2. Broker unavailable, DB pending>0 — entries blocked (and count preserved)
+      3. Broker becomes available via reconciler — block clears, entries resume
+      4. Broker has order unknown to local state — count conservative, entries blocked
+      5. Local state has order absent from broker — entries blocked until resolved
+    """
+
+    @pytest.mark.asyncio
+    async def test_broker_unavailable_db_zero_entries_blocked(self, db_session: AsyncSession):
+        """
+        broker.get_orders() raises NotImplementedError, DB has no pending rows.
+        Even with zero pending count, entries must be blocked.
+        """
+        store = PendingOrderStore(db_session)
+        ft = FillTracker()
+        pm = PositionManager(_make_settings())
+
+        broker = _make_broker()
+        broker.get_orders = AsyncMock(side_effect=NotImplementedError())
+
+        risk = _make_risk_manager()
+        journal = MagicMock()
+        journal.get_session_summary = AsyncMock(return_value={"entries": 0, "pnl": 0.0})
+        journal.get_open_with_exit_order = AsyncMock(return_value=[])
+
+        await SessionRecovery().recover(broker, pm, ft, store, TODAY, journal=journal, risk=risk)
+
+        assert risk.recon_blocked is True, "RECON_BLOCKED must be set when broker is unavailable"
+
+        from app.risk.risk_manager import RiskCheck
+        result = risk.check_order(_make_entry_request(), Decimal("50000"))
+        assert result.passed is False
+        assert RiskCheck.RECON_BLOCKED in result.failed_checks
+
+    @pytest.mark.asyncio
+    async def test_broker_unavailable_db_positive_entries_blocked(self, db_session: AsyncSession):
+        """
+        broker.get_orders() raises NotImplementedError, DB has 1 pending row.
+        _pending_entries is restored from DB AND entries are blocked.
+        """
+        db_session.add(_pending_row(db_session, "ORD-ONLY"))
+        await db_session.commit()
+
+        store = PendingOrderStore(db_session)
+        ft = FillTracker()
+        pm = PositionManager(_make_settings())
+
+        broker = _make_broker()
+        broker.get_orders = AsyncMock(side_effect=NotImplementedError())
+
+        risk = _make_risk_manager()
+        journal = MagicMock()
+        journal.get_session_summary = AsyncMock(return_value={"entries": 0, "pnl": 0.0})
+        journal.get_open_with_exit_order = AsyncMock(return_value=[])
+
+        await SessionRecovery().recover(broker, pm, ft, store, TODAY, journal=journal, risk=risk)
+
+        assert risk._pending_entries == 1, "DB-derived count must be preserved"
+        assert risk.recon_blocked is True, "RECON_BLOCKED must be set when broker is unavailable"
+
+        from app.risk.risk_manager import RiskCheck
+        result = risk.check_order(_make_entry_request(), Decimal("50000"))
+        assert result.passed is False
+        assert RiskCheck.RECON_BLOCKED in result.failed_checks
+
+    @pytest.mark.asyncio
+    async def test_broker_available_later_clears_block(self, db_session: AsyncSession):
+        """
+        Block set at recovery time is cleared when the periodic Reconciler
+        successfully calls broker.get_orders() and broker.get_positions().
+        """
+        db_session.add(_pending_row(db_session, "ORD-ONE"))
+        await db_session.commit()
+
+        store = PendingOrderStore(db_session)
+        ft = FillTracker()
+        pm = PositionManager(_make_settings())
+
+        # Recovery: broker unavailable
+        broker_down = _make_broker()
+        broker_down.get_orders = AsyncMock(side_effect=NotImplementedError())
+
+        risk = _make_risk_manager()
+        journal = MagicMock()
+        journal.get_session_summary = AsyncMock(return_value={"entries": 0, "pnl": 0.0})
+        journal.get_open_with_exit_order = AsyncMock(return_value=[])
+
+        await SessionRecovery().recover(broker_down, pm, ft, store, TODAY, journal=journal, risk=risk)
+        assert risk.recon_blocked is True
+
+        # Broker comes back: reconciler succeeds
+        broker_up = _make_broker(positions=[], orders=[])
+        from app.trading.reconciler import Reconciler
+        now = datetime(2024, 1, 15, 10, 30, 0)
+        await Reconciler().reconcile(broker_up, pm, ft, now, risk=risk)
+
+        assert risk.recon_blocked is False, "RECON_BLOCKED must be cleared after successful reconciliation"
+
+        from app.risk.risk_manager import RiskCheck
+        result = risk.check_order(_make_entry_request(), Decimal("50000"))
+        assert RiskCheck.RECON_BLOCKED not in result.failed_checks
+
+    @pytest.mark.asyncio
+    async def test_broker_has_unknown_order_conservative_count(self, db_session: AsyncSession):
+        """
+        Broker reports 1 open order that FillTracker does not know about.
+        _pending_entries is restored conservatively (len(broker_open_ids) = 1)
+        and entries are blocked until the order is reconciled.
+        """
+        # No DB rows — local state has no knowledge of ORD-UNKNOWN
+        store = PendingOrderStore(db_session)
+        ft = FillTracker()
+        pm = PositionManager(_make_settings())
+
+        unknown_order = _make_order_result("ORD-UNKNOWN", "SPY240115C00450000", OrderStatus.NEW)
+        broker = _make_broker(orders=[unknown_order])
+
+        risk = _make_risk_manager()
+        journal = MagicMock()
+        journal.get_session_summary = AsyncMock(return_value={"entries": 0, "pnl": 0.0})
+        journal.get_open_with_exit_order = AsyncMock(return_value=[])
+
+        result = await SessionRecovery().recover(
+            broker, pm, ft, store, TODAY, journal=journal, risk=risk
+        )
+
+        # Conservative count: all broker open orders are counted
+        assert risk._pending_entries == 1, (
+            "_pending_entries must include broker open orders unknown to local state"
+        )
+        assert risk.recon_blocked is True, (
+            "RECON_BLOCKED must be set when broker has orders local state missed"
+        )
+        assert any("untracked" in w.lower() or "unknown" in w.lower()
+                   for w in result.warnings), "Unknown broker order must appear in warnings"
+
+    @pytest.mark.asyncio
+    async def test_local_order_absent_from_broker_entries_blocked(self, db_session: AsyncSession):
+        """
+        Local FillTracker has order ORD-LOCAL that the broker no longer shows as open.
+        The order may have filled/expired offline.  Entries are blocked until the
+        next FillTracker poll cycle resolves the order's status.
+        """
+        db_session.add(_pending_row(db_session, "ORD-LOCAL"))
+        await db_session.commit()
+
+        store = PendingOrderStore(db_session)
+        ft = FillTracker()
+        pm = PositionManager(_make_settings())
+
+        # Broker has no open orders — ORD-LOCAL is absent
+        broker = _make_broker(orders=[])
+
+        risk = _make_risk_manager()
+        journal = MagicMock()
+        journal.get_session_summary = AsyncMock(return_value={"entries": 0, "pnl": 0.0})
+        journal.get_open_with_exit_order = AsyncMock(return_value=[])
+
+        await SessionRecovery().recover(broker, pm, ft, store, TODAY, journal=journal, risk=risk)
+
+        # DB order is in FT; broker has no matching open order
+        # Pending count: len(_broker_open_ids) = 0 (nothing open at broker)
+        assert risk._pending_entries == 0
+        # But entries must be blocked until FillTracker poll resolves ORD-LOCAL
+        assert risk.recon_blocked is True, (
+            "RECON_BLOCKED must be set when local orders are absent from broker"
+        )

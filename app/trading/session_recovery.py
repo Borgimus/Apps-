@@ -50,6 +50,8 @@ class RecoveryResult:
     broker_positions_loaded: int = 0
     warnings: List[str] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
+    broker_orders_reconciled: bool = False   # True iff broker.get_orders() succeeded
+    broker_positions_reconciled: bool = False  # True iff broker.get_positions() succeeded
 
 
 class SessionRecovery:
@@ -108,6 +110,7 @@ class SessionRecovery:
         broker_syms: set = set()
         try:
             broker_positions = await broker.get_positions()
+            result.broker_positions_reconciled = True
             option_positions = [p for p in broker_positions if p.is_option and p.option_symbol]
             for bp in option_positions:
                 broker_syms.add(bp.option_symbol)
@@ -188,6 +191,7 @@ class SessionRecovery:
         # ── Step 4: Broker open orders not in FillTracker ─────────────────
         # Also captures the set of broker-confirmed open order IDs for Step 5.
         _broker_open_ids: Optional[set] = None
+        _needs_recon: bool = False  # True when local/broker order state disagrees
         try:
             from ..brokers.broker_interface import OrderStatus
             broker_orders = await broker.get_orders(limit=200)
@@ -196,25 +200,30 @@ class SessionRecovery:
                 OrderStatus.ACCEPTED, OrderStatus.PENDING_NEW, OrderStatus.HELD,
             }
             _broker_open_ids = {bo.order_id for bo in broker_orders if bo.status in _working}
+            result.broker_orders_reconciled = True
             ft_ids = set(fill_tracker._pending.keys())
             for bo in broker_orders:
                 if bo.status in _working and bo.order_id not in ft_ids:
                     msg = (
                         f"Broker has open order {bo.order_id[:8]} "
                         f"({bo.option_symbol}) not in FillTracker — "
-                        f"possible untracked order; investigate before re-placing"
+                        f"possible untracked order; entries blocked until reconciled"
                     )
                     logger.warning("Recovery: %s", msg)
                     result.warnings.append(msg)
+                    _needs_recon = True
             # FillTracker entries not confirmed open at broker may have filled,
-            # expired, or been cancelled offline — log so operator is aware.
+            # expired, or been cancelled offline.  Block entries until the next
+            # FillTracker poll cycle resolves each one.
             for oid in list(ft_ids):
                 if oid not in _broker_open_ids:
                     logger.info(
                         "Recovery: DB order %s not in broker open orders "
-                        "— may have filled/expired offline; FillTracker will reconcile on next poll",
+                        "— may have filled/expired offline; entries blocked until "
+                        "FillTracker reconciles on next poll",
                         oid[:8],
                     )
+                    _needs_recon = True
         except NotImplementedError:
             logger.debug("Recovery: broker.get_orders() not available — skipping")
         except Exception as exc:
@@ -226,30 +235,38 @@ class SessionRecovery:
         # _pending_entries must reflect current broker state, not only what the
         # journal recorded before shutdown.  A "pending" DB row may have filled,
         # expired, been cancelled, or been rejected while the process was offline.
-        # Use the intersection of FillTracker entries with broker-confirmed open
-        # orders as the authoritative pending count.  Fall back to the DB-derived
-        # count with a warning if broker.get_orders() was unavailable.
+        #
+        # Conservative count: use len(_broker_open_ids) — ALL broker-confirmed open
+        # orders, regardless of whether FillTracker knows about them.  This
+        # intentionally over-counts rather than under-counts so the daily entry
+        # limit is never understated.
+        #
+        # recon_blocked is set whenever broker order state was unavailable or when
+        # local/broker state is inconsistent.  It blocks new entries until the
+        # Reconciler clears it after a successful broker round-trip.
         if journal is not None and risk is not None:
             try:
                 summary = await journal.get_session_summary(session_date)
                 if _broker_open_ids is not None:
-                    _confirmed_pending = len(_broker_open_ids & set(fill_tracker._pending.keys()))
+                    _confirmed_pending = len(_broker_open_ids)
                     logger.info(
-                        "Recovery: _pending_entries set to %d (broker-confirmed; "
-                        "DB had %d open rows)",
+                        "Recovery: _pending_entries set to %d "
+                        "(broker-confirmed open orders; DB had %d rows)",
                         _confirmed_pending, result.pending_orders_loaded,
                     )
                 else:
                     _confirmed_pending = result.pending_orders_loaded
                     logger.warning(
                         "Recovery: broker.get_orders() unavailable — using DB-derived "
-                        "pending count (%d); actual broker state unknown",
+                        "pending count (%d); entries BLOCKED until broker confirms",
                         _confirmed_pending,
                     )
+                _recon_blocked = (not result.broker_orders_reconciled) or _needs_recon
                 risk.restore_daily_counters(
                     entries=summary["entries"],
                     pnl=summary["pnl"],
                     pending=_confirmed_pending,
+                    recon_blocked=_recon_blocked,
                 )
             except Exception as exc:
                 msg = f"Failed to restore risk counters from DB: {exc}"

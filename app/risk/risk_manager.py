@@ -51,6 +51,7 @@ class RiskCheck(str, Enum):
     MAX_SPREAD_PCT = "max_spread_pct"
     EARNINGS_BLACKOUT = "earnings_blackout"
     LIVE_TRADING_GUARD = "live_trading_guard"
+    RECON_BLOCKED = "recon_blocked"
 
 
 @dataclass
@@ -105,6 +106,11 @@ class RiskManager:
         self._daily_pnl: Decimal = Decimal("0")
         self._session_date: Optional[date] = None
         self._starting_equity: Optional[Decimal] = None
+        # RECON_BLOCKED: set when broker order state is unknown at recovery time.
+        # Cleared by Reconciler after a successful broker.get_orders() round-trip.
+        # Blocks new entries only; exits are never routed through check_order().
+        self._recon_blocked: bool = False
+        self._recon_blocked_reason: str = ""
 
     # ── Session management ────────────────────────────────────────────────────
 
@@ -172,20 +178,57 @@ class RiskManager:
         else:
             self.record_entry_pending()
 
+    def set_recon_blocked(self, reason: str = "") -> None:
+        """
+        Block new entries until broker order state has been confirmed.
+
+        Called by SessionRecovery when broker.get_orders() is unavailable or
+        when local/broker order state is inconsistent.  Exits are never routed
+        through check_order() so they are unaffected.
+        """
+        self._recon_blocked = True
+        self._recon_blocked_reason = reason or "broker order state unknown at recovery time"
+        logger.warning(
+            "RiskManager: RECON_BLOCKED — new entries halted | reason: %s",
+            self._recon_blocked_reason,
+        )
+
+    def clear_recon_blocked(self) -> None:
+        """
+        Clear the reconciliation block after a successful broker round-trip.
+
+        Called by Reconciler once both broker.get_orders() and
+        broker.get_positions() complete successfully.
+        """
+        if self._recon_blocked:
+            logger.info(
+                "RiskManager: RECON_BLOCKED cleared — broker state confirmed, entries unblocked",
+            )
+            self._recon_blocked = False
+            self._recon_blocked_reason = ""
+
+    @property
+    def recon_blocked(self) -> bool:
+        """True while new entries are blocked pending broker reconciliation."""
+        return self._recon_blocked
+
     def restore_daily_counters(
         self,
         entries: int,
         pnl: Decimal,
         pending: int,
+        recon_blocked: bool = False,
     ) -> None:
         """
         Restore daily counters from persistent state after a process restart.
         Must be called after start_session() so _session_date is set.
 
-        entries: filled-entry count from trade_journal (status open or closed,
-                 rejection_reason is null).
-        pnl    : sum of realized_pnl for closed trades today.
-        pending: pending-order count from DBPendingOrder.
+        entries      : filled-entry count from trade_journal.
+        pnl          : sum of realized_pnl for closed trades today.
+        pending      : broker-confirmed open order count.
+        recon_blocked: True when broker order state was unavailable or
+                       inconsistent; sets RECON_BLOCKED to prevent new entries
+                       until the Reconciler confirms broker state.
         """
         if self._session_date is None:
             raise RuntimeError("restore_daily_counters called before start_session()")
@@ -193,7 +236,7 @@ class RiskManager:
         prev_pending = self._pending_entries
         self._entries_today = max(self._entries_today, entries)
         self._pending_entries = max(self._pending_entries, pending)
-        self._daily_pnl = pnl  # DB sum of realized PnL is authoritative
+        self._daily_pnl = pnl if isinstance(pnl, Decimal) else Decimal(str(pnl))
         logger.info(
             "RiskManager: counters restored from DB "
             "| entries %d→%d | pending %d→%d | pnl %.2f",
@@ -201,6 +244,8 @@ class RiskManager:
             prev_pending, self._pending_entries,
             float(self._daily_pnl),
         )
+        if recon_blocked:
+            self.set_recon_blocked("broker.get_orders() unavailable or inconsistent at recovery time")
 
     # ── Main check ────────────────────────────────────────────────────────────
 
@@ -226,6 +271,7 @@ class RiskManager:
         result = RiskCheckResult(passed=True, approved_quantity=request.quantity)
         now = now or datetime.now(tz=ET)
 
+        self._check_recon_blocked(result)
         self._check_kill_switch(result)
         self._check_live_trading_guard(result)
         self._check_market_order(result, request)
@@ -255,6 +301,15 @@ class RiskManager:
         return result
 
     # ── Individual checks ─────────────────────────────────────────────────────
+
+    def _check_recon_blocked(self, result: RiskCheckResult):
+        if self._recon_blocked:
+            result.add_failure(
+                RiskCheck.RECON_BLOCKED,
+                f"Entry blocked: broker order state unconfirmed "
+                f"({self._recon_blocked_reason}). "
+                f"Waiting for reconciler to confirm broker state.",
+            )
 
     def _check_kill_switch(self, result: RiskCheckResult):
         if self._s.is_kill_switch_active():

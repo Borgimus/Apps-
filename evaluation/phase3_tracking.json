@@ -6,7 +6,7 @@
   "last_updated": "2026-07-12",
   "phase3_fingerprint": {
     "_note": "Frozen at Phase 3 readiness commit. Regenerate with: python scripts/capture_session_fingerprint.py. Update commit_sha after pushing the readiness commit. A session whose runtime fingerprint diverges from this baseline is NOT eligible for the Phase 3 clean cohort without a declared protocol amendment.",
-    "commit_sha": "CAPTURE_AFTER_PUSH",
+    "commit_sha": "eae29731053af157ffbe3c8ce8310f167ce023a0",
     "working_tree_dirty": false,
     "config_hash_sha256_16": "67954547a3a617d4",
     "requirements_lock_hash_sha256_16": "b91299a905e74506",

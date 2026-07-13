@@ -3,10 +3,10 @@
   "phase": 3,
   "phase3_start_date": "2026-07-12",
   "created": "2026-07-12",
-  "last_updated": "2026-07-12",
+  "last_updated": "2026-07-13",
   "phase3_fingerprint": {
-    "_note": "Frozen at Phase 3 readiness commit. Regenerate with: python scripts/capture_session_fingerprint.py. Update commit_sha after pushing the readiness commit. A session whose runtime fingerprint diverges from this baseline is NOT eligible for the Phase 3 clean cohort without a declared protocol amendment.",
-    "commit_sha": "dfe02d0a3f260be4a502a471d67e31a1c05e5c22",
+    "_note": "Frozen at Phase 3 readiness commit. SHA check uses CAPTURE_AFTER_PUSH sentinel: a committed file cannot contain the SHA of the commit that holds it (self-referential hash). Integrity is enforced by the four file hashes below plus clean working tree. Record the frozen commit SHA via: git tag phase3-baseline && git push origin phase3-baseline. Regenerate hashes with: python scripts/capture_session_fingerprint.py. A session whose runtime fingerprint diverges from this baseline is NOT eligible for the Phase 3 clean cohort without a declared protocol amendment.",
+    "commit_sha": "CAPTURE_AFTER_PUSH",
     "working_tree_dirty": false,
     "config_hash_sha256_16": "67954547a3a617d4",
     "requirements_lock_hash_sha256_16": "b91299a905e74506",
@@ -16,7 +16,7 @@
       "paper_broker": "241f1432",
       "broker_interface": "6a307cc7"
     },
-    "paper_account_identifier": "RECORD_FROM_ALPACA_DASHBOARD_BEFORE_FIRST_SESSION",
+    "paper_account_identifier": "alpaca-paper-4UBN",
     "db_schema_note": "DBTradeJournal schema v2 (phase/contamination_flags columns added); see app/trading/db_journal.py",
     "first_eligible_session_date": "2026-07-12",
     "protocol_version": "phase3_eval_protocol.md@2026-07-12"

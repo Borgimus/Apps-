@@ -201,7 +201,7 @@ class YFinanceScanner:
         YF_EMAIL / YF_PASSWORD: Optional Yahoo Finance credentials for earnings checks.
     """
 
-    def __init__(self, orb_minutes: int = 30, max_intraday_data_age_seconds: int = 1200):
+    def __init__(self, orb_minutes: int = 15, max_intraday_data_age_seconds: int = 1200):
         self._orb_minutes = orb_minutes
         self._max_intraday_data_age_seconds = max_intraday_data_age_seconds
 
@@ -531,8 +531,27 @@ class YFinanceScanner:
     def _compute_rvol(daily_df: pd.DataFrame, intra_df: pd.DataFrame, today: date):
         avg_vol_20d = float(daily_df["volume"].tail(20).mean()) if len(daily_df) >= 20 else 0.0
         today_mask = intra_df.index.date == today
-        volume_today = int(intra_df.loc[today_mask, "volume"].sum()) if today_mask.any() else 0
-        rvol = volume_today / avg_vol_20d if avg_vol_20d > 0 else 0.0
+        today_bars = intra_df.loc[today_mask]
+        volume_today = int(today_bars["volume"].sum()) if not today_bars.empty else 0
+
+        if today_bars.empty or avg_vol_20d <= 0:
+            return round(volume_today / avg_vol_20d if avg_vol_20d > 0 else 0.0, 3), volume_today, round(avg_vol_20d, 0)
+
+        # Time-of-day normalisation: project today's cumulative volume to a full session
+        # before comparing to the 20-day average.  Raw cumulative-vs-daily RVOL reads low
+        # early in the session (e.g. 0.25 at 10:30 for a normal stock) causing spurious
+        # STANDBY rejections.  Pace-projection fixes this without extra API calls.
+        last_bar_et = _ts_to_et(today_bars.index[-1])
+        mkt_open_et = last_bar_et.replace(hour=9, minute=30, second=0, microsecond=0)
+        _FULL_SESSION = 390.0  # 09:30–16:00 ET in minutes
+        minutes_elapsed = (last_bar_et - mkt_open_et).total_seconds() / 60 + 5  # +5 for bar width
+        minutes_elapsed = max(minutes_elapsed, 5.0)
+        if minutes_elapsed >= _FULL_SESSION:
+            rvol = volume_today / avg_vol_20d
+        else:
+            pace_factor = _FULL_SESSION / minutes_elapsed
+            rvol = (volume_today * pace_factor) / avg_vol_20d
+
         return round(rvol, 3), volume_today, round(avg_vol_20d, 0)
 
     @staticmethod

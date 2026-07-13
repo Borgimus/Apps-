@@ -144,8 +144,13 @@ def score_orb_signal(signal: "Signal", bars: pd.DataFrame) -> int:
         if today_et.empty:
             return 0
 
-        # Opening range = first 15 bars
-        orb = today_et.head(15)
+        # Opening range: [09:30, 09:45) — matches strategy and scanner definition
+        from datetime import time as _time
+        _orb_start = _time(9, 30)
+        _orb_end   = _time(9, 45)
+        orb = today_et[(today_et.index.time >= _orb_start) & (today_et.index.time < _orb_end)]
+        if orb.empty:
+            orb = today_et.head(3)  # minimal fallback if data starts after 09:45
         or_high = float(orb["high"].max())
         or_low = float(orb["low"].min())
         or_range = or_high - or_low

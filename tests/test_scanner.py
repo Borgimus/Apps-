@@ -287,6 +287,7 @@ class TestYFinanceScanner:
         assert gap > 0.01
 
     def test_compute_rvol_elevated(self):
+        # Full-session bars: pace_factor = 1.0 so rvol = raw ratio = 2.0
         import pandas as pd
         from datetime import date
         n = 25
@@ -297,13 +298,39 @@ class TestYFinanceScanner:
         }, index=daily_dates)
 
         today = date(2026, 5, 11)
+        # 78 bars covers 09:30–15:55 ET (≥390 min elapsed → no pace amplification)
+        intra_dates = pd.date_range(
+            "2026-05-11 13:30:00", periods=78, freq="5min", tz="UTC"
+        )
+        # 78 bars × ~25641 ≈ 2 000 000 (use 25000 each → 1 950 000 close enough)
+        vol_per_bar = 2_000_000 // 78  # 25641
+        intra_df = pd.DataFrame({"volume": [vol_per_bar] * 78}, index=intra_dates)
+        rvol, vol_today, avg_vol = YFinanceScanner._compute_rvol(daily_df, intra_df, today)
+        assert vol_today == vol_per_bar * 78
+        assert rvol == pytest.approx(vol_today / avg_vol, abs=0.05)
+        assert rvol > 1.9  # elevated relative to 1M daily average
+
+    def test_compute_rvol_intraday_pace_projection(self):
+        # Early-session: pace_factor amplifies so rvol >> raw ratio
+        import pandas as pd
+        from datetime import date
+        n = 25
+        daily_dates = pd.date_range("2026-01-01", periods=n, freq="B", tz="UTC")
+        daily_df = pd.DataFrame({
+            "volume": [1_000_000] * n,
+            "close": [100.0] * n,
+        }, index=daily_dates)
+
+        today = date(2026, 5, 11)
+        # 10 bars from 09:30–10:15 ET (50 min elapsed → pace_factor = 390/50 = 7.8)
         intra_dates = pd.date_range(
             "2026-05-11 13:30:00", periods=10, freq="5min", tz="UTC"
         )
         intra_df = pd.DataFrame({"volume": [200_000] * 10}, index=intra_dates)
         rvol, vol_today, avg_vol = YFinanceScanner._compute_rvol(daily_df, intra_df, today)
         assert vol_today == 2_000_000
-        assert rvol == pytest.approx(2.0, abs=0.1)
+        # pace_factor ≈ 7.8 → projected rvol ≈ 15.6
+        assert rvol == pytest.approx(15.6, abs=0.5)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

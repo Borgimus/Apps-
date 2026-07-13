@@ -187,6 +187,12 @@ class ReplayEngine:
         pm = PositionManager(self._s)
         equity = self._starting_equity
 
+        # Fixed contract parameters keyed by opt_sym: (strike, opt_type).
+        # Stored at entry so exit pricing uses the same strike rather than
+        # re-deriving it from the current bar's close (which moved the strike
+        # with the underlying and mispriced every exit bar).
+        _contract_params: dict = {}
+
         # Track which signal timestamps we've already acted on (dedup across bars)
         acted_signals: set = set()
 
@@ -198,7 +204,7 @@ class ReplayEngine:
             # ── Update open positions ────────────────────────────────────────
             for opt_sym in list(pm._positions.keys()):
                 pos = pm._positions[opt_sym]
-                current_opt = self._estimate_option_price(bar, pos, bar_i, bars)
+                current_opt = self._estimate_option_price(bar, pos, bar_i, bars, contract_params=_contract_params)
                 pm.update_price(opt_sym, current_opt)
 
                 reason = pm.should_exit(opt_sym, current_opt, ts_dt)
@@ -282,8 +288,17 @@ class ReplayEngine:
                     result.skips.append(ReplaySkip(ts_dt, sig.strategy_id, self._symbol, reason_str))
                     continue
 
-                # Open position
+                # Open position — store fixed strike so exit pricing is consistent.
                 opt_sym = f"{self._symbol}_{ts.date()}_{sig.direction.value}_{bar_i}"
+                _entry_px = float(bars.iloc[bar_i]["close"])
+                if sig.direction == SignalDirection.LONG:
+                    _fixed_strike = _entry_px * (1 + (1 - self._target_delta) * 0.05)
+                    _fixed_opt_type = "call"
+                else:
+                    _fixed_strike = _entry_px * (1 - (1 - self._target_delta) * 0.05)
+                    _fixed_opt_type = "put"
+                _contract_params[opt_sym] = (_fixed_strike, _fixed_opt_type)
+
                 pos = pm.open(
                     option_symbol=opt_sym,
                     symbol=self._symbol,
@@ -300,7 +315,7 @@ class ReplayEngine:
         last_ts = bars.index[-1].to_pydatetime()
         for opt_sym in list(pm._positions.keys()):
             pos = pm._positions[opt_sym]
-            current_opt_raw = self._estimate_option_price(last_bar, pos, len(bars) - 1, bars)
+            current_opt_raw = self._estimate_option_price(last_bar, pos, len(bars) - 1, bars, contract_params=_contract_params)
             exit_net = max(current_opt_raw - self._slippage, 0.0)
             pnl = (exit_net - pos.entry_price) * 100 * pos.quantity
             hold_secs = (last_ts - pos.entry_time).total_seconds()
@@ -359,21 +374,24 @@ class ReplayEngine:
         pos: OpenPosition,
         bar_i: int,
         bars: pd.DataFrame,
+        contract_params: dict | None = None,
     ) -> float:
         price = float(bar["close"])
         iv = self._hist_vol(bars, bar_i)
         hold_days = (bars.index[bar_i].to_pydatetime() - pos.entry_time).total_seconds() / 86400
         T = max(self._dte / 365.0 - hold_days / 365.0, 1 / 365.0)
         r = self._RISK_FREE_RATE
-        opt_type = "call" if pos.direction == "LONG" else "put"
-        entry_strike_approx = pos.entry_price  # rough proxy; BS not invertible easily
-        # Re-derive strike from entry price using same formula
-        if pos.direction == "LONG":
+        # Use the fixed strike stored at entry. Falling back to re-deriving from the
+        # current bar's close was the bug: it moved the strike each bar and mispriced exits.
+        if contract_params and pos.option_symbol in contract_params:
+            strike, opt_type = contract_params[pos.option_symbol]
+        elif pos.direction == "LONG":
             strike = price * (1 + (1 - self._target_delta) * 0.05)
-            opt = YFinanceDataSource.black_scholes_price(price, strike, T, r, iv, "call")
+            opt_type = "call"
         else:
             strike = price * (1 - (1 - self._target_delta) * 0.05)
-            opt = YFinanceDataSource.black_scholes_price(price, strike, T, r, iv, "put")
+            opt_type = "put"
+        opt = YFinanceDataSource.black_scholes_price(price, strike, T, r, iv, opt_type)
         return max(float(opt), 0.0)
 
     def _make_dummy_contract(self, sig: Signal, opt_price: float) -> OptionContract:

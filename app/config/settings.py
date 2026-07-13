@@ -94,6 +94,11 @@ class PositionSettings(BaseSettings):
     min_entry_minutes_before_eod: int = _yaml_get(
         "position", "min_entry_minutes_before_eod", default=30
     )
+    # Maximum age of a strategy signal in minutes. Signals older than this are
+    # discarded before ordering. 0 = disabled (use date-only filter only).
+    max_signal_age_minutes: int = _yaml_get(
+        "position", "max_signal_age_minutes", default=60
+    )
 
 
 class UniverseSettings(BaseSettings):

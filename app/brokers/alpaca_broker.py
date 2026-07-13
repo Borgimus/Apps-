@@ -256,6 +256,19 @@ class AlpacaBroker(BrokerInterface):
         snap = resp.json().get("snapshots", {}).get(option_symbol, {})
         greeks = snap.get("greeks", {})
         latest = snap.get("latestQuote", {})
+        # Use the exchange quote timestamp from the API response so callers can
+        # detect stale quotes. Fallback to now() only when the field is absent.
+        _qt = latest.get("t")
+        try:
+            from datetime import timezone as _tz
+            quote_ts = (
+                datetime.fromisoformat(_qt.replace("Z", "+00:00"))
+                if _qt
+                else datetime.now(_tz.utc)
+            )
+        except (ValueError, AttributeError):
+            from datetime import timezone as _tz
+            quote_ts = datetime.now(_tz.utc)
         return OptionQuote(
             option_symbol=option_symbol,
             bid=Decimal(str(latest.get("bp") or 0)),
@@ -265,7 +278,7 @@ class AlpacaBroker(BrokerInterface):
             open_interest=int(snap.get("openInterest") or 0),
             implied_volatility=float(snap.get("impliedVolatility") or 0),
             delta=greeks.get("delta"),
-            timestamp=datetime.utcnow(),
+            timestamp=quote_ts,
         )
 
     async def _fetch_snapshots(self, symbols: List[str]) -> dict:

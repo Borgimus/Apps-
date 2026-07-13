@@ -70,6 +70,10 @@ class LedgerEntry:
     # Phase 3 cohort fields (auto-set by add_session; backfilled manually for prior sessions)
     phase: str = "pre_phase3"
     contamination_flags: List[str] = field(default_factory=list)
+    # Trade-level P&L components (used for accurate profit factor; absent in older entries)
+    breakevens: int = 0
+    gross_wins: float = 0.0    # sum of P&L for individual winning trades
+    gross_losses: float = 0.0  # sum of abs(P&L) for individual losing trades
 
 
 # ── Ledger class ──────────────────────────────────────────────────────────────
@@ -147,6 +151,9 @@ class EvaluationLedger:
         by_delta: Dict[str, Dict] = {}
         by_spread: Dict[str, Dict] = {}
         reject_reasons: Dict[str, int] = {}
+        breakevens = 0
+        gross_wins = 0.0
+        gross_losses = 0.0
 
         if trade_records:
             for t in trade_records:
@@ -154,11 +161,19 @@ class EvaluationLedger:
                 _accumulate_delta(t, by_delta)
                 _accumulate_spread(t, by_spread)
                 _accumulate_reject(t, reject_reasons)
+                # Accumulate per-trade P&L for trade-level profit factor
+                _pnl = float(getattr(t, "realized_pnl", None) or 0)
+                if _pnl > 0:
+                    gross_wins += _pnl
+                elif _pnl < 0:
+                    gross_losses += abs(_pnl)
+                else:
+                    breakevens += 1
 
         phase = "phase3" if r.date >= PHASE3_START else "pre_phase3"
         entry = LedgerEntry(
             date=r.date,
-            total_trades=wins + losses,
+            total_trades=wins + losses + breakevens,
             wins=wins,
             losses=losses,
             realized_pnl=r.realized_pnl,
@@ -178,6 +193,9 @@ class EvaluationLedger:
             by_spread_bucket=by_spread,
             reject_reasons=reject_reasons,
             phase=phase,
+            breakevens=breakevens,
+            gross_wins=round(gross_wins, 2),
+            gross_losses=round(gross_losses, 2),
         )
 
         # Replace if same date already present
@@ -199,21 +217,23 @@ class EvaluationLedger:
 
         total_wins = sum(s.wins for s in sessions)
         total_losses = sum(s.losses for s in sessions)
-        total_trades = total_wins + total_losses
+        total_breakevens = sum(s.breakevens for s in sessions)
+        total_trades = total_wins + total_losses + total_breakevens
         total_pnl = sum(s.realized_pnl for s in sessions)
         expectancy = (total_pnl / total_trades) if total_trades else 0.0
         win_rate = (total_wins / total_trades) if total_trades else None
 
-        # Profit factor
-        wins_sum = sum(
-            s.realized_pnl for s in sessions
-            if s.realized_pnl > 0
-        )
-        losses_sum = abs(sum(
-            s.realized_pnl for s in sessions
-            if s.realized_pnl < 0
-        ))
-        profit_factor = (wins_sum / losses_sum) if losses_sum > 0 else None
+        # Profit factor from individual trade P&L when available;
+        # falls back to session-level gross P&L for older entries lacking gross_wins/losses.
+        gw = sum(s.gross_wins for s in sessions)
+        gl = sum(s.gross_losses for s in sessions)
+        if gl > 0:
+            profit_factor = gw / gl
+        else:
+            # Legacy fallback: sum positive/negative session P&L
+            wins_sum = sum(s.realized_pnl for s in sessions if s.realized_pnl > 0)
+            losses_sum = abs(sum(s.realized_pnl for s in sessions if s.realized_pnl < 0))
+            profit_factor = (wins_sum / losses_sum) if losses_sum > 0 else None
 
         # Max drawdown from cumulative PnL curve
         cum_pnl = 0.0
@@ -291,11 +311,12 @@ def _merge_dimension(sessions: List[LedgerEntry], attr: str) -> Dict[str, Dict]:
 def _delta_bucket(delta: Optional[float]) -> str:
     if delta is None:
         return "unknown"
-    if delta < 0.30:
+    d = abs(delta)  # puts have negative delta; bucket by magnitude
+    if d < 0.30:
         return "low (<0.30)"
-    if delta < 0.40:
+    if d < 0.40:
         return "mid (0.30-0.40)"
-    if delta < 0.50:
+    if d < 0.50:
         return "target (0.40-0.50)"
     return "high (>0.50)"
 

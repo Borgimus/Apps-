@@ -507,14 +507,26 @@ async def monitor_positions(
 
         _exit_bid: Optional[float] = None
         _exit_ask: Optional[float] = None
+        _exit_mid: Optional[float] = None
         try:
             quote = await _retry(
                 lambda p=pos: broker.get_option_quote(p.option_symbol),
                 label=f"get_option_quote({pos.option_symbol})",
             )
-            current_price = float(quote.mid) if float(quote.mid) > 0 else pos.entry_price
             _exit_bid = float(quote.bid)
             _exit_ask = float(quote.ask)
+            _exit_mid = float(quote.mid) if float(quote.mid) > 0 else None
+            # Validate quote age — warn if exchange timestamp is stale (>60 s).
+            _q_age = (now - quote.timestamp.replace(tzinfo=now.tzinfo) if quote.timestamp.tzinfo is None else now - quote.timestamp).total_seconds()
+            if _q_age > 60:
+                logger.warning(
+                    "Stale option quote: %s age=%.0fs", pos.option_symbol, _q_age
+                )
+            # Use bid for exit decisions on long options (reflects executable price).
+            # Mid is used only for logging/display so phantom trailing-stop peaks are avoided.
+            current_price = _exit_bid if _exit_bid and _exit_bid > 0 else (
+                _exit_mid or pos.entry_price
+            )
         except Exception:
             current_price = pos.entry_price
 
@@ -949,8 +961,9 @@ async def scan_and_place(
         strat_counts[type(strat).__name__] = len(sigs)
         all_signals.extend(sigs)
 
-    # IV filter
-    filtered = iv_filter.apply(all_signals)
+    # IV filter — pass earnings calendar so the filter can actually gate near-earnings signals
+    _earnings_cal = getattr(settings, "_earnings_calendar_cache", None) or {}
+    filtered = iv_filter.apply(all_signals, earnings_calendar=_earnings_cal)
     actionable = [s for s in filtered if s.is_actionable()]
 
     if not actionable:
@@ -1093,6 +1106,34 @@ async def scan_and_place(
         # Skip signals that pre-date today's session (multi-day bar history)
         if sig_ts_et.date() < now.date():
             continue
+
+        # Signal age gate — reject signals older than the configured maximum.
+        _max_age_min = getattr(settings.position, "max_signal_age_minutes", 60)
+        if _max_age_min > 0:
+            from zoneinfo import ZoneInfo as _ZI2
+            _sig_utc = sig_ts.astimezone(_ZI2("UTC")) if hasattr(sig_ts, "astimezone") else sig_ts
+            _now_utc = now.astimezone(_ZI2("UTC")) if hasattr(now, "astimezone") else now
+            _age_min = (_now_utc - _sig_utc).total_seconds() / 60
+            if _age_min > _max_age_min:
+                logger.info(
+                    "Stale signal: %s/%s age=%.0f min > max %d min — skipped",
+                    symbol, sig.strategy_id, _age_min, _max_age_min,
+                )
+                continue
+
+        # Scanner direction gate — reject when scanner and strategy disagree on direction.
+        if scan_store:
+            _candidates = scan_store.get("candidates") or []
+            _cand = next((c for c in _candidates if c.get("symbol") == symbol), None)
+            if _cand:
+                _scanner_dir = (_cand.get("signal_type") or "").upper()
+                _signal_dir  = sig.direction.value.upper()
+                if _scanner_dir in ("LONG", "SHORT") and _scanner_dir != _signal_dir:
+                    logger.info(
+                        "Direction mismatch: scanner=%s strategy=%s for %s/%s — skipped",
+                        _scanner_dir, _signal_dir, symbol, sig.strategy_id,
+                    )
+                    continue
 
         # ── Bridge entry scaffold (permissive mode) ───────────────────────────
         _bridge: Optional[object] = None

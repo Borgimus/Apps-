@@ -121,6 +121,18 @@ class LiquidityFilter:
         if contract.ask <= 0:
             reasons.append("zero ask")
 
+        # Reject contracts outside the configured delta fallback band.
+        # Uses abs(delta) so puts (negative delta) are compared by magnitude.
+        if contract.delta is not None:
+            d = abs(contract.delta)
+            # Fallback band: ±0.10 around the configured target range.
+            _lo = max(0.0, self._delta_min - 0.10)
+            _hi = self._delta_max + 0.10
+            if d < _lo or d > _hi:
+                reasons.append(
+                    f"delta abs={d:.3f} outside fallback band [{_lo:.2f}, {_hi:.2f}]"
+                )
+
         # Reject deeply ITM contracts: delta=None with ask * 100 above the cost cap.
         # These have unmeasurable greeks and would always be rejected by risk anyway.
         if (

@@ -92,13 +92,14 @@ class VWAPReclaimStrategy(StrategyBase):
                     if i + k < n
                 )
                 if confirmed:
+                    conf_idx = i + self._confirmation_bars
                     signals.append(
                         Signal(
                             strategy_id=self.strategy_id,
                             symbol=symbol,
                             direction=SignalDirection.LONG,
-                            timestamp=timestamps[i].to_pydatetime(),
-                            price=float(price),
+                            timestamp=timestamps[conf_idx].to_pydatetime(),
+                            price=float(close[conf_idx]),
                             confidence=0.65,
                             notes=f"VWAP reclaim @ {v:.2f}",
                             metadata={"vwap": float(v), "proximity_pct": float(pct_from_vwap)},
@@ -115,13 +116,14 @@ class VWAPReclaimStrategy(StrategyBase):
                     if i + k < n
                 )
                 if confirmed:
+                    conf_idx = i + self._confirmation_bars
                     signals.append(
                         Signal(
                             strategy_id=self.strategy_id,
                             symbol=symbol,
                             direction=SignalDirection.SHORT,
-                            timestamp=timestamps[i].to_pydatetime(),
-                            price=float(price),
+                            timestamp=timestamps[conf_idx].to_pydatetime(),
+                            price=float(close[conf_idx]),
                             confidence=0.65,
                             notes=f"VWAP rejection @ {v:.2f}",
                             metadata={"vwap": float(v), "proximity_pct": float(pct_from_vwap)},

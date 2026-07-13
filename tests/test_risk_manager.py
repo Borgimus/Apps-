@@ -245,6 +245,48 @@ def test_position_sizing_expensive_option():
     assert n == 0
 
 
+# ── EOD entry cutoff ─────────────────────────────────────────────────────────
+
+def test_eod_entry_cutoff_blocks_too_close(mock_option_contract):
+    from app.config.settings import PositionSettings
+    settings = _make_settings(
+        position=PositionSettings(eod_exit_time="12:30", min_entry_minutes_before_eod=30),
+    )
+    rm = RiskManager(settings)
+    rm.start_session(EQUITY)
+    # 12:20 ET — only 10 min before 12:30 EOD, below the 30-min minimum
+    near_eod = datetime(2024, 1, 2, 12, 20, tzinfo=ET)
+    result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=near_eod)
+    assert not result.passed
+    assert RiskCheck.EOD_ENTRY_CUTOFF in result.failed_checks
+
+
+def test_eod_entry_cutoff_passes_with_enough_time(mock_option_contract):
+    from app.config.settings import PositionSettings
+    settings = _make_settings(
+        position=PositionSettings(eod_exit_time="12:30", min_entry_minutes_before_eod=30),
+    )
+    rm = RiskManager(settings)
+    rm.start_session(EQUITY)
+    # 11:45 ET — 45 min before 12:30 EOD, above the 30-min minimum
+    safe = datetime(2024, 1, 2, 11, 45, tzinfo=ET)
+    result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=safe)
+    assert RiskCheck.EOD_ENTRY_CUTOFF not in result.failed_checks
+
+
+def test_eod_entry_cutoff_ignored_after_eod(mock_option_contract):
+    from app.config.settings import PositionSettings
+    settings = _make_settings(
+        position=PositionSettings(eod_exit_time="12:30", min_entry_minutes_before_eod=30),
+    )
+    rm = RiskManager(settings)
+    rm.start_session(EQUITY)
+    # 13:00 ET — past EOD; the check must not fire (session_buffer handles this window)
+    after_eod = datetime(2024, 1, 2, 13, 0, tzinfo=ET)
+    result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=after_eod)
+    assert RiskCheck.EOD_ENTRY_CUTOFF not in result.failed_checks
+
+
 # ── Earnings blackout ─────────────────────────────────────────────────────────
 
 def test_earnings_blackout_rejects(mock_option_contract):

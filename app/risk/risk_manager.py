@@ -52,6 +52,7 @@ class RiskCheck(str, Enum):
     EARNINGS_BLACKOUT = "earnings_blackout"
     LIVE_TRADING_GUARD = "live_trading_guard"
     RECON_BLOCKED = "recon_blocked"
+    EOD_ENTRY_CUTOFF = "eod_entry_cutoff"
 
 
 @dataclass
@@ -276,6 +277,7 @@ class RiskManager:
         self._check_live_trading_guard(result)
         self._check_market_order(result, request)
         self._check_session_buffer(result, now)
+        self._check_eod_entry_cutoff(result, now)
         self._check_max_trades_per_day(result)
         self._check_daily_loss(result, equity)
         self._check_risk_per_trade(result, request, equity, contract)
@@ -353,6 +355,19 @@ class RiskManager:
                 RiskCheck.SESSION_BUFFER,
                 f"No trades in last {self._s.no_trade_close_buffer_minutes} min before close "
                 f"(after {no_trade_close.strftime('%H:%M')} ET)",
+            )
+
+    def _check_eod_entry_cutoff(self, result: RiskCheckResult, now: datetime):
+        eod_h, eod_m = map(int, self._s.position.eod_exit_time.split(":"))
+        eod_dt = now.replace(hour=eod_h, minute=eod_m, second=0, microsecond=0)
+        minutes_to_eod = (eod_dt - now).total_seconds() / 60
+        min_required = self._s.position.min_entry_minutes_before_eod
+        if 0 < minutes_to_eod < min_required:
+            result.add_failure(
+                RiskCheck.EOD_ENTRY_CUTOFF,
+                f"Only {minutes_to_eod:.0f} min before EOD exit "
+                f"({self._s.position.eod_exit_time} ET) — "
+                f"minimum {min_required} min required for new entries",
             )
 
     def _check_max_trades_per_day(self, result: RiskCheckResult):

@@ -89,6 +89,11 @@ class PositionSettings(BaseSettings):
     max_hold_minutes: int = _yaml_get("position", "max_hold_minutes", default=120)
     eod_exit_time: str = _yaml_get("position", "eod_exit_time", default="15:45")
     cooldown_after_loss_minutes: int = _yaml_get("position", "cooldown_after_loss_minutes", default=15)
+    # Minimum minutes remaining before eod_exit_time required to allow a new entry.
+    # Prevents entering positions that will be force-closed before they can develop.
+    min_entry_minutes_before_eod: int = _yaml_get(
+        "position", "min_entry_minutes_before_eod", default=30
+    )
 
 
 class UniverseSettings(BaseSettings):

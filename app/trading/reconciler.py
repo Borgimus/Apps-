@@ -42,6 +42,12 @@ class ReconciliationResult:
     flagged: List[str] = field(default_factory=list)
     orders_confirmed: bool = False    # True iff broker.get_orders() succeeded
     positions_confirmed: bool = False  # True iff broker.get_positions() succeeded
+    unresolved_orders: bool = False   # True when FillTracker entry absent from broker open orders
+
+    @property
+    def success(self) -> bool:
+        """Both broker API calls succeeded — minimum precondition for clearing RECON_BLOCKED."""
+        return self.orders_confirmed and self.positions_confirmed
 
 
 class Reconciler:
@@ -167,6 +173,18 @@ class Reconciler:
                     )
                     logger.warning("Reconciler: %s", msg)
                     result.flagged.append(msg)
+                else:
+                    # Both sides have the position — check quantity match
+                    bp = broker_syms[pos.option_symbol]
+                    broker_qty = abs(bp.quantity)
+                    local_qty = abs(pos.quantity)
+                    if broker_qty != local_qty:
+                        msg = (
+                            f"Quantity mismatch: {pos.option_symbol} "
+                            f"broker_qty={broker_qty} local_qty={local_qty} — flagged for review"
+                        )
+                        logger.warning("Reconciler: %s", msg)
+                        result.flagged.append(msg)
 
         except NotImplementedError:
             logger.debug("Reconciler: broker.get_positions() not available")
@@ -187,6 +205,8 @@ class Reconciler:
             result.broker_open_orders = len(open_broker_orders)
             ft_ids = set(fill_tracker._pending.keys())
 
+            broker_open_ids = {bo.order_id for bo in open_broker_orders}
+
             for bo in open_broker_orders:
                 if bo.order_id not in ft_ids:
                     msg = (
@@ -196,6 +216,16 @@ class Reconciler:
                     logger.warning("Reconciler: %s", msg)
                     result.flagged.append(msg)
 
+            # FillTracker entries absent from broker open orders — status unresolved
+            for ft_id in ft_ids:
+                if ft_id not in broker_open_ids:
+                    logger.info(
+                        "Reconciler: FillTracker order %s absent from broker open orders "
+                        "— awaiting next poll cycle",
+                        ft_id[:8],
+                    )
+                    result.unresolved_orders = True
+
         except NotImplementedError:
             logger.debug("Reconciler: broker.get_orders() not available")
         except Exception as exc:
@@ -203,13 +233,28 @@ class Reconciler:
         else:
             result.orders_confirmed = True
 
-        # ── Clear RECON_BLOCKED when broker order state is confirmed ─────────
-        # Recovery sets RECON_BLOCKED when broker.get_orders() was unavailable
-        # or local/broker state was inconsistent.  Once get_orders() succeeds
-        # here, broker order state is current and new entries are safe.
-        # Positions confirmation is tracked separately but does not gate this.
-        if risk is not None and result.orders_confirmed:
-            risk.clear_recon_blocked()
+        # ── Update RECON_BLOCKED based on full reconciliation result ─────────
+        # Clear only when ALL conditions are true:
+        #   • both broker API calls succeeded (orders + positions)
+        #   • no flagged discrepancies (unknown orders, qty mismatches, missing positions)
+        #   • no FillTracker entries absent from broker open orders
+        # Any failure actively re-sets the block to prevent a cleared flag from
+        # persisting across a reconcile cycle that introduced new problems.
+        if risk is not None:
+            _clean = result.success and not result.flagged and not result.unresolved_orders
+            if _clean:
+                risk.clear_recon_blocked()
+            else:
+                _reasons: List[str] = []
+                if not result.orders_confirmed:
+                    _reasons.append("broker.get_orders() failed")
+                if not result.positions_confirmed:
+                    _reasons.append("broker.get_positions() failed")
+                if result.flagged:
+                    _reasons.append(f"{len(result.flagged)} reconciliation flag(s)")
+                if result.unresolved_orders:
+                    _reasons.append("FillTracker has orders absent from broker")
+                risk.set_recon_blocked("; ".join(_reasons) if _reasons else "reconciliation incomplete")
 
         logger.info(
             "Reconciliation done: broker_pos=%d local_pos=%d "

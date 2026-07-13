@@ -1019,8 +1019,9 @@ class TestReconBlocked:
         await SessionRecovery().recover(broker_down, pm, ft, store, TODAY, journal=journal, risk=risk)
         assert risk.recon_blocked is True
 
-        # Broker comes back: reconciler succeeds
-        broker_up = _make_broker(positions=[], orders=[])
+        # Broker comes back: confirms ORD-ONE is still open, no positions
+        ord_one = _make_order_result("ORD-ONE", "SPY240115C00450000", OrderStatus.NEW)
+        broker_up = _make_broker(positions=[], orders=[ord_one])
         from app.trading.reconciler import Reconciler
         now = datetime(2024, 1, 15, 10, 30, 0)
         await Reconciler().reconcile(broker_up, pm, ft, now, risk=risk)
@@ -1096,3 +1097,40 @@ class TestReconBlocked:
         assert risk.recon_blocked is True, (
             "RECON_BLOCKED must be set when local orders are absent from broker"
         )
+
+    @pytest.mark.asyncio
+    async def test_reconciler_unknown_broker_order_stays_blocked(self):
+        """
+        Reconciler: broker.get_orders() succeeds but returns an order that
+        FillTracker does not know about.  RECON_BLOCKED must remain set —
+        a successful API call is not sufficient when there are flagged discrepancies.
+        """
+        ft = FillTracker()
+        pm = PositionManager(_make_settings())
+
+        # Broker returns one unknown order
+        unknown = _make_order_result("ORD-GHOST", "SPY240115C00450000", OrderStatus.NEW)
+        broker = _make_broker(positions=[], orders=[unknown])
+
+        risk = _make_risk_manager()
+        risk.set_recon_blocked("set before reconciler runs")
+
+        from app.trading.reconciler import Reconciler
+        now = datetime(2024, 1, 15, 10, 30, 0)
+        result = await Reconciler().reconcile(broker, pm, ft, now, risk=risk)
+
+        # API call succeeded
+        assert result.orders_confirmed is True
+        assert result.positions_confirmed is True
+        # But the unknown order produced a flag
+        assert result.flagged, "Unknown broker order must produce a reconciliation flag"
+
+        # Block must not have cleared
+        assert risk.recon_blocked is True, (
+            "RECON_BLOCKED must remain set when reconciliation has unresolved flags"
+        )
+
+        from app.risk.risk_manager import RiskCheck
+        check = risk.check_order(_make_entry_request(), Decimal("50000"))
+        assert check.passed is False
+        assert RiskCheck.RECON_BLOCKED in check.failed_checks

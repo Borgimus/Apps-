@@ -105,22 +105,44 @@ class AlpacaBroker(BrokerInterface):
     def verify_paper_endpoint(self) -> tuple:
         """
         Check URL hostname and API key prefix independently.
-        Paper: base_url contains 'paper-api', key starts with 'PK'.
-        Live:  base_url contains 'api.alpaca.markets' (no 'paper'), key starts with 'AK'.
+        Paper: hostname == 'paper-api.alpaca.markets', key starts with 'PK'.
+        Live:  hostname == 'api.alpaca.markets', key starts with 'AK'.
+
+        Hostname is parsed via urllib.parse.urlparse so that strings like
+        'https://evil.com/paper-api.alpaca.markets' are correctly rejected.
         """
-        url_is_paper = "paper-api" in self._base_url.lower()
+        from urllib.parse import urlparse
+        _PAPER_HOST = "paper-api.alpaca.markets"
+        _LIVE_HOST = "api.alpaca.markets"
+
+        parsed = urlparse(self._base_url)
+        hostname = parsed.hostname or ""  # None-safe; already lowercased by urlparse
+        url_is_paper = hostname == _PAPER_HOST
+        url_is_live = hostname == _LIVE_HOST
+
         key_prefix = self._api_key[:2].upper() if len(self._api_key) >= 2 else ""
         key_is_paper = key_prefix == "PK"
 
         if url_is_paper and key_is_paper:
-            return True, f"url=paper-api key_prefix=PK base_url={self._base_url}"
+            return True, f"hostname={hostname} key_prefix=PK"
 
         issues = []
         if not url_is_paper:
-            issues.append(
-                f"base_url={self._base_url!r} does not contain 'paper-api' "
-                f"(expected https://paper-api.alpaca.markets)"
-            )
+            if url_is_live:
+                issues.append(
+                    f"base_url hostname is {hostname!r} (live endpoint) — "
+                    f"expected {_PAPER_HOST!r}"
+                )
+            elif not hostname:
+                issues.append(
+                    f"base_url={self._base_url!r} is malformed or missing a hostname "
+                    f"(expected https://{_PAPER_HOST})"
+                )
+            else:
+                issues.append(
+                    f"base_url hostname={hostname!r} is not the paper endpoint "
+                    f"(expected {_PAPER_HOST!r})"
+                )
         if not key_is_paper:
             issues.append(
                 f"api_key prefix={key_prefix!r} (PK=paper, AK=live — check which account key was used)"

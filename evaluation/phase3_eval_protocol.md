@@ -91,10 +91,64 @@ python scripts/session_runner.py \
 
 ---
 
+## 2b. Runtime Fingerprint (Phase 3 boundary constraint)
+
+A session does not count toward the Phase 3 clean cohort if the runtime
+commit or configuration differs from the frozen baseline without a declared
+protocol amendment.
+
+### Frozen baseline identifiers
+
+Recorded in `evaluation/phase3_tracking.json::phase3_fingerprint` at the
+Phase 3 readiness commit. The baseline is:
+
+| Field | Meaning |
+|-------|---------|
+| `commit_sha` | Git SHA of the Phase 3 readiness commit |
+| `config_hash_sha256_16` | First 16 hex chars of SHA-256 of `config.yaml` |
+| `requirements_lock_hash_sha256_16` | First 16 hex chars of SHA-256 of `requirements.lock` |
+| `ticker_universe_hash_sha256_16` | First 16 hex chars of SHA-256 of `config/ticker_universe.yaml` |
+| `broker_adapter_hashes_sha256_8` | Per-file 8-char SHA-256 of each broker adapter module |
+| `paper_account_identifier` | Alpaca paper account ID (record from dashboard before first session) |
+| `db_schema_note` | Human-readable schema version label |
+| `first_eligible_session_date` | Earliest date a session counts as Phase 3 |
+
+### Fingerprint verification
+
+Run before each session:
+
+```bash
+python scripts/capture_session_fingerprint.py --verify
+```
+
+Exit code 0 = fingerprint matches baseline (session is eligible).  
+Exit code 1 = fingerprint diverges (session must not count without amendment).
+
+To capture a fresh fingerprint without comparing:
+
+```bash
+python scripts/capture_session_fingerprint.py
+```
+
+### Protocol amendment procedure
+
+If a controlled change is required (e.g. dependency update, config change):
+
+1. Make the change and commit it.
+2. Run `python scripts/capture_session_fingerprint.py` and copy the output.
+3. Update `phase3_fingerprint` in `evaluation/phase3_tracking.json` with the new hashes.
+4. Add a `protocol_amendments` entry explaining what changed and why.
+5. Sessions before and after the amendment are separate comparison groups.
+
+**No change to strategy thresholds, risk limits, or universe groups is permitted between Phase 3 sessions.**  Changes to those fields invalidate cross-session comparability and require a new protocol, not just an amendment.
+
+---
+
 ## 3. Pre-Session Checklist
 
 Before starting each Phase 3 session:
 
+- [ ] Run `python scripts/capture_session_fingerprint.py --verify` — must exit 0
 - [ ] Confirm `LIVE_TRADING_ENABLED=false` in environment (`echo $LIVE_TRADING_ENABLED`)
 - [ ] Confirm `PAPER_EVALUATION_MODE=true`
 - [ ] Confirm Alpaca base URL is paper endpoint (`paper-api.alpaca.markets`)

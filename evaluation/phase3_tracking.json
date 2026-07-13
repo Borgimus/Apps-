@@ -4,6 +4,23 @@
   "phase3_start_date": "2026-07-12",
   "created": "2026-07-12",
   "last_updated": "2026-07-12",
+  "phase3_fingerprint": {
+    "_note": "Frozen at Phase 3 readiness commit. Regenerate with: python scripts/capture_session_fingerprint.py. Update commit_sha after pushing the readiness commit. A session whose runtime fingerprint diverges from this baseline is NOT eligible for the Phase 3 clean cohort without a declared protocol amendment.",
+    "commit_sha": "CAPTURE_AFTER_PUSH",
+    "working_tree_dirty": false,
+    "config_hash_sha256_16": "67954547a3a617d4",
+    "requirements_lock_hash_sha256_16": "b91299a905e74506",
+    "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+    "broker_adapter_hashes_sha256_8": {
+      "alpaca_broker": "48d88b0c",
+      "paper_broker": "241f1432",
+      "broker_interface": "6a307cc7"
+    },
+    "paper_account_identifier": "RECORD_FROM_ALPACA_DASHBOARD_BEFORE_FIRST_SESSION",
+    "db_schema_note": "DBTradeJournal schema v2 (phase/contamination_flags columns added); see app/trading/db_journal.py",
+    "first_eligible_session_date": "2026-07-12",
+    "protocol_version": "phase3_eval_protocol.md@2026-07-12"
+  },
   "note": "Phase 3 cohort. All sessions on or after 2026-07-12 with all P1-P7 fixes applied. Pre-phase-3 sessions (P1/P2 phases) are engineering evidence only — see evaluation/ledger.json contamination_flags.",
   "phase3_sessions": [],
   "cumulative": {

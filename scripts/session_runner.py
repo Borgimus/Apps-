@@ -216,7 +216,14 @@ async def _place_exit_order(
             current_bid = None
 
     exit_quote_bid = current_bid
-    _remaining = max(1, pos.quantity - pos.confirmed_fill_qty)
+    _remaining = pos.quantity - pos.confirmed_fill_qty
+    if _remaining <= 0:
+        logger.warning(
+            "_place_exit_order: no remaining quantity for %s "
+            "(qty=%d confirmed=%d) — skipping placement",
+            pos.option_symbol, pos.quantity, pos.confirmed_fill_qty,
+        )
+        return
     fallback = pos.current_price if pos.current_price > 0 else pos.entry_price
     _lp = Decimal(str(round(
         current_bid if (current_bid and current_bid > 0) else fallback * 0.98, 2
@@ -298,9 +305,13 @@ async def _poll_pending_exit(
             return True
 
     # ── Fully filled ────────────────────────────────────────────────────────
+    # The third clause handles the fill-cancel race: the broker cancelled the order
+    # but a fill had already arrived at the exchange, so confirmed_fill_qty equals
+    # the full position size even though status is CANCELLED.
     fully_filled = (
         status == _OStatus.FILLED
         or (status == _OStatus.PARTIALLY_FILLED and broker_qty >= pos.quantity)
+        or pos.confirmed_fill_qty >= pos.quantity
     )
     if fully_filled:
         avg_fill = (
@@ -415,6 +426,24 @@ async def _poll_pending_exit(
     except Exception as exc:
         logger.warning("Cannot confirm cancel for %s: %s — leaving as-is", pos.option_symbol, exc)
         return False
+
+    # Reconcile partial fills from the now-cancelled exit order before re-placing.
+    # A fill-cancel race leaves status=CANCELLED but filled_quantity > 0; submitting
+    # a replacement for the full original quantity would overshoot the position.
+    _cfq = cancelled.filled_quantity or 0
+    _cfp = float(cancelled.filled_price) if cancelled.filled_price else 0.0
+    if _cfq > pos.confirmed_fill_qty and _cfp > 0:
+        pm.record_partial_fill(pos.option_symbol, _cfq - pos.confirmed_fill_qty, _cfp)
+        pos = pm.get_position(pos.option_symbol)
+        if pos is None:
+            return True
+    if pos.confirmed_fill_qty >= pos.quantity:
+        logger.info(
+            "Fill-cancel race: %s confirmed_fill_qty=%d >= qty=%d "
+            "— deferring close to next poll cycle (no replacement placed)",
+            pos.option_symbol, pos.confirmed_fill_qty, pos.quantity,
+        )
+        return False  # EXIT_PENDING stays True; next poll sees fully_filled=True and closes
 
     reason = pos.exit_triggered_reason
     is_mandatory = pos.exit_is_mandatory
@@ -692,6 +721,7 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
             fully_filled = (
                 status == _OStatus.FILLED
                 or (status == _OStatus.PARTIALLY_FILLED and broker_qty >= pos.quantity)
+                or pos.confirmed_fill_qty >= pos.quantity
             )
             if fully_filled:
                 avg_fill = (
@@ -733,7 +763,9 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
                     _new_bid = float(_q.bid) if float(_q.bid) > 0 else None
                 except Exception:
                     _new_bid = None
-                _rem = max(1, pos.quantity - pos.confirmed_fill_qty)
+                _rem = max(0, pos.quantity - pos.confirmed_fill_qty)
+                if _rem == 0:
+                    continue
                 fallback2 = pos.current_price if pos.current_price > 0 else pos.entry_price
                 _new_lp = Decimal(str(round(_new_bid if (_new_bid and _new_bid > 0) else fallback2 * 0.98, 2)))
                 _rq = _OReq(
@@ -763,7 +795,33 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
             if _cur_bid and _cur_bid < pos.exit_order_limit_price - 0.01:
                 try:
                     await broker.cancel_order(pos.exit_order_id)
-                    _rem = max(1, pos.quantity - pos.confirmed_fill_qty)
+                    # Confirm cancel before re-placing to prevent fill-cancel race
+                    _cancel_conf = await broker.get_order_status(pos.exit_order_id)
+                    if _cancel_conf.status not in (_OStatus.CANCELLED, _OStatus.CANCELED):
+                        logger.warning(
+                            "EOD reprice: cancel unconfirmed for %s (status=%s) — skipping replacement",
+                            pos.option_symbol, _cancel_conf.status,
+                        )
+                        continue
+                    # Reconcile partial fills from the cancelled order
+                    _cfq = _cancel_conf.filled_quantity or 0
+                    _cfp = float(_cancel_conf.filled_price) if _cancel_conf.filled_price else 0.0
+                    if _cfq > pos.confirmed_fill_qty and _cfp > 0:
+                        pm.record_partial_fill(
+                            pos.option_symbol, _cfq - pos.confirmed_fill_qty, _cfp
+                        )
+                        pos = pm.get_position(pos.option_symbol)
+                        if pos is None:
+                            continue
+                    if pos.confirmed_fill_qty >= pos.quantity:
+                        logger.info(
+                            "EOD reprice: fill-cancel race for %s — no replacement needed",
+                            pos.option_symbol,
+                        )
+                        continue
+                    _rem = max(0, pos.quantity - pos.confirmed_fill_qty)
+                    if _rem == 0:
+                        continue
                     _new_lp = Decimal(str(round(_cur_bid, 2)))
                     _rp = _OReq(
                         symbol=pos.symbol, option_symbol=pos.option_symbol,

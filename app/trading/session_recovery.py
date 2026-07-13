@@ -186,6 +186,8 @@ class SessionRecovery:
                     result.warnings.append(msg)
 
         # ── Step 4: Broker open orders not in FillTracker ─────────────────
+        # Also captures the set of broker-confirmed open order IDs for Step 5.
+        _broker_open_ids: Optional[set] = None
         try:
             from ..brokers.broker_interface import OrderStatus
             broker_orders = await broker.get_orders(limit=200)
@@ -193,6 +195,7 @@ class SessionRecovery:
                 OrderStatus.NEW, OrderStatus.OPEN, OrderStatus.PARTIALLY_FILLED,
                 OrderStatus.ACCEPTED, OrderStatus.PENDING_NEW, OrderStatus.HELD,
             }
+            _broker_open_ids = {bo.order_id for bo in broker_orders if bo.status in _working}
             ft_ids = set(fill_tracker._pending.keys())
             for bo in broker_orders:
                 if bo.status in _working and bo.order_id not in ft_ids:
@@ -203,6 +206,15 @@ class SessionRecovery:
                     )
                     logger.warning("Recovery: %s", msg)
                     result.warnings.append(msg)
+            # FillTracker entries not confirmed open at broker may have filled,
+            # expired, or been cancelled offline — log so operator is aware.
+            for oid in list(ft_ids):
+                if oid not in _broker_open_ids:
+                    logger.info(
+                        "Recovery: DB order %s not in broker open orders "
+                        "— may have filled/expired offline; FillTracker will reconcile on next poll",
+                        oid[:8],
+                    )
         except NotImplementedError:
             logger.debug("Recovery: broker.get_orders() not available — skipping")
         except Exception as exc:
@@ -210,14 +222,34 @@ class SessionRecovery:
             logger.warning("Recovery: %s", msg)
             result.warnings.append(msg)
 
-        # ── Step 5: Restore RiskManager daily counters from trade_journal ────
+        # ── Step 5: Restore RiskManager daily counters ────────────────────────
+        # _pending_entries must reflect current broker state, not only what the
+        # journal recorded before shutdown.  A "pending" DB row may have filled,
+        # expired, been cancelled, or been rejected while the process was offline.
+        # Use the intersection of FillTracker entries with broker-confirmed open
+        # orders as the authoritative pending count.  Fall back to the DB-derived
+        # count with a warning if broker.get_orders() was unavailable.
         if journal is not None and risk is not None:
             try:
                 summary = await journal.get_session_summary(session_date)
+                if _broker_open_ids is not None:
+                    _confirmed_pending = len(_broker_open_ids & set(fill_tracker._pending.keys()))
+                    logger.info(
+                        "Recovery: _pending_entries set to %d (broker-confirmed; "
+                        "DB had %d open rows)",
+                        _confirmed_pending, result.pending_orders_loaded,
+                    )
+                else:
+                    _confirmed_pending = result.pending_orders_loaded
+                    logger.warning(
+                        "Recovery: broker.get_orders() unavailable — using DB-derived "
+                        "pending count (%d); actual broker state unknown",
+                        _confirmed_pending,
+                    )
                 risk.restore_daily_counters(
                     entries=summary["entries"],
                     pnl=summary["pnl"],
-                    pending=result.pending_orders_loaded,
+                    pending=_confirmed_pending,
                 )
             except Exception as exc:
                 msg = f"Failed to restore risk counters from DB: {exc}"

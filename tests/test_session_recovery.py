@@ -725,3 +725,153 @@ class TestHealthReport:
         assert report["trades"]["win_rate"] == 0.0
         assert report["realized_pnl"] == 0.0
         assert report["orders"]["submitted"] == 0
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# 8. P6 — _pending_entries derived from broker state, not journal alone
+# ═══════════════════════════════════════════════════════════════════════════════
+
+class TestBrokerDerivedPendingEntries:
+    """
+    After restart, _pending_entries in RiskManager must reflect the CURRENT
+    broker state.  A DB "pending" row does not prove the order is still live;
+    it may have filled, expired, or been cancelled while the process was offline.
+    """
+
+    @pytest.mark.asyncio
+    async def test_pending_set_to_broker_confirmed_count(self, db_session: AsyncSession):
+        """
+        DB has 2 pending rows.  Broker confirms only 1 is still open.
+        _pending_entries should be restored to 1, not 2.
+        """
+        from unittest.mock import MagicMock, AsyncMock
+        from app.risk.risk_manager import RiskManager
+
+        db_session.add(_pending_row(db_session, "ORD-LIVE", option_symbol="SPY240115C00450000"))
+        db_session.add(_pending_row(db_session, "ORD-DEAD", option_symbol="SPY240115P00440000"))
+        await db_session.commit()
+
+        store = PendingOrderStore(db_session)
+        ft = FillTracker()
+        pm = PositionManager(_make_settings())
+
+        # Broker returns only ORD-LIVE as open; ORD-DEAD has been cancelled offline
+        live_order = _make_order_result("ORD-LIVE", "SPY240115C00450000", OrderStatus.NEW)
+        broker = _make_broker(orders=[live_order])
+
+        settings = MagicMock()
+        settings.risk.max_trades_per_day = 3
+        settings.risk.max_daily_loss = 500
+        settings.risk.max_risk_per_trade = 100
+        settings.risk.max_spread_pct = 0.10
+        settings.risk.min_open_interest = 0
+        settings.risk.min_volume = 0
+        settings.risk.earnings_blackout_days = 0
+        settings.risk.allow_earnings_trades = True
+        settings.risk.min_underlying_price = 0
+        settings.risk.min_underlying_avg_volume = 0
+        settings.universe.max_active_positions = 2
+        settings.universe.max_symbols_traded_per_day = 3
+        settings.universe.max_contracts_per_position = 1
+        risk = RiskManager(settings)
+        risk.start_session(Decimal("50000"))
+
+        journal = MagicMock()
+        journal.get_session_summary = AsyncMock(return_value={"entries": 1, "pnl": 0.0})
+        journal.get_open_with_exit_order = AsyncMock(return_value=[])
+
+        result = await SessionRecovery().recover(broker, pm, ft, store, TODAY, journal=journal, risk=risk)
+
+        # DB had 2 pending rows loaded; broker only confirms 1 as open
+        assert result.pending_orders_loaded == 2  # from DB
+        # risk._pending_entries should be 1 (broker-confirmed), not 2 (DB count)
+        assert risk._pending_entries == 1
+
+    @pytest.mark.asyncio
+    async def test_pending_falls_back_to_db_count_if_broker_unavailable(self, db_session: AsyncSession):
+        """
+        When broker.get_orders() raises NotImplementedError, _pending_entries
+        falls back to the DB-derived count with a warning.
+        """
+        from app.risk.risk_manager import RiskManager
+
+        db_session.add(_pending_row(db_session, "ORD-ONLY", option_symbol="SPY240115C00450000"))
+        await db_session.commit()
+
+        store = PendingOrderStore(db_session)
+        ft = FillTracker()
+        pm = PositionManager(_make_settings())
+
+        broker = _make_broker()
+        broker.get_orders = AsyncMock(side_effect=NotImplementedError())
+
+        settings = MagicMock()
+        settings.risk.max_trades_per_day = 3
+        settings.risk.max_daily_loss = 500
+        settings.risk.max_risk_per_trade = 100
+        settings.risk.max_spread_pct = 0.10
+        settings.risk.min_open_interest = 0
+        settings.risk.min_volume = 0
+        settings.risk.earnings_blackout_days = 0
+        settings.risk.allow_earnings_trades = True
+        settings.risk.min_underlying_price = 0
+        settings.risk.min_underlying_avg_volume = 0
+        settings.universe.max_active_positions = 2
+        settings.universe.max_symbols_traded_per_day = 3
+        settings.universe.max_contracts_per_position = 1
+        risk = RiskManager(settings)
+        risk.start_session(Decimal("50000"))
+
+        journal = MagicMock()
+        journal.get_session_summary = AsyncMock(return_value={"entries": 0, "pnl": 0.0})
+        journal.get_open_with_exit_order = AsyncMock(return_value=[])
+
+        await SessionRecovery().recover(broker, pm, ft, store, TODAY, journal=journal, risk=risk)
+
+        # Broker unavailable: DB count (1) used as fallback
+        assert risk._pending_entries == 1
+
+    @pytest.mark.asyncio
+    async def test_all_db_orders_cancelled_at_broker(self, db_session: AsyncSession):
+        """
+        DB has 2 pending rows but broker confirms 0 open orders.
+        _pending_entries should be restored to 0.
+        """
+        from app.risk.risk_manager import RiskManager
+
+        db_session.add(_pending_row(db_session, "ORD-A"))
+        db_session.add(_pending_row(db_session, "ORD-B", option_symbol="SPY240115P00440000"))
+        await db_session.commit()
+
+        store = PendingOrderStore(db_session)
+        ft = FillTracker()
+        pm = PositionManager(_make_settings())
+
+        # Broker has no open orders — both may have filled/expired offline
+        broker = _make_broker(orders=[])
+
+        settings = MagicMock()
+        settings.risk.max_trades_per_day = 3
+        settings.risk.max_daily_loss = 500
+        settings.risk.max_risk_per_trade = 100
+        settings.risk.max_spread_pct = 0.10
+        settings.risk.min_open_interest = 0
+        settings.risk.min_volume = 0
+        settings.risk.earnings_blackout_days = 0
+        settings.risk.allow_earnings_trades = True
+        settings.risk.min_underlying_price = 0
+        settings.risk.min_underlying_avg_volume = 0
+        settings.universe.max_active_positions = 2
+        settings.universe.max_symbols_traded_per_day = 3
+        settings.universe.max_contracts_per_position = 1
+        risk = RiskManager(settings)
+        risk.start_session(Decimal("50000"))
+
+        journal = MagicMock()
+        journal.get_session_summary = AsyncMock(return_value={"entries": 2, "pnl": 0.0})
+        journal.get_open_with_exit_order = AsyncMock(return_value=[])
+
+        await SessionRecovery().recover(broker, pm, ft, store, TODAY, journal=journal, risk=risk)
+
+        # All DB orders absent at broker: _pending_entries = 0
+        assert risk._pending_entries == 0

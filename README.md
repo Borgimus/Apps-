@@ -249,3 +249,11 @@ For actual order flow, the system always uses broker-provided quotes, option cha
 ## License
 
 MIT License. Use at your own risk.
+
+---
+
+## Other apps in this repository
+
+### [multi-agent-workspace/](multi-agent-workspace/)
+
+A model-agnostic multi-agent AI project workspace: create projects, assign AI agents (Anthropic, OpenAI-compatible, local, or mock models) with roles, prompts, tools and permissions, and watch them plan, delegate, implement, review each other's work and produce shared artifacts — with live activity streaming, a prompt inspector, human approval gates, and a complete audit history. See its [README](multi-agent-workspace/README.md) for setup.

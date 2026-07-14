@@ -13,9 +13,16 @@
     "requirements_lock_hash_sha256_16": "b91299a905e74506",
     "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
     "broker_adapter_hashes_sha256_8": {
-      "alpaca_broker": "48d88b0c",
+      "alpaca_broker": "bd9d7d0a",
       "paper_broker": "241f1432",
       "broker_interface": "6a307cc7"
+    },
+    "_broker_hash_amendment": {
+      "declared": "2026-07-14",
+      "prior_alpaca_broker_hash": "48d88b0c",
+      "updated_alpaca_broker_hash": "bd9d7d0a",
+      "commit": "37f8f1a5c7e2e77cdefa3985db14e8691b52de1b",
+      "reason": "11 defect fixes applied between Session 1 and Session 2 (commit 37f8f1a). alpaca_broker.py changed for Fix 10: option quote timestamp now parsed from exchange latestQuote.t instead of datetime.utcnow(). No threshold, parameter, or strategy logic changes. Other behavioral fixes (RVOL pace projection, EOD entry cutoff, signal age gate, scanner direction match, exit bid pricing, ORB unified definition, delta hard rejection, IV filter dead code, ledger breakeven/profit-factor/delta-bucket, replay fixed strike, VWAP lookahead, backtest EOD exit) are all defect corrections. Session 1 was valid under the then-current baseline. Sessions 2+ run under this updated baseline. Cross-session comparison should note the code boundary at S1/S2."
     },
     "paper_account_identifier": "alpaca-paper-4UBN",
     "db_schema_note": "DBTradeJournal schema v2 (phase/contamination_flags columns added); see app/trading/db_journal.py",

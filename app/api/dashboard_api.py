@@ -888,6 +888,90 @@ def create_app(
             "message": row.message,
         }
 
+    # ── Session pulse (push-notification-ready compact snapshot) ──────────
+
+    @app.get("/api/session/pulse")
+    async def session_pulse():
+        """
+        Compact real-time session snapshot written by the session runner every
+        poll cycle.  Designed for external monitors (e.g. Claude Code push
+        notifications) that need a single lightweight endpoint.
+
+        Reads logs/live_status.json — a file the session runner atomically
+        overwrites each cycle via PushNotifier.  Falls back gracefully when no
+        session is running.
+        """
+        status_file = Path("logs/live_status.json")
+        if not status_file.exists():
+            return {"session_active": False, "reason": "no live_status.json"}
+        try:
+            data = json.loads(status_file.read_text())
+        except Exception as exc:
+            return {"session_active": False, "reason": f"parse error: {exc}"}
+
+        # Derive runner_active: ts must be within 10 minutes
+        from datetime import timezone as _tz
+        now_utc = datetime.now(tz=_tz.utc)
+        ts_str = data.get("ts")
+        stale_secs = None
+        runner_active = data.get("session_active", True)
+        if ts_str:
+            try:
+                ts = datetime.fromisoformat(ts_str)
+                if ts.tzinfo is None:
+                    from zoneinfo import ZoneInfo as _ZI
+                    ts = ts.replace(tzinfo=_ZI("America/New_York"))
+                stale_secs = round((now_utc - ts.astimezone(_tz.utc)).total_seconds())
+                runner_active = stale_secs < 600 and runner_active is not False
+            except Exception:
+                pass
+
+        return {
+            "session_active": runner_active,
+            "stale_secs": stale_secs,
+            **data,
+        }
+
+    # ── Push events (notification queue) ──────────────────────────────────
+
+    @app.get("/api/session/push-events")
+    async def session_push_events(limit: int = 20, unconsumed_only: bool = False):
+        """
+        Recent push notification events written by the session runner.
+        Reads logs/push_events.jsonl — append-only event log.
+
+        Parameters
+        ----------
+        limit : int
+            Maximum number of events to return (most recent first).
+        unconsumed_only : bool
+            When True, return only events where consumed=False.
+        """
+        events_file = Path("logs/push_events.jsonl")
+        if not events_file.exists():
+            return {"events": [], "total": 0}
+        try:
+            lines = events_file.read_text().splitlines()
+        except Exception as exc:
+            return {"events": [], "error": str(exc)}
+
+        parsed = []
+        for line in reversed(lines):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                ev = json.loads(line)
+                if unconsumed_only and ev.get("consumed"):
+                    continue
+                parsed.append(ev)
+                if len(parsed) >= limit:
+                    break
+            except Exception:
+                continue
+
+        return {"events": parsed, "total": len(lines)}
+
     # ── Scan results ───────────────────────────────────────────────────────
 
     @app.get("/scan/results")

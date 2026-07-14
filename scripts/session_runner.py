@@ -1832,6 +1832,7 @@ async def run_session(args: argparse.Namespace):
     from app.trading.reconciler import Reconciler
     from app.trading.session_recovery import SessionRecovery
     from app.utils.alerting import AlertConfig, AlertEvent, AlertService
+    from app.utils.push_notifier import PushNotifier
 
     settings = get_settings()
 
@@ -2082,6 +2083,9 @@ async def run_session(args: argparse.Namespace):
     ]
     _scan_store["strategy_readiness"] = _compute_strategy_readiness(strategies, datetime.now(tz=ET))
 
+    push_notifier = PushNotifier(log_dir="logs", notify_interval_cycles=6)
+    _eod_warned = False
+
     cycle = 0
     eod_liquidated = False
     entry_orders_placed = 0      # entry orders only; exit orders are not counted here
@@ -2132,6 +2136,31 @@ async def run_session(args: argparse.Namespace):
             )
             await journal.commit()
 
+        # Push notifier: update live_status.json every cycle; emit heartbeat every 6 cycles
+        _open_pos = pm.open_positions()
+        _unreal = sum(
+            (p.current_price - p.entry_price) * 100 * p.quantity
+            for p in _open_pos
+        )
+        push_notifier.on_cycle(
+            cycle=cycle,
+            now=now,
+            positions=len(_open_pos),
+            entries_today=risk.entries_today,
+            daily_pnl=float(risk.daily_pnl),
+            unrealized_pnl=round(_unreal, 2),
+            active_symbols=list(_scan_store.get("active_symbols", [])),
+            pending_orders=fill_tracker.count(),
+            scanner_standby=bool(_scan_store.get("standby", False)),
+            session_date=now.strftime("%Y-%m-%d"),
+        )
+
+        # EOD warning push (once, 35 min before EOD)
+        _mins_to_eod = (eod_time - now).total_seconds() / 60
+        if 30 <= _mins_to_eod <= 36 and not _eod_warned:
+            push_notifier.on_eod_warning(_mins_to_eod, now)
+            _eod_warned = True
+
         # Update clock-based strategy readiness for dashboard
         _scan_store["strategy_readiness"] = _compute_strategy_readiness(strategies, now)
 
@@ -2169,10 +2198,22 @@ async def run_session(args: argparse.Namespace):
 
         # Poll pending orders for fills / cancellations
         if fill_tracker.count() > 0:
+            _pre_fill_syms = {p.option_symbol for p in pm.open_positions()}
             try:
                 fills = await fill_tracker.poll(broker, pm, journal, now, risk)
                 if fills:
                     logger.info("FillTracker: %d fill(s) processed this cycle", fills)
+                    for _np in pm.open_positions():
+                        if _np.option_symbol not in _pre_fill_syms:
+                            push_notifier.on_fill(
+                                symbol=_np.symbol,
+                                contract=_np.option_symbol,
+                                direction=_np.direction,
+                                fill_price=float(_np.entry_price),
+                                quantity=_np.quantity,
+                                strategy=_np.strategy_id,
+                                now=now,
+                            )
             except Exception as exc:
                 logger.error("FillTracker poll error: %s", exc)
                 api_errors += 1
@@ -2211,9 +2252,24 @@ async def run_session(args: argparse.Namespace):
                 api_errors += 1
 
         # Monitor + close existing positions
+        _pre_monitor_positions = {p.option_symbol: p for p in pm.open_positions()}
         closed = await monitor_positions(broker, pm, journal, risk, now, args.dry_run, alert_service=alert_service, settings=settings)
         if closed:
             logger.info("Closed %d position(s) this cycle", closed)
+            for _osym, _opos in _pre_monitor_positions.items():
+                if _osym not in {p.option_symbol for p in pm.open_positions()}:
+                    _exit_price = float(_opos.current_price or _opos.entry_price)
+                    _exit_pnl = (_exit_price - float(_opos.entry_price)) * 100 * _opos.quantity
+                    _hold = (now - _opos.entry_time).total_seconds() if _opos.entry_time else 0
+                    push_notifier.on_exit(
+                        symbol=_opos.symbol,
+                        contract=_osym,
+                        exit_price=_exit_price,
+                        pnl=_exit_pnl,
+                        reason=getattr(_opos, "exit_triggered_reason", "unknown") or "unknown",
+                        hold_secs=_hold,
+                        now=now,
+                    )
 
         # Sync open positions to DB so the API process can serve them
         try:
@@ -2425,6 +2481,12 @@ async def run_session(args: argparse.Namespace):
         cycle, entry_orders_placed, float(risk.daily_pnl),
     )
     print(f"\n  Session complete — {cycle} cycles | {entry_orders_placed} entry order(s) | P&L ${float(risk.daily_pnl):.2f}\n")
+    push_notifier.on_session_end(
+        daily_pnl=float(risk.daily_pnl),
+        trades=risk.exits_today,
+        wins=sum(1 for t in (pm._closed_trades if hasattr(pm, "_closed_trades") else []) if t > 0),
+        now=datetime.now(tz=ET),
+    )
 
     await alert_service.send(
         AlertEvent.SESSION_STOPPED,

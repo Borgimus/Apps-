@@ -3,7 +3,7 @@
   "phase": 3,
   "phase3_start_date": "2026-07-12",
   "created": "2026-07-12",
-  "last_updated": "2026-07-13",
+  "last_updated": "2026-07-14",
   "phase3_session_1_fingerprint_note": "Verified clean: fingerprint --verify --check-broker passed before session, frozen hashes matched, working tree clean, 0 open orders, 0 open positions at start and shutdown.",
   "phase3_fingerprint": {
     "_note": "Frozen at Phase 3 readiness commit. SHA check uses CAPTURE_AFTER_PUSH sentinel: a committed file cannot contain the SHA of the commit that holds it (self-referential hash). Integrity is enforced by the four file hashes below plus clean working tree. Record the frozen commit SHA via: git tag phase3-baseline && git push origin phase3-baseline. Regenerate hashes with: python scripts/capture_session_fingerprint.py. A session whose runtime fingerprint diverges from this baseline is NOT eligible for the Phase 3 clean cohort without a declared protocol amendment.",
@@ -57,48 +57,120 @@
       "open_orders_at_shutdown": 0,
       "api_errors": 0,
       "reconciliation_warnings": 0
+    },
+    {
+      "session": 2,
+      "date": "2026-07-14",
+      "status": "valid",
+      "data_clean": true,
+      "counts_toward_phase3": true,
+      "contamination_flags": ["reconciler_recovery_both_fills"],
+      "contamination_note": "Both fills recovered via reconciler (stale-cancel pattern): PLTR limit order filled just before 5-min cancel window; XLE limit order filled just before cancel (422 response). Broker-reported fill prices are authoritative. Session ended clean: 0 positions, 0 orders, api_errors=0. Reconciler warning 'PM has PLTR but broker does not' is a timing artifact — PLTR had been sold at broker before PM processed closure. Not a data integrity issue.",
+      "trades": 2,
+      "pnl_confirmed": 72.0,
+      "strategies": ["orb", "vwap_reclaim"],
+      "symbols": ["PLTR", "XLE"],
+      "contracts": ["PLTR260717C00133000", "XLE260717P00056000"],
+      "fill_detail": [
+        {
+          "contract": "PLTR260717C00133000",
+          "strategy": "orb",
+          "direction": "LONG",
+          "entry_fill_price": 1.91,
+          "exit_fill_price": 2.74,
+          "realized_pnl": 83.0,
+          "hold_seconds": 3658,
+          "exit_reason": "trailing_stop",
+          "fill_path": "reconciler_recovery"
+        },
+        {
+          "contract": "XLE260717P00056000",
+          "strategy": "vwap_reclaim",
+          "direction": "SHORT",
+          "entry_fill_price": 0.48,
+          "exit_fill_price": 0.37,
+          "realized_pnl": -11.0,
+          "hold_seconds": 316,
+          "exit_reason": "trailing_stop",
+          "fill_path": "reconciler_recovery"
+        }
+      ],
+      "clean_shutdown": true,
+      "open_positions_at_shutdown": 0,
+      "open_orders_at_shutdown": 0,
+      "api_errors": 0,
+      "reconciliation_warnings": 1,
+      "reconciliation_warning_detail": "Timing artifact only: PM held stale PLTR reference after broker-confirmed close. Resolved by EOD.",
+      "new_fixes_observed": [
+        "EOD entry cutoff blocked TSLA at 12:06 (24 min < 30 min required)",
+        "EOD entry cutoff blocked TSLA at 12:11 (19 min), 12:16 (14 min), 12:21 (9 min), 12:26 (3 min)",
+        "Signal age gate rejected TSLA signals at 66/126/76/136/81/141/87/147 min",
+        "Signal age gate rejected NVDA signals at 101/121/106/126/111/131/116/136/122/142 min",
+        "RVOL pace projection: no STANDBY delays — AMD 2.22x, PLTR 2.04x at 09:34 ET"
+      ]
     }
   ],
   "cumulative": {
-    "note": "Phase 3 clean cohort only. All 7 defect-fix priorities applied.",
-    "sessions": 1,
-    "trades": 1,
-    "wins": 0,
-    "losses": 1,
+    "note": "Phase 3 clean cohort only. Sessions 1-2. Code boundary at S1/S2: 11 defect fixes applied.",
+    "sessions": 2,
+    "trades": 3,
+    "wins": 1,
+    "losses": 2,
     "breakeven": 0,
-    "net_pnl": -1.0,
-    "gross_wins": 0.0,
-    "gross_losses": -1.0,
-    "win_rate": 0.0,
-    "avg_pnl_per_trade": -1.0,
-    "profit_factor": null
+    "net_pnl": 71.0,
+    "gross_wins": 83.0,
+    "gross_losses": -12.0,
+    "win_rate": 0.333,
+    "avg_pnl_per_trade": 23.67,
+    "profit_factor": 6.92
   },
   "dimensions": {
-    "note": "Phase 3 Session 1: 1 trade recorded.",
-    "strategy": {"vwap_reclaim": {"trades": 1, "pnl": -1.0}},
+    "note": "Phase 3 Sessions 1-2: 3 trades recorded.",
+    "strategy": {
+      "vwap_reclaim": {"trades": 2, "pnl": -12.0},
+      "orb": {"trades": 1, "pnl": 83.0}
+    },
     "quality_score": {},
-    "dte": {"4": {"trades": 1, "pnl": -1.0}},
-    "asset_class": {"etf_sector": {"trades": 1, "pnl": -1.0}},
+    "dte": {
+      "4": {"trades": 1, "pnl": -1.0},
+      "3": {"trades": 2, "pnl": 72.0}
+    },
+    "asset_class": {
+      "etf_sector": {"trades": 1, "pnl": -1.0},
+      "single_stock": {"trades": 2, "pnl": 72.0}
+    },
     "signal_age_minutes": {},
     "scanner_score": {},
-    "fill_path": {}
+    "fill_path": {
+      "reconciler_recovery": {"trades": 2, "pnl": 72.0},
+      "direct": {"trades": 1, "pnl": -1.0}
+    }
   },
   "minimum_observations": {
-    "note": "1 trade recorded. No dimension has reached 3-observation minimum yet.",
+    "note": "3 trades recorded. strategy.vwap_reclaim has 2 obs; strategy.orb has 1. No dimension at 3-obs minimum yet.",
     "quality_score": {"required": 3, "current": {}},
-    "dte": {"required": 3, "current": {"4": 1}},
-    "universe_group": {"required": 3, "current": {"etf_sector": 1}},
+    "dte": {"required": 3, "current": {"4": 1, "3": 2}},
+    "universe_group": {"required": 3, "current": {"etf_sector": 1, "single_stock": 2}},
     "signal_age": {"required": 3, "current": {}},
-    "strategy": {"required": 3, "current": {"vwap_reclaim": 1}},
+    "strategy": {"required": 3, "current": {"vwap_reclaim": 2, "orb": 1}},
     "iv_quartile": {"required": 3, "current": {}}
   },
   "primary_questions_status": {
-    "Q1_orb_vs_vwap": {"status": "insufficient_data", "phase3_obs": 1, "required": 3},
+    "Q1_orb_vs_vwap": {"status": "insufficient_data", "phase3_obs": 3, "required": 3, "note": "1 ORB trade (+$83), 2 VWAP trades (-$1, -$11). Preliminary: ORB outperforming but N=1 for ORB."},
     "Q2_signal_age": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
-    "Q3_dte": {"status": "insufficient_data", "phase3_obs": 1, "required": 3},
-    "Q4_etf_vs_single_stock": {"status": "insufficient_data", "phase3_obs": 1, "required": 3},
+    "Q3_dte": {"status": "insufficient_data", "phase3_obs": 3, "required": 3, "note": "DTE-4: 1 trade (-$1). DTE-3: 2 trades (+$72 net). Preliminary only."},
+    "Q4_etf_vs_single_stock": {"status": "insufficient_data", "phase3_obs": 3, "required": 3, "note": "ETF: 1 trade (-$1). Single stock: 2 trades (+$72 net). Preliminary only."},
     "Q5_quality_scores": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
     "Q6_scanner_score": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
-    "Q7_fill_path": {"status": "insufficient_data", "phase3_obs": 0, "required": 3}
-  }
+    "Q7_fill_path": {"status": "insufficient_data", "phase3_obs": 2, "required": 3, "note": "Both S2 fills via reconciler_recovery. Stale-cancel window (5 min) too tight — systematic pattern requiring fix."}
+  },
+  "open_issues": [
+    {
+      "issue": "stale_cancel_window_too_tight",
+      "severity": "medium",
+      "description": "Both S2 fills occurred just before the 5-minute stale-cancel timer fired. The reconciler recovers them correctly but introduces a 25-30 minute RECON_BLOCKED period and adds timing noise to entry price vs intended limit. The 5-minute window should be extended (suggest 10-15 min) or the 422-cancel response should immediately trigger a reconciler check rather than waiting for the next poll cycle.",
+      "sessions_affected": [2],
+      "trades_affected": ["PLTR260717C00133000", "XLE260717P00056000"]
+    }
+  ]
 }

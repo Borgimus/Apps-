@@ -1,7 +1,7 @@
 {
   "version": "2",
   "created_at": "2026-05-11T12:07:54.394379",
-  "last_updated": "2026-07-13T16:34:48.402684",
+  "last_updated": "2026-07-14T16:31:37.849664",
   "phase3_start_date": "2026-07-12",
   "sessions": [
     {
@@ -72,7 +72,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-05-12",
@@ -151,7 +154,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-05-23",
@@ -187,7 +193,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-05-25",
@@ -223,7 +232,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-05-26",
@@ -259,7 +271,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-05-29",
@@ -338,7 +353,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-06-02",
@@ -414,7 +432,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-06-03",
@@ -488,7 +509,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-06-04",
@@ -596,7 +620,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-06-05",
@@ -671,7 +698,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-06-08",
@@ -735,7 +765,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-06-10",
@@ -808,7 +841,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-06-11",
@@ -885,7 +921,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-06-12",
@@ -971,7 +1010,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-06-15",
@@ -1048,7 +1090,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-06-17",
@@ -1079,7 +1124,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-06-18",
@@ -1159,7 +1207,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-06-24",
@@ -1190,7 +1241,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-06-25",
@@ -1221,7 +1275,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-07-06",
@@ -1252,7 +1309,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-07-08",
@@ -1283,7 +1343,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-07-09",
@@ -1354,7 +1417,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-07-10",
@@ -1433,7 +1499,10 @@
         "kill_switch_blocked_exits",
         "risk_counter_restart_reset",
         "multiple_runner_paths"
-      ]
+      ],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
     },
     {
       "date": "2026-07-13",
@@ -1487,16 +1556,107 @@
       "data_clean": false,
       "notes": null,
       "phase": "phase3",
-      "contamination_flags": []
+      "contamination_flags": [],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 0.0
+    },
+    {
+      "date": "2026-07-14",
+      "total_trades": 11,
+      "wins": 1,
+      "losses": 1,
+      "realized_pnl": 72.00000000000003,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 11.0,
+      "slippage_total": -0.040000000000000036,
+      "spread_cost_total": 3.5000000000000004,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 4,
+      "trades_filled": 2,
+      "trades_cancelled": 2,
+      "trades_rejected": 7,
+      "by_strategy": {
+        "orb": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 83.00000000000003
+        },
+        "vwap_reclaim": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -10.999999999999998
+        }
+      },
+      "by_entry_hour": {
+        "10:00": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 83.0
+        },
+        "11:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -11.0
+        }
+      },
+      "by_delta_bucket": {
+        "mid (0.30-0.40)": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 83.0
+        },
+        "target (0.40-0.50)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -11.0
+        }
+      },
+      "by_spread_bucket": {
+        "tight (<5%)": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 83.0
+        },
+        "moderate (5-10%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -11.0
+        }
+      },
+      "reject_reasons": {
+        "liquidity_filter_no_contract": 2,
+        "Only 24 min before EOD exit (12": 1,
+        "Only 19 min before EOD exit (12": 1,
+        "Only 14 min before EOD exit (12": 1,
+        "Only 9 min before EOD exit (12": 1,
+        "Only 3 min before EOD exit (12": 1
+      },
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 9,
+      "gross_wins": 83.0,
+      "gross_losses": 11.0
     }
   ],
   "cumulative": {
-    "trading_days": 24,
-    "total_trades": 34,
-    "total_pnl": -603.5,
-    "expectancy": -17.75,
-    "win_rate": 0.2353,
-    "profit_factor": 0.44,
+    "trading_days": 25,
+    "total_trades": 45,
+    "total_pnl": -531.5,
+    "expectancy": -11.81,
+    "win_rate": 0.2,
+    "profit_factor": 7.55,
     "max_drawdown": 1034.5,
     "pnl_by_strategy": {
       "fill_lifecycle_test": {
@@ -1512,10 +1672,10 @@
         "pnl": 0.0
       },
       "orb": {
-        "trades": 6,
-        "wins": 3,
+        "trades": 7,
+        "wins": 4,
         "losses": 3,
-        "pnl": 320.0
+        "pnl": 403.0
       },
       "rsi_trend": {
         "trades": 1,
@@ -1524,10 +1684,10 @@
         "pnl": -109.5
       },
       "vwap_reclaim": {
-        "trades": 27,
+        "trades": 28,
         "wins": 4,
-        "losses": 22,
-        "pnl": -816.0
+        "losses": 23,
+        "pnl": -827.0
       }
     },
     "pnl_by_entry_hour": {
@@ -1544,16 +1704,16 @@
         "pnl": -109.5
       },
       "10:00": {
-        "trades": 8,
-        "wins": 0,
+        "trades": 9,
+        "wins": 1,
         "losses": 6,
-        "pnl": -195.5
+        "pnl": -112.5
       },
       "11:00": {
-        "trades": 20,
+        "trades": 21,
         "wins": 6,
-        "losses": 14,
-        "pnl": 181.5
+        "losses": 15,
+        "pnl": 170.5
       }
     },
     "pnl_by_delta_bucket": {
@@ -1570,30 +1730,30 @@
         "pnl": -189.0
       },
       "target (0.40-0.50)": {
-        "trades": 7,
+        "trades": 8,
         "wins": 2,
-        "losses": 4,
-        "pnl": -539.0
+        "losses": 5,
+        "pnl": -550.0
       },
       "mid (0.30-0.40)": {
-        "trades": 2,
-        "wins": 1,
+        "trades": 3,
+        "wins": 2,
         "losses": 1,
-        "pnl": 430.0
+        "pnl": 513.0
       }
     },
     "pnl_by_spread_bucket": {
       "moderate (5-10%)": {
-        "trades": 23,
+        "trades": 24,
         "wins": 6,
-        "losses": 16,
-        "pnl": -866.5
+        "losses": 17,
+        "pnl": -877.5
       },
       "tight (<5%)": {
-        "trades": 13,
-        "wins": 2,
+        "trades": 14,
+        "wins": 3,
         "losses": 10,
-        "pnl": 263.0
+        "pnl": 346.0
       }
     },
     "reject_counts_by_reason": {
@@ -1639,26 +1799,37 @@
       "Trade cost $7875.00 exceeds max risk $994.58 and cannot be reduc": 1,
       "Trade cost $7786.00 exceeds max risk $994.73 and cannot be reduc": 1,
       "Trade cost $7717.00 exceeds max risk $994.58 and cannot be reduc": 1,
-      "liquidity_filter_no_contract": 192,
+      "liquidity_filter_no_contract": 194,
       "rsi_trend_diagnostic_only": 232,
       "pending_order_exists": 1,
-      "SMH_cost_cap_orb_strikes": 4
+      "SMH_cost_cap_orb_strikes": 4,
+      "Only 24 min before EOD exit (12": 1,
+      "Only 19 min before EOD exit (12": 1,
+      "Only 14 min before EOD exit (12": 1,
+      "Only 9 min before EOD exit (12": 1,
+      "Only 3 min before EOD exit (12": 1
     }
   },
   "phase3_cumulative": {
-    "trading_days": 1,
-    "total_trades": 1,
-    "total_pnl": -1.0,
-    "expectancy": -1.0,
-    "win_rate": 0.0,
-    "profit_factor": 0.0,
+    "trading_days": 2,
+    "total_trades": 12,
+    "total_pnl": 71.0,
+    "expectancy": 5.92,
+    "win_rate": 0.0833,
+    "profit_factor": 7.55,
     "max_drawdown": 1.0,
     "pnl_by_strategy": {
       "vwap_reclaim": {
-        "trades": 1,
+        "trades": 2,
         "wins": 0,
-        "losses": 1,
-        "pnl": -1.0
+        "losses": 2,
+        "pnl": -12.0
+      },
+      "orb": {
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "pnl": 83.0
       }
     },
     "pnl_by_entry_hour": {
@@ -1667,6 +1838,18 @@
         "wins": 0,
         "losses": 1,
         "pnl": -1.0
+      },
+      "10:00": {
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "pnl": 83.0
+      },
+      "11:00": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "pnl": -11.0
       }
     },
     "pnl_by_delta_bucket": {
@@ -1675,16 +1858,41 @@
         "wins": 0,
         "losses": 1,
         "pnl": -1.0
+      },
+      "mid (0.30-0.40)": {
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "pnl": 83.0
+      },
+      "target (0.40-0.50)": {
+        "trades": 1,
+        "wins": 0,
+        "losses": 1,
+        "pnl": -11.0
       }
     },
     "pnl_by_spread_bucket": {
       "moderate (5-10%)": {
-        "trades": 1,
+        "trades": 2,
         "wins": 0,
-        "losses": 1,
-        "pnl": -1.0
+        "losses": 2,
+        "pnl": -12.0
+      },
+      "tight (<5%)": {
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "pnl": 83.0
       }
     },
-    "reject_counts_by_reason": {}
+    "reject_counts_by_reason": {
+      "liquidity_filter_no_contract": 2,
+      "Only 24 min before EOD exit (12": 1,
+      "Only 19 min before EOD exit (12": 1,
+      "Only 14 min before EOD exit (12": 1,
+      "Only 9 min before EOD exit (12": 1,
+      "Only 3 min before EOD exit (12": 1
+    }
   }
 }

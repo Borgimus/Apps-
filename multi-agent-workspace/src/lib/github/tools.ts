@@ -47,7 +47,7 @@ function encodePath(value: string): string {
 }
 
 function encodeRef(value: string): string {
-  return value.split('/').map(encodeURIComponent).join('/');
+  return encodeURIComponent(value);
 }
 
 function cleanPath(value: unknown): string {

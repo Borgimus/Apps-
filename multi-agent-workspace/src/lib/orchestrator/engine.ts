@@ -350,6 +350,7 @@ async function handleToolCalls(
     taskId: run.taskId,
     modelCallId,
     allowedTools,
+    permissions,
   };
 
   const persistTranscript = () =>

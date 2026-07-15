@@ -200,7 +200,7 @@ export const TOOL_SPECS: Record<string, ToolSpec> = {
   },
   request_approval: {
     name: 'request_approval',
-    description: 'Ask the human operator to approve an action outside your permissions.',
+    description: 'Ask the human operator to approve an action only when no automatic tool approval gate exists. Never call this before an approvable tool.',
     risk: 'medium',
     approvable: false,
     input: z.object({ action: z.string().min(1), reason: z.string().min(1) }),
@@ -319,7 +319,7 @@ const GITHUB_SPECS: Record<string, ToolSpec> = {
   github_write_file: {
     name: 'github_write_file',
     description:
-      'Create or update ONE file on an agent branch (agent/*, agents/*, feature/*) as a commit. Requires human approval. Protected branches and workflow files are always refused.',
+      'Create or update ONE file on an agent branch (agent/*, agents/*, feature/*) as a commit. The workspace automatically pauses for human approval; do not call request_approval separately. Protected branches and workflow files are always refused.',
     risk: 'high',
     approvable: true,
     input: z.object({ branch: z.string().min(1).max(200), path: z.string().min(1).max(500), content: z.string().max(500_000), message: z.string().max(200).optional() }),
@@ -335,7 +335,7 @@ const GITHUB_SPECS: Record<string, ToolSpec> = {
   github_commit_files: {
     name: 'github_commit_files',
     description:
-      'Commit MULTIPLE files to an agent branch in one commit. Requires human approval. Protected branches and workflow files are always refused.',
+      'Commit MULTIPLE files to an agent branch in one commit. The workspace automatically pauses for human approval; do not call request_approval separately. Protected branches and workflow files are always refused.',
     risk: 'high',
     approvable: true,
     input: z.object({
@@ -361,7 +361,7 @@ const GITHUB_SPECS: Record<string, ToolSpec> = {
   github_open_draft_pull_request: {
     name: 'github_open_draft_pull_request',
     description:
-      'Open a DRAFT pull request from an agent branch. Requires human approval. Merging is never available to agents.',
+      'Open a DRAFT pull request from an agent branch. The workspace automatically pauses for human approval; do not call request_approval separately. Merging is never available to agents.',
     risk: 'high',
     approvable: true,
     input: z.object({ head: z.string().min(1), title: z.string().min(1), body: z.string().optional(), base: z.string().optional() }),

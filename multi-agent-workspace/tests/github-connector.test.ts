@@ -24,8 +24,8 @@ describe('GitHub App connector', () => {
     mkdirSync(path.dirname(keyPath), { recursive: true });
     writeFileSync(keyPath, privateKey.export({ type: 'pkcs8', format: 'pem' }));
 
-    process.env.GITHUB_APP_ID = '4307398';
-    process.env.GITHUB_INSTALLATION_ID = '146802834';
+    process.env.GITHUB_APP_ID = '123456';
+    process.env.GITHUB_INSTALLATION_ID = '654321';
     process.env.GITHUB_APP_PRIVATE_KEY_PATH = keyPath;
     process.env.GITHUB_REPOSITORY = 'Borgimus/Apps-';
     resetGitHubTokenCacheForTests();

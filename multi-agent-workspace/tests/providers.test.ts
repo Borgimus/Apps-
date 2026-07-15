@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { MockAdapter } from '@/lib/providers/mock';
 import { AnthropicAdapter } from '@/lib/providers/anthropic';
 import { callWithRetry, computeCostUsd, getAdapter } from '@/lib/providers/registry';
-import { ProviderError, ProviderRequest } from '@/lib/providers/types';
+import { ProviderError, ProviderRequest, requestTimeoutMs } from '@/lib/providers/types';
 import { toolDefsFor } from '@/lib/tools/defs';
 
 function req(objective: string, system = 'ROLE: Generalist'): ProviderRequest {
@@ -85,6 +85,12 @@ describe('provider registry', () => {
     ).rejects.toMatchObject({ kind: 'network' });
     expect(attempts).toEqual([1, 2, 3, 4]); // four retries before the fifth, final attempt
   }, 20_000);
+
+  it('scales the request timeout with the requested output size', () => {
+    expect(requestTimeoutMs(4096)).toBeCloseTo(60_000 + 4096 * 25); // ~2.7 min
+    expect(requestTimeoutMs(16384)).toBeCloseTo(60_000 + 16384 * 25); // ~7.8 min — a 16k-token synthesis fits
+    expect(requestTimeoutMs(1_000_000)).toBe(600_000); // capped at 10 min
+  });
 
   it('computes cost from per-MTok pricing', () => {
     const cost = computeCostUsd(

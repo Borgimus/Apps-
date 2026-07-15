@@ -64,3 +64,13 @@ export interface ProviderAdapter {
   readonly id: string;
   call(req: ProviderRequest): Promise<ProviderResponse>;
 }
+
+/**
+ * Request timeout scaled to the requested output size. Generating many
+ * tokens legitimately takes minutes — a fixed short timeout would abort
+ * exactly the large responses that big maxTokens values exist to allow.
+ * ~25ms per output token + 60s base, capped at 10 minutes.
+ */
+export function requestTimeoutMs(maxTokens: number): number {
+  return Math.min(600_000, 60_000 + maxTokens * 25);
+}

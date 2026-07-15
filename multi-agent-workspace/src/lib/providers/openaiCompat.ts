@@ -5,10 +5,10 @@ import {
   ProviderError,
   ProviderRequest,
   ProviderResponse,
+  requestTimeoutMs,
 } from './types';
 
 const DEFAULT_BASE_URL = 'https://api.openai.com/v1';
-const TIMEOUT_MS = 120_000;
 
 type OaiMessage =
   | { role: 'system' | 'user'; content: string }
@@ -95,7 +95,7 @@ export class OpenAICompatAdapter implements ProviderAdapter {
     };
 
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const timer = setTimeout(() => controller.abort(), requestTimeoutMs(req.maxTokens));
     let res: Response;
     try {
       res = await fetch(`${baseUrl}/chat/completions`, {

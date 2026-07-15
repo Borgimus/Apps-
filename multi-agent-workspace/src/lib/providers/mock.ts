@@ -232,6 +232,9 @@ export class MockAdapter implements ProviderAdapter {
     if (objective.includes('[test:error]')) {
       throw new ProviderError('Simulated provider failure', 'overloaded', true);
     }
+    if (objective.includes('[test:network-error]')) {
+      throw new ProviderError('Simulated connection failure: fetch failed', 'network', true);
+    }
     if (objective.includes('[test:loop]')) {
       return response(`Thinking… (step ${iteration + 1})`, [], req);
     }

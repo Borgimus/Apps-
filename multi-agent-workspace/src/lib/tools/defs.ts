@@ -306,7 +306,7 @@ const GITHUB_SPECS: Record<string, ToolSpec> = {
   github_create_branch: {
     name: 'github_create_branch',
     description:
-      'Create a new branch in the connected repository. Requires human approval. Branch name MUST start with agent/, agents/ or feature/.',
+      'Create a new branch in the connected repository. The workspace automatically pauses for human approval; do not call request_approval separately. Branch name MUST start with agent/, agents/ or feature/.',
     risk: 'high',
     approvable: true,
     input: z.object({ branch: z.string().min(1), fromBranch: z.string().optional() }),

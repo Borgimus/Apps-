@@ -55,6 +55,27 @@ export class AnthropicAdapter implements ProviderAdapter {
   readonly id = 'anthropic';
 
   async call(req: ProviderRequest): Promise<ProviderResponse> {
+    try {
+      return await this.doCall(req, { includeTemperature: true });
+    } catch (err) {
+      // Newer Anthropic models reject `temperature` ("deprecated for this
+      // model"). Retry once without it so model configs stay portable across
+      // model generations.
+      if (
+        err instanceof ProviderError &&
+        err.kind === 'invalid_request' &&
+        /temperature/i.test(err.message)
+      ) {
+        return this.doCall(req, { includeTemperature: false });
+      }
+      throw err;
+    }
+  }
+
+  private async doCall(
+    req: ProviderRequest,
+    opts: { includeTemperature: boolean },
+  ): Promise<ProviderResponse> {
     const apiKey = req.apiKey ?? process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
       throw new ProviderError('ANTHROPIC_API_KEY is not configured', 'auth', false);
@@ -62,7 +83,7 @@ export class AnthropicAdapter implements ProviderAdapter {
     const body = {
       model: req.modelId,
       max_tokens: req.maxTokens,
-      temperature: req.temperature,
+      temperature: opts.includeTemperature ? req.temperature : undefined,
       system: req.system || undefined,
       messages: toAnthropicMessages(req.messages),
       tools:

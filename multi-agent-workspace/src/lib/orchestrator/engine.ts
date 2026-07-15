@@ -599,6 +599,7 @@ export async function resolveApproval(
 
   const transcript = parseJson<NormMessage[]>(run.transcriptJson, []);
   const allowedTools = parseJson<string[]>(run.agent.toolsJson, []);
+  const permissions = parseJson<AgentPermissions>(run.agent.permissionsJson, {});
 
   if (approval.action === 'budget_increase') {
     if (decision === 'approved') {
@@ -619,6 +620,7 @@ export async function resolveApproval(
       taskId: run.taskId,
       modelCallId: pending.modelCallId,
       allowedTools,
+      permissions,
     };
     let terminalSummary: string | null = null;
 

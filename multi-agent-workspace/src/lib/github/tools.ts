@@ -60,7 +60,7 @@ export function assertWritableBranch(branch: string, configuredWorkingBranch?: s
 
 export function assertWritablePath(path: string): void {
   const norm = path.replace(/^\/+/, '');
-  if (norm.includes('..') || norm.startsWith('.git/')) {
+  if (norm.includes('..') || norm === '.git' || norm.startsWith('.git/')) {
     throw new GithubError(`Illegal repository path: ${norm}`, 'forbidden_target');
   }
   if (norm.startsWith('.github/workflows') || norm.startsWith('.github/actions')) {

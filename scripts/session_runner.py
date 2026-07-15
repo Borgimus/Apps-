@@ -86,6 +86,10 @@ async def _retry(coro_fn, label: str = "", max_retries: int = 3):
 
 _MANDATORY_EXIT_REASONS = frozenset({"stop_loss", "max_hold", "eod_exit", "daily_loss", "kill_switch"})
 
+# Set by run_session() so confirmed-close helpers can emit exit push events
+# with broker-confirmed fill prices (not cached estimates).
+_PUSH_NOTIFIER = None
+
 
 # ── Stale quote detection ─────────────────────────────────────────────────────
 
@@ -323,6 +327,16 @@ async def _poll_pending_exit(
         hold_secs = (now - pos.entry_time).total_seconds()
         pm.close_confirmed(pos.option_symbol, avg_fill, pnl)
         risk.record_exit(Decimal(str(pnl)))
+        if _PUSH_NOTIFIER:
+            _PUSH_NOTIFIER.on_exit(
+                symbol=pos.symbol,
+                contract=pos.option_symbol,
+                exit_price=avg_fill,
+                pnl=pnl,
+                reason=pos.exit_triggered_reason or "unknown",
+                hold_secs=hold_secs,
+                now=now,
+            )
         if pos.journal_id and journal:
             _mfe = round((pos.peak_price - pos.entry_price) * 100 * pos.quantity, 2)
             _mae = round((pos.trough_price - pos.entry_price) * 100 * pos.quantity, 2)
@@ -744,6 +758,16 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
                 hold_secs = (poll_now - pos.entry_time).total_seconds()
                 pm.close_confirmed(pos.option_symbol, avg_fill, pnl)
                 risk.record_exit(Decimal(str(pnl)))
+                if _PUSH_NOTIFIER:
+                    _PUSH_NOTIFIER.on_exit(
+                        symbol=pos.symbol,
+                        contract=pos.option_symbol,
+                        exit_price=avg_fill,
+                        pnl=pnl,
+                        reason="eod_exit",
+                        hold_secs=hold_secs,
+                        now=poll_now,
+                    )
                 if pos.journal_id and journal:
                     _mfe = round((pos.peak_price - pos.entry_price) * 100 * pos.quantity, 2)
                     _mae = round((pos.trough_price - pos.entry_price) * 100 * pos.quantity, 2)
@@ -2083,8 +2107,12 @@ async def run_session(args: argparse.Namespace):
     ]
     _scan_store["strategy_readiness"] = _compute_strategy_readiness(strategies, datetime.now(tz=ET))
 
+    global _PUSH_NOTIFIER
     push_notifier = PushNotifier(log_dir="logs", notify_interval_cycles=6)
+    _PUSH_NOTIFIER = push_notifier
     _eod_warned = False
+    # Positions already open at startup (session recovery) are not "new fills"
+    _notified_fill_syms = {p.option_symbol for p in pm.open_positions()}
 
     cycle = 0
     eod_liquidated = False
@@ -2198,22 +2226,10 @@ async def run_session(args: argparse.Namespace):
 
         # Poll pending orders for fills / cancellations
         if fill_tracker.count() > 0:
-            _pre_fill_syms = {p.option_symbol for p in pm.open_positions()}
             try:
                 fills = await fill_tracker.poll(broker, pm, journal, now, risk)
                 if fills:
                     logger.info("FillTracker: %d fill(s) processed this cycle", fills)
-                    for _np in pm.open_positions():
-                        if _np.option_symbol not in _pre_fill_syms:
-                            push_notifier.on_fill(
-                                symbol=_np.symbol,
-                                contract=_np.option_symbol,
-                                direction=_np.direction,
-                                fill_price=float(_np.entry_price),
-                                quantity=_np.quantity,
-                                strategy=_np.strategy_id,
-                                now=now,
-                            )
             except Exception as exc:
                 logger.error("FillTracker poll error: %s", exc)
                 api_errors += 1
@@ -2251,25 +2267,26 @@ async def run_session(args: argparse.Namespace):
                 logger.warning("Reconciliation error: %s", exc)
                 api_errors += 1
 
-        # Monitor + close existing positions
-        _pre_monitor_positions = {p.option_symbol: p for p in pm.open_positions()}
+        # Push notifier: announce any newly-opened position, regardless of
+        # fill path (FillTracker fill or reconciler recovery restore)
+        for _np in pm.open_positions():
+            if _np.option_symbol not in _notified_fill_syms:
+                _notified_fill_syms.add(_np.option_symbol)
+                push_notifier.on_fill(
+                    symbol=_np.symbol,
+                    contract=_np.option_symbol,
+                    direction=_np.direction,
+                    fill_price=float(_np.entry_price),
+                    quantity=_np.quantity,
+                    strategy=_np.strategy_id,
+                    now=now,
+                )
+
+        # Monitor + close existing positions (exit push events are emitted at
+        # the broker-confirmed close sites, not here)
         closed = await monitor_positions(broker, pm, journal, risk, now, args.dry_run, alert_service=alert_service, settings=settings)
         if closed:
             logger.info("Closed %d position(s) this cycle", closed)
-            for _osym, _opos in _pre_monitor_positions.items():
-                if _osym not in {p.option_symbol for p in pm.open_positions()}:
-                    _exit_price = float(_opos.current_price or _opos.entry_price)
-                    _exit_pnl = (_exit_price - float(_opos.entry_price)) * 100 * _opos.quantity
-                    _hold = (now - _opos.entry_time).total_seconds() if _opos.entry_time else 0
-                    push_notifier.on_exit(
-                        symbol=_opos.symbol,
-                        contract=_osym,
-                        exit_price=_exit_price,
-                        pnl=_exit_pnl,
-                        reason=getattr(_opos, "exit_triggered_reason", "unknown") or "unknown",
-                        hold_secs=_hold,
-                        now=now,
-                    )
 
         # Sync open positions to DB so the API process can serve them
         try:
@@ -2483,8 +2500,6 @@ async def run_session(args: argparse.Namespace):
     print(f"\n  Session complete — {cycle} cycles | {entry_orders_placed} entry order(s) | P&L ${float(risk.daily_pnl):.2f}\n")
     push_notifier.on_session_end(
         daily_pnl=float(risk.daily_pnl),
-        trades=risk.exits_today,
-        wins=sum(1 for t in (pm._closed_trades if hasattr(pm, "_closed_trades") else []) if t > 0),
         now=datetime.now(tz=ET),
     )
 

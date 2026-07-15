@@ -1,7 +1,7 @@
 {
   "version": "2",
   "created_at": "2026-05-11T12:07:54.394379",
-  "last_updated": "2026-07-15T15:37:29.687390",
+  "last_updated": "2026-07-15T16:34:17.769239",
   "phase3_start_date": "2026-07-12",
   "sessions": [
     {
@@ -1651,7 +1651,7 @@
     },
     {
       "date": "2026-07-15",
-      "total_trades": 8,
+      "total_trades": 11,
       "wins": 1,
       "losses": 2,
       "realized_pnl": 106.0,
@@ -1664,7 +1664,7 @@
       "trades_submitted": 3,
       "trades_filled": 3,
       "trades_cancelled": 0,
-      "trades_rejected": 5,
+      "trades_rejected": 8,
       "by_strategy": {
         "orb": {
           "trades": 2,
@@ -1711,23 +1711,25 @@
       },
       "reject_reasons": {
         "cooldown_after_loss": 1,
-        "Entry blocked": 4
+        "Entry blocked": 4,
+        "liquidity_filter_no_contract": 2,
+        "Only 26 min before EOD exit (12": 1
       },
       "data_clean": false,
       "notes": null,
       "phase": "phase3",
       "contamination_flags": [],
-      "breakevens": 5,
+      "breakevens": 8,
       "gross_wins": 123.0,
       "gross_losses": 17.0
     }
   ],
   "cumulative": {
     "trading_days": 26,
-    "total_trades": 53,
+    "total_trades": 56,
     "total_pnl": -425.5,
-    "expectancy": -8.03,
-    "win_rate": 0.1887,
+    "expectancy": -7.6,
+    "win_rate": 0.1786,
     "profit_factor": 7.36,
     "max_drawdown": 1034.5,
     "pnl_by_strategy": {
@@ -1871,7 +1873,7 @@
       "Trade cost $7875.00 exceeds max risk $994.58 and cannot be reduc": 1,
       "Trade cost $7786.00 exceeds max risk $994.73 and cannot be reduc": 1,
       "Trade cost $7717.00 exceeds max risk $994.58 and cannot be reduc": 1,
-      "liquidity_filter_no_contract": 194,
+      "liquidity_filter_no_contract": 196,
       "rsi_trend_diagnostic_only": 232,
       "pending_order_exists": 1,
       "SMH_cost_cap_orb_strikes": 4,
@@ -1880,15 +1882,16 @@
       "Only 14 min before EOD exit (12": 1,
       "Only 9 min before EOD exit (12": 1,
       "Only 3 min before EOD exit (12": 1,
-      "Entry blocked": 4
+      "Entry blocked": 4,
+      "Only 26 min before EOD exit (12": 1
     }
   },
   "phase3_cumulative": {
     "trading_days": 3,
-    "total_trades": 20,
+    "total_trades": 23,
     "total_pnl": 177.0,
-    "expectancy": 8.85,
-    "win_rate": 0.1,
+    "expectancy": 7.7,
+    "win_rate": 0.087,
     "profit_factor": 7.36,
     "max_drawdown": 1.0,
     "pnl_by_strategy": {
@@ -1966,14 +1969,15 @@
       }
     },
     "reject_counts_by_reason": {
-      "liquidity_filter_no_contract": 2,
+      "liquidity_filter_no_contract": 4,
       "Only 24 min before EOD exit (12": 1,
       "Only 19 min before EOD exit (12": 1,
       "Only 14 min before EOD exit (12": 1,
       "Only 9 min before EOD exit (12": 1,
       "Only 3 min before EOD exit (12": 1,
       "cooldown_after_loss": 1,
-      "Entry blocked": 4
+      "Entry blocked": 4,
+      "Only 26 min before EOD exit (12": 1
     }
   }
 }

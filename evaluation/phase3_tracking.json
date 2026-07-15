@@ -3,7 +3,7 @@
   "phase": 3,
   "phase3_start_date": "2026-07-12",
   "created": "2026-07-12",
-  "last_updated": "2026-07-14",
+  "last_updated": "2026-07-15",
   "phase3_session_1_fingerprint_note": "Verified clean: fingerprint --verify --check-broker passed before session, frozen hashes matched, working tree clean, 0 open orders, 0 open positions at start and shutdown.",
   "phase3_fingerprint": {
     "_note": "Frozen at Phase 3 readiness commit. SHA check uses CAPTURE_AFTER_PUSH sentinel: a committed file cannot contain the SHA of the commit that holds it (self-referential hash). Integrity is enforced by the four file hashes below plus clean working tree. Record the frozen commit SHA via: git tag phase3-baseline && git push origin phase3-baseline. Regenerate hashes with: python scripts/capture_session_fingerprint.py. A session whose runtime fingerprint diverges from this baseline is NOT eligible for the Phase 3 clean cohort without a declared protocol amendment.",
@@ -108,69 +108,148 @@
         "Signal age gate rejected NVDA signals at 101/121/106/126/111/131/116/136/122/142 min",
         "RVOL pace projection: no STANDBY delays — AMD 2.22x, PLTR 2.04x at 09:34 ET"
       ]
+    },
+    {
+      "session": 3,
+      "date": "2026-07-15",
+      "status": "valid",
+      "data_clean": true,
+      "counts_toward_phase3": true,
+      "contamination_flags": ["reconciler_recovery_all_fills"],
+      "contamination_note": "All 3 entries filled via stale-cancel/reconciler recovery (same pattern as S2, now 5-for-5 across S2+S3 mid-session limit entries). Broker-reported fill prices authoritative. One reconciliation timing artifact on IWM exit (PM held reference after broker close) — same artifact as S2 PLTR, resolved same cycle. Clean shutdown: 0 positions, 0 orders, api_errors=0. Fingerprint verified pre-session at commit f2c92e9 (push notifier added to session_runner/dashboard_api — observability only, none of the 4 frozen-hash files changed).",
+      "trades": 3,
+      "pnl_confirmed": 106.0,
+      "strategies": ["orb", "vwap_reclaim"],
+      "symbols": ["RIVN", "TSLA", "IWM"],
+      "contracts": ["RIVN260717C00019500", "TSLA260715P00392500", "IWM260715C00297000"],
+      "fill_detail": [
+        {
+          "contract": "RIVN260717C00019500",
+          "strategy": "orb",
+          "direction": "LONG",
+          "entry_fill_price": 0.26,
+          "exit_fill_price": 0.17,
+          "realized_pnl": -9.0,
+          "hold_seconds": 300,
+          "exit_reason": "trailing_stop",
+          "fill_path": "reconciler_recovery",
+          "dte": 2
+        },
+        {
+          "contract": "TSLA260715P00392500",
+          "strategy": "vwap_reclaim",
+          "direction": "SHORT",
+          "entry_fill_price": 0.66,
+          "exit_fill_price": 1.89,
+          "realized_pnl": 123.0,
+          "hold_seconds": 604,
+          "exit_reason": "take_profit",
+          "fill_path": "reconciler_recovery",
+          "dte": 0,
+          "exit_fill_note": "$1.89 fill against $1.82 sell limit is valid price improvement"
+        },
+        {
+          "contract": "IWM260715C00297000",
+          "strategy": "orb",
+          "direction": "LONG",
+          "entry_fill_price": 0.32,
+          "exit_fill_price": 0.24,
+          "realized_pnl": -8.0,
+          "hold_seconds": 919,
+          "exit_reason": "trailing_stop",
+          "fill_path": "reconciler_recovery",
+          "dte": 0,
+          "note": "Position unmanaged in reconciler blind window ~10:57-11:07 ET (broker fill to local restore); peak tracking began at restore, so trailing stop reference may understate true peak. First case where stale-cancel window plausibly affected exit quality."
+        }
+      ],
+      "clean_shutdown": true,
+      "open_positions_at_shutdown": 0,
+      "open_orders_at_shutdown": 0,
+      "api_errors": 0,
+      "reconciliation_warnings": 1,
+      "reconciliation_warning_detail": "Timing artifact only: PM held stale IWM reference after broker-confirmed close (same as S2). Resolved by EOD.",
+      "new_fixes_observed": [
+        "Transient broker.get_positions() failure at 10:46 correctly blocked IWM entry until reconciler confirmed broker state",
+        "Signal age gate rejected QQQ signals at 104-139 min, AMD at 77-87 min",
+        "Exit spread warning fired on RIVN (22.2% > 10% max) but trailing stop proceeded as designed",
+        "Post-loss cooldown (15 min) activated after RIVN and IWM losses"
+      ],
+      "exploration_segment": {
+        "note": "ENGINEERING DATA ONLY — excluded from Phase 3 cohort. After the 3-trade clean segment completed (+$106, clean shutdown 11:37 ET), user requested max_trades_per_day lifted 3->6 for remainder of day. Config edited as uncommitted working-tree change, runner restarted 11:38 ET (log: session_2026-07-15_exploration.log). Counters correctly restored from DB (entries=3, pnl=+106). No additional trades: EOD 30-min entry cutoff closed the window at ~11:59 ET. Clean shutdown 12:34 ET, 0 trades, 0 positions. Config reverted to max_trades_per_day=3 after shutdown; never committed.",
+        "trades": 0,
+        "pnl": 0.0
+      }
     }
   ],
   "cumulative": {
-    "note": "Phase 3 clean cohort only. Sessions 1-2. Code boundary at S1/S2: 11 defect fixes applied.",
-    "sessions": 2,
-    "trades": 3,
-    "wins": 1,
-    "losses": 2,
+    "note": "Phase 3 clean cohort only. Sessions 1-3. Code boundary at S1/S2: 11 defect fixes applied. S3 exploration segment (0 trades) excluded.",
+    "sessions": 3,
+    "trades": 6,
+    "wins": 2,
+    "losses": 4,
     "breakeven": 0,
-    "net_pnl": 71.0,
-    "gross_wins": 83.0,
-    "gross_losses": -12.0,
+    "net_pnl": 177.0,
+    "gross_wins": 206.0,
+    "gross_losses": -29.0,
     "win_rate": 0.333,
-    "avg_pnl_per_trade": 23.67,
-    "profit_factor": 6.92
+    "avg_pnl_per_trade": 29.5,
+    "profit_factor": 7.1
   },
   "dimensions": {
-    "note": "Phase 3 Sessions 1-2: 3 trades recorded.",
+    "note": "Phase 3 Sessions 1-3: 6 trades recorded.",
     "strategy": {
-      "vwap_reclaim": {"trades": 2, "pnl": -12.0},
-      "orb": {"trades": 1, "pnl": 83.0}
+      "vwap_reclaim": {"trades": 3, "pnl": 111.0},
+      "orb": {"trades": 3, "pnl": 66.0}
     },
     "quality_score": {},
     "dte": {
       "4": {"trades": 1, "pnl": -1.0},
-      "3": {"trades": 2, "pnl": 72.0}
+      "3": {"trades": 2, "pnl": 72.0},
+      "2": {"trades": 1, "pnl": -9.0},
+      "0": {"trades": 2, "pnl": 115.0}
     },
     "asset_class": {
-      "etf_sector": {"trades": 1, "pnl": -1.0},
-      "single_stock": {"trades": 2, "pnl": 72.0}
+      "etf_sector": {"trades": 2, "pnl": -9.0},
+      "single_stock": {"trades": 4, "pnl": 186.0}
     },
     "signal_age_minutes": {},
     "scanner_score": {},
     "fill_path": {
-      "reconciler_recovery": {"trades": 2, "pnl": 72.0},
+      "reconciler_recovery": {"trades": 5, "pnl": 178.0},
       "direct": {"trades": 1, "pnl": -1.0}
     }
   },
   "minimum_observations": {
-    "note": "3 trades recorded. strategy.vwap_reclaim has 2 obs; strategy.orb has 1. No dimension at 3-obs minimum yet.",
+    "note": "6 trades recorded. strategy (3/3), universe_group (2/4), fill_path (5/1) now at or past 3-obs minimum for at least one bucket.",
     "quality_score": {"required": 3, "current": {}},
-    "dte": {"required": 3, "current": {"4": 1, "3": 2}},
-    "universe_group": {"required": 3, "current": {"etf_sector": 1, "single_stock": 2}},
+    "dte": {"required": 3, "current": {"4": 1, "3": 2, "2": 1, "0": 2}},
+    "universe_group": {"required": 3, "current": {"etf_sector": 2, "single_stock": 4}},
     "signal_age": {"required": 3, "current": {}},
-    "strategy": {"required": 3, "current": {"vwap_reclaim": 2, "orb": 1}},
+    "strategy": {"required": 3, "current": {"vwap_reclaim": 3, "orb": 3}},
     "iv_quartile": {"required": 3, "current": {}}
   },
   "primary_questions_status": {
-    "Q1_orb_vs_vwap": {"status": "insufficient_data", "phase3_obs": 3, "required": 3, "note": "1 ORB trade (+$83), 2 VWAP trades (-$1, -$11). Preliminary: ORB outperforming but N=1 for ORB."},
+    "Q1_orb_vs_vwap": {"status": "minimum_met", "phase3_obs": 6, "required": 3, "note": "ORB: 3 trades, +$66 net (1W/2L — the win was +$83 PLTR; S3 losses small). VWAP: 3 trades, +$111 net (1W/2L — the win was +$123 TSLA). Both profitable on N=3; winners driven by single large wins in each. No separation yet."},
     "Q2_signal_age": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
-    "Q3_dte": {"status": "insufficient_data", "phase3_obs": 3, "required": 3, "note": "DTE-4: 1 trade (-$1). DTE-3: 2 trades (+$72 net). Preliminary only."},
-    "Q4_etf_vs_single_stock": {"status": "insufficient_data", "phase3_obs": 3, "required": 3, "note": "ETF: 1 trade (-$1). Single stock: 2 trades (+$72 net). Preliminary only."},
+    "Q3_dte": {"status": "minimum_met", "phase3_obs": 6, "required": 3, "note": "DTE 3-4: 3 trades +$71. DTE 0-2: 3 trades +$106 (both 0-DTE trades in S3: +$123 TSLA, -$8 IWM). 0-DTE shows expected high variance."},
+    "Q4_etf_vs_single_stock": {"status": "insufficient_data", "phase3_obs": 6, "required": 3, "note": "ETF: 2 trades -$9 (XLE, IWM). Single stock: 4 trades +$186. ETF bucket still below 3-obs minimum."},
     "Q5_quality_scores": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
     "Q6_scanner_score": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
-    "Q7_fill_path": {"status": "insufficient_data", "phase3_obs": 2, "required": 3, "note": "Both S2 fills via reconciler_recovery. Stale-cancel window (5 min) too tight — systematic pattern requiring fix."}
+    "Q7_fill_path": {"status": "minimum_met", "phase3_obs": 6, "required": 3, "note": "reconciler_recovery: 5 trades +$178; direct: 1 trade -$1. Stale-cancel is now the DOMINANT fill path (5 of 6 trades, 5-for-5 on mid-session limit entries S2+S3) — systematic defect, see open_issues."}
   },
   "open_issues": [
     {
       "issue": "stale_cancel_window_too_tight",
-      "severity": "medium",
-      "description": "Both S2 fills occurred just before the 5-minute stale-cancel timer fired. The reconciler recovers them correctly but introduces a 25-30 minute RECON_BLOCKED period and adds timing noise to entry price vs intended limit. The 5-minute window should be extended (suggest 10-15 min) or the 422-cancel response should immediately trigger a reconciler check rather than waiting for the next poll cycle.",
-      "sessions_affected": [2],
-      "trades_affected": ["PLTR260717C00133000", "XLE260717P00056000"]
+      "severity": "high",
+      "description": "ALL 5 mid-session limit entries across S2+S3 filled just before the 5-minute stale-cancel timer fired (S2: PLTR, XLE; S3: RIVN, TSLA, IWM — 5-for-5, fully systematic). The reconciler recovers correctly every time, but each occurrence creates a 10-15 min unmanaged blind window between broker fill and local restore. In S3 the IWM position's peak-price tracking for the trailing stop only began at restore, so the stale-cancel window plausibly degraded exit quality for the first time (not just entry bookkeeping). Severity raised medium->high. Fix options: extend entry_order_timeout_secs to 10-15 min, or trigger immediate reconciler check on 422 cancel response.",
+      "sessions_affected": [2, 3],
+      "trades_affected": ["PLTR260717C00133000", "XLE260717P00056000", "RIVN260717C00019500", "TSLA260715P00392500", "IWM260715C00297000"]
+    },
+    {
+      "issue": "push_notifier_gaps",
+      "severity": "low",
+      "description": "Observability only, no trading impact. (1) on_fill events not emitted for reconciler-recovered entries — the diff detection only wraps fill_tracker.poll, and all S3 entries arrived via reconciler restore, so no fill push events fired. (2) on_exit reports last cached price/limit instead of broker-confirmed fill (RIVN pushed -$10 @ 0.16, actual -$9 @ 0.17; IWM pushed -$10 @ 0.22, actual -$8 @ 0.24). (3) session_end trades count showed 0 after restart because exits_today is not restored by restore_daily_counters.",
+      "sessions_affected": [3]
     }
   ]
 }

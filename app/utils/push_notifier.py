@@ -47,6 +47,10 @@ class PushNotifier:
         self._events_file = self._dir / "push_events.jsonl"
         self._status_file = self._dir / "live_status.json"
         self._interval = notify_interval_cycles
+        # Session-local exit counters so on_session_end reports what was
+        # actually notified, independent of risk-manager counter restoration.
+        self._exit_count = 0
+        self._win_count = 0
 
     # ── Public API ────────────────────────────────────────────────────────────
 
@@ -123,7 +127,10 @@ class PushNotifier:
         hold_secs: float,
         now: datetime,
     ) -> None:
-        """Emit an event when a position is closed."""
+        """Emit an event when a position is closed (broker-confirmed values)."""
+        self._exit_count += 1
+        if pnl > 0:
+            self._win_count += 1
         time_str = now.strftime("%H:%M ET")
         hold_min = int(hold_secs // 60)
         pnl_str = f"${pnl:+.2f}"
@@ -143,8 +150,22 @@ class PushNotifier:
         msg = f"EOD WARNING [{time_str}] {minutes_remaining:.0f} min to EOD exit"
         self._emit("eod_warning", msg, {"minutes_remaining": minutes_remaining, "ts": now.isoformat()})
 
-    def on_session_end(self, daily_pnl: float, trades: int, wins: int, now: datetime) -> None:
-        """Emit a final summary event at session close."""
+    def on_session_end(
+        self,
+        daily_pnl: float,
+        now: datetime,
+        trades: Optional[int] = None,
+        wins: Optional[int] = None,
+    ) -> None:
+        """Emit a final summary event at session close.
+
+        trades/wins default to the notifier's own exit counters, which track
+        every on_exit emitted this process (counts only this segment after a
+        mid-day restart)."""
+        if trades is None:
+            trades = self._exit_count
+        if wins is None:
+            wins = self._win_count
         time_str = now.strftime("%H:%M ET")
         wr = f"{wins}/{trades}" if trades > 0 else "0/0"
         pnl_str = f"${daily_pnl:+.2f}"

@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --surface: 246 247 249;
+  --surface-raised: 255 255 255;
+  --surface-sunken: 238 240 244;
+  --ink: 23 26 31;
+  --ink-muted: 90 98 110;
+  --ink-faint: 140 148 160;
+  --line: 224 228 234;
+  --accent: 79 70 229;
+  --accent-soft: 224 231 255;
+}
+
+.dark {
+  --surface: 17 19 23;
+  --surface-raised: 26 29 35;
+  --surface-sunken: 12 14 17;
+  --ink: 235 238 242;
+  --ink-muted: 158 166 178;
+  --ink-faint: 108 116 128;
+  --line: 45 50 58;
+  --accent: 129 140 248;
+  --accent-soft: 49 46 129;
+}
+
+html,
+body {
+  background: rgb(var(--surface));
+  color: rgb(var(--ink));
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--line)) transparent;
+}
+
+pre.code-block {
+  @apply text-xs bg-surface-sunken border border-line rounded-md p-3 overflow-x-auto whitespace-pre-wrap break-words;
+}

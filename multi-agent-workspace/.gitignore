@@ -1,0 +1,19 @@
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# local databases
+prisma/*.db
+prisma/*.db-journal
+*.sqlite
+
+# env files — never commit secrets
+.env
+.env.local
+.env.*.local
+
+# test artifacts
+coverage/
+tests/tmp/

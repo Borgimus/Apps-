@@ -1,0 +1,387 @@
+// Multi-Agent Workspace — core data model.
+// JSON-shaped columns are stored as String (SQLite-safe) and validated with zod
+// at the data-access layer. Historical records (ModelCall, ToolCall, AuditEvent,
+// FileVersion, UsageRecord) are immutable: they are only ever inserted.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Workspace {
+  id           String    @id @default(cuid())
+  name         String
+  instructions String    @default("")
+  dailyBudgetUsd Float?
+  createdAt    DateTime  @default(now())
+  projects     Project[]
+  agents       Agent[]
+}
+
+model Project {
+  id                String   @id @default(cuid())
+  workspaceId       String
+  workspace         Workspace @relation(fields: [workspaceId], references: [id])
+  name              String
+  objective         String   @default("")
+  instructions      String   @default("")
+  status            String   @default("active") // active | paused | completed | archived
+  orchestrationMode String   @default("manager") // manager | peer | review | debate | parallel | pipeline
+  budgetUsd         Float?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  agents    ProjectAgent[]
+  tasks     Task[]
+  runs      AgentRun[]
+  files     ProjectFile[]
+  messages  Message[]
+  decisions Decision[]
+  approvals ApprovalRequest[]
+  events    AuditEvent[]
+  usage     UsageRecord[]
+  memory    ProjectMemory[]
+  modelCalls ModelCall[]
+  projectRuns ProjectRun[]
+}
+
+model ModelConfig {
+  id            String  @id @default(cuid())
+  name          String  @unique // display name, e.g. "Claude Fable 5"
+  provider      String  // anthropic | openai-compatible | mock
+  modelId       String  // provider model identifier, e.g. "claude-fable-5"
+  baseUrl       String? // for openai-compatible endpoints (OpenAI, OpenRouter, Ollama, ...)
+  apiKeyEnvVar  String? // name of the env var holding the key — keys are never stored in DB
+  temperature   Float   @default(0.3)
+  maxTokens     Int     @default(4096)
+  contextWindow Int     @default(200000)
+  inputPricePerMTok  Float @default(0) // USD per million input tokens
+  outputPricePerMTok Float @default(0) // USD per million output tokens
+  createdAt     DateTime @default(now())
+  agents        Agent[]
+}
+
+model AgentTemplate {
+  id           String @id @default(cuid())
+  name         String @unique
+  role         String
+  description  String @default("")
+  systemPrompt String
+  toolsJson    String @default("[]") // string[] of allowed tool names
+}
+
+model Agent {
+  id            String   @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace @relation(fields: [workspaceId], references: [id])
+  name          String
+  role          String
+  systemPrompt  String
+  modelConfigId String
+  modelConfig   ModelConfig @relation(fields: [modelConfigId], references: [id])
+  toolsJson     String   @default("[]") // allowed tool names
+  permissionsJson String @default("{}") // { fileWrite: bool, fileWriteRequiresApproval: bool, network: bool, ... }
+  maxCostPerRunUsd Float @default(1.0)
+  status        String   @default("idle") // idle | working | paused | awaiting_approval | error
+  memoryJson    String   @default("[]") // agent-scoped memory notes
+  createdAt     DateTime @default(now())
+
+  projects  ProjectAgent[]
+  runs      AgentRun[]
+  ownedTasks    Task[] @relation("TaskOwner")
+  reviewTasks   Task[] @relation("TaskReviewer")
+}
+
+model ProjectAgent {
+  projectId String
+  agentId   String
+  project   Project @relation(fields: [projectId], references: [id])
+  agent     Agent   @relation(fields: [agentId], references: [id])
+  assignedAt DateTime @default(now())
+
+  @@id([projectId, agentId])
+}
+
+model Task {
+  id                 String  @id @default(cuid())
+  projectId          String
+  project            Project @relation(fields: [projectId], references: [id])
+  parentTaskId       String?
+  parentTask         Task?   @relation("Subtasks", fields: [parentTaskId], references: [id])
+  subtasks           Task[]  @relation("Subtasks")
+  title              String
+  description        String  @default("")
+  acceptanceCriteria String  @default("")
+  status             String  @default("backlog") // backlog | ready | in_progress | blocked | awaiting_review | awaiting_approval | completed | failed | cancelled
+  priority           String  @default("medium") // low | medium | high | critical
+  ownerAgentId       String?
+  ownerAgent         Agent?  @relation("TaskOwner", fields: [ownerAgentId], references: [id])
+  reviewerAgentId    String?
+  reviewerAgent      Agent?  @relation("TaskReviewer", fields: [reviewerAgentId], references: [id])
+  createdBy          String  @default("user") // "user" | agent id
+  resultSummary      String  @default("")
+  costUsd            Float   @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  dependencies TaskDependency[] @relation("TaskDeps")
+  dependents   TaskDependency[] @relation("TaskDependents")
+  runs         AgentRun[]
+  messages     Message[]
+}
+
+model TaskDependency {
+  taskId      String
+  dependsOnId String
+  task        Task @relation("TaskDeps", fields: [taskId], references: [id])
+  dependsOn   Task @relation("TaskDependents", fields: [dependsOnId], references: [id])
+
+  @@id([taskId, dependsOnId])
+}
+
+// A durable multi-phase collaboration workflow driven by advanceProjectRun():
+// independent analysis → cross review → synthesis → verification →
+// (revision → verification)* → completed. The single source of truth for
+// "what happens next" after any agent run finishes.
+model ProjectRun {
+  id            String   @id @default(cuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id])
+  taskId        String?  // the umbrella task representing this collaboration
+  prompt        String
+  status        String   @default("created") // created | running | paused | completed | failed | cancelled
+  phase         String   @default("independent_analysis") // independent_analysis | cross_review | synthesis | verification | revision | finalizing | done
+  iteration     Int      @default(0) // revision cycles consumed
+  maxIterations Int      @default(3) // max revision cycles
+  maxModelCalls Int      @default(10)
+  agentAId      String   // first analyst (synthesizer unless a manager-role lead exists)
+  agentBId      String   // second analyst / verifier
+  synthesizerId String
+  stepsJson     String   @default("{}") // slot → AgentRun id (idempotency: each step runs once)
+  finalOutput   String   @default("")
+  failureReason String?
+  idempotencyKey String? @unique
+  startedAt     DateTime?
+  completedAt   DateTime?
+  lastTransitionAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  agentRuns AgentRun[]
+}
+
+// One autonomous working session of one agent on (usually) one task.
+// Durable: the loop reads status from DB every iteration, so pause/cancel
+// take effect between steps and runs survive process restarts.
+model AgentRun {
+  id            String   @id @default(cuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id])
+  agentId       String
+  agent         Agent    @relation(fields: [agentId], references: [id])
+  taskId        String?
+  task          Task?    @relation(fields: [taskId], references: [id])
+  projectRunId  String?  // set when this run is one step of a collaboration
+  projectRun    ProjectRun? @relation(fields: [projectRunId], references: [id])
+  runType       String   @default("task") // task | initial | review | synthesis | verification | revision
+  parentAgentRunId String? // the run this one reviews/revises/verifies
+  parsedOutputJson String? // validated structured AgentOutput (collaboration steps)
+  objective     String
+  status        String   @default("queued") // queued | running | paused | awaiting_approval | completed | failed | cancelled | interrupted
+  transcriptJson String  @default("[]") // normalized message list — the durable loop state
+  iterations    Int      @default(0)
+  maxIterations Int      @default(12)
+  inputTokens   Int      @default(0)
+  outputTokens  Int      @default(0)
+  costUsd       Float    @default(0)
+  error         String?
+  resultSummary String   @default("")
+  idempotencyKey String? @unique
+  pendingToolCallJson String? // tool call blocked on an approval
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  createdAt     DateTime @default(now())
+
+  modelCalls ModelCall[]
+  toolCalls  ToolCall[]
+}
+
+// Immutable record of one request/response with a model provider.
+// Reruns create new rows (parentCallId chain) — never updates.
+model ModelCall {
+  id           String   @id @default(cuid())
+  runId        String?
+  run          AgentRun? @relation(fields: [runId], references: [id])
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id])
+  agentId      String?
+  seq          Int      @default(0)
+  provider     String
+  modelId      String
+  systemPrompt String
+  messagesJson String   // normalized request messages
+  toolDefsJson String   @default("[]")
+  settingsJson String   @default("{}") // temperature, maxTokens, ...
+  contextJson  String   @default("{}") // what context was assembled and why
+  responseText String   @default("")
+  toolCallsJson String  @default("[]") // tool calls requested by the model
+  stopReason   String   @default("")
+  inputTokens  Int      @default(0)
+  outputTokens Int      @default(0)
+  costUsd      Float    @default(0)
+  durationMs   Int      @default(0)
+  status       String   @default("ok") // ok | error
+  error        String?
+  parentCallId String?  // rerun lineage
+  version      Int      @default(1)
+  createdAt    DateTime @default(now())
+
+  toolCalls ToolCall[]
+}
+
+model ToolCall {
+  id          String   @id @default(cuid())
+  runId       String?
+  run         AgentRun? @relation(fields: [runId], references: [id])
+  modelCallId String?
+  modelCall   ModelCall? @relation(fields: [modelCallId], references: [id])
+  projectId   String
+  agentId     String?
+  toolName    String
+  inputJson   String
+  outputJson  String   @default("null")
+  status      String   @default("ok") // ok | error | denied | awaiting_approval | rejected
+  error       String?
+  riskLevel   String   @default("low")
+  durationMs  Int      @default(0)
+  createdAt   DateTime @default(now())
+}
+
+// Structured inter-agent / user communication.
+model Message {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  taskId      String?
+  task        Task?    @relation(fields: [taskId], references: [id])
+  fromAgentId String?  // null = user
+  toAgentId   String?  // null = broadcast / user
+  type        String   @default("status_update") // task_assignment | status_update | question | answer | review_request | review_result | decision_proposal | objection | approval_request | handoff | blocker | completion_report | comment
+  content     String
+  runId       String?
+  createdAt   DateTime @default(now())
+}
+
+model ProjectFile {
+  id            String   @id @default(cuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id])
+  path          String
+  latestVersion Int      @default(0)
+  deleted       Boolean  @default(false)
+  // Optimistic concurrency: writers must state the version they saw.
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  versions      FileVersion[]
+
+  @@unique([projectId, path])
+}
+
+model FileVersion {
+  id            String   @id @default(cuid())
+  fileId        String
+  file          ProjectFile @relation(fields: [fileId], references: [id])
+  version       Int
+  content       String
+  authorAgentId String?  // null = user
+  runId         String?
+  note          String   @default("")
+  createdAt     DateTime @default(now())
+
+  @@unique([fileId, version])
+}
+
+model Decision {
+  id           String   @id @default(cuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id])
+  taskId       String?
+  title        String
+  detail       String   @default("")
+  madeBy       String   @default("user") // "user" | agent id
+  createdAt    DateTime @default(now())
+}
+
+model ApprovalRequest {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  runId       String?
+  agentId     String?
+  action      String   // e.g. "tool:write_file", "budget_exceeded"
+  reason      String   @default("")
+  payloadJson String   @default("{}") // inputs, expected result, affected resources
+  riskLevel   String   @default("medium")
+  status      String   @default("pending") // pending | approved | rejected
+  resolution  String   @default("") // reviewer note / edited payload
+  resolvedBy  String?
+  createdAt   DateTime @default(now())
+  resolvedAt  DateTime?
+}
+
+model UsageRecord {
+  id           String   @id @default(cuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id])
+  agentId      String?
+  runId        String?
+  modelCallId  String?
+  provider     String   @default("")
+  modelId      String   @default("")
+  inputTokens  Int      @default(0)
+  outputTokens Int      @default(0)
+  costUsd      Float    @default(0)
+  createdAt    DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  type      String   // approval_request | agent_failure | task_completed | blocked | budget_warning | review_request | project_completed | conflict
+  title     String
+  body      String   @default("")
+  projectId String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// Append-only activity/audit timeline. Never updated or deleted.
+model AuditEvent {
+  id        String   @id @default(cuid())
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+  actor     String   // "user" | "system" | agent id
+  type      String   // run_started | model_call | tool_call | task_created | status_change | message | approval | file_change | decision | error | ...
+  summary   String
+  dataJson  String   @default("{}")
+  refId     String?  // id of the referenced entity (run, model call, task, ...)
+  createdAt DateTime @default(now())
+
+  @@index([projectId, createdAt])
+}
+
+model ProjectMemory {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  key       String
+  content   String
+  pinned    Boolean  @default(false)
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([projectId, key])
+}

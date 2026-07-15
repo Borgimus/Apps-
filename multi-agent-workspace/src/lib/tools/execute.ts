@@ -2,6 +2,7 @@ import { prisma } from '../db';
 import { emitActivity, notify } from '../events';
 import { parseJson, toJson } from '../json';
 import { TOOL_SPECS } from './defs';
+import { executeGitHubTool, githubToolPermission, isGitHubTool } from '../github/tools';
 
 export interface ToolContext {
   projectId: string;
@@ -11,6 +12,7 @@ export interface ToolContext {
   taskId?: string | null;
   modelCallId?: string | null;
   allowedTools: string[];
+  permissions: AgentPermissions;
 }
 
 export interface ToolResult {
@@ -26,6 +28,9 @@ export interface AgentPermissions {
   fileWriteRequiresApproval?: boolean;
   fileDeleteRequiresApproval?: boolean;
   network?: boolean;
+  githubRead?: boolean;
+  githubWrite?: boolean;
+  githubPullRequest?: boolean;
 }
 
 /** Does this tool call require a human approval gate before executing? */
@@ -103,6 +108,19 @@ export async function executeTool(
       'denied',
     );
   }
+  const githubPermission = githubToolPermission(toolName);
+  if (githubPermission) {
+    const permitted =
+      githubPermission === 'read' ? ctx.permissions.githubRead === true
+      : githubPermission === 'write' ? ctx.permissions.githubWrite === true
+      : ctx.permissions.githubPullRequest === true;
+    if (!permitted) {
+      return record(
+        { ok: false, output: null, error: `Permission denied: ${githubPermission} GitHub access is not enabled` },
+        'denied',
+      );
+    }
+  }
   const parsed = spec.input.safeParse(rawInput ?? {});
   if (!parsed.success) {
     return record(
@@ -125,6 +143,9 @@ async function runTool(
   toolName: string,
   input: Record<string, unknown>,
 ): Promise<ToolResult> {
+  if (isGitHubTool(toolName)) {
+    return executeGitHubTool(ctx.projectId, toolName, input);
+  }
   switch (toolName) {
     case 'list_files': {
       const files = await prisma.projectFile.findMany({

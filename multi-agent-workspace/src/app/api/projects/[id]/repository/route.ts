@@ -41,7 +41,7 @@ export async function PATCH(req: Request, { params }: Params) {
     assertAllowedRepository(body.repositoryFullName);
     assertWritableBranch(body.workingBranch);
     const verified = await verifyGitHubConnection();
-    await githubRequest('GET', repositoryApiPath(`/branches/${body.baseBranch.split('/').map(encodeURIComponent).join('/')}`));
+    await githubRequest('GET', repositoryApiPath(`/branches/${encodeURIComponent(body.baseBranch)}`));
 
     const connection = await prisma.repositoryConnection.upsert({
       where: { projectId: id },

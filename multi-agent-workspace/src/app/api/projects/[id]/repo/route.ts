@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/db';
 import { handle, ok, fail, parseBody } from '@/lib/api';
 import { getAllowedRepo, GithubError } from '@/lib/github/auth';
-import { PROTECTED_BRANCHES, WRITABLE_PREFIXES } from '@/lib/github/tools';
+import { assertWritableBranch, PROTECTED_BRANCHES, WRITABLE_PREFIXES } from '@/lib/github/tools';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,17 +51,20 @@ const putSchema = z.object({
 export async function PUT(req: Request, { params }: Params) {
   return handle(async () => {
     const { id } = await params;
+    const project = await prisma.project.findUnique({ where: { id }, select: { id: true } });
+    if (!project) return fail('Project not found', 404);
     const parsed = await parseBody(req, putSchema);
     if ('error' in parsed) return parsed.error;
     let envRepo;
     try {
       envRepo = getAllowedRepo();
+      if (parsed.data.workingBranch) assertWritableBranch(parsed.data.workingBranch);
     } catch (err) {
       return fail(err instanceof GithubError ? err.message : 'GitHub is not configured', 400);
     }
     const connection = await prisma.repoConnection.upsert({
       where: { projectId: id },
-      update: parsed.data,
+      update: { ...parsed.data, owner: envRepo.owner, repo: envRepo.repo },
       create: {
         projectId: id,
         owner: envRepo.owner,

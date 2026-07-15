@@ -7,7 +7,7 @@
 3. **Reactive scheduling ships for collaboration runs** — one prompt now drives analysis → cross review → synthesis → verification → revision → completion automatically (`collaboration.ts`). Remaining gap: task-board runs (`orchestrationMode` on ordinary tasks) still don't auto-start the reviewer when a task hits `awaiting_review` — extend `advanceProjectRun`-style scheduling to the task board next.
 4. **No task-dependency scheduler** — dependencies are stored and displayed but don't auto-gate execution.
 5. **Provider streaming is not surfaced token-by-token** — the UI is live per event (model call / tool call granularity), not per token.
-6. **No real Git integration** — the versioned virtual file workspace covers files/diffs/restore; repo connection, branches, and PR workflows are roadmap items.
+6. **GitHub is API-only** — the GitHub App connector supports repository reads, agent branches, commits, checks, and draft pull requests. It does not clone repositories or execute local Git commands.
 7. **File diffs are simplified** — common prefix/suffix line diff, not a full Myers diff.
 8. **No shell/code-execution/web tools** — deliberately excluded from the MVP for safety; the tool registry is built to add them behind approval gates and a sandbox.
 9. **Agent memory** exists at project level (pinned memory) and schema level for agents, but there is no automatic summarization/expiration job yet.
@@ -21,7 +21,7 @@
 2. **Postgres + BullMQ worker**: production durability and concurrency.
 3. **Session auth + RBAC**, then multi-workspace.
 4. **Sandboxed code-execution tool** (container-based) behind a high-risk approval gate — unlocks real software builds.
-5. **Git integration**: repo connect, agent branches, diff review, user-approved push/merge.
+5. **Git integration v2**: webhook-driven refresh, richer diff review, branch cleanup, and explicit user-controlled merge.
 6. **Token-level streaming** into the activity feed.
 7. **Context engine v2**: embedding-based retrieval over messages/files/decisions, memory summarization + expiry.
 8. **Debate/parallel mode judges**: first-class multi-proposal comparison UI.

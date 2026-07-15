@@ -47,6 +47,7 @@ model Project {
   memory    ProjectMemory[]
   modelCalls ModelCall[]
   projectRuns ProjectRun[]
+  repoConnection RepoConnection?
 }
 
 model ModelConfig {
@@ -378,6 +379,7 @@ model AuditEvent {
 model RepoConnection {
   id             String   @id @default(cuid())
   projectId      String   @unique
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   owner          String
   repo           String
   baseBranch     String   @default("main") // read base for diffs/PR targets

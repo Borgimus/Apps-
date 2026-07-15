@@ -112,6 +112,7 @@ describe('branch and path guards', () => {
     for (const b of ['agent/fix-bug', 'agents/team-x', 'feature/dashboard']) {
       expect(() => assertWritableBranch(b), b).not.toThrow();
     }
+    expect(() => assertWritableBranch('agent/other', 'agent/configured')).toThrow('configured working branch');
   });
 
   it('refuses workflow, action and traversal paths', () => {
@@ -135,10 +136,25 @@ describe('approval policy', () => {
 });
 
 describe('permissioned execution through the central executor', () => {
-  async function makeCtx(permissions: Record<string, boolean>, tools: string[]): Promise<ToolContext> {
+  async function makeCtx(
+    permissions: Record<string, boolean>,
+    tools: string[],
+    workingBranch = 'agent/docs-update',
+  ): Promise<ToolContext> {
     const f = await makeFixture({ tools, permissions });
     const run = await prisma.agentRun.create({
       data: { projectId: f.project.id, agentId: f.agent.id, objective: 'github test', status: 'running' },
+    });
+    await prisma.repoConnection.create({
+      data: {
+        projectId: f.project.id,
+        owner: 'Borgimus',
+        repo: 'Apps-',
+        baseBranch: 'main',
+        workingBranch,
+        status: 'connected',
+        lastVerifiedAt: new Date(),
+      },
     });
     return {
       projectId: f.project.id,
@@ -158,6 +174,16 @@ describe('permissioned execution through the central executor', () => {
     expect(calls).toHaveLength(0); // denied before any network access
     const audit = await prisma.toolCall.findFirst({ where: { runId: ctx.runId, toolName: 'github_read_file' } });
     expect(audit).not.toBeNull(); // visible in history even when denied
+  });
+
+  it('requires a verified project repository connection before any network call', async () => {
+    const ctx = await makeCtx({ githubRead: true }, ['github_read_file']);
+    await prisma.repoConnection.delete({ where: { projectId: ctx.projectId } });
+    const calls = stubGithub({});
+    const result = await executeTool(ctx, 'github_read_file', { path: 'README.md' });
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain('verified GitHub repository connection');
+    expect(calls).toHaveLength(0);
   });
 
   it('executes reads with githubRead and records the audit trail', async () => {
@@ -185,7 +211,7 @@ describe('permissioned execution through the central executor', () => {
   });
 
   it('refuses workflow modification even on an agent branch', async () => {
-    const ctx = await makeCtx({ githubRead: true, githubWrite: true }, ['github_write_file']);
+    const ctx = await makeCtx({ githubRead: true, githubWrite: true }, ['github_write_file'], 'agent/sneaky');
     const calls = stubGithub({});
     const result = await executeTool(ctx, 'github_write_file', {
       branch: 'agent/sneaky', path: '.github/workflows/evil.yml', content: 'oops',
@@ -195,7 +221,28 @@ describe('permissioned execution through the central executor', () => {
     expect(calls).toHaveLength(0);
   });
 
-  it('writes to an agent branch when permitted (this is the post-approval execution path)', async () => {
+  it('refuses writes outside the project configured working branch before any network call', async () => {
+    const ctx = await makeCtx({ githubRead: true, githubWrite: true }, ['github_write_file']);
+    const calls = stubGithub({});
+    const result = await executeTool(ctx, 'github_write_file', {
+      branch: 'agent/other', path: 'x.txt', content: 'x',
+    });
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain('configured working branch');
+    expect(calls).toHaveLength(0);
+  });
+
+  it('refuses oversized write payloads before any network call', async () => {
+    const ctx = await makeCtx({ githubRead: true, githubWrite: true }, ['github_write_file']);
+    const calls = stubGithub({});
+    const result = await executeTool(ctx, 'github_write_file', {
+      branch: 'agent/docs-update', path: 'large.txt', content: 'x'.repeat(500_001),
+    });
+    expect(result.ok).toBe(false);
+    expect(calls).toHaveLength(0);
+  });
+
+  it('writes to the configured agent branch when permitted (this is the post-approval execution path)', async () => {
     const ctx = await makeCtx({ githubRead: true, githubWrite: true }, ['github_write_file']);
     const calls = stubGithub({
       '/contents/docs/note.md': (init) =>
@@ -212,16 +259,28 @@ describe('permissioned execution through the central executor', () => {
   });
 
   it('opens pull requests as DRAFT only, from agent branches only, gated by githubPullRequest', async () => {
-    const noPr = await makeCtx({ githubRead: true, githubWrite: true, githubPullRequest: false }, ['github_open_draft_pull_request']);
+    const noPr = await makeCtx(
+      { githubRead: true, githubWrite: true, githubPullRequest: false },
+      ['github_open_draft_pull_request'],
+      'agent/x',
+    );
     stubGithub({});
     const denied = await executeTool(noPr, 'github_open_draft_pull_request', { head: 'agent/x', title: 'T' });
     expect(denied.ok).toBe(false);
     expect(denied.error).toContain('githubPullRequest');
 
-    const ctx = await makeCtx({ githubRead: true, githubWrite: true, githubPullRequest: true }, ['github_open_draft_pull_request']);
+    const ctx = await makeCtx(
+      { githubRead: true, githubWrite: true, githubPullRequest: true },
+      ['github_open_draft_pull_request'],
+      'agent/x',
+    );
     const calls = stubGithub({ '/pulls': () => ({ body: { number: 42, html_url: 'https://example.test/pr/42' } }) });
     const fromMain = await executeTool(ctx, 'github_open_draft_pull_request', { head: 'main', title: 'nope' });
     expect(fromMain.ok).toBe(false); // PRs must come FROM agent branches
+    const wrongBase = await executeTool(ctx, 'github_open_draft_pull_request', {
+      head: 'agent/x', title: 'wrong base', base: 'develop',
+    });
+    expect(wrongBase.ok).toBe(false); // PRs must target the configured base branch
 
     const result = await executeTool(ctx, 'github_open_draft_pull_request', { head: 'agent/x', title: 'My PR', base: 'main' });
     expect(result.ok).toBe(true);

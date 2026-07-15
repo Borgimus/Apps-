@@ -43,6 +43,9 @@ const createSchema = z.object({
       fileWriteRequiresApproval: z.boolean().optional(),
       fileDeleteRequiresApproval: z.boolean().optional(),
       network: z.boolean().optional(),
+      githubRead: z.boolean().optional(),
+      githubWrite: z.boolean().optional(),
+      githubPullRequest: z.boolean().optional(),
     })
     .default({}),
   maxCostPerRunUsd: z.number().positive().max(1000).default(1),

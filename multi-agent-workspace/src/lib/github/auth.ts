@@ -65,7 +65,7 @@ function b64url(input: Buffer | string): string {
   return Buffer.from(input).toString('base64url');
 }
 
-/** RS256 App JWT (10 min lifetime, 60s clock-skew allowance). */
+/** RS256 App JWT with a 9-minute future expiry and 60-second backdated issue time. */
 function buildAppJwt(): string {
   const appId = requiredEnv('GITHUB_APP_ID');
   const keyPath = requiredEnv('GITHUB_APP_PRIVATE_KEY_PATH');
@@ -78,7 +78,9 @@ function buildAppJwt(): string {
   }
   const now = Math.floor(Date.now() / 1000);
   const header = b64url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
-  const payload = b64url(JSON.stringify({ iat: now - 60, exp: now + 600, iss: appId }));
+  // GitHub rejects exp values beyond its 10-minute ceiling. Keep one minute
+  // of headroom for host/GitHub clock skew and request transit time.
+  const payload = b64url(JSON.stringify({ iat: now - 60, exp: now + 540, iss: appId }));
   const signer = createSign('RSA-SHA256');
   signer.update(`${header}.${payload}`);
   const signature = signer.sign(key).toString('base64url');

@@ -43,11 +43,15 @@ class VWAPReclaimStrategy(StrategyBase):
         bars = bars.copy()
         bars.columns = bars.columns.str.lower()
 
-        # Compute daily VWAP — reset each calendar day
+        # Compute daily VWAP — reset each calendar day using cumsum per group
         bars["_date"] = bars.index.date
-        bars["vwap"] = bars.groupby("_date", group_keys=False).apply(
-            lambda g: YFinanceDataSource.compute_vwap(g)
+        typical = (bars["high"] + bars["low"] + bars["close"]) / 3
+        bars["_tp_vol"] = typical * bars["volume"]
+        bars["vwap"] = (
+            bars.groupby("_date")["_tp_vol"].cumsum()
+            / bars.groupby("_date")["volume"].cumsum()
         )
+        bars.drop(columns=["_tp_vol"], inplace=True)
 
         signals: List[Signal] = []
 

@@ -78,7 +78,8 @@ Thumbs.db
 # Backtest outputs
 backtest_results/
 reports/
-*.html
+backtest_results/**/*.html
+reports/**/*.html
 
 # Jupyter
 .ipynb_checkpoints/
@@ -86,3 +87,10 @@ reports/
 
 # Alembic versions cache
 alembic/versions/*.pyc
+
+# Claude Code internal scaffolding
+.claude/
+
+# Frontend
+node_modules/
+frontend/dist/

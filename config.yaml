@@ -127,6 +127,63 @@ strategies:
     enabled: true
     # All thresholds are also applied from risk section above
 
+ict_strategy:
+  # Session windows (UTC)
+  asian_session_start: "00:00"
+  asian_session_end: "06:00"
+  london_session_start: "03:00"
+  london_session_end: "08:00"
+
+  # Sweep definition — price must extend beyond level by this many ticks
+  min_sweep_ticks: 2
+  tick_size: 0.25         # 0.25 for ES/NQ, 0.0001 for forex, 0.01 for equities
+  rejection_candles: 3    # bars after sweep candle within which rejection must occur
+  rejection_close_pct: 0.5  # close must retrace >= 50% of extension back inside range
+
+  # FVG settings
+  min_fvg_size: 0.0       # minimum gap size in price units (0 = any gap)
+  fvg_fill_pct_entry: 0.5 # enter when price fills >= 50% of the FVG
+  fvg_lookback_bars: 20   # bars to look back for FVG after a sweep
+
+  # Stop loss
+  sl_buffer_ticks: 2      # ticks beyond sweep extreme for stop loss
+
+  # Exit mode: fixed_rr | liquidity_target | major_structure | hybrid
+  exit_mode: "liquidity_target"
+  fixed_rr_ratio: 2.0     # used in fixed_rr and hybrid modes
+
+  # Risk management
+  risk_per_trade_pct: 0.01   # 1% of account per trade
+  account_size: 100000.0
+  max_daily_loss_pct: 0.02   # halt after 2% daily loss
+  max_trades_per_day: 3
+
+  # Market hours (UTC) — no new trades outside this window
+  trading_start_hour: 14     # 9 AM New York = 14:00 UTC
+  stop_trading_hour: 21      # 4 PM New York = 21:00 UTC
+
+  # Market structure
+  swing_lookback: 5          # bars on each side to confirm swing point
+
+  # Scanner symbols
+  scanner_symbols:
+    - ES
+    - NQ
+    - YM
+    - RTY
+    - EURUSD=X
+    - GBPUSD=X
+    - USDJPY=X
+    - SPY
+    - QQQ
+
+  # Futures point values (for position sizing in dollar terms)
+  point_values:
+    ES: 50.0
+    NQ: 20.0
+    YM: 5.0
+    RTY: 50.0
+
 database:
   # Override via DATABASE_URL env var
   url: "sqlite+aiosqlite:///./trading.db"

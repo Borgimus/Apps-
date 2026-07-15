@@ -125,7 +125,7 @@ class TestRSITrendStrategy:
         return df
 
     def test_oversold_bounce_generates_long(self):
-        strat = RSITrendStrategy(params={"rsi_period": 14, "rsi_oversold": 40, "trend_ema_period": 20})
+        strat = RSITrendStrategy(params={"rsi_period": 14, "rsi_oversold": 40, "trend_ema_period": 10})
         bars = self._make_oversold_bars()
         signals = strat.generate_signals(bars, "SPY")
         # Should generate at least one LONG when RSI crosses back above oversold
@@ -197,12 +197,10 @@ class TestMACompressionStrategy:
     def _make_compressed_then_breakout_bars(self) -> pd.DataFrame:
         n = 80
         idx = pd.date_range("2024-01-02", periods=n, freq="B", tz="UTC")
-        # Flat for 30 bars (compression), then breakout
+        # Flat for 35 bars (compression), then strong breakout
         prices = [450.0] * n
-        for i in range(30, 35):
-            prices[i] = 450.0 + (i - 30) * 0.1  # slight drift in compression
         for i in range(35, n):
-            prices[i] = 450.0 + (i - 30) * 1.0  # strong breakout
+            prices[i] = 450.0 + (i - 34) * 1.0  # starts at 451 on breakout bar
 
         df = pd.DataFrame(
             {

@@ -226,6 +226,156 @@ export const TOOL_SPECS: Record<string, ToolSpec> = {
   },
 };
 
+// ---------------------------------------------------------------------------
+// GitHub tools — read tools need the githubRead permission; write tools need
+// githubWrite (or githubPullRequest) AND unconditional human approval.
+// ---------------------------------------------------------------------------
+
+const GITHUB_SPECS: Record<string, ToolSpec> = {
+  github_list_tree: {
+    name: 'github_list_tree',
+    description: 'List files in the connected GitHub repository at a branch/ref (optionally under a path prefix).',
+    risk: 'low',
+    approvable: false,
+    input: z.object({ ref: z.string().optional(), path: z.string().optional() }),
+    jsonSchema: {
+      type: 'object',
+      properties: { ref: str('Branch or ref (defaults to the configured base branch)'), path: str('Only list entries under this path prefix') },
+    },
+  },
+  github_read_file: {
+    name: 'github_read_file',
+    description: 'Read a file from the connected GitHub repository.',
+    risk: 'low',
+    approvable: false,
+    input: z.object({ path: z.string().min(1), ref: z.string().optional() }),
+    jsonSchema: {
+      type: 'object',
+      properties: { path: str('Repository-relative file path'), ref: str('Branch or ref (defaults to the base branch)') },
+      required: ['path'],
+    },
+  },
+  github_search_code: {
+    name: 'github_search_code',
+    description: 'Search code in the connected GitHub repository.',
+    risk: 'low',
+    approvable: false,
+    input: z.object({ query: z.string().min(1) }),
+    jsonSchema: { type: 'object', properties: { query: str('Search terms (GitHub code-search syntax)') }, required: ['query'] },
+  },
+  github_read_branch: {
+    name: 'github_read_branch',
+    description: 'Read metadata about a branch in the connected repository (head SHA, last commit, protection).',
+    risk: 'low',
+    approvable: false,
+    input: z.object({ branch: z.string().min(1) }),
+    jsonSchema: { type: 'object', properties: { branch: str('Branch name') }, required: ['branch'] },
+  },
+  github_read_pull_request: {
+    name: 'github_read_pull_request',
+    description: 'Read a pull request in the connected repository (title, body, branches, stats).',
+    risk: 'low',
+    approvable: false,
+    input: z.object({ number: z.number().int().positive() }),
+    jsonSchema: { type: 'object', properties: { number: { type: 'integer', description: 'PR number' } }, required: ['number'] },
+  },
+  github_read_diff: {
+    name: 'github_read_diff',
+    description: 'Read a unified diff: either of a pull request (number) or between two refs (base...head).',
+    risk: 'low',
+    approvable: false,
+    input: z.object({ number: z.number().int().positive().optional(), base: z.string().optional(), head: z.string().optional() })
+      .refine((v) => v.number !== undefined || v.head !== undefined, 'Provide number or head'),
+    jsonSchema: {
+      type: 'object',
+      properties: {
+        number: { type: 'integer', description: 'PR number (alternative to base/head)' },
+        base: str('Base ref (defaults to the configured base branch)'),
+        head: str('Head ref to compare'),
+      },
+    },
+  },
+  github_read_checks: {
+    name: 'github_read_checks',
+    description: 'Read CI check runs for a commit or branch head in the connected repository.',
+    risk: 'low',
+    approvable: false,
+    input: z.object({ ref: z.string().min(1) }),
+    jsonSchema: { type: 'object', properties: { ref: str('Commit SHA or branch name') }, required: ['ref'] },
+  },
+  github_create_branch: {
+    name: 'github_create_branch',
+    description:
+      'Create a new branch in the connected repository. Requires human approval. Branch name MUST start with agent/, agents/ or feature/.',
+    risk: 'high',
+    approvable: true,
+    input: z.object({ branch: z.string().min(1), fromBranch: z.string().optional() }),
+    jsonSchema: {
+      type: 'object',
+      properties: { branch: str('New branch name (agent/*, agents/* or feature/*)'), fromBranch: str('Source branch (defaults to the base branch)') },
+      required: ['branch'],
+    },
+  },
+  github_write_file: {
+    name: 'github_write_file',
+    description:
+      'Create or update ONE file on an agent branch (agent/*, agents/*, feature/*) as a commit. Requires human approval. Protected branches and workflow files are always refused.',
+    risk: 'high',
+    approvable: true,
+    input: z.object({ branch: z.string().min(1), path: z.string().min(1), content: z.string(), message: z.string().optional() }),
+    jsonSchema: {
+      type: 'object',
+      properties: {
+        branch: str('Target agent branch'), path: str('Repository-relative file path'),
+        content: str('Full new file content'), message: str('Commit message'),
+      },
+      required: ['branch', 'path', 'content'],
+    },
+  },
+  github_commit_files: {
+    name: 'github_commit_files',
+    description:
+      'Commit MULTIPLE files to an agent branch in one commit. Requires human approval. Protected branches and workflow files are always refused.',
+    risk: 'high',
+    approvable: true,
+    input: z.object({
+      branch: z.string().min(1),
+      message: z.string().min(1),
+      files: z.array(z.object({ path: z.string().min(1), content: z.string() })).min(1).max(30),
+    }),
+    jsonSchema: {
+      type: 'object',
+      properties: {
+        branch: str('Target agent branch'), message: str('Commit message'),
+        files: {
+          type: 'array',
+          description: 'Files to include in the commit',
+          items: { type: 'object', properties: { path: str('File path'), content: str('Full file content') }, required: ['path', 'content'] },
+        },
+      },
+      required: ['branch', 'message', 'files'],
+    },
+  },
+  github_open_draft_pull_request: {
+    name: 'github_open_draft_pull_request',
+    description:
+      'Open a DRAFT pull request from an agent branch. Requires human approval. Merging is never available to agents.',
+    risk: 'high',
+    approvable: true,
+    input: z.object({ head: z.string().min(1), title: z.string().min(1), body: z.string().optional(), base: z.string().optional() }),
+    jsonSchema: {
+      type: 'object',
+      properties: {
+        head: str('Source agent branch'), title: str('PR title'),
+        body: str('PR description'), base: str('Target branch (defaults to the configured base branch)'),
+      },
+      required: ['head', 'title'],
+    },
+  },
+};
+
+Object.assign(TOOL_SPECS, GITHUB_SPECS);
+
 export function toolDefsFor(allowedTools: string[]): ToolDef[] {
   return allowedTools
     .map((name) => TOOL_SPECS[name])

@@ -1,0 +1,237 @@
+import { generateKeyPairSync } from 'node:crypto';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import path from 'node:path';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { prisma } from '@/lib/db';
+import { clearTokenCache, getAllowedRepo, ghRequest, GithubError, redactSecretsFromText, verifyConnection } from '@/lib/github/auth';
+import { assertWritableBranch, assertWritablePath } from '@/lib/github/tools';
+import { toolNeedsApproval } from '@/lib/tools/execute';
+import { executeTool, ToolContext } from '@/lib/tools/execute';
+import { makeFixture } from './helpers';
+
+/**
+ * GitHub integration tests. ALL network access is mocked — these tests can
+ * never read from or write to a real repository.
+ */
+
+const KEY_PATH = path.resolve(__dirname, 'tmp/test-github-key.pem');
+
+function setEnv() {
+  process.env.GITHUB_APP_ID = '12345';
+  process.env.GITHUB_INSTALLATION_ID = '67890';
+  process.env.GITHUB_APP_PRIVATE_KEY_PATH = KEY_PATH;
+  process.env.GITHUB_REPOSITORY = 'Borgimus/Apps-';
+}
+
+function clearEnv() {
+  delete process.env.GITHUB_APP_ID;
+  delete process.env.GITHUB_INSTALLATION_ID;
+  delete process.env.GITHUB_APP_PRIVATE_KEY_PATH;
+  delete process.env.GITHUB_REPOSITORY;
+}
+
+/** fetch stub: token endpoint + a route table; records every request. */
+function stubGithub(routes: Record<string, (init?: RequestInit) => { status?: number; body?: unknown; text?: string }>) {
+  const calls: Array<{ url: string; method: string; body: unknown }> = [];
+  vi.stubGlobal('fetch', vi.fn(async (url: unknown, init?: RequestInit) => {
+    const u = String(url);
+    const method = init?.method ?? 'GET';
+    calls.push({ url: u, method, body: init?.body ? JSON.parse(String(init.body)) : undefined });
+    if (u.includes('/app/installations/')) {
+      return new Response(JSON.stringify({ token: 'ghs_mocktoken1234567890abcd', expires_at: new Date(Date.now() + 3600_000).toISOString() }), { status: 201 });
+    }
+    for (const [route, handler] of Object.entries(routes)) {
+      if (u.includes(route)) {
+        const r = handler(init);
+        return new Response(r.text ?? JSON.stringify(r.body ?? {}), { status: r.status ?? 200 });
+      }
+    }
+    return new Response(JSON.stringify({ message: 'unmocked route' }), { status: 404 });
+  }));
+  return calls;
+}
+
+beforeEach(() => {
+  mkdirSync(path.dirname(KEY_PATH), { recursive: true });
+  const { privateKey } = generateKeyPairSync('rsa', { modulusLength: 2048 });
+  writeFileSync(KEY_PATH, privateKey.export({ type: 'pkcs1', format: 'pem' }));
+  setEnv();
+  clearTokenCache();
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  clearEnv();
+  clearTokenCache();
+});
+
+describe('github auth service', () => {
+  it('fails closed when configuration is missing', async () => {
+    clearEnv();
+    expect(() => getAllowedRepo()).toThrow(GithubError);
+    await expect(ghRequest('/repos/Borgimus/Apps-')).rejects.toMatchObject({ code: 'not_configured' });
+  });
+
+  it('mints a repo-restricted installation token and caches it', async () => {
+    const calls = stubGithub({ '/repos/Borgimus/Apps-': () => ({ body: { full_name: 'Borgimus/Apps-', default_branch: 'main', private: true } }) });
+    await ghRequest('/repos/Borgimus/Apps-');
+    await ghRequest('/repos/Borgimus/Apps-');
+    const tokenCalls = calls.filter((c) => c.url.includes('/app/installations/'));
+    expect(tokenCalls).toHaveLength(1); // cached after first mint
+    expect(tokenCalls[0]!.body).toEqual({ repositories: ['Apps-'] }); // restricted to the one repo
+    // The JWT goes only to the token endpoint; API calls use the installation token.
+    expect(tokenCalls[0]!.url).toContain('/app/installations/67890/access_tokens');
+  });
+
+  it('refuses any request outside the allowed repository without touching the network', async () => {
+    const calls = stubGithub({});
+    await expect(ghRequest('/repos/someone-else/other-repo/contents/x')).rejects.toMatchObject({ code: 'repo_mismatch' });
+    await expect(ghRequest('/user')).rejects.toMatchObject({ code: 'repo_mismatch' });
+    expect(calls).toHaveLength(0); // fails closed before any fetch
+  });
+
+  it('verifies repository identity and fails closed on mismatch', async () => {
+    stubGithub({ '/repos/Borgimus/Apps-': () => ({ body: { full_name: 'Attacker/Evil', default_branch: 'main' } }) });
+    await expect(verifyConnection()).rejects.toMatchObject({ code: 'repo_mismatch' });
+  });
+
+  it('redacts key material and tokens from error text', () => {
+    const dirty = 'oops -----BEGIN RSA PRIVATE KEY-----\nabc\n-----END RSA PRIVATE KEY----- and ghs_abcdefghijklmnop123 and Bearer eyJhbGciOi.something';
+    const clean = redactSecretsFromText(dirty);
+    expect(clean).not.toContain('BEGIN RSA');
+    expect(clean).not.toContain('ghs_');
+    expect(clean).not.toContain('eyJhbGciOi');
+  });
+});
+
+describe('branch and path guards', () => {
+  it('refuses protected branches and non-agent prefixes', () => {
+    for (const b of ['main', 'master', 'claude/options-trading-research-system-TIU0p', 'develop', 'release/v1']) {
+      expect(() => assertWritableBranch(b), b).toThrow(GithubError);
+    }
+    for (const b of ['agent/fix-bug', 'agents/team-x', 'feature/dashboard']) {
+      expect(() => assertWritableBranch(b), b).not.toThrow();
+    }
+  });
+
+  it('refuses workflow, action and traversal paths', () => {
+    for (const p of ['.github/workflows/deploy.yml', '.github/actions/x/action.yml', '../etc/passwd', '.git/config']) {
+      expect(() => assertWritablePath(p), p).toThrow(GithubError);
+    }
+    expect(() => assertWritablePath('src/app.py')).not.toThrow();
+  });
+});
+
+describe('approval policy', () => {
+  it('always requires approval for GitHub mutations, never for reads', () => {
+    const fullPerms = { githubRead: true, githubWrite: true, githubPullRequest: true };
+    for (const t of ['github_create_branch', 'github_write_file', 'github_commit_files', 'github_open_draft_pull_request']) {
+      expect(toolNeedsApproval(t, fullPerms), t).toBe(true); // permissions cannot bypass approval
+    }
+    for (const t of ['github_read_file', 'github_list_tree', 'github_read_diff', 'github_read_checks']) {
+      expect(toolNeedsApproval(t, fullPerms), t).toBe(false);
+    }
+  });
+});
+
+describe('permissioned execution through the central executor', () => {
+  async function makeCtx(permissions: Record<string, boolean>, tools: string[]): Promise<ToolContext> {
+    const f = await makeFixture({ tools, permissions });
+    const run = await prisma.agentRun.create({
+      data: { projectId: f.project.id, agentId: f.agent.id, objective: 'github test', status: 'running' },
+    });
+    return {
+      projectId: f.project.id,
+      agentId: f.agent.id,
+      agentName: f.agent.name,
+      runId: run.id,
+      allowedTools: tools,
+    };
+  }
+
+  it('denies GitHub reads without the githubRead permission and audits the attempt', async () => {
+    const ctx = await makeCtx({ githubRead: false }, ['github_read_file']);
+    const calls = stubGithub({});
+    const result = await executeTool(ctx, 'github_read_file', { path: 'README.md' });
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain('githubRead');
+    expect(calls).toHaveLength(0); // denied before any network access
+    const audit = await prisma.toolCall.findFirst({ where: { runId: ctx.runId, toolName: 'github_read_file' } });
+    expect(audit).not.toBeNull(); // visible in history even when denied
+  });
+
+  it('executes reads with githubRead and records the audit trail', async () => {
+    const ctx = await makeCtx({ githubRead: true }, ['github_read_file']);
+    stubGithub({
+      '/contents/README.md': () => ({ body: { content: Buffer.from('# Hello').toString('base64'), encoding: 'base64', size: 7, sha: 'abc' } }),
+    });
+    const result = await executeTool(ctx, 'github_read_file', { path: 'README.md', ref: 'main' });
+    expect(result.ok).toBe(true);
+    expect((result.output as { content: string }).content).toBe('# Hello');
+    const audit = await prisma.toolCall.findFirst({ where: { runId: ctx.runId, toolName: 'github_read_file', status: 'ok' } });
+    expect(audit).not.toBeNull();
+    const event = await prisma.auditEvent.findFirst({ where: { projectId: ctx.projectId, type: 'tool_call' } });
+    expect(event?.summary).toContain('github_read_file'); // visible in the Activity timeline
+  });
+
+  it('refuses writes to protected branches before any network call', async () => {
+    const ctx = await makeCtx({ githubRead: true, githubWrite: true }, ['github_write_file']);
+    const calls = stubGithub({});
+    for (const branch of ['main', 'claude/options-trading-research-system-TIU0p', 'develop']) {
+      const result = await executeTool(ctx, 'github_write_file', { branch, path: 'x.txt', content: 'x' });
+      expect(result.ok, branch).toBe(false);
+    }
+    expect(calls).toHaveLength(0);
+  });
+
+  it('refuses workflow modification even on an agent branch', async () => {
+    const ctx = await makeCtx({ githubRead: true, githubWrite: true }, ['github_write_file']);
+    const calls = stubGithub({});
+    const result = await executeTool(ctx, 'github_write_file', {
+      branch: 'agent/sneaky', path: '.github/workflows/evil.yml', content: 'oops',
+    });
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain('prohibited');
+    expect(calls).toHaveLength(0);
+  });
+
+  it('writes to an agent branch when permitted (this is the post-approval execution path)', async () => {
+    const ctx = await makeCtx({ githubRead: true, githubWrite: true }, ['github_write_file']);
+    const calls = stubGithub({
+      '/contents/docs/note.md': (init) =>
+        (init?.method ?? 'GET') === 'PUT'
+          ? { body: { commit: { sha: 'newsha' } } }
+          : { status: 404, body: { message: 'Not Found' } },
+    });
+    const result = await executeTool(ctx, 'github_write_file', {
+      branch: 'agent/docs-update', path: 'docs/note.md', content: 'hello', message: 'Add note',
+    });
+    expect(result.ok).toBe(true);
+    const put = calls.find((c) => c.method === 'PUT');
+    expect(put?.body).toMatchObject({ branch: 'agent/docs-update', message: 'Add note' });
+  });
+
+  it('opens pull requests as DRAFT only, from agent branches only, gated by githubPullRequest', async () => {
+    const noPr = await makeCtx({ githubRead: true, githubWrite: true, githubPullRequest: false }, ['github_open_draft_pull_request']);
+    stubGithub({});
+    const denied = await executeTool(noPr, 'github_open_draft_pull_request', { head: 'agent/x', title: 'T' });
+    expect(denied.ok).toBe(false);
+    expect(denied.error).toContain('githubPullRequest');
+
+    const ctx = await makeCtx({ githubRead: true, githubWrite: true, githubPullRequest: true }, ['github_open_draft_pull_request']);
+    const calls = stubGithub({ '/pulls': () => ({ body: { number: 42, html_url: 'https://example.test/pr/42' } }) });
+    const fromMain = await executeTool(ctx, 'github_open_draft_pull_request', { head: 'main', title: 'nope' });
+    expect(fromMain.ok).toBe(false); // PRs must come FROM agent branches
+
+    const result = await executeTool(ctx, 'github_open_draft_pull_request', { head: 'agent/x', title: 'My PR', base: 'main' });
+    expect(result.ok).toBe(true);
+    const post = calls.find((c) => c.url.endsWith('/pulls') && c.method === 'POST');
+    expect(post?.body).toMatchObject({ draft: true, head: 'agent/x', base: 'main' }); // always draft — merging is human-only
+  });
+
+  it('exposes no merge, delete or admin tools', async () => {
+    const { ALL_TOOL_NAMES } = await import('@/lib/tools/defs');
+    const forbidden = ALL_TOOL_NAMES.filter((t) => /merge|delete_branch|admin|secret|workflow/.test(t));
+    expect(forbidden).toEqual([]);
+  });
+});

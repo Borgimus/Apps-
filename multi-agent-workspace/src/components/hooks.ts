@@ -47,7 +47,7 @@ export function useApi<T>(url: string | null, pollMs?: number): ApiState<T> {
 
 export async function apiCall(
   url: string,
-  method: 'POST' | 'PATCH' | 'DELETE',
+  method: 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   body?: unknown,
 ): Promise<{ ok: boolean; data?: unknown; error?: string }> {
   try {

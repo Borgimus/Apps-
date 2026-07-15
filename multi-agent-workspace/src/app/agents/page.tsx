@@ -51,6 +51,41 @@ export default function AgentsPage() {
     await refresh();
   };
 
+  // GitHub access levels. Read is safe (no approvals); write/PR tools always
+  // stop for human approval and only touch agent/agents/feature branches.
+  const GH_READ_TOOLS = [
+    'github_list_tree', 'github_read_file', 'github_search_code', 'github_read_branch',
+    'github_read_pull_request', 'github_read_diff', 'github_read_checks',
+  ];
+  const GH_WRITE_TOOLS = ['github_create_branch', 'github_write_file', 'github_commit_files'];
+  const GH_PR_TOOLS = ['github_open_draft_pull_request'];
+
+  const githubLevel = (a: AgentRow): string => {
+    const p = JSON.parse(a.permissionsJson) as Record<string, boolean>;
+    if (p.githubPullRequest) return 'read-write-pr';
+    if (p.githubWrite) return 'read-write';
+    if (p.githubRead) return 'read';
+    return 'none';
+  };
+
+  const setGithubLevel = async (a: AgentRow, level: string) => {
+    const currentTools = (JSON.parse(a.toolsJson) as string[]).filter(
+      (t) => ![...GH_READ_TOOLS, ...GH_WRITE_TOOLS, ...GH_PR_TOOLS].includes(t),
+    );
+    const permissions = { ...(JSON.parse(a.permissionsJson) as Record<string, boolean>) };
+    permissions.githubRead = level !== 'none';
+    permissions.githubWrite = level === 'read-write' || level === 'read-write-pr';
+    permissions.githubPullRequest = level === 'read-write-pr';
+    const tools = [
+      ...currentTools,
+      ...(level !== 'none' ? GH_READ_TOOLS : []),
+      ...(level === 'read-write' || level === 'read-write-pr' ? GH_WRITE_TOOLS : []),
+      ...(level === 'read-write-pr' ? GH_PR_TOOLS : []),
+    ];
+    await apiCall(`/api/agents/${a.id}`, 'PATCH', { tools, permissions });
+    await refresh();
+  };
+
   return (
     <div className="mx-auto max-w-6xl p-6">
       <div className="mb-5 flex items-center justify-between">
@@ -86,10 +121,29 @@ export default function AgentsPage() {
                 ))}
               </select>
             </div>
+            <div className="mt-2 flex items-center gap-2 text-2xs">
+              <span className="text-ink-faint">GitHub:</span>
+              <select
+                className="rounded border border-line bg-surface px-1.5 py-0.5 text-2xs"
+                value={githubLevel(a)}
+                onChange={(e) => void setGithubLevel(a, e.target.value)}
+                title="Read runs without approval. Write and PR actions always require your approval and only touch agent/, agents/ or feature/ branches."
+              >
+                <option value="none">no access</option>
+                <option value="read">read-only (no approvals)</option>
+                <option value="read-write">read + write (approval-gated)</option>
+                <option value="read-write-pr">read + write + draft PRs (approval-gated)</option>
+              </select>
+            </div>
             <div className="mt-2 flex flex-wrap gap-1">
-              {(JSON.parse(a.toolsJson) as string[]).map((t) => (
+              {(JSON.parse(a.toolsJson) as string[]).filter((t) => !t.startsWith('github_')).map((t) => (
                 <span key={t} className="rounded bg-surface-sunken px-1.5 py-0.5 text-2xs text-ink-muted">{t}</span>
               ))}
+              {(JSON.parse(a.toolsJson) as string[]).some((t) => t.startsWith('github_')) && (
+                <span className="rounded bg-accent-soft px-1.5 py-0.5 text-2xs text-accent">
+                  + {(JSON.parse(a.toolsJson) as string[]).filter((t) => t.startsWith('github_')).length} GitHub tools
+                </span>
+              )}
             </div>
             <div className="mt-3 grid grid-cols-4 gap-2 border-t border-line pt-2 text-center">
               <div><p className="text-xs font-semibold">{a.metrics.totalRuns}</p><p className="text-2xs text-ink-faint">runs</p></div>

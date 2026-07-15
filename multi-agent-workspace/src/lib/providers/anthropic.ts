@@ -125,8 +125,15 @@ export class AnthropicAdapter implements ProviderAdapter {
       const text = await res.text().catch(() => '');
       if (res.status === 401 || res.status === 403)
         throw new ProviderError(`Anthropic auth error: ${text}`, 'auth', false);
-      if (res.status === 429)
-        throw new ProviderError(`Anthropic rate limit: ${text}`, 'rate_limit', true);
+      if (res.status === 429) {
+        const retryAfterS = Number(res.headers.get('retry-after'));
+        throw new ProviderError(
+          `Anthropic rate limit: ${text}`,
+          'rate_limit',
+          true,
+          Number.isFinite(retryAfterS) && retryAfterS > 0 ? retryAfterS * 1000 : undefined,
+        );
+      }
       if (res.status === 529 || res.status >= 500)
         throw new ProviderError(`Anthropic overloaded (${res.status}): ${text}`, 'overloaded', true);
       throw new ProviderError(`Anthropic error ${res.status}: ${text}`, 'invalid_request', false);

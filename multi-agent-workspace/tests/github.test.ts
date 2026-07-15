@@ -149,6 +149,20 @@ describe('approval policy', () => {
   });
 });
 
+describe('GitHub approval prompt guidance', () => {
+  it('tells models not to create duplicate approval requests', async () => {
+    const { TOOL_SPECS } = await import('@/lib/tools/defs');
+    for (const name of [
+      'github_create_branch',
+      'github_write_file',
+      'github_commit_files',
+      'github_open_draft_pull_request',
+    ]) {
+      expect(TOOL_SPECS[name]!.description).toContain('do not call request_approval separately');
+    }
+  });
+});
+
 describe('permissioned execution through the central executor', () => {
   async function makeCtx(
     permissions: Record<string, boolean>,

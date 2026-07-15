@@ -57,12 +57,32 @@ export class OpenAICompatAdapter implements ProviderAdapter {
   readonly id = 'openai-compatible';
 
   async call(req: ProviderRequest): Promise<ProviderResponse> {
+    try {
+      return await this.doCall(req, { includeTemperature: true });
+    } catch (err) {
+      // Some newer models reject the `temperature` parameter. Retry once
+      // without it so model configs stay portable across model generations.
+      if (
+        err instanceof ProviderError &&
+        err.kind === 'invalid_request' &&
+        /temperature/i.test(err.message)
+      ) {
+        return this.doCall(req, { includeTemperature: false });
+      }
+      throw err;
+    }
+  }
+
+  private async doCall(
+    req: ProviderRequest,
+    opts: { includeTemperature: boolean },
+  ): Promise<ProviderResponse> {
     const baseUrl = (req.baseUrl ?? process.env.OPENAI_BASE_URL ?? DEFAULT_BASE_URL).replace(/\/$/, '');
     const apiKey = req.apiKey ?? process.env.OPENAI_API_KEY ?? 'not-needed'; // local endpoints often ignore the key
 
     const body = {
       model: req.modelId,
-      temperature: req.temperature,
+      temperature: opts.includeTemperature ? req.temperature : undefined,
       max_tokens: req.maxTokens,
       messages: toOaiMessages(req.system, req.messages),
       tools:

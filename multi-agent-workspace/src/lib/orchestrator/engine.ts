@@ -609,7 +609,9 @@ export async function resolveApproval(
     return;
   }
 
-  if (pending) {
+  // Only the approval created for this exact pending tool may execute or reject it.
+  // A separate agent-created request_approval entry must never resolve the tool gate.
+  if (pending && approval.action === `tool:${pending.current.name}`) {
     const toolCtx: ToolContext = {
       projectId: run.projectId,
       agentId: run.agentId,

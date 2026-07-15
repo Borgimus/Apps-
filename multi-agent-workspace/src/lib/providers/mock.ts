@@ -45,6 +45,95 @@ function call(name: string, input: unknown): NormToolCall {
   return { id: tid(name), name, input };
 }
 
+/**
+ * Deterministic structured-JSON outputs for collaboration phases.
+ * Returns null when the request is not a collaboration call.
+ */
+function collaborationResponse(req: ProviderRequest, user: string): string | null {
+  const agentName = /You are "([^"]+)"/.exec(req.system)?.[1] ?? 'Agent';
+  const promptHead = (/Original project request:\n([^\n]+)/.exec(user)?.[1] ?? user).slice(0, 100);
+  const out = (o: Record<string, unknown>) =>
+    JSON.stringify({ questions: [], issues: [], acceptanceCriteriaResults: [], ...o });
+
+  // JSON repair pass: echo back a repaired object unless the payload carries
+  // the deliberately-unrepairable test marker.
+  if (req.system.startsWith('You fix malformed JSON')) {
+    if (user.includes('[test:malformed-json]')) return '{{{ still not json [test:malformed-json]';
+    return out({
+      summary: `Repaired output from ${agentName}.`,
+      workProduct: `Recovered proposal for: ${promptHead}`,
+      status: 'needs_review',
+      nextAction: 'send_to_reviewer',
+    });
+  }
+
+  const phase = /COLLABORATION PHASE:\s*(\w+)/.exec(req.system)?.[1];
+  if (!phase) return null;
+
+  if (user.includes('[test:malformed-json]')) return '{{{ this is not json [test:malformed-json]';
+  if (user.includes('[test:repairable-json]') && phase === 'initial') {
+    // Truncated JSON — valid content, broken syntax → exercises the repair pass.
+    return `{"summary": "Broken but repairable output from ${agentName}", "workProduct": "Proposal`;
+  }
+
+  switch (phase) {
+    case 'initial':
+      return out({
+        summary: `${agentName} produced an independent proposal.`,
+        workProduct: `Proposal from ${agentName} for "${promptHead}": (1) define scope and acceptance criteria, (2) implement the core path, (3) verify edge cases.`,
+        status: 'needs_review',
+        nextAction: 'send_to_reviewer',
+      });
+    case 'review':
+      return out({
+        summary: `${agentName} reviewed the peer proposal: solid structure, two gaps found.`,
+        workProduct: `Recommended changes from ${agentName}: add explicit error handling; map each acceptance criterion to a verification step.`,
+        status: 'completed',
+        nextAction: 'send_to_reviewer',
+        issues: ['The proposal lacks explicit error handling', 'Acceptance criteria are not mapped to verification steps'],
+      });
+    case 'synthesis':
+      return out({
+        summary: `${agentName} merged both proposals and addressed the review feedback.`,
+        workProduct: `Combined plan v1 for "${promptHead}": merged scope from both proposals; incorporates reviewer recommendations on structure.`,
+        status: 'needs_review',
+        nextAction: 'send_to_reviewer',
+      });
+    case 'verification': {
+      const alwaysRevise = user.includes('[test:always-revise]');
+      const looksRevised = user.includes('Revised result');
+      if (!alwaysRevise && looksRevised) {
+        return out({
+          summary: `${agentName} verified the revised result: all issues addressed.`,
+          workProduct: 'Approved. The revision addresses error handling and criteria mapping.',
+          status: 'completed',
+          nextAction: 'finalize',
+          acceptanceCriteriaResults: [
+            { criterion: 'Addresses the original request', passed: true, evidence: 'Combined plan covers scope, implementation and verification.' },
+            { criterion: 'Review issues resolved', passed: true, evidence: 'Revision explicitly handles errors and maps criteria.' },
+          ],
+        });
+      }
+      return out({
+        summary: `${agentName} verified the result and requests changes.`,
+        workProduct: 'Not approved yet — the combined plan drops the error-handling recommendation from review.',
+        status: 'needs_revision',
+        nextAction: 'return_to_author',
+        issues: ['Combined plan does not include the error-handling changes requested in review'],
+      });
+    }
+    case 'revision':
+      return out({
+        summary: `${agentName} revised the combined plan per verifier feedback.`,
+        workProduct: `Revised result (v2) for "${promptHead}": combined plan now includes explicit error handling and maps every acceptance criterion to a verification step.`,
+        status: 'needs_review',
+        nextAction: 'send_to_reviewer',
+      });
+    default:
+      return null;
+  }
+}
+
 const CALCULATOR_V1 = `/**
  * Simple calculator module (v1).
  */
@@ -112,6 +201,10 @@ export class MockAdapter implements ProviderAdapter {
     const objective = firstUser && 'content' in firstUser ? firstUser.content : '';
     const iteration = req.messages.filter((m) => m.role === 'assistant').length; // 0-based
     const allowed = new Set(req.tools.map((t) => t.name));
+
+    // ---- Structured collaboration protocol (ProjectRun phases) ----
+    const collab = collaborationResponse(req, objective);
+    if (collab !== null) return response(collab, [], req);
 
     // ---- Test markers (deterministic behaviors for the test suite) ----
     if (objective.includes('[test:error]')) {

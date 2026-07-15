@@ -46,6 +46,7 @@ model Project {
   usage     UsageRecord[]
   memory    ProjectMemory[]
   modelCalls ModelCall[]
+  projectRuns ProjectRun[]
 }
 
 model ModelConfig {
@@ -142,6 +143,36 @@ model TaskDependency {
   @@id([taskId, dependsOnId])
 }
 
+// A durable multi-phase collaboration workflow driven by advanceProjectRun():
+// independent analysis → cross review → synthesis → verification →
+// (revision → verification)* → completed. The single source of truth for
+// "what happens next" after any agent run finishes.
+model ProjectRun {
+  id            String   @id @default(cuid())
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id])
+  taskId        String?  // the umbrella task representing this collaboration
+  prompt        String
+  status        String   @default("created") // created | running | paused | completed | failed | cancelled
+  phase         String   @default("independent_analysis") // independent_analysis | cross_review | synthesis | verification | revision | finalizing | done
+  iteration     Int      @default(0) // revision cycles consumed
+  maxIterations Int      @default(3) // max revision cycles
+  maxModelCalls Int      @default(10)
+  agentAId      String   // first analyst (synthesizer unless a manager-role lead exists)
+  agentBId      String   // second analyst / verifier
+  synthesizerId String
+  stepsJson     String   @default("{}") // slot → AgentRun id (idempotency: each step runs once)
+  finalOutput   String   @default("")
+  failureReason String?
+  idempotencyKey String? @unique
+  startedAt     DateTime?
+  completedAt   DateTime?
+  lastTransitionAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  agentRuns AgentRun[]
+}
+
 // One autonomous working session of one agent on (usually) one task.
 // Durable: the loop reads status from DB every iteration, so pause/cancel
 // take effect between steps and runs survive process restarts.
@@ -153,6 +184,11 @@ model AgentRun {
   agent         Agent    @relation(fields: [agentId], references: [id])
   taskId        String?
   task          Task?    @relation(fields: [taskId], references: [id])
+  projectRunId  String?  // set when this run is one step of a collaboration
+  projectRun    ProjectRun? @relation(fields: [projectRunId], references: [id])
+  runType       String   @default("task") // task | initial | review | synthesis | verification | revision
+  parentAgentRunId String? // the run this one reviews/revises/verifies
+  parsedOutputJson String? // validated structured AgentOutput (collaboration steps)
   objective     String
   status        String   @default("queued") // queued | running | paused | awaiting_approval | completed | failed | cancelled | interrupted
   transcriptJson String  @default("[]") // normalized message list — the durable loop state

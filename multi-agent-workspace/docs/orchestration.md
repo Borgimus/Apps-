@@ -1,6 +1,43 @@
 # Orchestration
 
-## The run loop (`src/lib/orchestrator/engine.ts`)
+There are two layers:
+
+1. **The agent-run loop** (`engine.ts`) — executes ONE agent working autonomously with tools (below).
+2. **The collaboration orchestrator** (`collaboration.ts`) — the reactive layer that chains agents together after every completion. This is what advances a project from a single user prompt to a reviewed, revised, finished result.
+
+## Collaboration runs (`src/lib/orchestrator/collaboration.ts`)
+
+A `ProjectRun` is a durable state machine driven by a single transition function, `advanceProjectRun(projectRunId)`:
+
+```mermaid
+stateDiagram-v2
+  [*] --> independent_analysis: user submits one prompt
+  independent_analysis --> cross_review: both agents responded
+  cross_review --> synthesis: both reviews done
+  synthesis --> verification: combined result produced
+  verification --> finalizing: verifier approves
+  verification --> revision: verifier requests changes (iteration++)
+  verification --> paused: blocked / needs user input
+  revision --> verification: revised result produced
+  verification --> finalizing: iteration limit reached (finalize with reservations)
+  finalizing --> done: final artifact + task completed + events
+```
+
+Key mechanics:
+
+- **`advanceProjectRun()` is called after every meaningful event** — start, step success, step failure, resume, retry, boot recovery — and performs exactly the work the persisted state says is missing.
+- **Structured protocol**: every step must return JSON matching `AgentOutputSchema` (`prompts.ts`) — `status`/`nextAction` drive transitions, never free-form text. Malformed JSON gets one repair pass; if still invalid, the raw response is preserved on the run and the collaboration fails visibly (retryable).
+- **Slot-based idempotency**: each step is recorded in the run's slot map (`initial:A`, `review:B`, `verification:2`, …) *before* the provider is called. Replayed or duplicate events find the slot occupied and never duplicate a model call; completed steps are always reused.
+- **Atomic transitions**: guarded `updateMany({ where: { id, phase, status } })` — a concurrent worker that lost the race exits safely.
+- **Budgets**: `maxIterations` revision cycles (default 3; on exhaustion the latest result is finalized with visible reviewer reservations) and `maxModelCalls` per collaboration (default 10; exceeding fails the run visibly).
+- **Prompt builders** (`prompts.ts`) construct each phase's prompt with the relevant prior work embedded (peer output for reviews, both outputs + both reviews for synthesis, issues for revisions), and the context is recorded on every ModelCall.
+- **Recovery**: at boot, in-flight collaborations resume from their last completed step; steps that were mid-provider-call are failed and re-run, completed steps are never repeated.
+- **Controls**: `POST /api/project-runs/:id/control` — pause, resume, cancel, retry (retry clears only failed steps).
+- **Roles**: agents A/B are the first two assigned to the project; the synthesizer is the designated manager/lead-role agent if present, else agent A; the other agent verifies.
+
+Start one with `POST /api/projects/:id/collaborate { prompt }` or the Collaboration panel on the project Overview tab. The HTTP request only initiates; orchestration continues in the background and the UI follows persisted state + SSE.
+
+## The agent-run loop (`src/lib/orchestrator/engine.ts`)
 
 Each iteration:
 

@@ -31,6 +31,7 @@ export async function GET(_req: Request, { params }: Params) {
           orderBy: { createdAt: 'desc' },
           include: { agent: { select: { id: true, name: true, role: true } }, task: { select: { id: true, title: true } } },
         },
+        projectRuns: { orderBy: { createdAt: 'desc' } },
       },
     });
     if (!project) return fail('Project not found', 404);

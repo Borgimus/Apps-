@@ -10,5 +10,13 @@ export async function register(): Promise<void> {
       return 0;
     });
     if (n > 0) console.log(`[boot] marked ${n} orphaned run(s) as interrupted`);
+
+    // Resume collaborations from their last completed step (never duplicates).
+    const { recoverProjectRuns } = await import('./lib/orchestrator/collaboration');
+    const c = await recoverProjectRuns().catch((err) => {
+      console.error('[boot] collaboration recovery failed', err);
+      return 0;
+    });
+    if (c > 0) console.log(`[boot] resumed ${c} collaboration run(s)`);
   }
 }

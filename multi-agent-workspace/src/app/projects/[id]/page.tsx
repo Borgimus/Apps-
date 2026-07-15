@@ -5,6 +5,7 @@ import { apiCall, useApi } from '@/components/hooks';
 import { ApprovalList } from '@/components/ApprovalList';
 import { UsagePanel } from '@/components/UsagePanel';
 import { ActivityFeed } from '@/components/project/ActivityFeed';
+import { CollaborationPanel, ProjectRunRow } from '@/components/project/CollaborationPanel';
 import { FilesPanel } from '@/components/project/FilesPanel';
 import { PromptInspector } from '@/components/project/PromptInspector';
 import { AgentLite, TaskBoard, TaskRow } from '@/components/project/TaskBoard';
@@ -29,6 +30,7 @@ interface ProjectDetail {
   messages: Array<{ id: string; type: string; content: string; fromAgentId: string | null; toAgentId: string | null; taskId: string | null; createdAt: string }>;
   memory: Array<{ id: string; key: string; content: string; pinned: boolean }>;
   runs: RunRow[];
+  projectRuns: ProjectRunRow[];
   usageTotals: { costUsd: number | null; inputTokens: number | null; outputTokens: number | null };
 }
 
@@ -130,7 +132,17 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
       {/* ---- Tab body ---- */}
       <div className="flex-1 overflow-y-auto p-6">
-        {tab === 'Overview' && <Overview project={project} agentNames={agentNames} />}
+        {tab === 'Overview' && (
+          <div className="space-y-4">
+            <CollaborationPanel
+              projectId={id}
+              runs={project.projectRuns}
+              agentCount={project.agents.length}
+              onChanged={() => void refresh()}
+            />
+            <Overview project={project} agentNames={agentNames} />
+          </div>
+        )}
         {tab === 'Tasks' && (
           <TaskBoard projectId={id} tasks={project.tasks} agents={agentsLite} agentNames={agentNames} onChanged={() => void refresh()} />
         )}

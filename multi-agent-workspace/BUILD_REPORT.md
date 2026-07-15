@@ -2,6 +2,8 @@
 
 Date: 2026-07-14 · Status: **MVP complete and verified end-to-end**
 
+> **Update 2026-07-15 — Reactive collaboration orchestrator.** Root cause of "workflow stops after initial responses": `finalizeRun()` persisted results and emitted events but nothing scheduled follow-up work (no transition after `agent_run_completed`). Fixed by adding a durable `ProjectRun` state machine (`src/lib/orchestrator/collaboration.ts`) with a single `advanceProjectRun()` transition function: independent analysis → cross review → synthesis → verification → revision cycles → completion, driven by a structured `AgentOutputSchema` JSON protocol with a one-shot repair pass, slot-based idempotency (duplicate events can never duplicate model calls), guarded atomic transitions, per-run iteration/model-call budgets, boot recovery from the last completed step, and pause/resume/cancel/retry controls. 10 new tests (32 total, all passing) including a full two-agent integration test that fails if the workflow stops after the first two calls, and a restart-recovery test. Verified live over HTTP: one prompt produced 8 sequential agent runs across two agents and a persisted, approved final result.
+
 ## Verification results
 
 | Check | Result |

@@ -4,7 +4,7 @@
 
 1. **Single-user, no auth** — local-first by design; do not expose publicly.
 2. **SQLite + in-process engine** — great locally; a durable external queue and Postgres are needed for horizontal scale (seams are in place, see architecture doc).
-3. **Orchestration modes are advisory** — `manager/pipeline/...` shape agent context and the demo runner drives an explicit pipeline, but there is no per-mode automatic scheduler (e.g. auto-starting the reviewer when a task hits `awaiting_review`; today you or an agent starts that run).
+3. **Reactive scheduling ships for collaboration runs** — one prompt now drives analysis → cross review → synthesis → verification → revision → completion automatically (`collaboration.ts`). Remaining gap: task-board runs (`orchestrationMode` on ordinary tasks) still don't auto-start the reviewer when a task hits `awaiting_review` — extend `advanceProjectRun`-style scheduling to the task board next.
 4. **No task-dependency scheduler** — dependencies are stored and displayed but don't auto-gate execution.
 5. **Provider streaming is not surfaced token-by-token** — the UI is live per event (model call / tool call granularity), not per token.
 6. **No real Git integration** — the versioned virtual file workspace covers files/diffs/restore; repo connection, branches, and PR workflows are roadmap items.
@@ -17,7 +17,7 @@
 
 ## Recommended next development priorities
 
-1. **Reactive scheduler**: auto-start reviewer runs on `awaiting_review`, owner runs on `ready` with satisfied dependencies — this turns the stored orchestration modes into true automation.
+1. **Extend the reactive scheduler to the task board**: auto-start reviewer runs on `awaiting_review` and owner runs on `ready` with satisfied dependencies, reusing the ProjectRun transition machinery.
 2. **Postgres + BullMQ worker**: production durability and concurrency.
 3. **Session auth + RBAC**, then multi-workspace.
 4. **Sandboxed code-execution tool** (container-based) behind a high-risk approval gate — unlocks real software builds.

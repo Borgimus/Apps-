@@ -23,6 +23,14 @@ const TYPE_ICONS: Record<string, string> = {
   project_created: '◆',
   project_completed: '🏁',
   model_call_rerun: '⟲',
+  project_run_started: '🤝',
+  agent_run_started: '▶',
+  agent_run_completed: '✔',
+  review_requested: '🔍',
+  review_completed: '🔍',
+  revision_requested: '✏',
+  project_finalizing: '📦',
+  project_failed: '✖',
 };
 
 /**

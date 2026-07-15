@@ -428,13 +428,18 @@ async function runStep(
   const settle = async (data: Partial<Parameters<typeof prisma.agentRun.update>[0]['data']>) =>
     prisma.agentRun.update({ where: { id: agentRun.id }, data: { finishedAt: new Date(), ...data } });
 
-  const callModel = async (system: string, user: string, seq: number, note: string) => {
+  const callModel = async (
+    system: string,
+    messages: Array<{ role: 'user' | 'assistant'; content: string }>,
+    seq: number,
+    note: string,
+  ) => {
     const startedAt = Date.now();
     try {
       const resp = await callWithRetry(mc.provider, {
         modelId: mc.modelId,
         system,
-        messages: [{ role: 'user', content: user }],
+        messages,
         tools: [],
         temperature: mc.temperature,
         maxTokens: mc.maxTokens,
@@ -451,7 +456,7 @@ async function runStep(
           provider: mc.provider,
           modelId: mc.modelId,
           systemPrompt: system,
-          messagesJson: toJson([{ role: 'user', content: user }]),
+          messagesJson: toJson(messages),
           settingsJson: toJson({ temperature: mc.temperature, maxTokens: mc.maxTokens }),
           contextJson: toJson({
             collaboration: { projectRunId: projectRun.id, phase: projectRun.phase, slot, runType, parentAgentRunId, note },
@@ -488,14 +493,14 @@ async function runStep(
         data: { modelCallId: call.id, runId: agentRun.id, projectRunId: projectRun.id, usage: resp.usage, costUsd },
         refId: call.id,
       });
-      return resp.text;
+      return { text: resp.text, stopReason: resp.stopReason };
     } catch (err) {
       const msg = err instanceof ProviderError ? `${err.kind}: ${err.message}` : String(err);
       await prisma.modelCall.create({
         data: {
           runId: agentRun.id, projectId: projectRun.projectId, agentId: agent.id, seq,
           provider: mc.provider, modelId: mc.modelId, systemPrompt: system,
-          messagesJson: toJson([{ role: 'user', content: user }]),
+          messagesJson: toJson(messages),
           contextJson: toJson({ collaboration: { projectRunId: projectRun.id, slot, note } }),
           status: 'error', error: msg, durationMs: Date.now() - startedAt,
         },
@@ -504,20 +509,58 @@ async function runStep(
     }
   };
 
+  const MAX_CONTINUATIONS = 2;
+  const isTruncated = (stopReason: string) => ['max_tokens', 'length'].includes(stopReason);
+
   try {
-    const raw = await callModel(prompts.system, prompts.user, 0, '');
+    // Long outputs (e.g. a full synthesis) can hit the model's output-token
+    // cap mid-JSON. Detect the truncated stop reason and ask the model to
+    // continue where it stopped, stitching the pieces together.
+    let { text: raw, stopReason } = await callModel(
+      prompts.system,
+      [{ role: 'user', content: prompts.user }],
+      0,
+      '',
+    );
+    let seq = 0;
+    while (isTruncated(stopReason) && seq < MAX_CONTINUATIONS) {
+      seq++;
+      const cont = await callModel(
+        prompts.system,
+        [
+          { role: 'user', content: prompts.user },
+          { role: 'assistant', content: raw },
+          {
+            role: 'user',
+            content:
+              'Your previous response was cut off before it finished. Continue EXACTLY where it stopped — output only the remaining text, with no repetition and no preamble.',
+          },
+        ],
+        seq,
+        `continuation ${seq} (previous response truncated)`,
+      );
+      raw += cont.text;
+      stopReason = cont.stopReason;
+    }
+
     let parsed = AgentOutputSchema.safeParse(tryParse(extractJson(raw)));
     let finalRaw = raw;
-    if (!parsed.success) {
+    if (!parsed.success && !isTruncated(stopReason)) {
       // One repair pass, then fail visibly with the raw response preserved.
+      // (Skipped when the response is still truncated — regenerating under
+      // the same output cap cannot succeed; that needs a bigger maxTokens.)
       const repair = buildRepairPrompt(raw);
-      finalRaw = await callModel(repair.system, repair.user, 1, 'JSON repair pass');
+      const repaired = await callModel(repair.system, [{ role: 'user', content: repair.user }], seq + 1, 'JSON repair pass');
+      finalRaw = repaired.text;
       parsed = AgentOutputSchema.safeParse(tryParse(extractJson(finalRaw)));
     }
     if (!parsed.success) {
+      const truncationHint = isTruncated(stopReason)
+        ? ` The response was still truncated after ${MAX_CONTINUATIONS} continuations (stop reason: ${stopReason}) — increase maxTokens on the "${mc.name}" model configuration.`
+        : '';
       await settle({
         status: 'failed',
-        error: `schema_validation_failed: agent output did not match AgentOutputSchema after one repair attempt (${parsed.error.issues[0]?.message ?? 'invalid'})`,
+        error: `schema_validation_failed: agent output did not match AgentOutputSchema after one repair attempt (${parsed.error.issues[0]?.message ?? 'invalid'}).${truncationHint}`,
         transcriptJson: toJson([{ role: 'assistant', content: finalRaw }]),
       });
       await prisma.agent.update({ where: { id: agent.id }, data: { status: 'error' } });

@@ -163,6 +163,29 @@ describe('collaboration orchestrator', () => {
     expect(Math.max(...callCounts)).toBe(2);
   }, 30_000);
 
+  it('stitches truncated responses together via continuation calls', async () => {
+    const f = await makeTwoAgentProject();
+    const run = await startCollaboration(f.project.id, {
+      prompt: '[test:truncated-json] very long output',
+      maxModelCalls: 20, // continuations add extra calls
+    });
+    const final = await settled(run.id);
+    expect(final.status).toBe('completed');
+    // Each initial step needed one continuation call (2 model calls per step).
+    const initials = await prisma.agentRun.findMany({ where: { projectRunId: run.id, runType: 'initial' } });
+    for (const s of initials) {
+      expect(await prisma.modelCall.count({ where: { runId: s.id } })).toBe(2);
+      const parsed = JSON.parse(s.parsedOutputJson ?? 'null') as { workProduct: string } | null;
+      expect(parsed?.workProduct).toContain('Long proposal'); // stitched JSON parsed cleanly
+    }
+    const continuation = await prisma.modelCall.findFirst({
+      where: { run: { projectRunId: run.id } },
+      orderBy: { createdAt: 'asc' },
+      skip: 1,
+    });
+    expect(continuation?.contextJson).toContain('continuation');
+  }, 30_000);
+
   it('supports pause and resume mid-workflow', async () => {
     const f = await makeTwoAgentProject();
     const run = await startCollaboration(f.project.id, { prompt: 'Pausable collaboration' });

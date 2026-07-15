@@ -49,7 +49,10 @@ function call(name: string, input: unknown): NormToolCall {
  * Deterministic structured-JSON outputs for collaboration phases.
  * Returns null when the request is not a collaboration call.
  */
-function collaborationResponse(req: ProviderRequest, user: string): string | null {
+function collaborationResponse(
+  req: ProviderRequest,
+  user: string,
+): string | { text: string; stopReason?: string } | null {
   const agentName = /You are "([^"]+)"/.exec(req.system)?.[1] ?? 'Agent';
   const promptHead = (/Original project request:\n([^\n]+)/.exec(user)?.[1] ?? user).slice(0, 100);
   const out = (o: Record<string, unknown>) =>
@@ -71,6 +74,21 @@ function collaborationResponse(req: ProviderRequest, user: string): string | nul
   if (!phase) return null;
 
   if (user.includes('[test:malformed-json]')) return '{{{ this is not json [test:malformed-json]';
+  if (user.includes('[test:truncated-json]') && phase === 'initial') {
+    // First call stops mid-JSON with a truncation stop reason; the follow-up
+    // continuation call (recognizable by the assistant partial in the
+    // transcript) returns the remainder.
+    const full = out({
+      summary: `${agentName} produced a long independent proposal.`,
+      workProduct: `Long proposal from ${agentName} for "${promptHead}": scope, implementation plan, verification strategy.`,
+      status: 'needs_review',
+      nextAction: 'send_to_reviewer',
+    });
+    const mid = Math.floor(full.length / 2);
+    const isContinuation = req.messages.some((m) => m.role === 'assistant');
+    if (!isContinuation) return { text: full.slice(0, mid), stopReason: 'max_tokens' };
+    return { text: full.slice(mid), stopReason: 'end_turn' };
+  }
   if (user.includes('[test:repairable-json]') && phase === 'initial') {
     // Truncated JSON — valid content, broken syntax → exercises the repair pass.
     return `{"summary": "Broken but repairable output from ${agentName}", "workProduct": "Proposal`;
@@ -204,7 +222,11 @@ export class MockAdapter implements ProviderAdapter {
 
     // ---- Structured collaboration protocol (ProjectRun phases) ----
     const collab = collaborationResponse(req, objective);
-    if (collab !== null) return response(collab, [], req);
+    if (collab !== null) {
+      const norm = typeof collab === 'string' ? { text: collab } : collab;
+      const resp = response(norm.text, [], req);
+      return norm.stopReason ? { ...resp, stopReason: norm.stopReason } : resp;
+    }
 
     // ---- Test markers (deterministic behaviors for the test suite) ----
     if (objective.includes('[test:error]')) {

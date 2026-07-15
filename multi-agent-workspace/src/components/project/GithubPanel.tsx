@@ -32,7 +32,7 @@ export function GithubPanel({ projectId }: { projectId: string }) {
       setBaseBranch(data.connection.baseBranch);
       setWorkingBranch(data.connection.workingBranch);
     }
-  }, [data?.connection?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [data?.connection?.id, data?.connection?.baseBranch, data?.connection?.workingBranch]);
 
   const test = async () => {
     setBusy('test');
@@ -48,7 +48,11 @@ export function GithubPanel({ projectId }: { projectId: string }) {
     setMsg(null);
     const res = await apiCall(`/api/projects/${projectId}/repo`, 'PUT', { baseBranch, workingBranch });
     setBusy(null);
-    setMsg(res.ok ? { kind: 'ok', text: 'Saved ✓' } : { kind: 'err', text: res.error ?? 'Save failed' });
+    setMsg(
+      res.ok
+        ? { kind: 'ok', text: `Saved ✓ ${baseBranch} → ${workingBranch || 'read-only (no working branch)'}` }
+        : { kind: 'err', text: res.error ?? 'Save failed' },
+    );
     await refresh();
   };
 
@@ -89,10 +93,13 @@ export function GithubPanel({ projectId }: { projectId: string }) {
             <Field label="Base branch (reads, diff targets, PR base)">
               <input className={inputCls} value={baseBranch} onChange={(e) => setBaseBranch(e.target.value)} placeholder="main" />
             </Field>
-            <Field label={`Working branch (optional; must start with ${data.writablePrefixes.join(' / ')})`}>
+            <Field label={`Working branch (required for writes; must start with ${data.writablePrefixes.join(' / ')})`}>
               <input className={inputCls} value={workingBranch} onChange={(e) => setWorkingBranch(e.target.value)} placeholder="agent/my-feature" />
             </Field>
           </div>
+          <p className="text-2xs text-ink-faint">
+            Saved binding: {data.connection?.baseBranch ?? 'none'} → {data.connection?.workingBranch || 'read-only (no working branch)'}
+          </p>
           <div className="flex items-center gap-2">
             <Button variant="primary" disabled={busy !== null} onClick={() => void save()}>
               {busy === 'save' ? 'Saving…' : 'Save'}

@@ -6,6 +6,7 @@ import { ApprovalList } from '@/components/ApprovalList';
 import { UsagePanel } from '@/components/UsagePanel';
 import { ActivityFeed } from '@/components/project/ActivityFeed';
 import { CollaborationPanel, ProjectRunRow } from '@/components/project/CollaborationPanel';
+import { GithubPanel } from '@/components/project/GithubPanel';
 import { FilesPanel } from '@/components/project/FilesPanel';
 import { PromptInspector } from '@/components/project/PromptInspector';
 import { AgentLite, TaskBoard, TaskRow } from '@/components/project/TaskBoard';
@@ -157,7 +158,12 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         {tab === 'Decisions' && <Decisions project={project} agentNames={agentNames} />}
         {tab === 'Approvals' && <ApprovalList projectId={id} />}
         {tab === 'Usage' && <UsagePanel projectId={id} />}
-        {tab === 'Settings' && <ProjectSettings project={project} refresh={() => void refresh()} />}
+        {tab === 'Settings' && (
+          <div className="space-y-4">
+            <ProjectSettings project={project} refresh={() => void refresh()} />
+            <GithubPanel projectId={id} />
+          </div>
+        )}
       </div>
 
       <PromptInspector modelCallId={inspectCallId} onClose={() => setInspectCallId(null)} />

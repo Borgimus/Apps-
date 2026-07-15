@@ -1,5 +1,7 @@
 import { prisma } from '../db';
 import { emitActivity, notify } from '../events';
+import { GithubError, redactSecretsFromText } from '../github/auth';
+import { GITHUB_READ_TOOLS, GITHUB_WRITE_TOOLS, runGithubTool } from '../github/tools';
 import { parseJson, toJson } from '../json';
 import { TOOL_SPECS } from './defs';
 
@@ -26,6 +28,9 @@ export interface AgentPermissions {
   fileWriteRequiresApproval?: boolean;
   fileDeleteRequiresApproval?: boolean;
   network?: boolean;
+  githubRead?: boolean;
+  githubWrite?: boolean;
+  githubPullRequest?: boolean;
 }
 
 /** Does this tool call require a human approval gate before executing? */
@@ -35,9 +40,20 @@ export function toolNeedsApproval(
 ): boolean {
   const spec = TOOL_SPECS[toolName];
   if (!spec || !spec.approvable) return false;
+  // GitHub mutations ALWAYS require human approval — the githubWrite /
+  // githubPullRequest permissions let an agent request them, never bypass this.
+  if (GITHUB_WRITE_TOOLS.has(toolName)) return true;
   if (toolName === 'write_file') return permissions.fileWriteRequiresApproval === true;
   if (toolName === 'delete_file') return permissions.fileDeleteRequiresApproval !== false; // default: gated
   return spec.risk === 'high';
+}
+
+/** Which permission flag (if any) a GitHub tool requires. */
+function requiredGithubPermission(toolName: string): keyof AgentPermissions | null {
+  if (toolName === 'github_open_draft_pull_request') return 'githubPullRequest';
+  if (GITHUB_WRITE_TOOLS.has(toolName)) return 'githubWrite';
+  if (GITHUB_READ_TOOLS.has(toolName)) return 'githubRead';
+  return null;
 }
 
 async function resolveProjectAgent(projectId: string, roleOrName: string) {
@@ -125,6 +141,31 @@ async function runTool(
   toolName: string,
   input: Record<string, unknown>,
 ): Promise<ToolResult> {
+  // GitHub tools: enforce the per-agent permission flag, then delegate to the
+  // repo-scoped GitHub layer. Errors are redacted before they can reach the
+  // model, the timeline, or the browser.
+  if (GITHUB_READ_TOOLS.has(toolName) || GITHUB_WRITE_TOOLS.has(toolName)) {
+    const perm = requiredGithubPermission(toolName);
+    if (perm) {
+      const agent = await prisma.agent.findUnique({ where: { id: ctx.agentId }, select: { permissionsJson: true } });
+      const permissions = parseJson<AgentPermissions>(agent?.permissionsJson ?? '{}', {});
+      if (permissions[perm] !== true) {
+        return {
+          ok: false,
+          output: null,
+          error: `Permission denied: this agent does not have the "${perm}" permission required by ${toolName}`,
+        };
+      }
+    }
+    try {
+      const output = await runGithubTool(ctx.projectId, toolName, input);
+      return { ok: true, output };
+    } catch (err) {
+      const message = err instanceof GithubError ? err.message : redactSecretsFromText(String(err));
+      return { ok: false, output: null, error: message };
+    }
+  }
+
   switch (toolName) {
     case 'list_files': {
       const files = await prisma.projectFile.findMany({

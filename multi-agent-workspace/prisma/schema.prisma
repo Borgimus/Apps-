@@ -372,6 +372,23 @@ model AuditEvent {
   @@index([projectId, createdAt])
 }
 
+// Per-project GitHub repository configuration. Identity only — tokens and
+// private keys are NEVER stored in the database (auth lives server-side in
+// src/lib/github/auth.ts, fed exclusively by environment variables).
+model RepoConnection {
+  id             String   @id @default(cuid())
+  projectId      String   @unique
+  owner          String
+  repo           String
+  baseBranch     String   @default("main") // read base for diffs/PR targets
+  workingBranch  String   @default("")     // agent working branch (agent/ | agents/ | feature/ prefix)
+  status         String   @default("unverified") // unverified | connected | error
+  lastVerifiedAt DateTime?
+  lastError      String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
 model ProjectMemory {
   id        String   @id @default(cuid())
   projectId String

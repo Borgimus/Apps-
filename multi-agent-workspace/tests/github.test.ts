@@ -32,11 +32,16 @@ function clearEnv() {
 
 /** fetch stub: token endpoint + a route table; records every request. */
 function stubGithub(routes: Record<string, (init?: RequestInit) => { status?: number; body?: unknown; text?: string }>) {
-  const calls: Array<{ url: string; method: string; body: unknown }> = [];
+  const calls: Array<{ url: string; method: string; body: unknown; authorization: string | null }> = [];
   vi.stubGlobal('fetch', vi.fn(async (url: unknown, init?: RequestInit) => {
     const u = String(url);
     const method = init?.method ?? 'GET';
-    calls.push({ url: u, method, body: init?.body ? JSON.parse(String(init.body)) : undefined });
+    calls.push({
+      url: u,
+      method,
+      body: init?.body ? JSON.parse(String(init.body)) : undefined,
+      authorization: new Headers(init?.headers).get('authorization'),
+    });
     if (u.includes('/app/installations/')) {
       return new Response(JSON.stringify({ token: 'ghs_mocktoken1234567890abcd', expires_at: new Date(Date.now() + 3600_000).toISOString() }), { status: 201 });
     }
@@ -81,6 +86,14 @@ describe('github auth service', () => {
     expect(tokenCalls[0]!.body).toEqual({ repositories: ['Apps-'] }); // restricted to the one repo
     // The JWT goes only to the token endpoint; API calls use the installation token.
     expect(tokenCalls[0]!.url).toContain('/app/installations/67890/access_tokens');
+    const jwt = tokenCalls[0]!.authorization?.replace(/^Bearer\s+/, '');
+    expect(jwt).toBeTruthy();
+    const payload = JSON.parse(
+      Buffer.from(jwt!.split('.')[1]!, 'base64url').toString('utf8'),
+    ) as { iat: number; exp: number };
+    const now = Math.floor(Date.now() / 1000);
+    expect(payload.exp - now).toBeLessThanOrEqual(540);
+    expect(payload.exp - payload.iat).toBe(600);
   });
 
   it('refuses any request outside the allowed repository without touching the network', async () => {

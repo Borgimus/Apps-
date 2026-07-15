@@ -322,7 +322,7 @@ const GITHUB_SPECS: Record<string, ToolSpec> = {
       'Create or update ONE file on an agent branch (agent/*, agents/*, feature/*) as a commit. Requires human approval. Protected branches and workflow files are always refused.',
     risk: 'high',
     approvable: true,
-    input: z.object({ branch: z.string().min(1), path: z.string().min(1), content: z.string(), message: z.string().optional() }),
+    input: z.object({ branch: z.string().min(1).max(200), path: z.string().min(1).max(500), content: z.string().max(500_000), message: z.string().max(200).optional() }),
     jsonSchema: {
       type: 'object',
       properties: {
@@ -339,9 +339,9 @@ const GITHUB_SPECS: Record<string, ToolSpec> = {
     risk: 'high',
     approvable: true,
     input: z.object({
-      branch: z.string().min(1),
-      message: z.string().min(1),
-      files: z.array(z.object({ path: z.string().min(1), content: z.string() })).min(1).max(30),
+      branch: z.string().min(1).max(200),
+      message: z.string().min(1).max(200),
+      files: z.array(z.object({ path: z.string().min(1).max(500), content: z.string().max(500_000) })).min(1).max(20),
     }),
     jsonSchema: {
       type: 'object',
@@ -349,6 +349,8 @@ const GITHUB_SPECS: Record<string, ToolSpec> = {
         branch: str('Target agent branch'), message: str('Commit message'),
         files: {
           type: 'array',
+          minItems: 1,
+          maxItems: 20,
           description: 'Files to include in the commit',
           items: { type: 'object', properties: { path: str('File path'), content: str('Full file content') }, required: ['path', 'content'] },
         },

@@ -122,7 +122,19 @@ export class OpenAICompatAdapter implements ProviderAdapter {
       const text = await res.text().catch(() => '');
       if (res.status === 401 || res.status === 403)
         throw new ProviderError(`Auth error: ${text}`, 'auth', false);
-      if (res.status === 429) throw new ProviderError(`Rate limit: ${text}`, 'rate_limit', true);
+      if (res.status === 429) {
+        // Honor the provider's suggested wait: Retry-After header, or the
+        // "Please try again in 9.492s" hint OpenAI embeds in the body.
+        const retryAfterS = Number(res.headers.get('retry-after'));
+        const bodyHint = /try again in ([0-9.]+)s/i.exec(text);
+        const retryAfterMs =
+          Number.isFinite(retryAfterS) && retryAfterS > 0
+            ? retryAfterS * 1000
+            : bodyHint
+              ? parseFloat(bodyHint[1]!) * 1000
+              : undefined;
+        throw new ProviderError(`Rate limit: ${text}`, 'rate_limit', true, retryAfterMs);
+      }
       if (res.status >= 500)
         throw new ProviderError(`Server error (${res.status}): ${text}`, 'overloaded', true);
       throw new ProviderError(`Error ${res.status}: ${text}`, 'invalid_request', false);

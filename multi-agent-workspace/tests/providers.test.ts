@@ -86,6 +86,17 @@ describe('provider registry', () => {
     expect(attempts).toEqual([1, 2, 3, 4]); // four retries before the fifth, final attempt
   }, 20_000);
 
+  it('honors provider retry-after hints on rate limits and recovers', async () => {
+    const start = Date.now();
+    const attempts: number[] = [];
+    const resp = await callWithRetry('mock', req(`[test:rate-limit-once] tpm-${Date.now()}`), (attempt) => {
+      attempts.push(attempt);
+    });
+    expect(resp.toolCalls[0]?.name).toBe('complete_task'); // recovered after the wait
+    expect(attempts).toEqual([1]);
+    expect(Date.now() - start).toBeGreaterThanOrEqual(500); // waited hint (50ms) + safety buffer (500ms)
+  });
+
   it('scales the request timeout with the requested output size', () => {
     expect(requestTimeoutMs(4096)).toBeCloseTo(60_000 + 4096 * 25); // ~2.7 min
     expect(requestTimeoutMs(16384)).toBeCloseTo(60_000 + 16384 * 25); // ~7.8 min — a 16k-token synthesis fits

@@ -54,6 +54,8 @@ export class ProviderError extends Error {
       | 'network'
       | 'unknown',
     public readonly retryable: boolean,
+    /** Provider-suggested wait before retrying (Retry-After / "try again in Xs"). */
+    public readonly retryAfterMs?: number,
   ) {
     super(message);
     this.name = 'ProviderError';

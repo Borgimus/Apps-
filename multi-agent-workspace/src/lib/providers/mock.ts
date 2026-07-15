@@ -36,6 +36,7 @@ function response(text: string, toolCalls: NormToolCall[], req: ProviderRequest)
 }
 
 let counter = 0;
+const rateLimitedObjectives = new Set<string>();
 function tid(name: string): string {
   counter = (counter + 1) % 1_000_000;
   return `mock_${name}_${counter}`;
@@ -234,6 +235,14 @@ export class MockAdapter implements ProviderAdapter {
     }
     if (objective.includes('[test:network-error]')) {
       throw new ProviderError('Simulated connection failure: fetch failed', 'network', true);
+    }
+    if (objective.includes('[test:rate-limit-once]')) {
+      // Throws exactly once per unique objective with a retry-after hint,
+      // then succeeds — exercises hint-aware retry recovery.
+      if (!rateLimitedObjectives.has(objective)) {
+        rateLimitedObjectives.add(objective);
+        throw new ProviderError('Simulated TPM limit. Please try again in 0.05s.', 'rate_limit', true, 50);
+      }
     }
     if (objective.includes('[test:loop]')) {
       return response(`Thinking… (step ${iteration + 1})`, [], req);

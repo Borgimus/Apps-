@@ -26,10 +26,24 @@ export function listProviders(): string[] {
 }
 
 const MAX_ATTEMPTS = 3;
-// Connection-level failures (Wi-Fi blips, DNS hiccups, socket resets) deserve
-// a wider retry window than API-level errors — they usually clear in seconds.
-const MAX_NETWORK_ATTEMPTS = 5;
+// Connection failures and rate limits deserve a wider retry window than other
+// API errors — they clear on their own within seconds to a minute.
+const MAX_PATIENT_ATTEMPTS = 5;
 const BASE_DELAY_MS = 500;
+const MAX_DELAY_MS = 90_000;
+
+function retryDelayMs(err: ProviderError, attempt: number): number {
+  // Best signal: the provider told us exactly how long to wait.
+  if (err.retryAfterMs != null && err.retryAfterMs > 0) {
+    return Math.min(err.retryAfterMs + 500, MAX_DELAY_MS); // +buffer for clock skew
+  }
+  // Rate limits without a hint: token windows refill per minute, so back off
+  // much harder than for transient connection errors.
+  if (err.kind === 'rate_limit') {
+    return Math.min(2_000 * 3 ** (attempt - 1), 60_000); // 2s, 6s, 18s, 54s
+  }
+  return BASE_DELAY_MS * 2 ** (attempt - 1);
+}
 
 /** Call a provider with retry + exponential backoff on retryable errors. */
 export async function callWithRetry(
@@ -39,7 +53,7 @@ export async function callWithRetry(
 ): Promise<ProviderResponse> {
   const adapter = getAdapter(provider);
   let lastErr: ProviderError | undefined;
-  for (let attempt = 1; attempt <= MAX_NETWORK_ATTEMPTS; attempt++) {
+  for (let attempt = 1; attempt <= MAX_PATIENT_ATTEMPTS; attempt++) {
     try {
       return await adapter.call(req);
     } catch (err) {
@@ -48,11 +62,12 @@ export async function callWithRetry(
           ? err
           : new ProviderError(String(err), 'unknown', false);
       lastErr = pErr;
-      const maxAttempts = ['network', 'timeout'].includes(pErr.kind) ? MAX_NETWORK_ATTEMPTS : MAX_ATTEMPTS;
+      const maxAttempts = ['network', 'timeout', 'rate_limit'].includes(pErr.kind)
+        ? MAX_PATIENT_ATTEMPTS
+        : MAX_ATTEMPTS;
       if (!pErr.retryable || attempt >= maxAttempts) throw pErr;
       await onRetry?.(attempt, pErr);
-      const delay = BASE_DELAY_MS * 2 ** (attempt - 1);
-      await new Promise((r) => setTimeout(r, delay));
+      await new Promise((r) => setTimeout(r, retryDelayMs(pErr, attempt)));
     }
   }
   throw lastErr ?? new ProviderError('Provider call failed', 'unknown', false);

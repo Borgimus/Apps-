@@ -6,6 +6,7 @@ import { prisma } from '@/lib/db';
 import { clearTokenCache, getAllowedRepo, ghRequest, GithubError, redactSecretsFromText, verifyConnection } from '@/lib/github/auth';
 import { assertWritableBranch, assertWritablePath } from '@/lib/github/tools';
 import { toolNeedsApproval } from '@/lib/tools/execute';
+import { resolveApproval } from '@/lib/orchestrator/engine';
 import { executeTool, ToolContext } from '@/lib/tools/execute';
 import { makeFixture } from './helpers';
 
@@ -192,6 +193,43 @@ describe('permissioned execution through the central executor', () => {
       allowedTools: tools,
     };
   }
+
+  it('does not let an unrelated approval resolve a pending GitHub tool gate', async () => {
+    const ctx = await makeCtx(
+      { githubRead: true, githubWrite: true },
+      ['github_create_branch'],
+    );
+    await prisma.agentRun.update({
+      where: { id: ctx.runId },
+      data: {
+        status: 'awaiting_approval',
+        pendingToolCallJson: JSON.stringify({
+          modelCallId: 'model-call-test',
+          current: {
+            id: 'call-create-branch',
+            name: 'github_create_branch',
+            input: { branch: 'agent/docs-update', fromBranch: 'main' },
+          },
+          remaining: [],
+        }),
+      },
+    });
+    const unrelated = await prisma.approvalRequest.create({
+      data: {
+        projectId: ctx.projectId,
+        runId: ctx.runId,
+        agentId: ctx.agentId,
+        action: 'Create a new branch',
+        reason: 'Redundant agent-created approval',
+      },
+    });
+
+    await resolveApproval(unrelated.id, 'rejected', 'Automatic tool gate handles this');
+
+    const run = await prisma.agentRun.findUniqueOrThrow({ where: { id: ctx.runId } });
+    expect(run.status).toBe('awaiting_approval');
+    expect(run.pendingToolCallJson).toContain('github_create_branch');
+  });
 
   it('denies GitHub reads without the githubRead permission and audits the attempt', async () => {
     const ctx = await makeCtx({ githubRead: false }, ['github_read_file']);

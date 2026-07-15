@@ -7,6 +7,7 @@ import { clearTokenCache, getAllowedRepo, ghRequest, GithubError, redactSecretsF
 import { assertWritableBranch, assertWritablePath } from '@/lib/github/tools';
 import { toolNeedsApproval } from '@/lib/tools/execute';
 import { resolveApproval } from '@/lib/orchestrator/engine';
+import { assembleContext } from '@/lib/orchestrator/prompt';
 import { executeTool, ToolContext } from '@/lib/tools/execute';
 import { makeFixture } from './helpers';
 
@@ -151,6 +152,41 @@ describe('approval policy', () => {
 });
 
 describe('GitHub approval prompt guidance', () => {
+  it('includes the verified project repository binding in every agent prompt', async () => {
+    const f = await makeFixture();
+    await prisma.repoConnection.create({
+      data: {
+        projectId: f.project.id,
+        owner: 'Borgimus',
+        repo: 'Apps-',
+        baseBranch: 'main',
+        workingBranch: 'agent/github-reconcile-smoke-test',
+        status: 'connected',
+        lastVerifiedAt: new Date(),
+      },
+    });
+
+    const assembled = await assembleContext({
+      workspace: f.workspace,
+      project: f.project,
+      agent: { ...f.agent, modelConfig: f.modelConfig },
+      task: null,
+      objective: 'Run a GitHub smoke test',
+    });
+
+    expect(assembled.system).toContain('Repository: Borgimus/Apps-');
+    expect(assembled.system).toContain('Base branch: main');
+    expect(assembled.system).toContain('Working branch: agent/github-reconcile-smoke-test');
+    expect(assembled.system).toContain('never call request_approval separately for a GitHub mutation');
+    expect(assembled.contextManifest.repositoryConnection).toEqual({
+      owner: 'Borgimus',
+      repo: 'Apps-',
+      baseBranch: 'main',
+      workingBranch: 'agent/github-reconcile-smoke-test',
+      status: 'connected',
+    });
+  });
+
   it('tells models not to create duplicate approval requests', async () => {
     const { TOOL_SPECS } = await import('@/lib/tools/defs');
     for (const name of [

@@ -113,6 +113,7 @@ describe('branch and path guards', () => {
       expect(() => assertWritableBranch(b), b).not.toThrow();
     }
     expect(() => assertWritableBranch('agent/other', 'agent/configured')).toThrow('configured working branch');
+    expect(() => assertWritableBranch('agent/other', '')).toThrow('Configure a project working branch');
   });
 
   it('refuses workflow, action and traversal paths', () => {

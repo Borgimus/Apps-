@@ -38,6 +38,9 @@ export async function assembleContext(opts: {
     where: { projectId: project.id, pinned: true },
     take: 20,
   });
+  const repoConnection = await prisma.repoConnection.findUnique({
+    where: { projectId: project.id },
+  });
   // Recent messages addressed to this agent or broadcast — not the full history.
   const recentMessages = await prisma.message.findMany({
     where: {
@@ -66,6 +69,15 @@ export async function assembleContext(opts: {
     `Instructions: ${project.instructions || '(none)'}`,
     `Orchestration mode: ${project.orchestrationMode}`,
     '',
+    '## Repository connection',
+    repoConnection?.status === 'connected'
+      ? [
+          `Repository: ${repoConnection.owner}/${repoConnection.repo}`,
+          `Base branch: ${repoConnection.baseBranch}`,
+          `Working branch: ${repoConnection.workingBranch || '(not configured; repository writes are unavailable)'}`,
+        ].join('\n')
+      : 'No verified repository connection is configured for this project.',
+    '',
     '## Team',
     roster.map((r) => `- ${r.agent.name} (${r.agent.role})${r.agent.id === agent.id ? ' ← you' : ''}`).join('\n') ||
       '(no agents assigned)',
@@ -75,7 +87,8 @@ export async function assembleContext(opts: {
     '- Communicate with other agents via send_message with an appropriate message type.',
     '- Create subtasks with create_task and delegate by role when work belongs to someone else.',
     '- When you finish, call complete_task with a concise factual summary.',
-    '- If an action is outside your permissions, call request_approval instead of working around it.',
+    '- GitHub mutation tools automatically create their own human approval gate. Call the GitHub tool directly; never call request_approval separately for a GitHub mutation.',
+    '- For actions outside your permissions that do not have an automatic tool approval gate, call request_approval instead of working around the restriction.',
     '- Never fabricate file contents or results; read files before editing them, and pass baseVersion when writing.',
   ].join('\n');
 
@@ -119,6 +132,15 @@ export async function assembleContext(opts: {
     contextManifest: {
       layers: ['agent.systemPrompt', 'workspace.instructions', 'project', 'roster', 'workingRules'],
       task: task ? { id: task.id, title: task.title } : null,
+      repositoryConnection: repoConnection
+        ? {
+            owner: repoConnection.owner,
+            repo: repoConnection.repo,
+            baseBranch: repoConnection.baseBranch,
+            workingBranch: repoConnection.workingBranch,
+            status: repoConnection.status,
+          }
+        : null,
       pinnedMemoryKeys: pinnedMemory.map((m) => m.key),
       fileList: files.map((f) => f.path),
       includedMessageIds: recentMessages.map((m) => m.id),

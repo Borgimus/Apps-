@@ -39,7 +39,7 @@ export const GITHUB_WRITE_TOOLS = new Set([
   'github_open_draft_pull_request',
 ]);
 
-export function assertWritableBranch(branch: string): void {
+export function assertWritableBranch(branch: string, configuredWorkingBranch?: string | null): void {
   const b = branch.trim();
   if (PROTECTED_BRANCHES.has(b)) {
     throw new GithubError(`Branch "${b}" is protected — agents may never write to it`, 'forbidden_target');
@@ -50,11 +50,22 @@ export function assertWritableBranch(branch: string): void {
       'forbidden_target',
     );
   }
+  if (configuredWorkingBranch !== undefined && configuredWorkingBranch !== null) {
+    if (!configuredWorkingBranch) {
+      throw new GithubError('Configure a project working branch before requesting repository writes', 'forbidden_target');
+    }
+    if (b !== configuredWorkingBranch) {
+      throw new GithubError(
+        `Writes are restricted to the project's configured working branch: ${configuredWorkingBranch}`,
+        'forbidden_target',
+      );
+    }
+  }
 }
 
 export function assertWritablePath(path: string): void {
   const norm = path.replace(/^\/+/, '');
-  if (norm.includes('..') || norm.startsWith('.git/')) {
+  if (norm.includes('..') || norm === '.git' || norm.startsWith('.git/')) {
     throw new GithubError(`Illegal repository path: ${norm}`, 'forbidden_target');
   }
   if (norm.startsWith('.github/workflows') || norm.startsWith('.github/actions')) {
@@ -63,15 +74,29 @@ export function assertWritablePath(path: string): void {
 }
 
 const MAX_FILE_BYTES = 200_000;
+const MAX_WRITE_FILE_BYTES = 500_000;
+const MAX_COMMIT_FILES = 20;
+const MAX_COMMIT_BYTES = 1_000_000;
 const MAX_DIFF_CHARS = 100_000;
 const MAX_TREE_ENTRIES = 500;
 
-async function defaultBaseBranch(projectId: string): Promise<string> {
-  const conn = await prisma.repoConnection.findUnique({ where: { projectId } });
-  if (conn?.baseBranch) return conn.baseBranch;
-  const { owner, repo } = getAllowedRepo();
-  const data = await ghRequest<{ default_branch?: string }>(`/repos/${owner}/${repo}`);
-  return data.default_branch ?? 'main';
+async function connectionFor(projectId: string) {
+  const connection = await prisma.repoConnection.findUnique({ where: { projectId } });
+  if (!connection || connection.status !== 'connected') {
+    throw new GithubError('This project does not have a verified GitHub repository connection', 'not_configured');
+  }
+  const allowed = getAllowedRepo();
+  if (
+    connection.owner.toLowerCase() !== allowed.owner.toLowerCase() ||
+    connection.repo.toLowerCase() !== allowed.repo.toLowerCase()
+  ) {
+    throw new GithubError('Project repository connection does not match GITHUB_REPOSITORY', 'repo_mismatch');
+  }
+  return connection;
+}
+
+function byteLength(content: string): number {
+  return Buffer.byteLength(content, 'utf8');
 }
 
 /** Execute one GitHub tool. Returns JSON-safe output for the tool result. */
@@ -81,11 +106,12 @@ export async function runGithubTool(
   input: Record<string, unknown>,
 ): Promise<unknown> {
   const { owner, repo } = getAllowedRepo();
+  const connection = await connectionFor(projectId);
   const repoPath = `/repos/${owner}/${repo}`;
 
   switch (toolName) {
     case 'github_list_tree': {
-      const ref = String(input.ref ?? (await defaultBaseBranch(projectId)));
+      const ref = String(input.ref ?? connection.baseBranch);
       const branch = await ghRequest<{ commit: { sha: string } }>(`${repoPath}/branches/${encodeURIComponent(ref)}`);
       const tree = await ghRequest<{ tree: Array<{ path: string; type: string; size?: number }>; truncated: boolean }>(
         `${repoPath}/git/trees/${branch.commit.sha}?recursive=1`,
@@ -100,7 +126,7 @@ export async function runGithubTool(
 
     case 'github_read_file': {
       const path = String(input.path).replace(/^\/+/, '');
-      const ref = input.ref ? `?ref=${encodeURIComponent(String(input.ref))}` : '';
+      const ref = `?ref=${encodeURIComponent(String(input.ref ?? connection.baseBranch))}`;
       const data = await ghRequest<{ content?: string; encoding?: string; size?: number; sha?: string }>(
         `${repoPath}/contents/${path.split('/').map(encodeURIComponent).join('/')}${ref}`,
       );
@@ -153,7 +179,7 @@ export async function runGithubTool(
       if (input.number !== undefined) {
         diff = await ghRequest<string>(`${repoPath}/pulls/${Number(input.number)}`, { accept: 'application/vnd.github.diff', raw: true });
       } else {
-        const base = encodeURIComponent(String(input.base ?? (await defaultBaseBranch(projectId))));
+        const base = encodeURIComponent(String(input.base ?? connection.baseBranch));
         const head = encodeURIComponent(String(input.head));
         diff = await ghRequest<string>(`${repoPath}/compare/${base}...${head}`, { accept: 'application/vnd.github.diff', raw: true });
       }
@@ -174,8 +200,11 @@ export async function runGithubTool(
 
     case 'github_create_branch': {
       const branch = String(input.branch);
-      assertWritableBranch(branch);
-      const from = String(input.fromBranch ?? (await defaultBaseBranch(projectId)));
+      assertWritableBranch(branch, connection.workingBranch);
+      const from = String(input.fromBranch ?? connection.baseBranch);
+      if (from !== connection.baseBranch) {
+        throw new GithubError(`Branches may only be created from the configured base branch: ${connection.baseBranch}`, 'forbidden_target');
+      }
       const base = await ghRequest<{ object: { sha: string } }>(`${repoPath}/git/ref/heads/${encodeURIComponent(from)}`);
       await ghRequest(`${repoPath}/git/refs`, {
         method: 'POST',
@@ -187,8 +216,12 @@ export async function runGithubTool(
     case 'github_write_file': {
       const branch = String(input.branch);
       const path = String(input.path).replace(/^\/+/, '');
-      assertWritableBranch(branch);
+      assertWritableBranch(branch, connection.workingBranch);
       assertWritablePath(path);
+      const content = String(input.content);
+      if (byteLength(content) > MAX_WRITE_FILE_BYTES) {
+        throw new GithubError(`File exceeds the ${MAX_WRITE_FILE_BYTES}-byte write limit`, 'forbidden_target');
+      }
       const encPath = path.split('/').map(encodeURIComponent).join('/');
       let existingSha: string | undefined;
       try {
@@ -201,7 +234,7 @@ export async function runGithubTool(
         method: 'PUT',
         body: {
           message: String(input.message ?? `Update ${path} via agent`),
-          content: Buffer.from(String(input.content), 'utf-8').toString('base64'),
+          content: Buffer.from(content, 'utf-8').toString('base64'),
           branch,
           ...(existingSha ? { sha: existingSha } : {}),
         },
@@ -211,9 +244,23 @@ export async function runGithubTool(
 
     case 'github_commit_files': {
       const branch = String(input.branch);
-      assertWritableBranch(branch);
+      assertWritableBranch(branch, connection.workingBranch);
       const files = input.files as Array<{ path: string; content: string }>;
-      for (const f of files) assertWritablePath(f.path);
+      if (!Array.isArray(files) || files.length === 0 || files.length > MAX_COMMIT_FILES) {
+        throw new GithubError(`Commits must contain between 1 and ${MAX_COMMIT_FILES} files`, 'forbidden_target');
+      }
+      let totalBytes = 0;
+      for (const f of files) {
+        assertWritablePath(f.path);
+        const size = byteLength(f.content);
+        if (size > MAX_WRITE_FILE_BYTES) {
+          throw new GithubError(`File exceeds the ${MAX_WRITE_FILE_BYTES}-byte write limit: ${f.path}`, 'forbidden_target');
+        }
+        totalBytes += size;
+      }
+      if (totalBytes > MAX_COMMIT_BYTES) {
+        throw new GithubError(`Commit exceeds the ${MAX_COMMIT_BYTES}-byte total write limit`, 'forbidden_target');
+      }
       const ref = await ghRequest<{ object: { sha: string } }>(`${repoPath}/git/ref/heads/${encodeURIComponent(branch)}`);
       const headCommit = await ghRequest<{ tree: { sha: string } }>(`${repoPath}/git/commits/${ref.object.sha}`);
       const tree = await ghRequest<{ sha: string }>(`${repoPath}/git/trees`, {
@@ -236,9 +283,12 @@ export async function runGithubTool(
 
     case 'github_open_draft_pull_request': {
       const head = String(input.head);
-      assertWritableBranch(head); // PRs may only come FROM agent branches
-      const base = String(input.base ?? (await defaultBaseBranch(projectId)));
-      if (WRITABLE_PREFIXES.some((p) => base.startsWith(p)) && base === head) {
+      assertWritableBranch(head, connection.workingBranch); // PRs may only come from the configured agent branch
+      const base = String(input.base ?? connection.baseBranch);
+      if (base !== connection.baseBranch) {
+        throw new GithubError(`Pull requests must target the configured base branch: ${connection.baseBranch}`, 'forbidden_target');
+      }
+      if (base === head) {
         throw new GithubError('head and base cannot be the same branch', 'forbidden_target');
       }
       const pr = await ghRequest<{ number: number; html_url: string }>(`${repoPath}/pulls`, {

@@ -20,11 +20,11 @@ Agents can read the connected repository and *propose* changes — branches, com
 | Layer | Enforcement |
 |---|---|
 | Credentials | Private key read server-side from `GITHUB_APP_PRIVATE_KEY_PATH` only; never logged, persisted, or returned to browser/model. Installation tokens are short-lived, cached in process memory, and **issued restricted to the one repository**. |
-| Repository scope | Every API path is validated against `GITHUB_REPOSITORY` before any request; anything else fails closed (`repo_mismatch`) with zero network access. |
+| Repository scope | Every API path is validated against `GITHUB_REPOSITORY` before any request. The active project must also have a verified repository connection matching that repository. Anything else fails closed with zero network access. |
 | Permissions | `githubRead` / `githubWrite` / `githubPullRequest` flags per agent, enforced inside the central executor. |
 | Approvals | **Every mutation** (create branch, write file, commit files, open draft PR) requires human approval — permissions let an agent *request*, approval lets it *execute*. Reads run without approval when `githubRead` is set. |
-| Branch guard | Writes only to branches starting `agent/`, `agents/`, `feature/`. `main`, `master`, and `claude/options-trading-research-system-TIU0p` are hard-refused regardless of prefix or approval. |
-| Path guard | `.github/workflows/**`, `.github/actions/**`, `.git/**` and path traversal are always refused. |
+| Branch guard | Writes only to the project's exact configured working branch, which must start with `agent/`, `agents/`, or `feature/`. Branch creation must use the configured base, and draft PRs must target it. Protected branches remain hard-refused regardless of approval. |
+| Path and payload guard | `.github/workflows/**`, `.github/actions/**`, `.git/**` and path traversal are always refused. Single-file writes are capped at 500 KB; atomic commits are capped at 20 files and 1 MB total. |
 | Missing by design | No merge tool, no branch deletion, no repository administration, no secret access. PRs are always **draft**; merging is a human action on GitHub. |
 | Errors | All GitHub error text passes secret redaction before reaching the model, timeline, or browser. |
 

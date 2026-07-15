@@ -6,6 +6,8 @@ import { prisma } from '@/lib/db';
 import { clearTokenCache, getAllowedRepo, ghRequest, GithubError, redactSecretsFromText, verifyConnection } from '@/lib/github/auth';
 import { assertWritableBranch, assertWritablePath } from '@/lib/github/tools';
 import { toolNeedsApproval } from '@/lib/tools/execute';
+import { resolveApproval } from '@/lib/orchestrator/engine';
+import { assembleContext } from '@/lib/orchestrator/prompt';
 import { executeTool, ToolContext } from '@/lib/tools/execute';
 import { makeFixture } from './helpers';
 
@@ -32,11 +34,16 @@ function clearEnv() {
 
 /** fetch stub: token endpoint + a route table; records every request. */
 function stubGithub(routes: Record<string, (init?: RequestInit) => { status?: number; body?: unknown; text?: string }>) {
-  const calls: Array<{ url: string; method: string; body: unknown }> = [];
+  const calls: Array<{ url: string; method: string; body: unknown; authorization: string | null }> = [];
   vi.stubGlobal('fetch', vi.fn(async (url: unknown, init?: RequestInit) => {
     const u = String(url);
     const method = init?.method ?? 'GET';
-    calls.push({ url: u, method, body: init?.body ? JSON.parse(String(init.body)) : undefined });
+    calls.push({
+      url: u,
+      method,
+      body: init?.body ? JSON.parse(String(init.body)) : undefined,
+      authorization: new Headers(init?.headers).get('authorization'),
+    });
     if (u.includes('/app/installations/')) {
       return new Response(JSON.stringify({ token: 'ghs_mocktoken1234567890abcd', expires_at: new Date(Date.now() + 3600_000).toISOString() }), { status: 201 });
     }
@@ -81,6 +88,14 @@ describe('github auth service', () => {
     expect(tokenCalls[0]!.body).toEqual({ repositories: ['Apps-'] }); // restricted to the one repo
     // The JWT goes only to the token endpoint; API calls use the installation token.
     expect(tokenCalls[0]!.url).toContain('/app/installations/67890/access_tokens');
+    const jwt = tokenCalls[0]!.authorization?.replace(/^Bearer\s+/, '');
+    expect(jwt).toBeTruthy();
+    const payload = JSON.parse(
+      Buffer.from(jwt!.split('.')[1]!, 'base64url').toString('utf8'),
+    ) as { iat: number; exp: number };
+    const now = Math.floor(Date.now() / 1000);
+    expect(payload.exp - now).toBeLessThanOrEqual(540);
+    expect(payload.exp - payload.iat).toBe(600);
   });
 
   it('refuses any request outside the allowed repository without touching the network', async () => {
@@ -112,10 +127,12 @@ describe('branch and path guards', () => {
     for (const b of ['agent/fix-bug', 'agents/team-x', 'feature/dashboard']) {
       expect(() => assertWritableBranch(b), b).not.toThrow();
     }
+    expect(() => assertWritableBranch('agent/other', 'agent/configured')).toThrow('configured working branch');
+    expect(() => assertWritableBranch('agent/other', '')).toThrow('Configure a project working branch');
   });
 
   it('refuses workflow, action and traversal paths', () => {
-    for (const p of ['.github/workflows/deploy.yml', '.github/actions/x/action.yml', '../etc/passwd', '.git/config']) {
+    for (const p of ['.github/workflows/deploy.yml', '.github/actions/x/action.yml', '../etc/passwd', '.git', '.git/config']) {
       expect(() => assertWritablePath(p), p).toThrow(GithubError);
     }
     expect(() => assertWritablePath('src/app.py')).not.toThrow();
@@ -134,11 +151,75 @@ describe('approval policy', () => {
   });
 });
 
+describe('GitHub approval prompt guidance', () => {
+  it('includes the verified project repository binding in every agent prompt', async () => {
+    const f = await makeFixture();
+    await prisma.repoConnection.create({
+      data: {
+        projectId: f.project.id,
+        owner: 'Borgimus',
+        repo: 'Apps-',
+        baseBranch: 'main',
+        workingBranch: 'agent/github-reconcile-smoke-test',
+        status: 'connected',
+        lastVerifiedAt: new Date(),
+      },
+    });
+
+    const assembled = await assembleContext({
+      workspace: f.workspace,
+      project: f.project,
+      agent: { ...f.agent, modelConfig: f.modelConfig },
+      task: null,
+      objective: 'Run a GitHub smoke test',
+    });
+
+    expect(assembled.system).toContain('Repository: Borgimus/Apps-');
+    expect(assembled.system).toContain('Base branch: main');
+    expect(assembled.system).toContain('Working branch: agent/github-reconcile-smoke-test');
+    expect(assembled.system).toContain('never call request_approval separately for a GitHub mutation');
+    expect(assembled.contextManifest.repositoryConnection).toEqual({
+      owner: 'Borgimus',
+      repo: 'Apps-',
+      baseBranch: 'main',
+      workingBranch: 'agent/github-reconcile-smoke-test',
+      status: 'connected',
+    });
+  });
+
+  it('tells models not to create duplicate approval requests', async () => {
+    const { TOOL_SPECS } = await import('@/lib/tools/defs');
+    for (const name of [
+      'github_create_branch',
+      'github_write_file',
+      'github_commit_files',
+      'github_open_draft_pull_request',
+    ]) {
+      expect(TOOL_SPECS[name]!.description).toContain('do not call request_approval separately');
+    }
+  });
+});
+
 describe('permissioned execution through the central executor', () => {
-  async function makeCtx(permissions: Record<string, boolean>, tools: string[]): Promise<ToolContext> {
+  async function makeCtx(
+    permissions: Record<string, boolean>,
+    tools: string[],
+    workingBranch = 'agent/docs-update',
+  ): Promise<ToolContext> {
     const f = await makeFixture({ tools, permissions });
     const run = await prisma.agentRun.create({
       data: { projectId: f.project.id, agentId: f.agent.id, objective: 'github test', status: 'running' },
+    });
+    await prisma.repoConnection.create({
+      data: {
+        projectId: f.project.id,
+        owner: 'Borgimus',
+        repo: 'Apps-',
+        baseBranch: 'main',
+        workingBranch,
+        status: 'connected',
+        lastVerifiedAt: new Date(),
+      },
     });
     return {
       projectId: f.project.id,
@@ -149,6 +230,43 @@ describe('permissioned execution through the central executor', () => {
     };
   }
 
+  it('does not let an unrelated approval resolve a pending GitHub tool gate', async () => {
+    const ctx = await makeCtx(
+      { githubRead: true, githubWrite: true },
+      ['github_create_branch'],
+    );
+    await prisma.agentRun.update({
+      where: { id: ctx.runId },
+      data: {
+        status: 'awaiting_approval',
+        pendingToolCallJson: JSON.stringify({
+          modelCallId: 'model-call-test',
+          current: {
+            id: 'call-create-branch',
+            name: 'github_create_branch',
+            input: { branch: 'agent/docs-update', fromBranch: 'main' },
+          },
+          remaining: [],
+        }),
+      },
+    });
+    const unrelated = await prisma.approvalRequest.create({
+      data: {
+        projectId: ctx.projectId,
+        runId: ctx.runId,
+        agentId: ctx.agentId,
+        action: 'Create a new branch',
+        reason: 'Redundant agent-created approval',
+      },
+    });
+
+    await resolveApproval(unrelated.id, 'rejected', 'Automatic tool gate handles this');
+
+    const run = await prisma.agentRun.findUniqueOrThrow({ where: { id: ctx.runId } });
+    expect(run.status).toBe('awaiting_approval');
+    expect(run.pendingToolCallJson).toContain('github_create_branch');
+  });
+
   it('denies GitHub reads without the githubRead permission and audits the attempt', async () => {
     const ctx = await makeCtx({ githubRead: false }, ['github_read_file']);
     const calls = stubGithub({});
@@ -158,6 +276,16 @@ describe('permissioned execution through the central executor', () => {
     expect(calls).toHaveLength(0); // denied before any network access
     const audit = await prisma.toolCall.findFirst({ where: { runId: ctx.runId, toolName: 'github_read_file' } });
     expect(audit).not.toBeNull(); // visible in history even when denied
+  });
+
+  it('requires a verified project repository connection before any network call', async () => {
+    const ctx = await makeCtx({ githubRead: true }, ['github_read_file']);
+    await prisma.repoConnection.delete({ where: { projectId: ctx.projectId } });
+    const calls = stubGithub({});
+    const result = await executeTool(ctx, 'github_read_file', { path: 'README.md' });
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain('verified GitHub repository connection');
+    expect(calls).toHaveLength(0);
   });
 
   it('executes reads with githubRead and records the audit trail', async () => {
@@ -185,7 +313,7 @@ describe('permissioned execution through the central executor', () => {
   });
 
   it('refuses workflow modification even on an agent branch', async () => {
-    const ctx = await makeCtx({ githubRead: true, githubWrite: true }, ['github_write_file']);
+    const ctx = await makeCtx({ githubRead: true, githubWrite: true }, ['github_write_file'], 'agent/sneaky');
     const calls = stubGithub({});
     const result = await executeTool(ctx, 'github_write_file', {
       branch: 'agent/sneaky', path: '.github/workflows/evil.yml', content: 'oops',
@@ -195,7 +323,28 @@ describe('permissioned execution through the central executor', () => {
     expect(calls).toHaveLength(0);
   });
 
-  it('writes to an agent branch when permitted (this is the post-approval execution path)', async () => {
+  it('refuses writes outside the project configured working branch before any network call', async () => {
+    const ctx = await makeCtx({ githubRead: true, githubWrite: true }, ['github_write_file']);
+    const calls = stubGithub({});
+    const result = await executeTool(ctx, 'github_write_file', {
+      branch: 'agent/other', path: 'x.txt', content: 'x',
+    });
+    expect(result.ok).toBe(false);
+    expect(result.error).toContain('configured working branch');
+    expect(calls).toHaveLength(0);
+  });
+
+  it('refuses oversized write payloads before any network call', async () => {
+    const ctx = await makeCtx({ githubRead: true, githubWrite: true }, ['github_write_file']);
+    const calls = stubGithub({});
+    const result = await executeTool(ctx, 'github_write_file', {
+      branch: 'agent/docs-update', path: 'large.txt', content: 'x'.repeat(500_001),
+    });
+    expect(result.ok).toBe(false);
+    expect(calls).toHaveLength(0);
+  });
+
+  it('writes to the configured agent branch when permitted (this is the post-approval execution path)', async () => {
     const ctx = await makeCtx({ githubRead: true, githubWrite: true }, ['github_write_file']);
     const calls = stubGithub({
       '/contents/docs/note.md': (init) =>
@@ -212,16 +361,28 @@ describe('permissioned execution through the central executor', () => {
   });
 
   it('opens pull requests as DRAFT only, from agent branches only, gated by githubPullRequest', async () => {
-    const noPr = await makeCtx({ githubRead: true, githubWrite: true, githubPullRequest: false }, ['github_open_draft_pull_request']);
+    const noPr = await makeCtx(
+      { githubRead: true, githubWrite: true, githubPullRequest: false },
+      ['github_open_draft_pull_request'],
+      'agent/x',
+    );
     stubGithub({});
     const denied = await executeTool(noPr, 'github_open_draft_pull_request', { head: 'agent/x', title: 'T' });
     expect(denied.ok).toBe(false);
     expect(denied.error).toContain('githubPullRequest');
 
-    const ctx = await makeCtx({ githubRead: true, githubWrite: true, githubPullRequest: true }, ['github_open_draft_pull_request']);
+    const ctx = await makeCtx(
+      { githubRead: true, githubWrite: true, githubPullRequest: true },
+      ['github_open_draft_pull_request'],
+      'agent/x',
+    );
     const calls = stubGithub({ '/pulls': () => ({ body: { number: 42, html_url: 'https://example.test/pr/42' } }) });
     const fromMain = await executeTool(ctx, 'github_open_draft_pull_request', { head: 'main', title: 'nope' });
     expect(fromMain.ok).toBe(false); // PRs must come FROM agent branches
+    const wrongBase = await executeTool(ctx, 'github_open_draft_pull_request', {
+      head: 'agent/x', title: 'wrong base', base: 'develop',
+    });
+    expect(wrongBase.ok).toBe(false); // PRs must target the configured base branch
 
     const result = await executeTool(ctx, 'github_open_draft_pull_request', { head: 'agent/x', title: 'My PR', base: 'main' });
     expect(result.ok).toBe(true);

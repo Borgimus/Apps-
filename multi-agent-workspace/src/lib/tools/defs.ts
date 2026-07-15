@@ -210,6 +210,140 @@ export const TOOL_SPECS: Record<string, ToolSpec> = {
       required: ['action', 'reason'],
     },
   },
+  github_list_tree: {
+    name: 'github_list_tree',
+    description: 'List files in the connected GitHub repository at a branch or commit. Read-only.',
+    risk: 'low', approvable: false,
+    input: z.object({ ref: z.string().min(1).max(200).optional() }),
+    jsonSchema: { type: 'object', properties: { ref: str('Branch, tag, or commit; defaults to the project base branch') } },
+  },
+  github_read_file: {
+    name: 'github_read_file',
+    description: 'Read a UTF-8 text file from the connected GitHub repository. Read-only and limited to 300 KB.',
+    risk: 'low', approvable: false,
+    input: z.object({ path: z.string().min(1).max(500), ref: z.string().min(1).max(200).optional() }),
+    jsonSchema: {
+      type: 'object',
+      properties: { path: str('Repository-relative path'), ref: str('Branch, tag, or commit') },
+      required: ['path'],
+    },
+  },
+  github_search_code: {
+    name: 'github_search_code',
+    description: 'Search code only within the repository connected to this project.',
+    risk: 'low', approvable: false,
+    input: z.object({ query: z.string().min(1).max(200) }),
+    jsonSchema: { type: 'object', properties: { query: str('GitHub code-search terms') }, required: ['query'] },
+  },
+  github_read_branch: {
+    name: 'github_read_branch',
+    description: 'Read branch metadata from the connected GitHub repository.',
+    risk: 'low', approvable: false,
+    input: z.object({ branch: z.string().min(1).max(200).optional() }),
+    jsonSchema: { type: 'object', properties: { branch: str('Branch name; defaults to the project base branch') } },
+  },
+  github_read_pull_request: {
+    name: 'github_read_pull_request',
+    description: 'Read pull-request metadata from the connected GitHub repository.',
+    risk: 'low', approvable: false,
+    input: z.object({ number: z.number().int().positive() }),
+    jsonSchema: { type: 'object', properties: { number: { type: 'integer', minimum: 1 } }, required: ['number'] },
+  },
+  github_read_diff: {
+    name: 'github_read_diff',
+    description: 'Read the changed files and patches for a pull request in the connected repository.',
+    risk: 'low', approvable: false,
+    input: z.object({ number: z.number().int().positive() }),
+    jsonSchema: { type: 'object', properties: { number: { type: 'integer', minimum: 1 } }, required: ['number'] },
+  },
+  github_read_checks: {
+    name: 'github_read_checks',
+    description: 'Read commit statuses and check runs for a branch or commit in the connected repository.',
+    risk: 'low', approvable: false,
+    input: z.object({ ref: z.string().min(1).max(200).optional() }),
+    jsonSchema: { type: 'object', properties: { ref: str('Branch or commit; defaults to the project base branch') } },
+  },
+  github_create_branch: {
+    name: 'github_create_branch',
+    description: 'Create the project working branch from its base branch. Requires human approval.',
+    risk: 'high', approvable: true,
+    input: z.object({
+      branch: z.string().min(1).max(200),
+      baseRef: z.string().min(1).max(200).optional(),
+    }),
+    jsonSchema: {
+      type: 'object',
+      properties: { branch: str('New agent/, agents/, or feature/ branch'), baseRef: str('Base branch or commit') },
+      required: ['branch'],
+    },
+  },
+  github_write_file: {
+    name: 'github_write_file',
+    description: 'Create or replace one file on the configured working branch. Creates a commit and requires approval.',
+    risk: 'high', approvable: true,
+    input: z.object({
+      branch: z.string().min(1).max(200).optional(),
+      path: z.string().min(1).max(500),
+      content: z.string().max(500_000),
+      message: z.string().min(1).max(200),
+      sha: z.string().optional(),
+    }),
+    jsonSchema: {
+      type: 'object',
+      properties: {
+        branch: str('Configured working branch'),
+        path: str('Repository-relative file path'),
+        content: str('Complete UTF-8 file content'),
+        message: str('Commit message'),
+        sha: str('Existing blob SHA when replacing a file'),
+      },
+      required: ['path', 'content', 'message'],
+    },
+  },
+  github_commit_files: {
+    name: 'github_commit_files',
+    description: 'Commit up to 20 complete files atomically on the configured working branch. Requires approval.',
+    risk: 'high', approvable: true,
+    input: z.object({
+      branch: z.string().min(1).max(200).optional(),
+      message: z.string().min(1).max(200),
+      files: z.array(z.object({
+        path: z.string().min(1).max(500),
+        content: z.string().max(500_000),
+      })).min(1).max(20),
+    }),
+    jsonSchema: {
+      type: 'object',
+      properties: {
+        branch: str('Configured working branch'),
+        message: str('Commit message'),
+        files: {
+          type: 'array', minItems: 1, maxItems: 20,
+          items: {
+            type: 'object',
+            properties: { path: str('Repository-relative path'), content: str('Complete UTF-8 content') },
+            required: ['path', 'content'],
+          },
+        },
+      },
+      required: ['message', 'files'],
+    },
+  },
+  github_open_draft_pull_request: {
+    name: 'github_open_draft_pull_request',
+    description: 'Open a draft pull request from the configured working branch to its base branch. Requires approval.',
+    risk: 'high', approvable: true,
+    input: z.object({
+      branch: z.string().min(1).max(200).optional(),
+      title: z.string().min(1).max(200),
+      body: z.string().max(30_000).default(''),
+    }),
+    jsonSchema: {
+      type: 'object',
+      properties: { branch: str('Configured working branch'), title: str('Pull-request title'), body: str('Markdown body') },
+      required: ['title'],
+    },
+  },
   complete_task: {
     name: 'complete_task',
     description:

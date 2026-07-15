@@ -116,7 +116,7 @@ describe('branch and path guards', () => {
   });
 
   it('refuses workflow, action and traversal paths', () => {
-    for (const p of ['.github/workflows/deploy.yml', '.github/actions/x/action.yml', '../etc/passwd', '.git/config']) {
+    for (const p of ['.github/workflows/deploy.yml', '.github/actions/x/action.yml', '../etc/passwd', '.git', '.git/config']) {
       expect(() => assertWritablePath(p), p).toThrow(GithubError);
     }
     expect(() => assertWritablePath('src/app.py')).not.toThrow();

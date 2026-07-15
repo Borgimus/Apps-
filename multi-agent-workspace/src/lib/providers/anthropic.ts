@@ -5,10 +5,10 @@ import {
   ProviderError,
   ProviderRequest,
   ProviderResponse,
+  requestTimeoutMs,
 } from './types';
 
 const DEFAULT_BASE_URL = 'https://api.anthropic.com';
-const TIMEOUT_MS = 120_000;
 
 type AnthropicContentBlock =
   | { type: 'text'; text: string }
@@ -97,7 +97,7 @@ export class AnthropicAdapter implements ProviderAdapter {
     };
 
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+    const timer = setTimeout(() => controller.abort(), requestTimeoutMs(req.maxTokens));
     let res: Response;
     try {
       res = await fetch(`${req.baseUrl ?? DEFAULT_BASE_URL}/v1/messages`, {

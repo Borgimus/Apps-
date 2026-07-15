@@ -86,3 +86,6 @@ reports/
 
 # Alembic versions cache
 alembic/versions/*.pyc
+
+# Node (stray tool caches)
+node_modules/

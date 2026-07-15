@@ -754,12 +754,24 @@ export async function controlProjectRun(
         const child = await prisma.agentRun.findUnique({ where: { id: runId } });
         if (child?.status === 'completed') keep[slot] = runId;
       }
+      // A human clicking Retry is explicit approval to spend more: failed
+      // attempts consumed call-budget slots, so grant enough headroom for the
+      // remaining phases instead of failing again immediately.
+      const callsUsed = await prisma.modelCall.count({ where: { run: { projectRunId: id } } });
+      const maxModelCalls = Math.max(fresh.maxModelCalls, callsUsed + 10);
       await prisma.projectRun.update({
         where: { id },
-        data: { status: 'running', failureReason: null, stepsJson: toJson(keep), lastTransitionAt: new Date() },
+        data: { status: 'running', failureReason: null, stepsJson: toJson(keep), maxModelCalls, lastTransitionAt: new Date() },
       });
       if (fresh.taskId) await prisma.task.update({ where: { id: fresh.taskId }, data: { status: 'in_progress' } });
-      await emitActivity({ projectId: run.projectId, actor: 'user', type: 'status_change', summary: 'Collaboration retried by user (completed steps preserved)', data: { projectRunId: id }, refId: id });
+      await emitActivity({
+        projectId: run.projectId,
+        actor: 'user',
+        type: 'status_change',
+        summary: `Collaboration retried by user (completed steps preserved${maxModelCalls > fresh.maxModelCalls ? `; call budget raised to ${maxModelCalls}` : ''})`,
+        data: { projectRunId: id, callsUsed, maxModelCalls },
+        refId: id,
+      });
       scheduleAdvance(id);
       break;
     }

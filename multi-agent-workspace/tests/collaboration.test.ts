@@ -113,7 +113,7 @@ describe('collaboration orchestrator', () => {
     expect(await prisma.agentRun.count({ where: { projectRunId: run.id, runType: 'verification' } })).toBe(3);
   }, 40_000);
 
-  it('enforces the model-call budget with a visible failure', async () => {
+  it('enforces the model-call budget with a visible failure, and retry grants fresh headroom', async () => {
     const f = await makeTwoAgentProject();
     const run = await startCollaboration(f.project.id, {
       prompt: 'Budget-capped collaboration',
@@ -126,7 +126,16 @@ describe('collaboration orchestrator', () => {
       where: { projectId: f.project.id, type: 'project_failed' },
     });
     expect(failEvent).not.toBeNull();
-  }, 30_000);
+
+    // Human-initiated retry = approval to spend more: the call budget grows
+    // to cover the remaining phases and the run completes.
+    await controlProjectRun(run.id, 'retry');
+    const afterRetry = await settled(run.id);
+    expect(afterRetry.status).toBe('completed');
+    expect(afterRetry.maxModelCalls).toBeGreaterThan(3);
+    // Completed phase-1 steps were reused, not re-run.
+    expect(await prisma.agentRun.count({ where: { projectRunId: run.id, runType: 'initial' } })).toBe(2);
+  }, 40_000);
 
   it('fails visibly on malformed JSON after one repair attempt, preserving the raw response, and supports retry', async () => {
     const f = await makeTwoAgentProject();

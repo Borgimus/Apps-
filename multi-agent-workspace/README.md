@@ -18,6 +18,7 @@ Agents plan, delegate, implement, review each other's work, and produce shared a
 - **Versioned virtual file workspace** with author attribution, diffs, restore and download
 - **Structured agent messaging** (task assignment, review request/result, objection, handoff, …)
 - **Cost & token accounting** per call, run, task, agent, project, model and day
+- **GitHub App connector** with repository-scoped reads, approval-gated branch writes, and draft pull requests
 
 ## Quick start
 
@@ -47,6 +48,12 @@ docker compose up --build   # http://localhost:3000
 
 See `docs/providers.md` for details on each adapter.
 
+## Connecting GitHub
+
+The workspace can authenticate as a GitHub App installation without storing the private key in the database. Add the four `GITHUB_*` variables from `.env.example`, run `npm run setup`, restart the dev server, then open **GitHub** in the sidebar to verify the installation, bind a project to an agent branch, and grant agents read or write access. Repository writes and draft pull requests always pause for human approval.
+
+See [docs/github-integration.md](docs/github-integration.md) for the full setup and security model.
+
 ## Creating agents
 
 **Agents → + New agent**: pick a template, a model, and a per-run budget. Each agent profile shows its role, system prompt, tool allowlist, permissions, run history and reliability metrics. Switch an agent's model at any time from the roster dropdown.
@@ -64,7 +71,7 @@ See `docs/providers.md` for details on each adapter.
 |---|---|
 | `npm run dev` / `npm run build` / `npm start` | develop / build / serve |
 | `npm run setup` | `prisma db push` + seed (idempotent) |
-| `npm test` | full test suite (22 tests, isolated throwaway DB) |
+| `npm test` | full test suite (isolated throwaway DB) |
 | `npm run typecheck` | strict TypeScript check |
 
 ## Documentation
@@ -75,6 +82,7 @@ See `docs/providers.md` for details on each adapter.
 | [docs/data-model.md](docs/data-model.md) | Every entity and its role; immutability rules |
 | [docs/orchestration.md](docs/orchestration.md) | The run loop, approvals, budgets, recovery, review flow |
 | [docs/providers.md](docs/providers.md) | Provider setup: Anthropic, OpenAI-compatible, Ollama, mock |
+| [docs/github-integration.md](docs/github-integration.md) | GitHub App setup, permissions, tools, and safety boundaries |
 | [docs/security.md](docs/security.md) | Threat model, protections, and honest limitations |
 | [docs/testing.md](docs/testing.md) | Test layout and how to run it |
 | [docs/deployment.md](docs/deployment.md) | Docker and production notes |

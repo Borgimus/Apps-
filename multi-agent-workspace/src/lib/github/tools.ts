@@ -121,7 +121,7 @@ export async function runGithubTool(
 
     case 'github_read_file': {
       const path = String(input.path).replace(/^\/+/, '');
-      const ref = input.ref ? `?ref=${encodeURIComponent(String(input.ref))}` : '';
+      const ref = `?ref=${encodeURIComponent(String(input.ref ?? connection.baseBranch))}`;
       const data = await ghRequest<{ content?: string; encoding?: string; size?: number; sha?: string }>(
         `${repoPath}/contents/${path.split('/').map(encodeURIComponent).join('/')}${ref}`,
       );
@@ -278,7 +278,7 @@ export async function runGithubTool(
 
     case 'github_open_draft_pull_request': {
       const head = String(input.head);
-      assertWritableBranch(head); // PRs may only come FROM agent branches
+      assertWritableBranch(head, connection.workingBranch); // PRs may only come from the configured agent branch
       const base = String(input.base ?? connection.baseBranch);
       if (base !== connection.baseBranch) {
         throw new GithubError(`Pull requests must target the configured base branch: ${connection.baseBranch}`, 'forbidden_target');

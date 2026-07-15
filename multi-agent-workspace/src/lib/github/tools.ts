@@ -50,11 +50,16 @@ export function assertWritableBranch(branch: string, configuredWorkingBranch?: s
       'forbidden_target',
     );
   }
-  if (configuredWorkingBranch && b !== configuredWorkingBranch) {
-    throw new GithubError(
-      `Writes are restricted to the project's configured working branch: ${configuredWorkingBranch}`,
-      'forbidden_target',
-    );
+  if (configuredWorkingBranch !== undefined && configuredWorkingBranch !== null) {
+    if (!configuredWorkingBranch) {
+      throw new GithubError('Configure a project working branch before requesting repository writes', 'forbidden_target');
+    }
+    if (b !== configuredWorkingBranch) {
+      throw new GithubError(
+        `Writes are restricted to the project's configured working branch: ${configuredWorkingBranch}`,
+        'forbidden_target',
+      );
+    }
   }
 }
 

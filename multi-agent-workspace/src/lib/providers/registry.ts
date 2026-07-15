@@ -26,6 +26,9 @@ export function listProviders(): string[] {
 }
 
 const MAX_ATTEMPTS = 3;
+// Connection-level failures (Wi-Fi blips, DNS hiccups, socket resets) deserve
+// a wider retry window than API-level errors — they usually clear in seconds.
+const MAX_NETWORK_ATTEMPTS = 5;
 const BASE_DELAY_MS = 500;
 
 /** Call a provider with retry + exponential backoff on retryable errors. */
@@ -36,7 +39,7 @@ export async function callWithRetry(
 ): Promise<ProviderResponse> {
   const adapter = getAdapter(provider);
   let lastErr: ProviderError | undefined;
-  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+  for (let attempt = 1; attempt <= MAX_NETWORK_ATTEMPTS; attempt++) {
     try {
       return await adapter.call(req);
     } catch (err) {
@@ -45,7 +48,8 @@ export async function callWithRetry(
           ? err
           : new ProviderError(String(err), 'unknown', false);
       lastErr = pErr;
-      if (!pErr.retryable || attempt === MAX_ATTEMPTS) throw pErr;
+      const maxAttempts = ['network', 'timeout'].includes(pErr.kind) ? MAX_NETWORK_ATTEMPTS : MAX_ATTEMPTS;
+      if (!pErr.retryable || attempt >= maxAttempts) throw pErr;
       await onRetry?.(attempt, pErr);
       const delay = BASE_DELAY_MS * 2 ** (attempt - 1);
       await new Promise((r) => setTimeout(r, delay));

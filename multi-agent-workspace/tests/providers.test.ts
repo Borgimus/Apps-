@@ -76,6 +76,16 @@ describe('provider registry', () => {
     expect(attempts).toEqual([1, 2]); // two retries before the third, final attempt
   }, 15_000);
 
+  it('gives connection-level failures a wider retry window than API errors', async () => {
+    const attempts: number[] = [];
+    await expect(
+      callWithRetry('mock', req('[test:network-error] wifi blip'), (attempt) => {
+        attempts.push(attempt);
+      }),
+    ).rejects.toMatchObject({ kind: 'network' });
+    expect(attempts).toEqual([1, 2, 3, 4]); // four retries before the fifth, final attempt
+  }, 20_000);
+
   it('computes cost from per-MTok pricing', () => {
     const cost = computeCostUsd(
       { inputTokens: 1_000_000, outputTokens: 500_000 },

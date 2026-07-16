@@ -10,6 +10,8 @@ const ENDPOINTS = {
   orders: '/orders?limit=50',
   signals: '/signals?limit=50',
   risk: '/risk',
+  pulse: '/api/session/pulse',
+  pushEvents: '/api/session/push-events?limit=20',
 } as const;
 
 type EndpointName = keyof typeof ENDPOINTS;
@@ -84,6 +86,8 @@ export async function GET() {
         orders: results.orders.value ?? [],
         signals: results.signals.value ?? [],
         risk: results.risk.value,
+        pulse: results.pulse.value,
+        pushEvents: results.pushEvents.value ?? { events: [], total: 0 },
         errors,
       },
     },

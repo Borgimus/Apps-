@@ -84,9 +84,12 @@ export function reconcilePositionMetrics(
   }
 
   const values = positions.map((position) => position.unrealized_pnl);
-  const allMarked = values.every((value) => typeof value === 'number' && Number.isFinite(value));
+  const markedValues = values.filter(
+    (value): value is number => typeof value === 'number' && Number.isFinite(value),
+  );
+  const allMarked = markedValues.length === values.length;
   const unrealized = allMarked
-    ? values.reduce((sum, value) => sum + (value as number), 0)
+    ? markedValues.reduce((sum, value) => sum + value, 0)
     : null;
   const count = positions.length;
   const drift = Boolean(

@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { cycleFreshness, formatTradingMoney, freshness, pnlClass } from '@/lib/trading-utils';
+import {
+  cycleFreshness,
+  formatTradingMoney,
+  freshness,
+  pnlClass,
+  reconcilePositionMetrics,
+} from '@/lib/trading-utils';
 
 describe('trading dashboard helpers', () => {
   it('formats valid P&L and refuses unavailable values', () => {
@@ -28,5 +34,47 @@ describe('trading dashboard helpers', () => {
     expect(cycleFreshness(600)).toBe('delayed');
     expect(cycleFreshness(700)).toBe('stale');
     expect(cycleFreshness(undefined)).toBe('unknown');
+  });
+
+
+  it('uses the live positions endpoint for current metrics and surfaces cycle drift', () => {
+    const result = reconcilePositionMetrics(
+      [{ unrealized_pnl: -9 }],
+      { positions: 2, unrealized_pnl: -2 },
+      true,
+    );
+
+    expect(result).toEqual({
+      count: 1,
+      unrealized: -9,
+      source: 'current',
+      drift: true,
+      cycleCount: 2,
+      cycleUnrealized: -2,
+    });
+  });
+
+  it('falls back to the cycle snapshot only when live positions are unavailable', () => {
+    const result = reconcilePositionMetrics(
+      [],
+      { positions: 2, unrealized_pnl: -2 },
+      false,
+    );
+
+    expect(result.count).toBe(2);
+    expect(result.unrealized).toBe(-2);
+    expect(result.source).toBe('cycle');
+    expect(result.drift).toBe(false);
+  });
+
+  it('does not fabricate current unrealized P&L when a position lacks a mark', () => {
+    const result = reconcilePositionMetrics(
+      [{ unrealized_pnl: null }, { unrealized_pnl: 4 }],
+      { positions: 2, unrealized_pnl: 4 },
+      true,
+    );
+
+    expect(result.count).toBe(2);
+    expect(result.unrealized).toBeNull();
   });
 });

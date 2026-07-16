@@ -20,6 +20,13 @@ export function freshness(timestamp: string | null | undefined, now = Date.now()
   return 'stale';
 }
 
+export function cycleFreshness(staleSeconds: number | null | undefined): Freshness {
+  if (staleSeconds === null || staleSeconds === undefined || !Number.isFinite(staleSeconds)) return 'unknown';
+  if (staleSeconds <= 330) return 'fresh';
+  if (staleSeconds <= 660) return 'delayed';
+  return 'stale';
+}
+
 export function formatTradingTime(timestamp: string | null | undefined): string {
   if (!timestamp) return 'Unavailable';
   const parsed = new Date(timestamp);

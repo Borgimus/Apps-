@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { useApi } from '@/components/hooks';
 import { Badge, Card, EmptyState, Spinner, cls } from '@/components/ui';
-import { formatTradingMoney, formatTradingTime, freshness, pnlClass } from '@/lib/trading-utils';
+import { cycleFreshness, formatTradingMoney, formatTradingTime, freshness, pnlClass } from '@/lib/trading-utils';
 
 interface TradingStatus {
   live_trading_enabled: boolean;
@@ -72,6 +72,34 @@ interface RiskSnapshot {
   recent_events: RiskEvent[];
 }
 
+interface SessionPulse {
+  session_active: boolean;
+  stale_secs: number;
+  ts: string;
+  session_date: string;
+  cycle: number;
+  positions: number;
+  entries_today: number;
+  pending_orders: number;
+  daily_pnl: number;
+  unrealized_pnl: number;
+  net_pnl: number;
+  active_symbols: string[];
+  scanner_standby: boolean;
+}
+
+interface PushEvent {
+  event: string;
+  message: string;
+  data: Record<string, unknown>;
+  consumed: boolean;
+}
+
+interface PushEventsSnapshot {
+  events: PushEvent[];
+  total: number;
+}
+
 interface Snapshot {
   connected: boolean;
   fetchedAt: string;
@@ -82,6 +110,8 @@ interface Snapshot {
   orders: Order[];
   signals: Signal[];
   risk: RiskSnapshot | null;
+  pulse: SessionPulse | null;
+  pushEvents: PushEventsSnapshot;
   errors: Record<string, string>;
 }
 
@@ -96,10 +126,12 @@ function Metric({ label, value, tone }: { label: string; value: string; tone?: s
 
 export default function TradingDashboardPage() {
   const { data, loading, error, refresh } = useApi<Snapshot>('/api/trading/snapshot', 5_000);
-  const unrealized = useMemo(
+  const positionsUnrealized = useMemo(
     () => data?.positions.reduce((sum, position) => sum + (position.unrealized_pnl ?? 0), 0) ?? null,
     [data?.positions],
   );
+  const unrealized = data?.pulse?.unrealized_pnl ?? positionsUnrealized;
+  const netPnl = data?.pulse?.net_pnl ?? data?.status?.daily_pnl;
   const mode = data?.status
     ? data.status.live_trading_enabled
       ? 'LIVE'
@@ -107,7 +139,7 @@ export default function TradingDashboardPage() {
     : data?.account?.is_paper
       ? 'PAPER'
       : 'UNKNOWN';
-  const fresh = freshness(data?.health?.timestamp ?? data?.fetchedAt);
+  const fresh = data?.pulse ? cycleFreshness(data.pulse.stale_secs) : freshness(data?.health?.timestamp ?? data?.fetchedAt);
   const connectionLabel = data?.connected ? fresh : 'disconnected';
 
   return (
@@ -121,7 +153,7 @@ export default function TradingDashboardPage() {
             <span className="rounded-full border border-line px-2 py-0.5 text-2xs text-ink-muted">READ ONLY</span>
           </div>
           <p className="mt-1 text-xs text-ink-muted">
-            Broker: {data?.status?.broker ?? 'unavailable'} · Last API response: {formatTradingTime(data?.fetchedAt)}
+            Broker: {data?.status?.broker ?? 'unavailable'} · Cycle: {data?.pulse?.cycle ?? '—'} · Last API response: {formatTradingTime(data?.fetchedAt)}
           </p>
         </div>
         <button className="rounded-md border border-line px-3 py-1.5 text-xs hover:bg-surface-sunken" onClick={() => void refresh()}>
@@ -151,10 +183,10 @@ export default function TradingDashboardPage() {
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <Metric label="Equity" value={formatTradingMoney(data?.account?.equity)} />
         <Metric label="Buying power" value={formatTradingMoney(data?.account?.buying_power)} />
-        <Metric label="Session P&L" value={formatTradingMoney(data?.status?.daily_pnl)} tone={pnlClass(data?.status?.daily_pnl)} />
+        <Metric label="Net P&L" value={formatTradingMoney(netPnl)} tone={pnlClass(netPnl)} />
         <Metric label="Unrealized P&L" value={formatTradingMoney(unrealized)} tone={pnlClass(unrealized)} />
-        <Metric label="Open positions" value={String(data?.positions.length ?? 0)} />
-        <Metric label="Trades today" value={`${data?.status?.trades_today ?? 0}/${data?.risk?.max_trades_per_day ?? '—'}`} />
+        <Metric label="Open positions" value={String(data?.pulse?.positions ?? data?.positions.length ?? 0)} />
+        <Metric label="Entries today" value={`${data?.pulse?.entries_today ?? data?.status?.trades_today ?? 0}/${data?.risk?.max_trades_per_day ?? '—'}`} />
       </section>
 
       <div className="rounded-lg border border-sky-500/30 bg-sky-500/10 p-3 text-xs text-sky-600 dark:text-sky-300">
@@ -198,9 +230,11 @@ export default function TradingDashboardPage() {
           <h2 className="mb-3 text-sm font-semibold">Risk and connection</h2>
           <dl className="grid grid-cols-2 gap-3 text-xs">
             <div><dt className="text-ink-faint">API health</dt><dd className="mt-1 font-medium">{data?.health?.status ?? 'Unavailable'}</dd></div>
-            <div><dt className="text-ink-faint">Data freshness</dt><dd className="mt-1 font-medium capitalize">{fresh}</dd></div>
+            <div><dt className="text-ink-faint">Runner heartbeat</dt><dd className="mt-1 font-medium capitalize">{fresh}{data?.pulse ? ` (${data.pulse.stale_secs}s)` : ''}</dd></div>
             <div><dt className="text-ink-faint">Kill switch state</dt><dd className="mt-1 font-medium">{data?.status?.kill_switch_active ? 'Active' : 'Inactive'}</dd></div>
             <div><dt className="text-ink-faint">Daily loss limit</dt><dd className="mt-1 font-medium">{data?.risk ? `${(data.risk.max_daily_loss_pct * 100).toFixed(1)}%` : 'Unavailable'}</dd></div>
+            <div><dt className="text-ink-faint">Scanner</dt><dd className="mt-1 font-medium">{data?.pulse?.scanner_standby ? 'Standby' : 'Active'}</dd></div>
+            <div><dt className="text-ink-faint">Pending orders</dt><dd className="mt-1 font-medium">{data?.pulse?.pending_orders ?? 'Unavailable'}</dd></div>
           </dl>
           <div className="mt-4 border-t border-line pt-3">
             <p className="mb-2 text-xs font-medium">Recent risk events</p>
@@ -212,6 +246,24 @@ export default function TradingDashboardPage() {
                 </div>
               ))}
               {(data?.risk?.recent_events ?? []).length === 0 && <p className="text-xs text-ink-faint">No risk events recorded.</p>}
+            </div>
+          </div>
+          <div className="mt-4 border-t border-line pt-3">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-xs font-medium">Session activity</p>
+              <span className="text-2xs text-ink-faint">{data?.pushEvents.total ?? 0} events</span>
+            </div>
+            <div className="max-h-72 space-y-2 overflow-y-auto">
+              {(data?.pushEvents.events ?? []).map((event, index) => (
+                <div key={`${event.event}-${index}`} className="rounded-md bg-surface-sunken p-2 text-xs">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium capitalize">{event.event.replace(/_/g, ' ')}</span>
+                    <span className="text-2xs text-ink-faint">{formatTradingTime(typeof event.data.ts === 'string' ? event.data.ts : null)}</span>
+                  </div>
+                  <p className="mt-1 text-ink-muted">{event.message}</p>
+                </div>
+              ))}
+              {(data?.pushEvents.events ?? []).length === 0 && <p className="text-xs text-ink-faint">No session events recorded.</p>}
             </div>
           </div>
         </Card>

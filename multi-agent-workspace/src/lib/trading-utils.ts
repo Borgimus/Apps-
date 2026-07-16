@@ -38,3 +38,71 @@ export function pnlClass(value: number | null | undefined): string {
   if (value === null || value === undefined || value === 0) return 'text-ink';
   return value > 0 ? 'text-emerald-500' : 'text-rose-500';
 }
+
+
+export interface PositionMetricInput {
+  unrealized_pnl: number | null | undefined;
+}
+
+export interface PulsePositionMetricInput {
+  positions: number;
+  unrealized_pnl: number;
+}
+
+export interface ReconciledPositionMetrics {
+  count: number | null;
+  unrealized: number | null;
+  source: 'current' | 'cycle' | 'unavailable';
+  drift: boolean;
+  cycleCount: number | null;
+  cycleUnrealized: number | null;
+}
+
+/**
+ * The live positions endpoint is authoritative for the current position state.
+ * The pulse is a five-minute cycle snapshot and is only a fallback when the
+ * live endpoint is unavailable. Drift is surfaced instead of silently mixing
+ * values captured at different moments.
+ */
+export function reconcilePositionMetrics(
+  positions: PositionMetricInput[],
+  pulse: PulsePositionMetricInput | null | undefined,
+  positionsAvailable: boolean,
+): ReconciledPositionMetrics {
+  const cycleCount = pulse?.positions ?? null;
+  const cycleUnrealized = pulse?.unrealized_pnl ?? null;
+
+  if (!positionsAvailable) {
+    return {
+      count: cycleCount,
+      unrealized: cycleUnrealized,
+      source: pulse ? 'cycle' : 'unavailable',
+      drift: false,
+      cycleCount,
+      cycleUnrealized,
+    };
+  }
+
+  const values = positions.map((position) => position.unrealized_pnl);
+  const allMarked = values.every((value) => typeof value === 'number' && Number.isFinite(value));
+  const unrealized = allMarked
+    ? values.reduce((sum, value) => sum + (value as number), 0)
+    : null;
+  const count = positions.length;
+  const drift = Boolean(
+    pulse &&
+      (cycleCount !== count ||
+        (unrealized !== null &&
+          cycleUnrealized !== null &&
+          Math.abs(cycleUnrealized - unrealized) > 0.005)),
+  );
+
+  return {
+    count,
+    unrealized,
+    source: 'current',
+    drift,
+    cycleCount,
+    cycleUnrealized,
+  };
+}

@@ -3,7 +3,14 @@
 import { useMemo } from 'react';
 import { useApi } from '@/components/hooks';
 import { Badge, Card, EmptyState, Spinner, cls } from '@/components/ui';
-import { cycleFreshness, formatTradingMoney, formatTradingTime, freshness, pnlClass } from '@/lib/trading-utils';
+import {
+  cycleFreshness,
+  formatTradingMoney,
+  formatTradingTime,
+  freshness,
+  pnlClass,
+  reconcilePositionMetrics,
+} from '@/lib/trading-utils';
 
 interface TradingStatus {
   live_trading_enabled: boolean;
@@ -127,11 +134,11 @@ function Metric({ label, value, tone }: { label: string; value: string; tone?: s
 export default function TradingDashboardPage() {
   const { data, loading, error, refresh } = useApi<Snapshot>('/api/trading/snapshot', 5_000);
   const positionsAvailable = Boolean(data?.connected && !data?.errors.positions);
-  const positionsUnrealized = useMemo(
-    () => positionsAvailable ? data?.positions.reduce((sum, position) => sum + (position.unrealized_pnl ?? 0), 0) ?? null : null,
-    [data?.positions, positionsAvailable],
+  const positionMetrics = useMemo(
+    () => reconcilePositionMetrics(data?.positions ?? [], data?.pulse, positionsAvailable),
+    [data?.positions, data?.pulse, positionsAvailable],
   );
-  const unrealized = data?.pulse?.unrealized_pnl ?? positionsUnrealized;
+  const unrealized = positionMetrics.unrealized;
   const netPnl = data?.pulse?.net_pnl ?? data?.status?.daily_pnl;
   const mode = data?.status
     ? data.status.live_trading_enabled
@@ -158,7 +165,7 @@ export default function TradingDashboardPage() {
             <span className="rounded-full border border-line px-2 py-0.5 text-2xs text-ink-muted">READ ONLY</span>
           </div>
           <p className="mt-1 text-xs text-ink-muted">
-            Broker: {data?.status?.broker ?? 'unavailable'} · Cycle: {data?.pulse?.cycle ?? '—'} · Last poll: {formatTradingTime(data?.fetchedAt)}
+            Broker: {data?.status?.broker ?? 'unavailable'} · Cycle: {data?.pulse?.cycle ?? '—'} · Cycle as of: {formatTradingTime(data?.pulse?.ts)} · Last poll: {formatTradingTime(data?.fetchedAt)}
           </p>
         </div>
         <button className="rounded-md border border-line px-3 py-1.5 text-xs hover:bg-surface-sunken" onClick={() => void refresh()}>
@@ -188,15 +195,23 @@ export default function TradingDashboardPage() {
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-6">
         <Metric label="Equity" value={formatTradingMoney(data?.account?.equity)} />
         <Metric label="Buying power" value={formatTradingMoney(data?.account?.buying_power)} />
-        <Metric label="Net P&L" value={formatTradingMoney(netPnl)} tone={pnlClass(netPnl)} />
-        <Metric label="Unrealized P&L" value={formatTradingMoney(unrealized)} tone={pnlClass(unrealized)} />
-        <Metric label="Open positions" value={data?.pulse ? String(data.pulse.positions) : positionsAvailable ? String(data?.positions.length ?? 0) : 'Unavailable'} />
+        <Metric label="Cycle net P&L" value={formatTradingMoney(netPnl)} tone={pnlClass(netPnl)} />
+        <Metric label="Current unrealized" value={formatTradingMoney(unrealized)} tone={pnlClass(unrealized)} />
+        <Metric label="Current positions" value={positionMetrics.count === null ? 'Unavailable' : String(positionMetrics.count)} />
         <Metric label="Entries today" value={data?.pulse || data?.status ? `${data?.pulse?.entries_today ?? data?.status?.trades_today ?? 0}/${data?.risk?.max_trades_per_day ?? '—'}` : 'Unavailable'} />
       </section>
 
       <div className="rounded-lg border border-sky-500/30 bg-sky-500/10 p-3 text-xs text-sky-600 dark:text-sky-300">
         Live ticker motion and realized P&L are not exposed by the current Python API. This dashboard will not infer or fabricate them.
       </div>
+
+      {positionMetrics.drift && (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-600">
+          The live position feed changed after the latest five-minute cycle snapshot. Current position count and unrealized P&amp;L use
+          the live <code>/positions</code> feed. Cycle net P&amp;L remains as of {formatTradingTime(data?.pulse?.ts)}.
+          {' '}Cycle snapshot: {positionMetrics.cycleCount ?? '—'} positions, {formatTradingMoney(positionMetrics.cycleUnrealized)} unrealized.
+        </div>
+      )}
 
       <section className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
         <Card>

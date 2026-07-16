@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatTradingMoney, freshness, pnlClass } from '@/lib/trading-utils';
+import { cycleFreshness, formatTradingMoney, freshness, pnlClass } from '@/lib/trading-utils';
 
 describe('trading dashboard helpers', () => {
   it('formats valid P&L and refuses unavailable values', () => {
@@ -21,5 +21,12 @@ describe('trading dashboard helpers', () => {
     expect(pnlClass(1)).toContain('emerald');
     expect(pnlClass(-1)).toContain('rose');
     expect(pnlClass(0)).toBe('text-ink');
+  });
+
+  it('uses the runner five-minute cadence for cycle freshness', () => {
+    expect(cycleFreshness(309)).toBe('fresh');
+    expect(cycleFreshness(600)).toBe('delayed');
+    expect(cycleFreshness(700)).toBe('stale');
+    expect(cycleFreshness(undefined)).toBe('unknown');
   });
 });

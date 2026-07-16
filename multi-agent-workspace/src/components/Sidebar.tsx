@@ -8,6 +8,7 @@ import { cls } from './ui';
 
 const NAV = [
   { href: '/', label: 'Dashboard', icon: '▦' },
+  { href: '/trading', label: 'Trading', icon: '↗' },
   { href: '/agents', label: 'Agents', icon: '◉' },
   { href: '/approvals', label: 'Approvals', icon: '✓' },
   { href: '/usage', label: 'Usage', icon: '∑' },

@@ -79,14 +79,22 @@ def _journal():
 
 
 def _broker_cancel_ok() -> MagicMock:
-    """Normal stale cancel: cancel() succeeds; status is still NEW."""
-    resp = MagicMock()
-    resp.status = OrderStatus.NEW
-    resp.filled_quantity = 0
-    resp.filled_price = None
+    """Normal stale cancel with realistic async-cancel semantics: cancel()
+    succeeds and the order subsequently reports CANCELED. (The tracker
+    confirms terminal state via get_order_status before dropping an order —
+    it never trusts the cancel request alone.)"""
     b = MagicMock()
-    b.cancel_order = AsyncMock()
-    b.get_order_status = AsyncMock(return_value=resp)
+    cancelled_ids = set()
+
+    async def _cancel(order_id):
+        cancelled_ids.add(order_id)
+
+    async def _status(order_id):
+        status = OrderStatus.CANCELED if order_id in cancelled_ids else OrderStatus.NEW
+        return MagicMock(status=status, filled_quantity=0, filled_price=None)
+
+    b.cancel_order = AsyncMock(side_effect=_cancel)
+    b.get_order_status = AsyncMock(side_effect=_status)
     return b
 
 

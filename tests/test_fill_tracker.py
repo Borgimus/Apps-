@@ -24,15 +24,42 @@ ET_ZONE = "America/New_York"
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _make_broker(status: OrderStatus, filled_qty: int = 1, filled_price: float = 3.10):
-    """Return an async mock broker that reports the given order status."""
+    """Return an async mock broker that reports the given order status.
+
+    Realistic cancel semantics: after cancel_order() is awaited for an order,
+    get_order_status reports CANCELED for it (unless the pre-cancel status was
+    already terminal, e.g. FILLED — a cancel cannot un-fill an order). The
+    FillTracker never trusts a cancel request alone; it confirms terminal
+    state via get_order_status before dropping an order.
+    """
     order_resp = MagicMock()
     order_resp.status = status
     order_resp.filled_quantity = filled_qty
     order_resp.filled_price = filled_price
 
+    cancelled_ids = set()
+    _TERMINAL = (
+        OrderStatus.FILLED, OrderStatus.CANCELLED, OrderStatus.CANCELED,
+        OrderStatus.REJECTED, OrderStatus.EXPIRED,
+    )
+
+    cancelled_resp = MagicMock()
+    cancelled_resp.status = OrderStatus.CANCELED
+    cancelled_resp.filled_quantity = 0
+    cancelled_resp.filled_price = 0.0
+
     broker = MagicMock()
-    broker.get_order_status = AsyncMock(return_value=order_resp)
-    broker.cancel_order = AsyncMock()
+
+    async def _cancel(order_id):
+        cancelled_ids.add(order_id)
+
+    async def _status(order_id):
+        if order_id in cancelled_ids and order_resp.status not in _TERMINAL:
+            return cancelled_resp
+        return order_resp
+
+    broker.cancel_order = AsyncMock(side_effect=_cancel)
+    broker.get_order_status = AsyncMock(side_effect=_status)
     return broker
 
 
@@ -378,12 +405,20 @@ def _make_risk():
 
 
 def _make_stale_broker():
-    """Broker where cancel succeeds and status is still NEW (normal stale path)."""
+    """Broker where cancel succeeds and the order then reports CANCELED
+    (normal stale path with realistic async-cancel semantics)."""
     broker = MagicMock()
-    broker.cancel_order = AsyncMock()
-    broker.get_order_status = AsyncMock(return_value=MagicMock(
-        status=OrderStatus.NEW, filled_quantity=0, filled_price=None,
-    ))
+    cancelled_ids = set()
+
+    async def _cancel(order_id):
+        cancelled_ids.add(order_id)
+
+    async def _status(order_id):
+        status = OrderStatus.CANCELED if order_id in cancelled_ids else OrderStatus.NEW
+        return MagicMock(status=status, filled_quantity=0, filled_price=None)
+
+    broker.cancel_order = AsyncMock(side_effect=_cancel)
+    broker.get_order_status = AsyncMock(side_effect=_status)
     return broker
 
 
@@ -453,6 +488,73 @@ class TestStaleOrderRiskIntegration:
         await ft.poll(_make_stale_broker(), _make_pm(), _make_journal(), datetime.now(), risk=_make_risk())
 
         assert ft.count() == 0
+
+    # ── Bug C: cancel succeeds but order filled at exchange ──────────────────
+
+    @pytest.mark.asyncio
+    async def test_successful_cancel_but_filled_routes_to_fill_handler(self):
+        """
+        Reproduces the S2-S4 stale-cancel pattern (8/8 occurrences):
+        - Stale cancel request returns 2xx (request accepted, async)
+        - The order had already filled (or fills in flight) at the exchange
+        - Post-cancel status recheck reports FILLED
+        - FillTracker must route to _handle_fill, NOT _handle_dead — previously
+          it trusted the cancel success and dropped the position, leaving it
+          unmanaged until the next reconciler pass (10-15 min blind window).
+        """
+        ft = FillTracker(max_age_minutes=1)
+        _register(ft, "IWM-S4", placed_at=datetime.now() - timedelta(minutes=5))
+
+        fill_resp = MagicMock()
+        fill_resp.status = OrderStatus.FILLED
+        fill_resp.filled_quantity = 1
+        fill_resp.filled_price = 0.28
+
+        broker = MagicMock()
+        broker.cancel_order = AsyncMock()  # succeeds — but order filled anyway
+        broker.get_order_status = AsyncMock(return_value=fill_resp)
+
+        pm = _make_pm()
+        journal = _make_journal()
+        risk = _make_risk()
+
+        fills = await ft.poll(broker, pm, journal, datetime.now(), risk=risk)
+
+        assert fills == 1
+        pm.open.assert_called_once()
+        journal.record_cancellation.assert_not_awaited()
+        risk.record_entry_cancelled.assert_not_called()
+        assert ft.count() == 0
+
+    @pytest.mark.asyncio
+    async def test_cancel_in_flight_defers_to_next_poll(self):
+        """
+        If the post-cancel recheck shows a still-live status (cancel not yet
+        processed at the exchange), the order must STAY tracked — never
+        assume dead while the broker may still report a fill.
+        """
+        ft = FillTracker(max_age_minutes=1)
+        _register(ft, "INFLIGHT-1", placed_at=datetime.now() - timedelta(minutes=5))
+
+        live_resp = MagicMock()
+        live_resp.status = OrderStatus.NEW
+        live_resp.filled_quantity = 0
+        live_resp.filled_price = None
+
+        broker = MagicMock()
+        broker.cancel_order = AsyncMock()
+        broker.get_order_status = AsyncMock(return_value=live_resp)
+
+        pm = _make_pm()
+        journal = _make_journal()
+        risk = _make_risk()
+
+        fills = await ft.poll(broker, pm, journal, datetime.now(), risk=risk)
+
+        assert fills == 0
+        assert ft.count() == 1          # still tracked
+        journal.record_cancellation.assert_not_awaited()
+        risk.record_entry_cancelled.assert_not_called()
 
     # ── Bug B ─────────────────────────────────────────────────────────────────
 

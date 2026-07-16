@@ -3,7 +3,7 @@
   "phase": 3,
   "phase3_start_date": "2026-07-12",
   "created": "2026-07-12",
-  "last_updated": "2026-07-15",
+  "last_updated": "2026-07-16",
   "phase3_session_1_fingerprint_note": "Verified clean: fingerprint --verify --check-broker passed before session, frozen hashes matched, working tree clean, 0 open orders, 0 open positions at start and shutdown.",
   "phase3_fingerprint": {
     "_note": "Frozen at Phase 3 readiness commit. SHA check uses CAPTURE_AFTER_PUSH sentinel: a committed file cannot contain the SHA of the commit that holds it (self-referential hash). Integrity is enforced by the four file hashes below plus clean working tree. Record the frozen commit SHA via: git tag phase3-baseline && git push origin phase3-baseline. Regenerate hashes with: python scripts/capture_session_fingerprint.py. A session whose runtime fingerprint diverges from this baseline is NOT eligible for the Phase 3 clean cohort without a declared protocol amendment.",
@@ -179,43 +179,109 @@
         "trades": 0,
         "pnl": 0.0
       }
+    },
+    {
+      "session": 4,
+      "date": "2026-07-16",
+      "status": "valid",
+      "data_clean": true,
+      "counts_toward_phase3": true,
+      "contamination_flags": ["reconciler_recovery_all_fills", "blind_window_exit_impact"],
+      "contamination_note": "All 3 entries filled via stale-cancel/reconciler recovery (pattern now 8-for-8 across S2-S4). Orders placed 10:00 ET off the first post-open re-scan, stale-cancelled 10:05, reconciler-restored 10:15. AAPL position lost ~48% of premium during the 10-minute blind window before local management began — trailing stop fired at first managed cycle, far below the intended 25%-from-peak level. Broker-reported fill prices authoritative throughout. One reconciliation timing artifact (RIVN, same as S2/S3 pattern). Clean shutdown: 0 positions, 0 orders, api_errors=0. Session ended early by user instruction at 10:36 ET after all 3 entries exhausted and closed. Fingerprint verified pre-session at commit 7912692.",
+      "trades": 3,
+      "pnl_confirmed": -92.0,
+      "strategies": ["orb", "vwap_reclaim"],
+      "symbols": ["AAPL", "IWM", "RIVN"],
+      "contracts": ["AAPL260717C00332500", "IWM260716C00298000", "RIVN260717P00017000"],
+      "fill_detail": [
+        {
+          "contract": "AAPL260717C00332500",
+          "strategy": "orb",
+          "direction": "LONG",
+          "entry_fill_price": 1.88,
+          "exit_fill_price": 0.97,
+          "realized_pnl": -91.0,
+          "hold_seconds": 300,
+          "exit_reason": "trailing_stop",
+          "fill_path": "reconciler_recovery",
+          "dte": 1,
+          "note": "Blind-window casualty: premium collapsed ~48% between broker fill (~10:05) and reconciler restore (10:15). Largest premium entered in Phase 3 ($188) made the unmanaged gap expensive. Trailing stop fired on first managed cycle."
+        },
+        {
+          "contract": "IWM260716C00298000",
+          "strategy": "orb",
+          "direction": "LONG",
+          "entry_fill_price": 0.28,
+          "exit_fill_price": 0.34,
+          "realized_pnl": 6.0,
+          "hold_seconds": 600,
+          "exit_reason": "trailing_stop",
+          "fill_path": "reconciler_recovery",
+          "dte": 0
+        },
+        {
+          "contract": "RIVN260717P00017000",
+          "strategy": "vwap_reclaim",
+          "direction": "SHORT",
+          "entry_fill_price": 0.26,
+          "exit_fill_price": 0.19,
+          "realized_pnl": -7.0,
+          "hold_seconds": 900,
+          "exit_reason": "trailing_stop",
+          "fill_path": "reconciler_recovery",
+          "dte": 1,
+          "exit_fill_note": "$0.19 fill against $0.17 sell limit is valid price improvement"
+        }
+      ],
+      "clean_shutdown": true,
+      "open_positions_at_shutdown": 0,
+      "open_orders_at_shutdown": 0,
+      "api_errors": 0,
+      "reconciliation_warnings": 1,
+      "reconciliation_warning_detail": "Timing artifact only: PM held stale RIVN reference after broker-confirmed close (same as S2/S3). Resolved before shutdown.",
+      "new_fixes_observed": [
+        "Push notifier fill events fired for all 3 reconciler-recovered entries with broker-confirmed prices (S3 fix verified)",
+        "Push notifier exit events reported broker-confirmed fills: IWM +$6 @ 0.34, RIVN -$7 @ 0.19 (S3 fix verified)",
+        "Session-end summary counters correct after full session: trades=3 W/L=1/3 (S3 fix verified)"
+      ]
     }
   ],
   "cumulative": {
-    "note": "Phase 3 clean cohort only. Sessions 1-3. Code boundary at S1/S2: 11 defect fixes applied. S3 exploration segment (0 trades) excluded.",
-    "sessions": 3,
-    "trades": 6,
-    "wins": 2,
-    "losses": 4,
+    "note": "Phase 3 clean cohort only. Sessions 1-4. Code boundaries: S1/S2 (11 defect fixes), S3/S4 (push notifier defect fixes), S4/S5 (Fix 12: stale-cancel terminal-state confirmation). S3 exploration segment (0 trades) excluded.",
+    "sessions": 4,
+    "trades": 9,
+    "wins": 3,
+    "losses": 6,
     "breakeven": 0,
-    "net_pnl": 177.0,
-    "gross_wins": 206.0,
-    "gross_losses": -29.0,
+    "net_pnl": 85.0,
+    "gross_wins": 212.0,
+    "gross_losses": -127.0,
     "win_rate": 0.333,
-    "avg_pnl_per_trade": 29.5,
-    "profit_factor": 7.1
+    "avg_pnl_per_trade": 9.44,
+    "profit_factor": 1.67
   },
   "dimensions": {
-    "note": "Phase 3 Sessions 1-3: 6 trades recorded.",
+    "note": "Phase 3 Sessions 1-4: 9 trades recorded.",
     "strategy": {
-      "vwap_reclaim": {"trades": 3, "pnl": 111.0},
-      "orb": {"trades": 3, "pnl": 66.0}
+      "vwap_reclaim": {"trades": 4, "pnl": 104.0},
+      "orb": {"trades": 5, "pnl": -19.0}
     },
     "quality_score": {},
     "dte": {
       "4": {"trades": 1, "pnl": -1.0},
       "3": {"trades": 2, "pnl": 72.0},
       "2": {"trades": 1, "pnl": -9.0},
-      "0": {"trades": 2, "pnl": 115.0}
+      "1": {"trades": 2, "pnl": -98.0},
+      "0": {"trades": 3, "pnl": 121.0}
     },
     "asset_class": {
-      "etf_sector": {"trades": 2, "pnl": -9.0},
-      "single_stock": {"trades": 4, "pnl": 186.0}
+      "etf_sector": {"trades": 3, "pnl": -3.0},
+      "single_stock": {"trades": 6, "pnl": 88.0}
     },
     "signal_age_minutes": {},
     "scanner_score": {},
     "fill_path": {
-      "reconciler_recovery": {"trades": 5, "pnl": 178.0},
+      "reconciler_recovery": {"trades": 8, "pnl": 86.0},
       "direct": {"trades": 1, "pnl": -1.0}
     }
   },
@@ -241,15 +307,25 @@
     {
       "issue": "stale_cancel_window_too_tight",
       "severity": "high",
-      "description": "ALL 5 mid-session limit entries across S2+S3 filled just before the 5-minute stale-cancel timer fired (S2: PLTR, XLE; S3: RIVN, TSLA, IWM — 5-for-5, fully systematic). The reconciler recovers correctly every time, but each occurrence creates a 10-15 min unmanaged blind window between broker fill and local restore. In S3 the IWM position's peak-price tracking for the trailing stop only began at restore, so the stale-cancel window plausibly degraded exit quality for the first time (not just entry bookkeeping). Severity raised medium->high. Fix options: extend entry_order_timeout_secs to 10-15 min, or trigger immediate reconciler check on 422 cancel response.",
-      "sessions_affected": [2, 3],
-      "trades_affected": ["PLTR260717C00133000", "XLE260717P00056000", "RIVN260717C00019500", "TSLA260715P00392500", "IWM260715C00297000"]
+      "status": "FIXED (Fix 12, declared 2026-07-16 after S4)",
+      "description": "ALL 8 mid-session limit entries across S2-S4 filled at/around the 5-minute stale-cancel window (S2: PLTR, XLE; S3: RIVN, TSLA, IWM; S4: AAPL, IWM, RIVN — 8-for-8, fully systematic). Root cause: broker cancels are asynchronous — a 2xx response means the cancel REQUEST was accepted, not that the order is cancelled — but FillTracker trusted the success response and dropped the order, leaving the filled position unmanaged until the next reconciler pass (10-15 min blind window). Escalating impact: S3 IWM peak-tracking started late; S4 AAPL lost ~48% of a $188 premium during the blind window (-$91, largest Phase 3 loss).",
+      "resolution": "Fix 12 (2026-07-16): FillTracker now confirms the order's actual terminal state via get_order_status after EVERY cancel attempt (success and 422/error paths). FILLED/PARTIALLY_FILLED routes to the fill handler immediately — position opens same cycle, no blind window. Non-terminal status defers to the next poll instead of assuming dead. Chosen over extending entry_order_timeout_secs because it is a pure state-sync defect fix (no threshold/parameter change, no frozen-hash file touched) and eliminates the blind window at any timeout value, whereas a longer timeout only shifts the race. Regression tests added (test_successful_cancel_but_filled_routes_to_fill_handler, test_cancel_in_flight_defers_to_next_poll); existing stale-cancel mocks updated to realistic async-cancel semantics.",
+      "sessions_affected": [2, 3, 4],
+      "trades_affected": ["PLTR260717C00133000", "XLE260717P00056000", "RIVN260717C00019500", "TSLA260715P00392500", "IWM260715C00297000", "AAPL260717C00332500", "IWM260716C00298000", "RIVN260717P00017000"]
     },
     {
       "issue": "push_notifier_gaps",
       "severity": "low",
-      "description": "Observability only, no trading impact. (1) on_fill events not emitted for reconciler-recovered entries — the diff detection only wraps fill_tracker.poll, and all S3 entries arrived via reconciler restore, so no fill push events fired. (2) on_exit reports last cached price/limit instead of broker-confirmed fill (RIVN pushed -$10 @ 0.16, actual -$9 @ 0.17; IWM pushed -$10 @ 0.22, actual -$8 @ 0.24). (3) session_end trades count showed 0 after restart because exits_today is not restored by restore_daily_counters.",
+      "status": "FIXED (2026-07-15 post-S3, verified live in S4)",
+      "description": "Observability only, no trading impact. (1) on_fill events not emitted for reconciler-recovered entries — the diff detection only wrapped fill_tracker.poll. (2) on_exit reported last cached price/limit instead of broker-confirmed fill. (3) session_end trades count wrong after restart. All three fixed post-S3 (commit 7912692) and verified working in S4: all 3 recovered fills pushed, exits pushed broker-confirmed prices, session-end showed trades=3 W/L=1/3.",
       "sessions_affected": [3]
     }
-  ]
+  ],
+  "_fix12_amendment": {
+    "declared": "2026-07-16",
+    "session_boundary": "S4/S5",
+    "files_changed": ["app/trading/fill_tracker.py", "tests/test_fill_tracker.py", "tests/test_stale_cancel_replay.py"],
+    "frozen_hash_files_changed": [],
+    "reason": "Defect fix only: FillTracker confirms broker terminal state after every cancel attempt instead of trusting the async cancel-request response. No threshold, parameter, or strategy logic change. entry_order_timeout_secs unchanged at 5 min. None of the four frozen-hash files (config, requirements, ticker_universe, broker adapters) modified. Sessions 5+ run with Fix 12; cross-session comparison of fill_path dimension should note reconciler_recovery is expected to drop to ~0 from S5 onward."
+  }
 }

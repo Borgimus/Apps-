@@ -126,9 +126,10 @@ function Metric({ label, value, tone }: { label: string; value: string; tone?: s
 
 export default function TradingDashboardPage() {
   const { data, loading, error, refresh } = useApi<Snapshot>('/api/trading/snapshot', 5_000);
+  const positionsAvailable = Boolean(data?.connected && !data?.errors.positions);
   const positionsUnrealized = useMemo(
-    () => data?.positions.reduce((sum, position) => sum + (position.unrealized_pnl ?? 0), 0) ?? null,
-    [data?.positions],
+    () => positionsAvailable ? data?.positions.reduce((sum, position) => sum + (position.unrealized_pnl ?? 0), 0) ?? null : null,
+    [data?.positions, positionsAvailable],
   );
   const unrealized = data?.pulse?.unrealized_pnl ?? positionsUnrealized;
   const netPnl = data?.pulse?.net_pnl ?? data?.status?.daily_pnl;
@@ -139,7 +140,11 @@ export default function TradingDashboardPage() {
     : data?.account?.is_paper
       ? 'PAPER'
       : 'UNKNOWN';
-  const fresh = data?.pulse ? cycleFreshness(data.pulse.stale_secs) : freshness(data?.health?.timestamp ?? data?.fetchedAt);
+  const fresh = data?.pulse
+    ? cycleFreshness(data.pulse.stale_secs)
+    : data?.connected
+      ? freshness(data?.health?.timestamp)
+      : 'unknown';
   const connectionLabel = data?.connected ? fresh : 'disconnected';
 
   return (
@@ -153,7 +158,7 @@ export default function TradingDashboardPage() {
             <span className="rounded-full border border-line px-2 py-0.5 text-2xs text-ink-muted">READ ONLY</span>
           </div>
           <p className="mt-1 text-xs text-ink-muted">
-            Broker: {data?.status?.broker ?? 'unavailable'} · Cycle: {data?.pulse?.cycle ?? '—'} · Last API response: {formatTradingTime(data?.fetchedAt)}
+            Broker: {data?.status?.broker ?? 'unavailable'} · Cycle: {data?.pulse?.cycle ?? '—'} · Last poll: {formatTradingTime(data?.fetchedAt)}
           </p>
         </div>
         <button className="rounded-md border border-line px-3 py-1.5 text-xs hover:bg-surface-sunken" onClick={() => void refresh()}>
@@ -185,8 +190,8 @@ export default function TradingDashboardPage() {
         <Metric label="Buying power" value={formatTradingMoney(data?.account?.buying_power)} />
         <Metric label="Net P&L" value={formatTradingMoney(netPnl)} tone={pnlClass(netPnl)} />
         <Metric label="Unrealized P&L" value={formatTradingMoney(unrealized)} tone={pnlClass(unrealized)} />
-        <Metric label="Open positions" value={String(data?.pulse?.positions ?? data?.positions.length ?? 0)} />
-        <Metric label="Entries today" value={`${data?.pulse?.entries_today ?? data?.status?.trades_today ?? 0}/${data?.risk?.max_trades_per_day ?? '—'}`} />
+        <Metric label="Open positions" value={data?.pulse ? String(data.pulse.positions) : positionsAvailable ? String(data?.positions.length ?? 0) : 'Unavailable'} />
+        <Metric label="Entries today" value={data?.pulse || data?.status ? `${data?.pulse?.entries_today ?? data?.status?.trades_today ?? 0}/${data?.risk?.max_trades_per_day ?? '—'}` : 'Unavailable'} />
       </section>
 
       <div className="rounded-lg border border-sky-500/30 bg-sky-500/10 p-3 text-xs text-sky-600 dark:text-sky-300">
@@ -230,10 +235,10 @@ export default function TradingDashboardPage() {
           <h2 className="mb-3 text-sm font-semibold">Risk and connection</h2>
           <dl className="grid grid-cols-2 gap-3 text-xs">
             <div><dt className="text-ink-faint">API health</dt><dd className="mt-1 font-medium">{data?.health?.status ?? 'Unavailable'}</dd></div>
-            <div><dt className="text-ink-faint">Runner heartbeat</dt><dd className="mt-1 font-medium capitalize">{fresh}{data?.pulse ? ` (${data.pulse.stale_secs}s)` : ''}</dd></div>
-            <div><dt className="text-ink-faint">Kill switch state</dt><dd className="mt-1 font-medium">{data?.status?.kill_switch_active ? 'Active' : 'Inactive'}</dd></div>
+            <div><dt className="text-ink-faint">Runner heartbeat</dt><dd className="mt-1 font-medium capitalize">{fresh === 'unknown' ? 'Unavailable' : fresh}{data?.pulse ? ` (${data.pulse.stale_secs}s)` : ''}</dd></div>
+            <div><dt className="text-ink-faint">Kill switch state</dt><dd className="mt-1 font-medium">{data?.status ? data.status.kill_switch_active ? 'Active' : 'Inactive' : 'Unavailable'}</dd></div>
             <div><dt className="text-ink-faint">Daily loss limit</dt><dd className="mt-1 font-medium">{data?.risk ? `${(data.risk.max_daily_loss_pct * 100).toFixed(1)}%` : 'Unavailable'}</dd></div>
-            <div><dt className="text-ink-faint">Scanner</dt><dd className="mt-1 font-medium">{data?.pulse?.scanner_standby ? 'Standby' : 'Active'}</dd></div>
+            <div><dt className="text-ink-faint">Scanner</dt><dd className="mt-1 font-medium">{data?.pulse ? data.pulse.scanner_standby ? 'Standby' : 'Active' : 'Unavailable'}</dd></div>
             <div><dt className="text-ink-faint">Pending orders</dt><dd className="mt-1 font-medium">{data?.pulse?.pending_orders ?? 'Unavailable'}</dd></div>
           </dl>
           <div className="mt-4 border-t border-line pt-3">

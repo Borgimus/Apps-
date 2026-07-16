@@ -69,9 +69,12 @@ export async function GET() {
   );
 
   const results = Object.fromEntries(entries) as Record<EndpointName, { value: unknown; error?: string }>;
-  const errors = Object.fromEntries(
-    entries.filter(([, result]) => result.error).map(([name, result]) => [name, result.error]),
-  );
+  const errors: Partial<Record<EndpointName, string>> = {};
+  for (const [name, result] of entries) {
+    if ('error' in result && result.error) {
+      errors[name] = result.error;
+    }
+  }
 
   return NextResponse.json(
     {

@@ -3,7 +3,7 @@
   "phase": 3,
   "phase3_start_date": "2026-07-12",
   "created": "2026-07-12",
-  "last_updated": "2026-07-16",
+  "last_updated": "2026-07-17",
   "phase3_session_1_fingerprint_note": "Verified clean: fingerprint --verify --check-broker passed before session, frozen hashes matched, working tree clean, 0 open orders, 0 open positions at start and shutdown.",
   "phase3_fingerprint": {
     "_note": "Frozen at Phase 3 readiness commit. SHA check uses CAPTURE_AFTER_PUSH sentinel: a committed file cannot contain the SHA of the commit that holds it (self-referential hash). Integrity is enforced by the four file hashes below plus clean working tree. Record the frozen commit SHA via: git tag phase3-baseline && git push origin phase3-baseline. Regenerate hashes with: python scripts/capture_session_fingerprint.py. A session whose runtime fingerprint diverges from this baseline is NOT eligible for the Phase 3 clean cohort without a declared protocol amendment.",
@@ -244,27 +244,80 @@
         "Push notifier exit events reported broker-confirmed fills: IWM +$6 @ 0.34, RIVN -$7 @ 0.19 (S3 fix verified)",
         "Session-end summary counters correct after full session: trades=3 W/L=1/3 (S3 fix verified)"
       ]
+    },
+    {
+      "session": 5,
+      "date": "2026-07-17",
+      "status": "valid",
+      "data_clean": true,
+      "counts_toward_phase3": true,
+      "contamination_flags": [],
+      "contamination_note": "First session under Fix 12 and the cleanest of Phase 3: zero reconciler recoveries, zero reconciliation warnings, zero API errors. Both fills were caught at the 5-minute cancel window by the new terminal-state recheck and managed from the same poll cycle — no blind window. One additional order genuinely stale-cancelled (confirmed CANCELED at broker before removal). Health report shows orders filled=2 for the first time (prior sessions showed filled=0 with everything mislabeled cancelled).",
+      "trades": 2,
+      "pnl_confirmed": 5.0,
+      "strategies": ["vwap_reclaim", "orb"],
+      "symbols": ["IWM", "UBER"],
+      "contracts": ["IWM260717C00295000", "UBER260717P00072000"],
+      "fill_detail": [
+        {
+          "contract": "IWM260717C00295000",
+          "strategy": "vwap_reclaim",
+          "direction": "LONG",
+          "entry_fill_price": 0.87,
+          "exit_fill_price": 1.12,
+          "realized_pnl": 25.0,
+          "hold_seconds": 1800,
+          "exit_reason": "trailing_stop",
+          "fill_path": "fill_tracker_recheck",
+          "dte": 0,
+          "note": "First Phase 3 trade fully managed from moment of fill (ttf=306s, Fix 12 path). Peaked ~1.49; 25% trail locked +$25 on pullback — designed exit behavior."
+        },
+        {
+          "contract": "UBER260717P00072000",
+          "strategy": "orb",
+          "direction": "SHORT",
+          "entry_fill_price": 0.45,
+          "exit_fill_price": 0.25,
+          "realized_pnl": -20.0,
+          "hold_seconds": 1800,
+          "exit_reason": "trailing_stop",
+          "fill_path": "fill_tracker_recheck",
+          "dte": 0,
+          "note": "Breakdown failed to follow through; normal bounded stop-out, managed throughout."
+        }
+      ],
+      "clean_shutdown": true,
+      "open_positions_at_shutdown": 0,
+      "open_orders_at_shutdown": 0,
+      "api_errors": 0,
+      "reconciliation_warnings": 0,
+      "new_fixes_observed": [
+        "Fix 12 VALIDATED: both fills routed via 'filled at stale-cancel window' recheck path, positions opened same poll cycle, peak tracking live from fill",
+        "Fix 12: genuinely-dead stale order confirmed CANCELED at broker before removal (no false fills, no false cancels)",
+        "ORB slot reservation gated non-ORB signals from 10:25 until 11:30 (XLF vwap_reclaim skipped); reserved slot used by UBER orb at 11:01",
+        "EOD entry cutoff rejected RIVN at 12:27 (2 min < 30 min required)"
+      ]
     }
   ],
   "cumulative": {
-    "note": "Phase 3 clean cohort only. Sessions 1-4. Code boundaries: S1/S2 (11 defect fixes), S3/S4 (push notifier defect fixes), S4/S5 (Fix 12: stale-cancel terminal-state confirmation). S3 exploration segment (0 trades) excluded.",
-    "sessions": 4,
-    "trades": 9,
-    "wins": 3,
-    "losses": 6,
+    "note": "Phase 3 clean cohort only. Sessions 1-5. Code boundaries: S1/S2 (11 defect fixes), S3/S4 (push notifier defect fixes), S4/S5 (Fix 12: stale-cancel terminal-state confirmation). S3 exploration segment (0 trades) excluded.",
+    "sessions": 5,
+    "trades": 11,
+    "wins": 4,
+    "losses": 7,
     "breakeven": 0,
-    "net_pnl": 85.0,
-    "gross_wins": 212.0,
-    "gross_losses": -127.0,
-    "win_rate": 0.333,
-    "avg_pnl_per_trade": 9.44,
-    "profit_factor": 1.67
+    "net_pnl": 90.0,
+    "gross_wins": 237.0,
+    "gross_losses": -147.0,
+    "win_rate": 0.364,
+    "avg_pnl_per_trade": 8.18,
+    "profit_factor": 1.61
   },
   "dimensions": {
-    "note": "Phase 3 Sessions 1-4: 9 trades recorded.",
+    "note": "Phase 3 Sessions 1-5: 11 trades recorded.",
     "strategy": {
-      "vwap_reclaim": {"trades": 4, "pnl": 104.0},
-      "orb": {"trades": 5, "pnl": -19.0}
+      "vwap_reclaim": {"trades": 5, "pnl": 129.0},
+      "orb": {"trades": 6, "pnl": -39.0}
     },
     "quality_score": {},
     "dte": {
@@ -272,16 +325,17 @@
       "3": {"trades": 2, "pnl": 72.0},
       "2": {"trades": 1, "pnl": -9.0},
       "1": {"trades": 2, "pnl": -98.0},
-      "0": {"trades": 3, "pnl": 121.0}
+      "0": {"trades": 5, "pnl": 126.0}
     },
     "asset_class": {
-      "etf_sector": {"trades": 3, "pnl": -3.0},
-      "single_stock": {"trades": 6, "pnl": 88.0}
+      "etf_sector": {"trades": 4, "pnl": 22.0},
+      "single_stock": {"trades": 7, "pnl": 68.0}
     },
     "signal_age_minutes": {},
     "scanner_score": {},
     "fill_path": {
       "reconciler_recovery": {"trades": 8, "pnl": 86.0},
+      "fill_tracker_recheck": {"trades": 2, "pnl": 5.0},
       "direct": {"trades": 1, "pnl": -1.0}
     }
   },
@@ -295,13 +349,13 @@
     "iv_quartile": {"required": 3, "current": {}}
   },
   "primary_questions_status": {
-    "Q1_orb_vs_vwap": {"status": "minimum_met", "phase3_obs": 6, "required": 3, "note": "ORB: 3 trades, +$66 net (1W/2L — the win was +$83 PLTR; S3 losses small). VWAP: 3 trades, +$111 net (1W/2L — the win was +$123 TSLA). Both profitable on N=3; winners driven by single large wins in each. No separation yet."},
+    "Q1_orb_vs_vwap": {"status": "minimum_met", "phase3_obs": 11, "required": 3, "note": "ORB: 6 trades, -$39 net (1W/5L, win +$83 PLTR; includes -$91 AAPL blind-window loss). VWAP: 5 trades, +$129 net (3W/2L, wins +$123/+$25 and small losses). Emerging separation favoring vwap_reclaim, but ORB's number carries the S4 defect-amplified loss — re-evaluate ORB on post-Fix-12 trades only."},
     "Q2_signal_age": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
     "Q3_dte": {"status": "minimum_met", "phase3_obs": 6, "required": 3, "note": "DTE 3-4: 3 trades +$71. DTE 0-2: 3 trades +$106 (both 0-DTE trades in S3: +$123 TSLA, -$8 IWM). 0-DTE shows expected high variance."},
     "Q4_etf_vs_single_stock": {"status": "insufficient_data", "phase3_obs": 6, "required": 3, "note": "ETF: 2 trades -$9 (XLE, IWM). Single stock: 4 trades +$186. ETF bucket still below 3-obs minimum."},
     "Q5_quality_scores": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
     "Q6_scanner_score": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
-    "Q7_fill_path": {"status": "minimum_met", "phase3_obs": 6, "required": 3, "note": "reconciler_recovery: 5 trades +$178; direct: 1 trade -$1. Stale-cancel is now the DOMINANT fill path (5 of 6 trades, 5-for-5 on mid-session limit entries S2+S3) — systematic defect, see open_issues."}
+    "Q7_fill_path": {"status": "minimum_met", "phase3_obs": 11, "required": 3, "note": "reconciler_recovery: 8 trades +$86 (S2-S4, defect era); fill_tracker_recheck: 2 trades +$5 (S5, post-Fix-12); direct: 1 trade -$1. Fix 12 validated in S5 — reconciler_recovery expected to stay at 0 going forward; recheck path is the new normal for cancel-window fills."}
   },
   "open_issues": [
     {

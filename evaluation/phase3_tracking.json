@@ -296,7 +296,8 @@
         "Fix 12: genuinely-dead stale order confirmed CANCELED at broker before removal (no false fills, no false cancels)",
         "ORB slot reservation gated non-ORB signals from 10:25 until 11:30 (XLF vwap_reclaim skipped); reserved slot used by UBER orb at 11:01",
         "EOD entry cutoff rejected RIVN at 12:27 (2 min < 30 min required)"
-      ]
+      ],
+      "data_lineage_note": "A container snapshot revert after session close deleted the LOCAL copies of S5 artifacts: trading.db journal rows for 2026-07-17 and logs/session_2026-07-17.{log,json}. This record (committed as d0bd822 before the revert) and evaluation/ledger.json are the surviving system-of-record; Alpaca paper account holds the authoritative broker history. No impact on cohort validity (record was written from the live health report pre-revert) or on S6 counter restoration (counters are per-calendar-day)."
     }
   ],
   "cumulative": {

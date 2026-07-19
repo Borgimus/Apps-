@@ -342,6 +342,89 @@ class TestA5_JournalFill:
 # A6  Exit uses bid-side price and P&L
 # ─────────────────────────────────────────────────────────────────────────────
 
+async def _run_confirmed_exit(pos, exit_reason: str, bid: float, ask: float):
+    """
+    Drive monitor_positions through the two-cycle exit flow: cycle 1 places a
+    bid-priced limit (EXIT_PENDING), cycle 2 confirms the broker fill at that
+    limit. Returns the journal mock for assertions on the confirmed record.
+    """
+    from scripts.session_runner import monitor_positions
+    from app.brokers.broker_interface import OrderStatus as _OStatus
+
+    pos.exit_pending = False
+    pos.exit_order_id = None
+    pos.confirmed_fill_qty = 0
+    pos.confirmed_fill_value = 0.0
+    pos.current_price = pos.entry_price
+    pos.peak_price = pos.entry_price
+    pos.trough_price = pos.entry_price
+    pos.exit_quote_bid = None
+
+    closed = []
+    pm = MagicMock()
+
+    def _mark(option_symbol, order_id=None, limit_price=None, reason=None,
+              is_mandatory=False, exit_quote_bid=None, now=None):
+        pos.exit_pending = True
+        pos.exit_order_id = order_id
+        pos.exit_order_limit_price = limit_price
+        pos.exit_triggered_reason = reason
+        pos.exit_quote_bid = exit_quote_bid
+
+    pm.mark_exit_pending = MagicMock(side_effect=_mark)
+    pm.open_positions = MagicMock(side_effect=lambda: [] if closed else [pos])
+    pm.get_position = MagicMock(return_value=pos)
+    pm.record_partial_fill = MagicMock()
+    pm.close_confirmed = MagicMock(side_effect=lambda *a, **k: closed.append(1))
+    pm.update_price = MagicMock()
+    pm.should_exit = MagicMock(return_value=exit_reason)
+
+    quote = MagicMock()
+    quote.bid = bid
+    quote.ask = ask
+    quote.mid = (bid + ask) / 2
+    quote.timestamp = datetime.now(tz=ET)
+
+    order_result = MagicMock()
+    order_result.order_id = "exit-001"
+
+    broker = MagicMock()
+    broker.get_option_quote = AsyncMock(return_value=quote)
+    broker.place_option_order = AsyncMock(return_value=order_result)
+
+    journal = MagicMock()
+    journal.record_exit = AsyncMock()
+    journal.mark_exit_pending = AsyncMock()
+    journal.log_event = AsyncMock()
+    journal.commit = AsyncMock()
+
+    risk = MagicMock()
+    risk.record_exit = MagicMock()
+
+    settings = MagicMock()
+    settings.risk.max_spread_pct = 0.50
+
+    now = datetime.now(tz=ET)
+    await monitor_positions(
+        broker=broker, pm=pm, journal=journal, risk=risk,
+        now=now, dry_run=False, settings=settings,
+    )
+    assert pos.exit_pending, "exit order was not placed on first cycle"
+
+    fill = MagicMock()
+    fill.status = _OStatus.FILLED
+    fill.filled_quantity = pos.quantity
+    fill.filled_price = float(pos.exit_order_limit_price)
+    fill.filled_at = now
+    broker.get_order_status = AsyncMock(return_value=fill)
+
+    await monitor_positions(
+        broker=broker, pm=pm, journal=journal, risk=risk,
+        now=now, dry_run=False, settings=settings,
+    )
+    return journal
+
+
 class TestA6_ExitBidPricing:
 
     @pytest.mark.asyncio
@@ -351,8 +434,6 @@ class TestA6_ExitBidPricing:
         Old P&L: (0.155 - 0.21) * 100 = -$5.50  (wrong — midpoint)
         New P&L: (0.13  - 0.21) * 100 = -$8.00  (correct — bid)
         """
-        from scripts.session_runner import monitor_positions
-
         pos = MagicMock()
         pos.symbol = "AMZN"
         pos.option_symbol = "AMZN260603P00247500"
@@ -362,40 +443,7 @@ class TestA6_ExitBidPricing:
         pos.journal_id = 307
         pos.entry_time = datetime(2026, 6, 3, 11, 39, tzinfo=ET)
 
-        pm = MagicMock()
-        pm.open_positions.return_value = [pos]
-        pm.update_price = MagicMock()
-        pm.should_exit.return_value = "trailing_stop"
-        pm.close = MagicMock()
-
-        quote = MagicMock()
-        quote.bid = 0.13
-        quote.ask = 0.18
-        quote.mid = (0.13 + 0.18) / 2  # 0.155
-
-        order_result = MagicMock()
-        order_result.order_id = "exit-amzn-001"
-
-        broker = MagicMock()
-        broker.get_option_quote = AsyncMock(return_value=quote)
-        broker.place_option_order = AsyncMock(return_value=order_result)
-
-        risk = MagicMock()
-        risk.record_exit = MagicMock()
-
-        journal = MagicMock()
-        journal.record_exit = AsyncMock()
-        journal.log_event = AsyncMock()
-        journal.commit = AsyncMock()
-
-        settings = MagicMock()
-        settings.risk.max_spread_pct = 0.50
-
-        await monitor_positions(
-            broker=broker, pm=pm, journal=journal, risk=risk,
-            now=datetime(2026, 6, 3, 12, 2, tzinfo=ET),
-            dry_run=False, settings=settings,
-        )
+        journal = await _run_confirmed_exit(pos, "trailing_stop", bid=0.13, ask=0.18)
 
         journal.record_exit.assert_awaited_once()
         kw = journal.record_exit.call_args.kwargs
@@ -416,8 +464,6 @@ class TestA6_ExitBidPricing:
         A6 META scenario: bid=$0.33 ask=$0.45 mid=$0.39 entry=$0.51.
         Journal must record exit_price=0.33 pnl=-18.00 (not -12.00).
         """
-        from scripts.session_runner import monitor_positions
-
         pos = MagicMock()
         pos.symbol = "META"
         pos.option_symbol = "META260603P00605000"
@@ -427,37 +473,7 @@ class TestA6_ExitBidPricing:
         pos.journal_id = 308
         pos.entry_time = datetime(2026, 6, 3, 12, 20, tzinfo=ET)
 
-        pm = MagicMock()
-        pm.open_positions.return_value = [pos]
-        pm.update_price = MagicMock()
-        pm.should_exit.return_value = "trailing_stop"
-        pm.close = MagicMock()
-
-        quote = MagicMock()
-        quote.bid = 0.33
-        quote.ask = 0.45
-        quote.mid = (0.33 + 0.45) / 2  # 0.39
-
-        order_result = MagicMock()
-        order_result.order_id = "exit-meta-001"
-
-        broker = MagicMock()
-        broker.get_option_quote = AsyncMock(return_value=quote)
-        broker.place_option_order = AsyncMock(return_value=order_result)
-
-        risk = MagicMock()
-        risk.record_exit = MagicMock()
-
-        journal = MagicMock()
-        journal.record_exit = AsyncMock()
-        journal.log_event = AsyncMock()
-        journal.commit = AsyncMock()
-
-        await monitor_positions(
-            broker=broker, pm=pm, journal=journal, risk=risk,
-            now=datetime(2026, 6, 3, 12, 29, tzinfo=ET),
-            dry_run=False,
-        )
+        journal = await _run_confirmed_exit(pos, "trailing_stop", bid=0.33, ask=0.45)
 
         kw = journal.record_exit.call_args.kwargs
         assert kw["exit_price"] == pytest.approx(0.33)
@@ -880,9 +896,7 @@ class TestFullScenarioReplay:
         assert risk.entries_today == 1,       "A8: entries_today must be 1"
         assert ft_amzn.count() == 0,          "A9: no lingering pending order"
 
-        # ── 12:02 ET: AMZN trailing stop exit ────────────────────────────
-        from scripts.session_runner import monitor_positions
-
+        # ── 12:02 ET: AMZN trailing stop exit (two-cycle: place, confirm) ──
         pos = MagicMock()
         pos.symbol = "AMZN"
         pos.option_symbol = "AMZN260603P00247500"
@@ -892,40 +906,7 @@ class TestFullScenarioReplay:
         pos.journal_id = 307
         pos.entry_time = datetime(2026, 6, 3, 11, 39, tzinfo=ET)
 
-        exit_pm = MagicMock()
-        exit_pm.open_positions.return_value = [pos]
-        exit_pm.update_price = MagicMock()
-        exit_pm.should_exit.return_value = "trailing_stop"
-        exit_pm.close = MagicMock()
-
-        exit_quote = MagicMock()
-        exit_quote.bid = 0.13
-        exit_quote.ask = 0.18
-        exit_quote.mid = 0.155
-
-        exit_order_result = MagicMock()
-        exit_order_result.order_id = "exit-amzn-001"
-
-        exit_broker = MagicMock()
-        exit_broker.get_option_quote = AsyncMock(return_value=exit_quote)
-        exit_broker.place_option_order = AsyncMock(return_value=exit_order_result)
-
-        exit_risk = MagicMock()
-        exit_risk.record_exit = MagicMock()
-
-        exit_journal = MagicMock()
-        exit_journal.record_exit = AsyncMock()
-        exit_journal.log_event = AsyncMock()
-        exit_journal.commit = AsyncMock()
-
-        exit_settings = MagicMock()
-        exit_settings.risk.max_spread_pct = 0.50
-
-        await monitor_positions(
-            broker=exit_broker, pm=exit_pm, journal=exit_journal, risk=exit_risk,
-            now=datetime(2026, 6, 3, 12, 2, tzinfo=ET),
-            dry_run=False, settings=exit_settings,
-        )
+        exit_journal = await _run_confirmed_exit(pos, "trailing_stop", bid=0.13, ask=0.18)
 
         exit_kw = exit_journal.record_exit.call_args.kwargs
         assert exit_kw["exit_price"] == pytest.approx(0.13),   "A6: bid price"

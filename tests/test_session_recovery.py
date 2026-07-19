@@ -904,6 +904,8 @@ def _make_risk_manager():
     settings.market_close = "16:00"
     settings.no_trade_open_buffer_minutes = 5
     settings.no_trade_close_buffer_minutes = 5
+    settings.position.eod_exit_time = "15:45"
+    settings.position.min_entry_minutes_before_eod = 30
     rm = RiskManager(settings)
     rm.start_session(Decimal("50000"))
     return rm

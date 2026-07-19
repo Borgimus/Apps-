@@ -328,7 +328,9 @@ class TestExitSpreadAwareness:
         assert len(spread_calls) == 1, "Expected one exit_spread_warning log event"
         data = spread_calls[0].kwargs["data"]
         assert data["spread_pct"] > 0.10
-        assert data["is_emergency"] is False
+        assert data["reason"] == "trailing_stop"
+        assert data["bid"] == pytest.approx(3.00)
+        assert data["ask"] == pytest.approx(5.00)
 
     # Test 8: stop_loss exit proceeds despite wide spread (not blocked)
     @pytest.mark.asyncio
@@ -352,15 +354,15 @@ class TestExitSpreadAwareness:
             dry_run=False, settings=settings,
         )
 
-        # Spread warning should be logged (is_emergency=True)
+        # Spread warning should be logged — but never blocks a mandatory exit
         spread_calls = [
             c for c in journal.log_event.call_args_list
             if c.kwargs.get("event") == "exit_spread_warning"
         ]
         assert len(spread_calls) == 1
-        assert spread_calls[0].kwargs["data"]["is_emergency"] is True
+        assert spread_calls[0].kwargs["data"]["reason"] == "stop_loss"
 
-        # But the exit order was still placed
+        # The exit order was still placed
         broker.place_option_order.assert_called_once()
 
     # Test 9: eod_exit proceeds with only a warning when spread is wide
@@ -393,7 +395,7 @@ class TestExitSpreadAwareness:
             if c.kwargs.get("event") == "exit_spread_warning"
         ]
         assert len(spread_calls) == 1
-        assert spread_calls[0].kwargs["data"]["is_emergency"] is True
+        assert spread_calls[0].kwargs["data"]["reason"] == "eod_exit"
 
         # Exit order must still be placed
         broker.place_option_order.assert_called()
@@ -413,6 +415,15 @@ def _make_position(entry_price: float = 6.00):
     pos.strategy_id = "test_strat"
     pos.journal_id = 1
     pos.entry_time = datetime(2026, 5, 12, 9, 30, tzinfo=ET)
+    # Exit-state-machine fields: not yet pending, no confirmed fills
+    pos.exit_pending = False
+    pos.exit_order_id = None
+    pos.confirmed_fill_qty = 0
+    pos.confirmed_fill_value = 0.0
+    pos.current_price = entry_price
+    pos.peak_price = entry_price
+    pos.trough_price = entry_price
+    pos.exit_quote_bid = None
     return pos
 
 

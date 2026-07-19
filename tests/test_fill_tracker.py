@@ -344,7 +344,7 @@ class TestDedup:
             journal = _make_journal()
             await ft.poll(broker, pm, journal, datetime.now())
 
-        asyncio.get_event_loop().run_until_complete(_run())
+        asyncio.run(_run())
         assert ft.has_pending_for_symbol("SPY") is False
 
     def test_multiple_symbols_isolated(self):

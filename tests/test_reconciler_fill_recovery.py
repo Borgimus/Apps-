@@ -480,6 +480,8 @@ class TestRiskCounterRestoredByReconciler:
             settings.market_close = "16:00"
             settings.no_trade_open_buffer_minutes = 15
             settings.no_trade_close_buffer_minutes = 15
+            settings.position.eod_exit_time = "15:45"
+            settings.position.min_entry_minutes_before_eod = 30
             settings.is_kill_switch_active.return_value = False
             settings.live_trading_enabled = False
             risk = RiskManager(settings)

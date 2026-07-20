@@ -3,7 +3,7 @@
   "phase": 3,
   "phase3_start_date": "2026-07-12",
   "created": "2026-07-12",
-  "last_updated": "2026-07-17",
+  "last_updated": "2026-07-20",
   "phase3_session_1_fingerprint_note": "Verified clean: fingerprint --verify --check-broker passed before session, frozen hashes matched, working tree clean, 0 open orders, 0 open positions at start and shutdown.",
   "phase3_fingerprint": {
     "_note": "Frozen at Phase 3 readiness commit. SHA check uses CAPTURE_AFTER_PUSH sentinel: a committed file cannot contain the SHA of the commit that holds it (self-referential hash). Integrity is enforced by the four file hashes below plus clean working tree. Record the frozen commit SHA via: git tag phase3-baseline && git push origin phase3-baseline. Regenerate hashes with: python scripts/capture_session_fingerprint.py. A session whose runtime fingerprint diverges from this baseline is NOT eligible for the Phase 3 clean cohort without a declared protocol amendment.",
@@ -298,45 +298,110 @@
         "EOD entry cutoff rejected RIVN at 12:27 (2 min < 30 min required)"
       ],
       "data_lineage_note": "A container snapshot revert after session close deleted the LOCAL copies of S5 artifacts: trading.db journal rows for 2026-07-17 and logs/session_2026-07-17.{log,json}. This record (committed as d0bd822 before the revert) and evaluation/ledger.json are the surviving system-of-record; Alpaca paper account holds the authoritative broker history. No impact on cohort validity (record was written from the live health report pre-revert) or on S6 counter restoration (counters are per-calendar-day)."
+    },
+    {
+      "session": 6,
+      "date": "2026-07-20",
+      "status": "valid",
+      "data_clean": true,
+      "counts_toward_phase3": true,
+      "contamination_flags": [],
+      "contamination_note": "First session with fully clean order accounting: orders submitted=3, filled=3, cancelled=0, stale_cancels=0, api_errors=0. All three fills arrived via the Fix 12 cancel-window recheck (5-for-5 since the fix across S5-S6) and were managed from the same poll cycle. One reconciliation timing artifact (QQQ: PM held reference after broker close, same known pattern, resolved same cycle). Clean shutdown: 0 positions, 0 orders. Broker-vs-ledger note: Alpaca paper nets simulated regulatory fees into P&L (QQQ showed -$5.04 vs ledger -$5.00 price P&L); ledger books price P&L only.",
+      "trades": 3,
+      "pnl_confirmed": -7.0,
+      "strategies": ["orb"],
+      "symbols": ["QQQ", "TSLA", "MARA"],
+      "contracts": ["QQQ260720P00690000", "TSLA260720P00367500", "MARA260724C00012000"],
+      "fill_detail": [
+        {
+          "contract": "QQQ260720P00690000",
+          "strategy": "orb",
+          "direction": "SHORT",
+          "entry_fill_price": 0.28,
+          "exit_fill_price": 0.23,
+          "realized_pnl": -5.0,
+          "hold_seconds": 1500,
+          "exit_reason": "trailing_stop",
+          "fill_path": "fill_tracker_recheck",
+          "dte": 0,
+          "note": "Entry price improvement ($0.28 vs $0.30 limit). Peaked ~$0.33 (+$5) before collapsing to trail."
+        },
+        {
+          "contract": "TSLA260720P00367500",
+          "strategy": "orb",
+          "direction": "SHORT",
+          "entry_fill_price": 0.36,
+          "exit_fill_price": 0.26,
+          "realized_pnl": -10.0,
+          "hold_seconds": 900,
+          "exit_reason": "trailing_stop",
+          "fill_path": "fill_tracker_recheck",
+          "dte": 0
+        },
+        {
+          "contract": "MARA260724C00012000",
+          "strategy": "orb",
+          "direction": "LONG",
+          "entry_fill_price": 0.38,
+          "exit_fill_price": 0.46,
+          "realized_pnl": 8.0,
+          "hold_seconds": 6060,
+          "exit_reason": "eod_exit",
+          "fill_path": "fill_tracker_recheck",
+          "dte": 4,
+          "note": "Longest hold of the session (101m); only 4-DTE contract of the day. EOD force-close captured +$8 with premium intact."
+        }
+      ],
+      "clean_shutdown": true,
+      "open_positions_at_shutdown": 0,
+      "open_orders_at_shutdown": 0,
+      "api_errors": 0,
+      "reconciliation_warnings": 1,
+      "reconciliation_warning_detail": "Timing artifact only: PM held stale QQQ reference after broker-confirmed close (same as S2/S3/S4). Resolved before shutdown.",
+      "new_fixes_observed": [
+        "Fix 12 sustained: all 3 fills via cancel-window recheck, managed same cycle, zero reconciler recoveries",
+        "First health report with orders.filled=3 / cancelled=0 / stale_cancels=0 — order accounting fully clean",
+        "Launch-timing lesson applied: started 09:31 (post-open), opening scan passed 11/38 with live data, no standby"
+      ]
     }
   ],
   "cumulative": {
-    "note": "Phase 3 clean cohort only. Sessions 1-5. Code boundaries: S1/S2 (11 defect fixes), S3/S4 (push notifier defect fixes), S4/S5 (Fix 12: stale-cancel terminal-state confirmation). S3 exploration segment (0 trades) excluded.",
-    "sessions": 5,
-    "trades": 11,
-    "wins": 4,
-    "losses": 7,
+    "note": "Phase 3 clean cohort only. Sessions 1-6. Code boundaries: S1/S2 (11 defect fixes), S3/S4 (push notifier defect fixes), S4/S5 (Fix 12: stale-cancel terminal-state confirmation). S3 exploration segment (0 trades) excluded.",
+    "sessions": 6,
+    "trades": 14,
+    "wins": 5,
+    "losses": 9,
     "breakeven": 0,
-    "net_pnl": 90.0,
-    "gross_wins": 237.0,
-    "gross_losses": -147.0,
-    "win_rate": 0.364,
-    "avg_pnl_per_trade": 8.18,
-    "profit_factor": 1.61
+    "net_pnl": 83.0,
+    "gross_wins": 245.0,
+    "gross_losses": -162.0,
+    "win_rate": 0.357,
+    "avg_pnl_per_trade": 5.93,
+    "profit_factor": 1.51
   },
   "dimensions": {
-    "note": "Phase 3 Sessions 1-5: 11 trades recorded.",
+    "note": "Phase 3 Sessions 1-6: 14 trades recorded.",
     "strategy": {
       "vwap_reclaim": {"trades": 5, "pnl": 129.0},
-      "orb": {"trades": 6, "pnl": -39.0}
+      "orb": {"trades": 9, "pnl": -46.0}
     },
     "quality_score": {},
     "dte": {
-      "4": {"trades": 1, "pnl": -1.0},
+      "4": {"trades": 2, "pnl": 7.0},
       "3": {"trades": 2, "pnl": 72.0},
       "2": {"trades": 1, "pnl": -9.0},
       "1": {"trades": 2, "pnl": -98.0},
-      "0": {"trades": 5, "pnl": 126.0}
+      "0": {"trades": 7, "pnl": 111.0}
     },
     "asset_class": {
-      "etf_sector": {"trades": 4, "pnl": 22.0},
-      "single_stock": {"trades": 7, "pnl": 68.0}
+      "etf_sector": {"trades": 5, "pnl": 17.0},
+      "single_stock": {"trades": 9, "pnl": 66.0}
     },
     "signal_age_minutes": {},
     "scanner_score": {},
     "fill_path": {
       "reconciler_recovery": {"trades": 8, "pnl": 86.0},
-      "fill_tracker_recheck": {"trades": 2, "pnl": 5.0},
+      "fill_tracker_recheck": {"trades": 5, "pnl": -2.0},
       "direct": {"trades": 1, "pnl": -1.0}
     }
   },
@@ -350,7 +415,7 @@
     "iv_quartile": {"required": 3, "current": {}}
   },
   "primary_questions_status": {
-    "Q1_orb_vs_vwap": {"status": "minimum_met", "phase3_obs": 11, "required": 3, "note": "ORB: 6 trades, -$39 net (1W/5L, win +$83 PLTR; includes -$91 AAPL blind-window loss). VWAP: 5 trades, +$129 net (3W/2L, wins +$123/+$25 and small losses). Emerging separation favoring vwap_reclaim, but ORB's number carries the S4 defect-amplified loss — re-evaluate ORB on post-Fix-12 trades only."},
+    "Q1_orb_vs_vwap": {"status": "minimum_met", "phase3_obs": 14, "required": 3, "note": "ORB: 9 trades, -$46 net (2W/7L; win sizes +$83/+$8, includes -$91 AAPL blind-window loss). VWAP: 5 trades, +$129 net (3W/2L). Post-Fix-12 ORB subset (clean execution): 4 trades -$27 (1W/3L) — ORB losing on its own merits so far, not just the defect. VWAP separation persists but VWAP has no post-Fix-12 trades beyond S5 IWM +$25. Continue accumulating."},
     "Q2_signal_age": {"status": "insufficient_data", "phase3_obs": 0, "required": 3},
     "Q3_dte": {"status": "minimum_met", "phase3_obs": 6, "required": 3, "note": "DTE 3-4: 3 trades +$71. DTE 0-2: 3 trades +$106 (both 0-DTE trades in S3: +$123 TSLA, -$8 IWM). 0-DTE shows expected high variance."},
     "Q4_etf_vs_single_stock": {"status": "insufficient_data", "phase3_obs": 6, "required": 3, "note": "ETF: 2 trades -$9 (XLE, IWM). Single stock: 4 trades +$186. ETF bucket still below 3-obs minimum."},

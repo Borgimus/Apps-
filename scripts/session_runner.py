@@ -90,6 +90,11 @@ _MANDATORY_EXIT_REASONS = frozenset({"stop_loss", "max_hold", "eod_exit", "daily
 # with broker-confirmed fill prices (not cached estimates).
 _PUSH_NOTIFIER = None
 
+# Set by run_session(). Passive per-strategy shadow book: records every fully
+# qualified ORB/VWAP signal (executed or capacity-blocked) and simulates
+# outcomes for blocked ones. Observational only — never trades.
+_SHADOW_BOOK = None
+
 
 # ── Stale quote detection ─────────────────────────────────────────────────────
 
@@ -1161,9 +1166,9 @@ async def scan_and_place(
 
         # ── Bridge entry scaffold (permissive mode) ───────────────────────────
         _bridge: Optional[object] = None
+        _qscore, _age_s, _conf = _sig_meta.get(id(sig), (0.0, 0.0, 1))
         if _permissive:
             from app.trading.bridge_diagnostics import BridgeEntry as _BE
-            _qscore, _age_s, _conf = _sig_meta.get(id(sig), (0.0, 0.0, 1))
             _bridge = _BE(
                 session_date=session_date,
                 timestamp=now,
@@ -1184,6 +1189,27 @@ async def scan_and_place(
             )
             _bridge_entries.append(_bridge)
 
+        async def _shadow_blocked(_reason, _osym=None, _lp=None):
+            # Shadow book: log a fully qualified signal that a capacity
+            # constraint blocked. When blocked pre-contract-selection, mirror
+            # the live selection path read-only to make the entry priceable.
+            if _SHADOW_BOOK is None:
+                return
+            try:
+                if _osym is None:
+                    from app.evaluation.shadow_book import select_shadow_contract
+                    _osym, _lp = await select_shadow_contract(
+                        broker, liq_filter, settings, symbol, sig, now,
+                    )
+                _SHADOW_BOOK.record_signal(
+                    now=now, strategy_id=sig.strategy_id, symbol=symbol,
+                    direction=sig.direction.value, executed=False,
+                    block_reason=_reason, option_symbol=_osym,
+                    limit_price=_lp, quality_score=_qscore,
+                )
+            except Exception as _sb_exc:
+                logger.debug("ShadowBook record failed: %s", _sb_exc)
+
         # ORB slot reservation: skip non-ORB signals when slot is reserved
         if _permissive and _orb_slot_active and sig.strategy_id != "orb":
             logger.info(
@@ -1193,6 +1219,7 @@ async def scan_and_place(
             if _bridge is not None:
                 _bridge.final_decision = "skipped"
                 _bridge.exact_block_reason = "orb_slot_reserved"
+            await _shadow_blocked("orb_slot_reserved")
             continue
 
         # Dedup — also block if there is a pending-but-unfilled order
@@ -1202,6 +1229,7 @@ async def scan_and_place(
                 _bridge.position_limit_passed = False
                 _bridge.final_decision = "skipped"
                 _bridge.exact_block_reason = "position_already_open"
+            await _shadow_blocked("position_already_open")
             continue
         if fill_tracker and fill_tracker.has_pending_for_symbol(symbol):
             logger.debug("Dedup: pending order already registered for %s", symbol)
@@ -1209,6 +1237,7 @@ async def scan_and_place(
                 _bridge.position_limit_passed = False
                 _bridge.final_decision = "skipped"
                 _bridge.exact_block_reason = "pending_order_exists"
+            await _shadow_blocked("pending_order_exists")
             continue
 
         # Cooldown
@@ -1217,6 +1246,7 @@ async def scan_and_place(
             if _bridge is not None:
                 _bridge.final_decision = "skipped"
                 _bridge.exact_block_reason = "cooldown_after_loss"
+            await _shadow_blocked("cooldown_after_loss")
             if journal:
                 await journal.record_rejection(
                     strategy_id=sig.strategy_id,
@@ -1383,6 +1413,16 @@ async def scan_and_place(
             if _bridge is not None:
                 _bridge.final_decision = "blocked"
                 _bridge.exact_block_reason = f"risk: {reason_str}"
+            _cap_reason = next(
+                (c.value for c in risk_result.failed_checks
+                 if c.value in ("max_trades_per_day", "recon_blocked")),
+                None,
+            )
+            await _shadow_blocked(
+                _cap_reason or f"risk:{reason_str[:80]}",
+                _osym=contract.option_symbol,
+                _lp=float(limit_price),
+            )
             if journal:
                 await journal.record_rejection(
                     strategy_id=sig.strategy_id,
@@ -1493,6 +1533,16 @@ async def scan_and_place(
             "Order placed: %s | %s | limit=%.2f | status=%s",
             order.order_id[:8], used_contract.option_symbol, float(limit_price), order.status.value,
         )
+        if _SHADOW_BOOK is not None:
+            try:
+                _SHADOW_BOOK.record_signal(
+                    now=now, strategy_id=sig.strategy_id, symbol=symbol,
+                    direction=sig.direction.value, executed=True,
+                    option_symbol=used_contract.option_symbol,
+                    limit_price=float(limit_price), quality_score=_qscore,
+                )
+            except Exception as _sb_exc:
+                logger.debug("ShadowBook record failed: %s", _sb_exc)
 
         if journal:
             journal_id = await journal.record_entry(
@@ -2107,9 +2157,12 @@ async def run_session(args: argparse.Namespace):
     ]
     _scan_store["strategy_readiness"] = _compute_strategy_readiness(strategies, datetime.now(tz=ET))
 
-    global _PUSH_NOTIFIER
+    global _PUSH_NOTIFIER, _SHADOW_BOOK
     push_notifier = PushNotifier(log_dir="logs", notify_interval_cycles=6)
     _PUSH_NOTIFIER = push_notifier
+    from app.evaluation.shadow_book import ShadowBook
+    shadow_book = ShadowBook(settings)
+    _SHADOW_BOOK = shadow_book
     _eod_warned = False
     # Positions already open at startup (session recovery) are not "new fills"
     _notified_fill_syms = {p.option_symbol for p in pm.open_positions()}
@@ -2266,6 +2319,12 @@ async def run_session(args: argparse.Namespace):
             except Exception as exc:
                 logger.warning("Reconciliation error: %s", exc)
                 api_errors += 1
+
+        # Shadow book: mark-to-quote open shadow positions and apply exit rules
+        try:
+            await shadow_book.update(broker, now)
+        except Exception as _sb_exc:
+            logger.debug("ShadowBook update error: %s", _sb_exc)
 
         # Push notifier: announce any newly-opened position, regardless of
         # fill path (FillTracker fill or reconciler recovery restore)
@@ -2498,6 +2557,12 @@ async def run_session(args: argparse.Namespace):
         cycle, entry_orders_placed, float(risk.daily_pnl),
     )
     print(f"\n  Session complete — {cycle} cycles | {entry_orders_placed} entry order(s) | P&L ${float(risk.daily_pnl):.2f}\n")
+    try:
+        _sb_open = shadow_book.close_all(datetime.now(tz=ET), reason="session_end")
+        if _sb_open:
+            logger.info("ShadowBook: force-closed %d shadow position(s) at session end", _sb_open)
+    except Exception as _sb_exc:
+        logger.debug("ShadowBook close_all error: %s", _sb_exc)
     push_notifier.on_session_end(
         daily_pnl=float(risk.daily_pnl),
         now=datetime.now(tz=ET),

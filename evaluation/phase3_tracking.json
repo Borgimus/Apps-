@@ -441,6 +441,12 @@
       "sessions_affected": [3]
     }
   ],
+  "_shadow_book_note": {
+    "declared": "2026-07-20",
+    "session_boundary": "S6/S7",
+    "type": "observability only — no trading behavior change",
+    "description": "Shadow book added (app/evaluation/shadow_book.py, wired into session_runner). Logs every fully qualified ORB/VWAP signal including those blocked by capacity constraints (max_trades_per_day, orb_slot_reserved, position_already_open, pending_order_exists, cooldown_after_loss, recon_blocked) to evaluation/shadow_book.jsonl, and simulates blocked signals under the live exit rules (trailing 25%, stop 50%, TP 100%, max-hold, EOD) marked to the option bid each cycle. Purpose: measure whether trade-slot competition starves vwap_reclaim of samples (Q1 support). Shadow results are kept strictly separate from broker-executed results; analysis via scripts/shadow_report.py. Modeling bias documented in module docstring (entry at would-be limit, exit at trigger without slippage). None of the four frozen-hash files changed; no thresholds or strategy logic touched."
+  },
   "_fix12_amendment": {
     "declared": "2026-07-16",
     "session_boundary": "S4/S5",

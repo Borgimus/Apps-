@@ -174,6 +174,121 @@ class TestSimulation:
         assert close["exit_price"] == pytest.approx(0.42)
 
 
+class TestEpisodes:
+
+    def test_repeated_signal_is_one_opportunity(self, tmp_path):
+        """A signal persisting across polling cycles must not open multiple
+        shadow positions or inflate the opportunity count."""
+        sb = _book(tmp_path)
+        for i in range(4):
+            sb.record_signal(
+                now=NOW + timedelta(minutes=5 * i),
+                strategy_id="vwap_reclaim", symbol="XLF", direction="LONG",
+                executed=False, block_reason="orb_slot_reserved",
+                option_symbol="XLF260720C00042000", limit_price=0.35,
+            )
+        assert sb.open_count() == 1
+        evs = _events(tmp_path)
+        sig_evs = [e for e in evs if e["event"] == "signal"]
+        assert len(sig_evs) == 4                                  # raw observations
+        assert len({e["opportunity_id"] for e in sig_evs}) == 1   # one opportunity
+        assert [e["new_opportunity"] for e in sig_evs] == [True, False, False, False]
+
+    def test_episode_expires_after_window(self, tmp_path):
+        """The same key re-firing after the episode window is a new opportunity."""
+        sb = ShadowBook(
+            _settings(),
+            events_path=tmp_path / "shadow_book.jsonl",
+            state_path=tmp_path / "shadow_state.json",
+            episode_window_minutes=30,
+        )
+        sb.record_signal(
+            now=NOW, strategy_id="vwap_reclaim", symbol="XLF", direction="LONG",
+            executed=False, block_reason="cooldown_after_loss",
+            option_symbol=None, limit_price=None,
+        )
+        sb.record_signal(
+            now=NOW + timedelta(minutes=45),
+            strategy_id="vwap_reclaim", symbol="XLF", direction="LONG",
+            executed=False, block_reason="cooldown_after_loss",
+            option_symbol=None, limit_price=None,
+        )
+        sig_evs = [e for e in _events(tmp_path) if e["event"] == "signal"]
+        assert len({e["opportunity_id"] for e in sig_evs}) == 2
+
+    def test_different_direction_is_separate_opportunity(self, tmp_path):
+        sb = _book(tmp_path)
+        for direction in ("LONG", "SHORT"):
+            sb.record_signal(
+                now=NOW, strategy_id="orb", symbol="TSLA", direction=direction,
+                executed=False, block_reason="max_trades_per_day",
+                option_symbol=f"TSLA260720{'C' if direction=='LONG' else 'P'}00370000",
+                limit_price=0.50,
+            )
+        sig_evs = [e for e in _events(tmp_path) if e["event"] == "signal"]
+        assert len({e["opportunity_id"] for e in sig_evs}) == 2
+        assert sb.open_count() == 2
+
+
+class TestFillValidation:
+
+    @pytest.mark.asyncio
+    async def test_ask_touching_limit_validates_fill(self, tmp_path):
+        sb = _book(tmp_path)
+        sb.record_signal(
+            now=NOW, strategy_id="vwap_reclaim", symbol="XLF", direction="LONG",
+            executed=False, block_reason="orb_slot_reserved",
+            option_symbol="XLF260720C00042000", limit_price=0.40,
+            entry_ask=0.44,   # not marketable at entry
+        )
+        # Ask comes down to the limit within the fill window → validated
+        await sb.update(_quote_broker(bid=0.36, ask=0.40), NOW + timedelta(minutes=5))
+        # Then trail out
+        await sb.update(_quote_broker(bid=0.60, ask=0.64), NOW + timedelta(minutes=10))
+        await sb.update(_quote_broker(bid=0.44, ask=0.48), NOW + timedelta(minutes=15))
+
+        close = [e for e in _events(tmp_path) if e["event"] == "shadow_close"][0]
+        assert close["fill_validated"] is True
+        assert close["category"] == "fill_validated"
+
+    @pytest.mark.asyncio
+    async def test_marketable_at_entry_validates_immediately(self, tmp_path):
+        sb = _book(tmp_path)
+        sb.record_signal(
+            now=NOW, strategy_id="orb", symbol="QQQ", direction="SHORT",
+            executed=False, block_reason="max_trades_per_day",
+            option_symbol="QQQ260720P00690000", limit_price=0.40,
+            entry_ask=0.39,   # ask already at/below limit
+        )
+        sp = list(sb._open.values())[0]
+        assert sp.fill_validated is True
+
+    @pytest.mark.asyncio
+    async def test_ask_never_reaching_limit_stays_theoretical(self, tmp_path):
+        sb = ShadowBook(
+            _settings(),
+            events_path=tmp_path / "shadow_book.jsonl",
+            state_path=tmp_path / "shadow_state.json",
+            fill_window_minutes=10,
+        )
+        sb.record_signal(
+            now=NOW, strategy_id="vwap_reclaim", symbol="XLF", direction="LONG",
+            executed=False, block_reason="orb_slot_reserved",
+            option_symbol="XLF260720C00042000", limit_price=0.40,
+            entry_ask=0.46,
+        )
+        # Ask stays above limit through the window; later touches after the
+        # deadline — must NOT validate
+        await sb.update(_quote_broker(bid=0.41, ask=0.45), NOW + timedelta(minutes=5))
+        await sb.update(_quote_broker(bid=0.38, ask=0.40), NOW + timedelta(minutes=20))
+        # Trail out
+        await sb.update(_quote_broker(bid=0.29, ask=0.33), NOW + timedelta(minutes=25))
+
+        close = [e for e in _events(tmp_path) if e["event"] == "shadow_close"][0]
+        assert close["fill_validated"] is False
+        assert close["category"] == "theoretical"
+
+
 class TestPersistence:
 
     def test_state_survives_restart_same_day(self, tmp_path):

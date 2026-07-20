@@ -1189,7 +1189,7 @@ async def scan_and_place(
             )
             _bridge_entries.append(_bridge)
 
-        async def _shadow_blocked(_reason, _osym=None, _lp=None):
+        async def _shadow_blocked(_reason, _osym=None, _lp=None, _ask=None):
             # Shadow book: log a fully qualified signal that a capacity
             # constraint blocked. When blocked pre-contract-selection, mirror
             # the live selection path read-only to make the entry priceable.
@@ -1198,14 +1198,14 @@ async def scan_and_place(
             try:
                 if _osym is None:
                     from app.evaluation.shadow_book import select_shadow_contract
-                    _osym, _lp = await select_shadow_contract(
+                    _osym, _lp, _ask = await select_shadow_contract(
                         broker, liq_filter, settings, symbol, sig, now,
                     )
                 _SHADOW_BOOK.record_signal(
                     now=now, strategy_id=sig.strategy_id, symbol=symbol,
                     direction=sig.direction.value, executed=False,
                     block_reason=_reason, option_symbol=_osym,
-                    limit_price=_lp, quality_score=_qscore,
+                    limit_price=_lp, entry_ask=_ask, quality_score=_qscore,
                 )
             except Exception as _sb_exc:
                 logger.debug("ShadowBook record failed: %s", _sb_exc)
@@ -1422,6 +1422,7 @@ async def scan_and_place(
                 _cap_reason or f"risk:{reason_str[:80]}",
                 _osym=contract.option_symbol,
                 _lp=float(limit_price),
+                _ask=float(contract.ask),
             )
             if journal:
                 await journal.record_rejection(

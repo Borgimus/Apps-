@@ -168,8 +168,10 @@ chmod +x "$HOME/start_session.sh" "$HOME/stop_entries.sh" "$HOME/eod_close.sh"
 # ── 8. Optional cron auto-launch ─────────────────────────────────────────────
 read -rp "Install weekday 09:31 ET auto-launch cron job? [y/N] " CRON_YN
 if [[ "${CRON_YN,,}" == y* ]]; then
-  ( crontab -l 2>/dev/null | grep -v start_session.sh; \
-    echo "31 9 * * 1-5 $HOME/start_session.sh" ) | crontab -
+  # `crontab -l` fails on a fresh box (no crontab yet) and grep fails on empty
+  # input — neither is an error here, hence the `|| true`.
+  { crontab -l 2>/dev/null | grep -v start_session.sh || true; \
+    echo "31 9 * * 1-5 $HOME/start_session.sh"; } | crontab -
   echo "Installed. NOTE: cron does not know market holidays — remove or ignore those days."
 fi
 

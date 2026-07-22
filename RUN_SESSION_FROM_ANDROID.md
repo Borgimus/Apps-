@@ -14,6 +14,13 @@ Everything below uses branch `claude/options-trading-research-system-TIU0p`.
 
 ## Option A — Always-on Linux host + Tailscale, phone as the remote control
 
+> **Automated setup:** `vps_bootstrap.sh` (same branch as this doc) performs Steps
+> 1–3 plus verification in one run on a fresh Debian 12 VPS, installs
+> `~/start_session.sh`, `~/stop_entries.sh` and `~/eod_close.sh` helpers, publishes
+> the dashboard tailnet-only via `tailscale serve`, and can install the 09:31 ET
+> auto-launch cron. Copy it to the VPS and run `bash vps_bootstrap.sh`. The manual
+> steps below remain the reference for what it does.
+
 ### What you need
 
 - **Alpaca paper keys** for account `alpaca-paper-4UBN` (API key + secret from the

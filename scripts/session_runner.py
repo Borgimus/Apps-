@@ -1006,6 +1006,9 @@ async def scan_and_place(
     # ── Permissive entry mode — quality scoring + deterministic ranking ────────
     _permissive = getattr(settings, "paper_eval_permissive_entry_mode", False)
     _bridge_entries: list = []
+    # Shadow-book instrumentation reads this on both permissive and standard
+    # paths, so it must exist before the conditional branch.
+    _sig_meta: dict = {}
 
     if _permissive:
         from app.strategies.signal_quality import compute_signal_quality_score

@@ -1,0 +1,50 @@
+[2026-07-22T10:22:15-04:00] automatic start requested
+[2026-07-22T10:22:15-04:00] session already running; no action
+[2026-07-22T10:26:13-04:00] automatic start requested
+Market calendar and paper-account gate passed
+
+All static+broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "ac8789d48c427a850604f915b96400b4530025ef",
+  "working_tree_dirty": false,
+  "config_hash_sha256_16": "67954547a3a617d4",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "bd9d7d0a",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+[2026-07-22T10:26:18-04:00] launching Phase 3 runner -> /root/trader/logs/session_2026-07-22.log
+[2026-07-22T12:30:05-04:00] runner exited rc=0
+[2026-07-22T12:35:02-04:00] automatic EOD close-out requested
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "ac8789d48c427a850604f915b96400b4530025ef",
+  "working_tree_dirty": true,
+  "config_hash_sha256_16": "67954547a3a617d4",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "bd9d7d0a",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "ac8789d48c427a850604f915b96400b4530025ef",
+  "working_tree_dirty": true,
+  "config_hash_sha256_16": "67954547a3a617d4",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "bd9d7d0a",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+[2026-07-22T12:35:04-04:00] broker EOD state clean: 0 positions, 0 open orders

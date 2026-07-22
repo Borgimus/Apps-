@@ -1,0 +1,10 @@
+2026-07-22T09:31:09 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-07-22T09:31:09 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-07-22T10:26:21 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-07-22T10:26:21 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-07-22T10:26:24 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'XLE260724C00060000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.36', 'order_class': 'simple'}
+2026-07-22T10:26:25 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SPY260722C00750000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.47', 'order_class': 'simple'}
+2026-07-22T10:30:57 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'XLE260724C00060000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.25', 'order_class': 'simple'}
+2026-07-22T10:34:11 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SPY260722C00750000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.37', 'order_class': 'simple'}
+2026-07-22T10:49:54 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'IWM260722P00293000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.25', 'order_class': 'simple'}
+2026-07-22T10:59:37 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'IWM260722P00293000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.26', 'order_class': 'simple'}

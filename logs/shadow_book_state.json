@@ -1,0 +1,36 @@
+{
+  "seq": 215,
+  "open": [],
+  "episodes": {
+    "vwap_reclaim|XLE|long": {
+      "opportunity_id": "20260722-XLE-vwap_reclaim-001",
+      "last_seen": "2026-07-22T10:26:24.629711-04:00",
+      "observations": 1
+    },
+    "orb|SPY|long": {
+      "opportunity_id": "20260722-SPY-orb-002",
+      "last_seen": "2026-07-22T10:26:24.629711-04:00",
+      "observations": 1
+    },
+    "vwap_reclaim|IWM|short": {
+      "opportunity_id": "20260722-IWM-vwap_reclaim-003",
+      "last_seen": "2026-07-22T10:49:54.252250-04:00",
+      "observations": 62
+    },
+    "orb|IWM|short": {
+      "opportunity_id": "20260722-IWM-orb-004",
+      "last_seen": "2026-07-22T10:49:54.252250-04:00",
+      "observations": 36
+    },
+    "orb|AAPL|short": {
+      "opportunity_id": "20260722-AAPL-orb-101",
+      "last_seen": "2026-07-22T11:02:11.296107-04:00",
+      "observations": 14
+    },
+    "vwap_reclaim|QQQ|long": {
+      "opportunity_id": "20260722-QQQ-vwap_reclaim-115",
+      "last_seen": "2026-07-22T11:54:32.336105-04:00",
+      "observations": 101
+    }
+  }
+}

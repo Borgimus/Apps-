@@ -1,0 +1,291 @@
+{
+  "date": "2026-07-22",
+  "session_start": "2026-07-22 09:31:14 EDT",
+  "session_end": "2026-07-22 12:30:04 EDT",
+  "total_signals": 0,
+  "trades_submitted": 3,
+  "trades_filled": 3,
+  "trades_cancelled": 0,
+  "trades_rejected": 158,
+  "realized_pnl": -9.999999999999996,
+  "unrealized_pnl": 0,
+  "win_rate": 0.3333333333333333,
+  "avg_win": 3.0000000000000027,
+  "avg_loss": -6.5,
+  "max_drawdown": 13.0,
+  "largest_win": 3.0000000000000027,
+  "largest_loss": -7.000000000000001,
+  "slippage_total": -0.039999999999999925,
+  "spread_cost_estimate": 2.499999999999997,
+  "fill_rate": 1.0,
+  "cancel_rate": 0.0,
+  "missed_fills_count": 0,
+  "time_to_fill_avg_secs": 41.188268,
+  "avg_spread_at_entry": 0.04975940820460956,
+  "avg_spread_at_exit": null,
+  "stop_loss_hit_pct": 0.0,
+  "take_profit_hit_pct": 0.0,
+  "eod_exit_pct": 0.0,
+  "fill_rate_by_mode": {
+    "marketable_limit": 1.0
+  },
+  "cancel_rate_by_mode": {
+    "marketable_limit": 0.0
+  },
+  "avg_fill_latency_by_mode": {
+    "marketable_limit": 41.188268
+  },
+  "cancel_reason_breakdown": {},
+  "scanned_symbols_count": 250,
+  "candidate_count_passed": 147,
+  "candidate_count_rejected": 103,
+  "selected_symbols": [
+    "QQQ",
+    "AAPL",
+    "SPY",
+    "IWM",
+    "XLE",
+    "XLE",
+    "AAPL",
+    "SPY",
+    "IWM",
+    "QQQ",
+    "QQQ",
+    "IWM",
+    "AAPL",
+    "SPY",
+    "XLE",
+    "IWM",
+    "AAPL",
+    "SPY",
+    "XLE",
+    "QQQ",
+    "IWM",
+    "AAPL",
+    "QQQ",
+    "XLE",
+    "SPY",
+    "IWM",
+    "AAPL",
+    "SPY",
+    "XLE",
+    "QQQ",
+    "XLE",
+    "IWM",
+    "AAPL",
+    "SPY",
+    "QQQ",
+    "XLE",
+    "IWM",
+    "AAPL",
+    "SPY",
+    "QQQ",
+    "SPY",
+    "XLE",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "SPY",
+    "QQQ",
+    "IWM"
+  ],
+  "top_candidates": [
+    {
+      "symbol": "XLY",
+      "score": 68.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "XLY",
+      "score": 68.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "XLY",
+      "score": 68.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "XLY",
+      "score": 68.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "XLY",
+      "score": 68.0,
+      "signal_type": "SHORT"
+    }
+  ],
+  "candidates_by_group": {
+    "core_etfs": 225,
+    "mega_cap": 25
+  },
+  "rejected_by_group": {
+    "core_etfs": 98,
+    "mega_cap": 5
+  },
+  "trades_by_group": {
+    "core_etfs": 3
+  },
+  "pnl_by_group": {
+    "core_etfs": -9.999999999999996
+  },
+  "liquidity_rejections": 64,
+  "pnl_by_symbol": {
+    "XLE": -7.0,
+    "SPY": -6.0,
+    "IWM": 3.0
+  },
+  "win_rate_by_symbol": {
+    "XLE": 0.0,
+    "SPY": 0.0,
+    "IWM": 1.0
+  },
+  "expectancy_by_symbol": {
+    "XLE": -7.0,
+    "SPY": -6.0,
+    "IWM": 3.0
+  },
+  "api_errors": 0,
+  "kill_switch_events": 0,
+  "by_strategy": [
+    {
+      "strategy_id": "orb",
+      "signals": 0,
+      "submitted": 1,
+      "fills": 1,
+      "cancels": 0,
+      "rejects": 49,
+      "realized_pnl": -6.0,
+      "wins": 0,
+      "losses": 1,
+      "win_rate": 0.0,
+      "avg_win": null,
+      "avg_loss": -6.0
+    },
+    {
+      "strategy_id": "vwap_reclaim",
+      "signals": 0,
+      "submitted": 2,
+      "fills": 2,
+      "cancels": 0,
+      "rejects": 109,
+      "realized_pnl": -3.9999999999999982,
+      "wins": 1,
+      "losses": 1,
+      "win_rate": 0.5,
+      "avg_win": 3.0000000000000027,
+      "avg_loss": -7.000000000000001
+    }
+  ],
+  "scanner_standby_activated": false,
+  "standby_reason": null,
+  "exit_spread_warning_count": 2,
+  "bridge_entries_count": 856,
+  "bridge_traded_count": 3,
+  "bridge_blocked_count": 62,
+  "bridge_skipped_count": 791,
+  "bridge_by_strategy": {
+    "vwap_reclaim": {
+      "traded": 2,
+      "blocked": 48,
+      "skipped": 114
+    },
+    "rsi_trend": {
+      "traded": 0,
+      "blocked": 0,
+      "skipped": 641
+    },
+    "orb": {
+      "traded": 1,
+      "blocked": 14,
+      "skipped": 36
+    }
+  },
+  "bridge_top_blocked_reasons": [
+    "risk: Max entries per day reached: 3/3"
+  ],
+  "sample_size_warning": "Sample size too small for statistical conclusions (3 fill(s) this session). Win rate and PnL metrics require 30+ trades to be meaningful.",
+  "orb_signals_total": 51,
+  "orb_signals_traded": 1,
+  "orb_signals_blocked": 14,
+  "orb_signals_skipped": 36,
+  "orb_quality_distribution": {
+    "2": 1,
+    "3": 36,
+    "4": 14
+  },
+  "orb_slot_reserved_events": 53,
+  "orb_actual_pnl": -6.0,
+  "orb_avg_quality": 3.25,
+  "orb_top_blocked_reasons": [
+    "cooldown_after_loss",
+    "risk: Max entries per day reached: 3/3",
+    "pending_order_exists"
+  ],
+  "orb_avg_fwd_pct_5m": null,
+  "orb_avg_fwd_pct_15m": null,
+  "orb_avg_fwd_pct_30m": null,
+  "pnl_by_strategy": {
+    "vwap_reclaim": -3.9999999999999982,
+    "orb": -6.0
+  },
+  "notes": [
+    "98% of signals were rejected (158/161)",
+    "Win rate 33% is below 40%",
+    "Net loss session: $-10.00",
+    "2 exit spread warning(s) \u2014 spread exceeded max_spread_pct at exit",
+    "Entry counter fix validated: entries increment on fill (not at order placement), exits tracked separately and do not consume entry capacity"
+  ],
+  "recommendations": [
+    "Review signal filters \u2014 high rejection rate may indicate overly strict criteria or poor market fit",
+    "Win rate below 40%; consider tightening entry criteria or adjusting profit/stop targets",
+    "Wide exit spreads recorded; consider using marketable_limit exit mode or tighter spread gate"
+  ],
+  "phase": "phase3",
+  "evidence_type": "clean_evaluation"
+}

@@ -2,11 +2,12 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # One-shot VPS bootstrap for the Phase 3 paper-trading sessions.
 #
-# Run on a FRESH Debian 12 VPS as a user with sudo (or as root):
+# Run on a FRESH Debian 12 or 13 VPS as a user with sudo (or as root):
 #   bash vps_bootstrap.sh
 #
 # What it does:
-#   1. Installs git, Python 3.11, tmux, Tailscale
+#   1. Installs git, tmux, Tailscale, and Python 3.11 (from apt on Debian 12;
+#      via a uv-managed standalone build where apt no longer ships 3.11)
 #   2. Sets the server timezone to America/New_York (cron runs in ET)
 #   3. Joins your tailnet (prints an auth URL to open on your phone)
 #   4. Clones Borgimus/Apps- and checks out the session branch
@@ -28,14 +29,26 @@ fail() { printf '\033[1;31mERROR: %s\033[0m\n' "$*" >&2; exit 1; }
 
 SUDO="sudo"; [ "$(id -u)" = "0" ] && SUDO=""
 
-# ── 0. Sanity ────────────────────────────────────────────────────────────────
-grep -q 'VERSION_CODENAME=bookworm' /etc/os-release 2>/dev/null \
-  || echo "WARNING: not Debian 12 (bookworm). Python 3.11 must be available as python3.11."
-
 # ── 1. Packages ──────────────────────────────────────────────────────────────
 say "Installing packages"
 $SUDO apt-get update -qq
-$SUDO apt-get install -y -qq git python3.11 python3.11-venv tmux curl ca-certificates cron
+$SUDO apt-get install -y -qq git tmux curl ca-certificates cron
+
+# ── 1b. Python 3.11 (requirements.lock is pinned to it) ──────────────────────
+say "Ensuring Python 3.11"
+if ! command -v python3.11 >/dev/null 2>&1; then
+  # Debian 12 has it in apt; newer releases (Debian 13+) do not.
+  $SUDO apt-get install -y -qq python3.11 python3.11-venv 2>/dev/null || true
+fi
+if command -v python3.11 >/dev/null 2>&1; then
+  PYSETUP="apt"
+else
+  echo "python3.11 not in apt — installing a standalone Python 3.11 via uv"
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  export PATH="$HOME/.local/bin:$PATH"
+  uv python install 3.11
+  PYSETUP="uv"
+fi
 
 say "Setting timezone to America/New_York (cron schedules run in ET)"
 $SUDO timedatectl set-timezone America/New_York
@@ -70,7 +83,13 @@ fi
 
 # ── 4. Python env ────────────────────────────────────────────────────────────
 say "Creating venv and installing pinned dependencies (a few minutes)"
-python3.11 -m venv .venv
+if [ ! -d .venv ]; then
+  if [ "$PYSETUP" = "uv" ]; then
+    uv venv --seed --python 3.11 .venv
+  else
+    python3.11 -m venv .venv
+  fi
+fi
 ./.venv/bin/pip install --quiet --upgrade pip
 ./.venv/bin/pip install --quiet -r requirements.lock
 

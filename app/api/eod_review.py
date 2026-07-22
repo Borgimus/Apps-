@@ -1,4 +1,4 @@
-"""Read-only, accessible end-of-day broker and shadow review."""
+"""Read-only, accessible end-of-day broker, shadow, and market-data review."""
 from __future__ import annotations
 
 import json
@@ -13,6 +13,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import HTMLResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.evaluation.market_data_review import (
+    read_market_data_observations,
+    summarize_market_data,
+)
 
 from .models import DBTradeJournal, get_db
 
@@ -51,12 +56,24 @@ def report_dates(root: Optional[Path] = None) -> list[str]:
         for path in (base / "logs").glob("session_*.json")
         if DATE_RE.fullmatch(path.stem.removeprefix("session_"))
     )
+    try:
+        for line in (base / "evaluation" / "market_data_comparisons.jsonl").read_text(
+            encoding="utf-8"
+        ).splitlines():
+            row = json.loads(line)
+            day = row.get("session_date") if isinstance(row, dict) else None
+            if isinstance(day, str) and DATE_RE.fullmatch(day):
+                dates.add(day)
+    except (OSError, json.JSONDecodeError):
+        pass
     return sorted(dates, reverse=True)
 
 
 def phase3_record(day: str, root: Optional[Path] = None) -> dict[str, Any]:
     base = root or ROOT
-    records = read_json(base / "evaluation" / "phase3_tracking.json").get("phase3_sessions", [])
+    records = read_json(base / "evaluation" / "phase3_tracking.json").get(
+        "phase3_sessions", []
+    )
     return next(
         (row for row in records if isinstance(row, dict) and row.get("date") == day),
         {},
@@ -66,7 +83,9 @@ def phase3_record(day: str, root: Optional[Path] = None) -> dict[str, Any]:
 def shadow_trades(day: str, root: Optional[Path] = None) -> list[dict[str, Any]]:
     base = root or ROOT
     try:
-        lines = (base / "evaluation" / "shadow_book.jsonl").read_text(encoding="utf-8").splitlines()
+        lines = (base / "evaluation" / "shadow_book.jsonl").read_text(
+            encoding="utf-8"
+        ).splitlines()
     except OSError:
         return []
     result = []
@@ -110,13 +129,16 @@ def file_review(day: str, root: Optional[Path] = None) -> dict[str, Any]:
     session = read_json(base / "logs" / f"session_{day}.json")
     phase3 = phase3_record(day, base)
     shadow = shadow_trades(day, base)
+    market_data = summarize_market_data(read_market_data_observations(day, base))
     return {
         "date": day,
         "report_available": bool(report or session),
         "status": phase3.get("status") or report.get("evidence_type") or "unclassified",
         "counts_toward_phase3": phase3.get("counts_toward_phase3"),
         "realized_pnl": report.get("realized_pnl", session.get("realized_pnl")),
-        "trades_filled": report.get("trades_filled", (session.get("trades") or {}).get("total_closed")),
+        "trades_filled": report.get(
+            "trades_filled", (session.get("trades") or {}).get("total_closed")
+        ),
         "win_rate": report.get("win_rate", (session.get("trades") or {}).get("win_rate")),
         "fill_rate": report.get("fill_rate"),
         "api_errors": report.get("api_errors", session.get("api_errors")),
@@ -130,6 +152,7 @@ def file_review(day: str, root: Optional[Path] = None) -> dict[str, Any]:
         "contamination_note": phase3.get("contamination_note"),
         "shadow_trades": shadow,
         "shadow_pnl": round(sum(float(row.get("shadow_pnl") or 0) for row in shadow), 2),
+        "market_data": market_data,
         "broker_trades": [],
     }
 
@@ -143,6 +166,13 @@ def money(value: Any) -> str:
     return f"{sign}${abs(amount):,.2f}"
 
 
+def price(value: Any) -> str:
+    try:
+        return f"${float(value):.2f}"
+    except (TypeError, ValueError):
+        return "—"
+
+
 def percent(value: Any) -> str:
     try:
         return f"{float(value) * 100:.1f}%"
@@ -150,13 +180,20 @@ def percent(value: Any) -> str:
         return "—"
 
 
-def duration(value: Any) -> str:
+def seconds(value: Any) -> str:
     try:
-        seconds = max(0, int(float(value)))
+        return f"{float(value):.1f}s"
     except (TypeError, ValueError):
         return "—"
-    minutes, seconds = divmod(seconds, 60)
-    return f"{minutes}m {seconds}s"
+
+
+def duration(value: Any) -> str:
+    try:
+        total_seconds = max(0, int(float(value)))
+    except (TypeError, ValueError):
+        return "—"
+    minutes, remaining = divmod(total_seconds, 60)
+    return f"{minutes}m {remaining}s"
 
 
 def clock(value: Any) -> str:
@@ -181,6 +218,17 @@ def tone(value: Any) -> str:
 
 def render(review: dict[str, Any], dates: list[str]) -> str:
     day = review["date"]
+    market = review.get("market_data") or {
+        "observations": 0,
+        "successful": 0,
+        "errors": 0,
+        "liquidity_disagreements": 0,
+        "unique_contracts": 0,
+        "avg_abs_mid_diff": None,
+        "avg_abs_mid_diff_pct": None,
+        "avg_tradier_quote_age_secs": None,
+        "rows": [],
+    }
     broker_rows = "".join(
         f"<tr><td>{cell(t['symbol'])}</td><td><code>{cell(t['contract'])}</code></td>"
         f"<td>{cell(t['strategy'])}</td><td>{cell(t['direction'])}</td>"
@@ -202,14 +250,31 @@ def render(review: dict[str, Any], dates: list[str]) -> str:
         f"<td>{percent(t.get('win_rate'))}</td><td class='{tone(t.get('realized_pnl'))}'>{money(t.get('realized_pnl'))}</td></tr>"
         for t in review["by_strategy"]
     ) or '<tr><td colspan="4">No strategy breakdown available.</td></tr>'
+    market_rows = "".join(
+        f"<tr><td>{clock(t.get('ts'))}</td><td>{cell(t.get('underlying_symbol'))}</td>"
+        f"<td><code>{cell(t.get('option_symbol'))}</code></td><td>{cell(t.get('strategy_id'))}</td>"
+        f"<td>{price(t.get('alpaca_bid'))} / {price(t.get('alpaca_ask'))}</td>"
+        f"<td>{price(t.get('tradier_bid'))} / {price(t.get('tradier_ask'))}</td>"
+        f"<td>{money(t.get('mid_diff'))}<br>{percent(t.get('mid_diff_pct'))}</td>"
+        f"<td>{percent(t.get('alpaca_spread_pct'))} → {percent(t.get('tradier_spread_pct'))}</td>"
+        f"<td>{seconds(t.get('tradier_quote_age_secs'))}</td>"
+        f"<td>{'Pass' if t.get('tradier_liquidity_passed') is True else 'Disagree'}</td>"
+        f"<td>{cell('; '.join(t.get('tradier_rejection_reasons') or []))}</td></tr>"
+        for t in market.get("rows", [])
+    ) or '<tr><td colspan="11">No Tradier comparison observations found.</td></tr>'
     options = "".join(
-        f'<option value="{cell(d)}"{" selected" if d == day else ""}>{cell(d)}</option>' for d in dates
+        f'<option value="{cell(d)}"{" selected" if d == day else ""}>{cell(d)}</option>'
+        for d in dates
     ) or f'<option value="{cell(day)}">{cell(day)}</option>'
     notes = "".join(f"<li>{cell(item)}</li>" for item in review["notes"]) or "<li>None recorded.</li>"
     recs = "".join(f"<li>{cell(item)}</li>" for item in review["recommendations"]) or "<li>None recorded.</li>"
     flags = "".join(f"<li>{cell(item)}</li>" for item in review["contamination_flags"])
     cohort = review["counts_toward_phase3"]
-    cohort_text = "Counts toward Phase 3" if cohort is True else "Does not count toward Phase 3" if cohort is False else "Phase 3 classification not recorded"
+    cohort_text = (
+        "Counts toward Phase 3" if cohort is True
+        else "Does not count toward Phase 3" if cohort is False
+        else "Phase 3 classification not recorded"
+    )
     notices = ""
     if review["sample_warning"]:
         notices += f'<div class="notice"><strong>Sample warning:</strong> {cell(review["sample_warning"])}</div>'
@@ -221,11 +286,12 @@ def render(review: dict[str, Any], dates: list[str]) -> str:
 *{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,sans-serif}}a{{color:var(--link)}}header,main,footer{{width:min(1180px,calc(100% - 2rem));margin:auto}}header{{padding:1rem 0;display:flex;justify-content:space-between;gap:1rem;align-items:end;flex-wrap:wrap}}h1{{margin:0}}.controls{{display:flex;gap:.5rem;align-items:end;flex-wrap:wrap}}label{{display:block;font-weight:700}}select,button,.button{{font:inherit;min-height:44px;padding:.5rem .75rem;border:1px solid var(--line);border-radius:.5rem;background:var(--panel);color:var(--text)}}.button{{text-decoration:none;display:inline-flex;align-items:center}}:focus-visible{{outline:3px solid var(--link);outline-offset:2px}}.skip{{position:absolute;left:-9999px}}.skip:focus{{left:1rem;top:1rem;background:white;color:black;padding:.5rem;z-index:5}}.cards{{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem}}.card,section{{background:var(--panel);border:1px solid var(--line);border-radius:.75rem;padding:1rem;margin:1rem 0}}.label,.muted{{color:var(--muted)}}.value{{font-size:1.45rem;font-weight:800}}.gain{{color:var(--gain);font-weight:800}}.loss{{color:var(--loss);font-weight:800}}.notice{{background:#fff1b8;color:#241b00;border-left:5px solid #d8a500;padding:.75rem;margin:1rem 0}}.table{{overflow-x:auto}}table{{width:100%;border-collapse:collapse;min-width:760px}}caption{{text-align:left;font-weight:700;padding-bottom:.5rem}}th,td{{border-bottom:1px solid var(--line);padding:.6rem;text-align:left;vertical-align:top}}th{{color:var(--muted)}}code{{font-size:.85em;overflow-wrap:anywhere}}footer{{color:var(--muted);padding:1rem 0 2rem}}
 @media print{{:root{{color-scheme:light}}body{{background:white;color:black}}.controls,.skip,footer{{display:none}}header,main{{width:100%}}.card,section{{background:white;border-color:#bbb;break-inside:avoid}}.gain,.loss{{color:black}}table{{min-width:0;font-size:11px}}}}
 </style></head><body><a class="skip" href="#review">Skip to review</a><header><div><div class="muted">Options Trading Research System</div><h1>End-of-Day Review</h1></div><div class="controls" aria-label="Review controls"><form method="get" action="/review"><label for="date">Review date</label><select id="date" name="date" onchange="this.form.submit()">{options}</select><noscript><button>Load</button></noscript></form><button type="button" onclick="window.print()">Print / save PDF</button><a class="button" href="/api/reviews/{cell(day)}">View JSON</a></div></header>
-<main id="review"><p><strong>{cell(day)}</strong> · {cell(review['status'])} · {cell(cohort_text)} · API errors: {cell(review['api_errors'])}</p>{notices}<div class="cards"><div class="card"><div class="label">Broker P&amp;L</div><div class="value {tone(review['realized_pnl'])}">{money(review['realized_pnl'])}</div></div><div class="card"><div class="label">Closed trades</div><div class="value">{cell(review['trades_filled'])}</div></div><div class="card"><div class="label">Win rate</div><div class="value">{percent(review['win_rate'])}</div></div><div class="card"><div class="label">Fill rate</div><div class="value">{percent(review['fill_rate'])}</div></div><div class="card"><div class="label">Shadow P&amp;L</div><div class="value {tone(review['shadow_pnl'])}">{money(review['shadow_pnl'])}</div></div><div class="card"><div class="label">Shadow closes</div><div class="value">{len(review['shadow_trades'])}</div></div></div>
+<main id="review"><p><strong>{cell(day)}</strong> · {cell(review['status'])} · {cell(cohort_text)} · API errors: {cell(review['api_errors'])}</p>{notices}<div class="cards"><div class="card"><div class="label">Broker P&amp;L</div><div class="value {tone(review['realized_pnl'])}">{money(review['realized_pnl'])}</div></div><div class="card"><div class="label">Closed trades</div><div class="value">{cell(review['trades_filled'])}</div></div><div class="card"><div class="label">Win rate</div><div class="value">{percent(review['win_rate'])}</div></div><div class="card"><div class="label">Fill rate</div><div class="value">{percent(review['fill_rate'])}</div></div><div class="card"><div class="label">Shadow P&amp;L</div><div class="value {tone(review['shadow_pnl'])}">{money(review['shadow_pnl'])}</div></div><div class="card"><div class="label">Tradier checks</div><div class="value">{cell(market.get('successful'))}</div></div><div class="card"><div class="label">Liquidity disagreements</div><div class="value">{cell(market.get('liquidity_disagreements'))}</div></div></div>
 <section><h2>Broker-executed trades</h2><p class="muted">Actual paper-broker fills. These are the primary trading results.</p><div class="table"><table><caption>Closed broker trades</caption><thead><tr><th>Symbol</th><th>Contract</th><th>Strategy</th><th>Direction</th><th>Entry</th><th>Exit</th><th>Hold</th><th>P&amp;L</th><th>Reason</th></tr></thead><tbody>{broker_rows}</tbody></table></div></section>
+<section><h2>Market-data quality</h2><p class="muted">Read-only comparison of the exact Alpaca-selected contract against Tradier production data before entry. Tradier did not affect contract selection, pricing, risk checks, or orders.</p><p>Observations: <strong>{cell(market.get('observations'))}</strong> · Errors: <strong>{cell(market.get('errors'))}</strong> · Unique contracts: <strong>{cell(market.get('unique_contracts'))}</strong> · Average absolute midpoint difference: <strong>{money(market.get('avg_abs_mid_diff'))}</strong> · Average Tradier quote age: <strong>{seconds(market.get('avg_tradier_quote_age_secs'))}</strong></p><div class="table"><table><caption>Latest comparison for each contract and strategy</caption><thead><tr><th>Time</th><th>Symbol</th><th>Contract</th><th>Strategy</th><th>Alpaca bid/ask</th><th>Tradier bid/ask</th><th>Mid gap</th><th>Spread</th><th>Tradier age</th><th>Tradier gate</th><th>Reasons</th></tr></thead><tbody>{market_rows}</tbody></table></div></section>
 <section><h2>Shadow-book trades</h2><p class="muted">Counterfactual results for qualified trades blocked by capacity rules. They do not count toward account P&amp;L.</p><div class="table"><table><caption>Closed shadow trades</caption><thead><tr><th>Symbol</th><th>Contract</th><th>Strategy</th><th>Blocked by</th><th>Entry</th><th>Exit</th><th>Hold</th><th>P&amp;L</th><th>Category</th><th>Reason</th></tr></thead><tbody>{shadow_rows}</tbody></table></div></section>
 <section><h2>Strategy breakdown</h2><div class="table"><table><caption>Broker results by strategy</caption><thead><tr><th>Strategy</th><th>Fills</th><th>Win rate</th><th>P&amp;L</th></tr></thead><tbody>{strategy_rows}</tbody></table></div></section>
-<section><h2>Review notes</h2><h3>Observed</h3><ul>{notes}</ul><h3>Recommendations</h3><ul>{recs}</ul>{f'<h3>Contamination flags</h3><ul>{flags}</ul>' if flags else ''}</section></main><footer>Built from the trade journal, daily report, Phase 3 tracking, and shadow book.</footer></body></html>'''
+<section><h2>Review notes</h2><h3>Observed</h3><ul>{notes}</ul><h3>Recommendations</h3><ul>{recs}</ul>{f'<h3>Contamination flags</h3><ul>{flags}</ul>' if flags else ''}</section></main><footer>Built from the trade journal, daily report, Phase 3 tracking, shadow book, and market-data comparison log.</footer></body></html>'''
 
 
 @router.get("/api/reviews")
@@ -238,7 +304,13 @@ async def review_json(session_date: str, db: AsyncSession = Depends(get_db)):
     day = clean_date(session_date)
     review = file_review(day)
     review["broker_trades"] = await broker_trades(db, day)
-    if not review["report_available"] and not review["broker_trades"] and not review["shadow_trades"]:
+    market_observations = (review.get("market_data") or {}).get("observations", 0)
+    if (
+        not review["report_available"]
+        and not review["broker_trades"]
+        and not review["shadow_trades"]
+        and not market_observations
+    ):
         raise HTTPException(404, f"No review data found for {day}")
     return review
 

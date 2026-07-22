@@ -104,6 +104,30 @@ class LiquidityFilter:
             best.open_interest,
             best.volume,
         )
+
+        # Observation only: compare the already-selected Alpaca contract with a
+        # Tradier production quote in a background task. The observer cannot
+        # return a replacement contract or alter this method's result.
+        try:
+            from app.evaluation.market_data_observer import get_market_data_observer
+
+            get_market_data_observer().submit_selected_contract(
+                contract=best,
+                underlying_symbol=chain.symbol,
+                strategy_id=signal.strategy_id,
+                direction=signal.direction.value,
+                thresholds={
+                    "min_open_interest": self._min_oi,
+                    "min_volume": self._min_vol,
+                    "max_spread_pct": self._max_spread_pct,
+                    "delta_target_min": self._delta_min,
+                    "delta_target_max": self._delta_max,
+                    "max_contract_cost": self._max_contract_cost,
+                },
+            )
+        except Exception as exc:
+            logger.debug("Market-data observer scheduling failed: %s", exc)
+
         return best
 
     def _passes_liquidity(self, contract: OptionContract) -> bool:

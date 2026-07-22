@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 from datetime import datetime, timezone
 from decimal import Decimal
@@ -84,29 +85,52 @@ async def test_observer_writes_read_only_comparison(tmp_path: Path):
         implied_volatility=0.20,
         delta=0.40,
     )
+    thresholds = {
+        "min_open_interest": 100,
+        "min_volume": 50,
+        "max_spread_pct": 0.10,
+        "delta_target_min": 0.35,
+        "delta_target_max": 0.45,
+        "max_contract_cost": 1000,
+    }
 
     scheduled = observer.submit_selected_contract(
         contract=contract,
         underlying_symbol="QQQ",
         strategy_id="vwap_reclaim",
         direction="long",
-        thresholds={
-            "min_open_interest": 100,
-            "min_volume": 50,
-            "max_spread_pct": 0.10,
-            "delta_target_min": 0.35,
-            "delta_target_max": 0.45,
-            "max_contract_cost": 1000,
-        },
+        thresholds=thresholds,
     )
     assert scheduled is True
-    await pytest.importorskip("asyncio").gather(*list(observer._tasks))
+    assert observer.submit_selected_contract(
+        contract=contract,
+        underlying_symbol="QQQ",
+        strategy_id="vwap_reclaim",
+        direction="long",
+        thresholds=thresholds,
+    ) is False
+
+    tasks = list(observer._tasks)
+    if tasks:
+        await asyncio.gather(*tasks)
 
     row = json.loads(output.read_text().strip())
     assert row["status"] == "ok"
     assert row["affects_trading"] is False
     assert row["alpaca"]["feed"] == "indicative"
     assert row["comparison"]["tradier_liquidity_passed"] is True
+
+
+def test_disabled_observer_is_inert():
+    observer = TradierMarketDataObserver(token=None, mode="observe")
+    contract = SimpleNamespace(option_symbol="SPY260724C00640000")
+    assert observer.submit_selected_contract(
+        contract=contract,
+        underlying_symbol="SPY",
+        strategy_id="orb",
+        direction="long",
+        thresholds={},
+    ) is False
 
 
 def test_market_data_review_summary(tmp_path: Path):

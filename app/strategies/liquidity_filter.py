@@ -17,6 +17,7 @@ Selection criteria (in order of priority):
 from __future__ import annotations
 
 import logging
+import os
 from typing import Any, Dict, Optional
 
 from ..brokers.broker_interface import OptionChain, OptionContract
@@ -156,6 +157,12 @@ class LiquidityFilter:
         # Explicit safety gate. It may only approve or veto this exact contract;
         # it cannot choose a replacement or place an order. When mode=veto, a
         # request failure is fail-closed by default.
+        gate_enabled = (
+            os.getenv("TRADIER_CONTRACT_GATE_MODE", "off")
+            .strip()
+            .lower()
+            == "veto"
+        )
         try:
             from app.trading.tradier_contract_gate import (
                 get_tradier_contract_gate,
@@ -177,16 +184,20 @@ class LiquidityFilter:
                 )
                 return None
         except Exception as exc:
-            # The gate itself handles fail-open/fail-closed behavior. This outer
-            # guard protects legacy/test environments where the module cannot be
-            # constructed. An enabled gate should not normally reach this path.
-            logger.error(
+            # A disabled safety feature must preserve the legacy selection path.
+            # Once mode=veto is explicitly enabled, invocation failures are
+            # blocking because bypassing validation would defeat fail-closed.
+            log = logger.error if gate_enabled else logger.debug
+            log(
                 "Tradier contract gate invocation failed for %s: %s",
                 best.option_symbol,
                 exc,
             )
-            self._last_rejection_reason = "tradier_contract_gate_error"
-            return None
+            if gate_enabled:
+                self._last_rejection_reason = (
+                    "tradier_contract_gate_error"
+                )
+                return None
 
         return best
 

@@ -48,3 +48,28 @@ All broker checks passed — session is eligible for Phase 3 cohort.
   }
 }
 [2026-07-22T12:35:04-04:00] broker EOD state clean: 0 positions, 0 open orders
+[claude/options-trading-research-system-TIU0p 6361cf8] Record Phase 3 session raw artifacts (2026-07-22)
+ 20 files changed, 71935 insertions(+), 68 deletions(-)
+ create mode 100644 evaluation/reports/2026-07-22.json
+ create mode 100644 evaluation/reports/2026-07-22.md
+ create mode 100644 evaluation/shadow_book.jsonl
+ create mode 100644 logs/api.log
+ create mode 100644 logs/automation_2026-07-22.log
+ create mode 100644 logs/broker.log
+ create mode 100644 logs/dashboard.log
+ create mode 100644 logs/errors.log
+ create mode 100644 logs/live_status.json
+ create mode 100644 logs/manual_launch_2026-07-22_102215.log
+ create mode 100644 logs/manual_launch_2026-07-22_102613.log
+ create mode 100644 logs/push_events.jsonl
+ create mode 100644 logs/session_2026-07-22.exitcode
+ create mode 100644 logs/session_2026-07-22.json
+ create mode 100644 logs/session_2026-07-22.log
+ create mode 100644 logs/shadow_book_state.json
+ create mode 100644 logs/shadow_report_2026-07-22.txt
+ create mode 100644 logs/trading.jsonl
+ create mode 100644 logs/trading.log
+To https://github.com/Borgimus/Apps-.git
+   ac8789d..6361cf8  claude/options-trading-research-system-TIU0p -> claude/options-trading-research-system-TIU0p
+[2026-07-22T12:35:08-04:00] artifacts committed and pushed
+[2026-07-22T12:35:08-04:00] automatic EOD close-out complete

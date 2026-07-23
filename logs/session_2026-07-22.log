@@ -4616,3 +4616,7 @@ Pre-session checklist:
 
   Session complete — 240 cycles | 2 entry order(s) | P&L $-10.00
 
+2026-07-22T13:00:54 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-22T13:00:55 | INFO     | app.api.dashboard_api | Dashboard API started | live_trading=False
+2026-07-22T14:23:17 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-22T14:23:19 | INFO     | app.api.dashboard_api | Dashboard API started | live_trading=False

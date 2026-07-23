@@ -2285,3 +2285,1481 @@ Pre-session checklist:
 2026-07-22T12:30:04 | INFO     | app.evaluation.post_session | Post-session complete | date=2026-07-22 | cancelled=0 | report=evaluation/reports/2026-07-22.json | ledger=True
 2026-07-22T12:30:04 | INFO     | session_runner | Post-session evaluation | report=evaluation/reports/2026-07-22.json | ledger_updated=True | errors=none
 2026-07-22T12:30:04 | INFO     | session_runner | Session complete | cycles=240 | entry_orders_placed=2 | pnl=-10.00
+2026-07-22T13:00:54 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-22T13:00:55 | INFO     | app.api.dashboard_api | Dashboard API started | live_trading=False
+2026-07-22T14:23:17 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-22T14:23:19 | INFO     | app.api.dashboard_api | Dashboard API started | live_trading=False
+2026-07-23T10:03:36 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-23T10:03:41 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-07-23T10:03:42 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-07-23T10:03:42 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-07-23T10:03:42 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-07-23T10:03:42 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+2026-07-23T10:03:42 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-07-23T10:03:42 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-07-23T10:03:42 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Thursday 2026-07-23 — trading day
+2026-07-23T10:03:42 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-07-23T10:03:42 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-07-23T10:03:42 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-07-23T10:03:42 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-07-23T10:03:42 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-07-23T10:03:42 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: No prior session log today — first run of the day
+2026-07-23T10:03:42 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Thursday 2026-07-23 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-07-23T10:03:42 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-07-23T10:03:42 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-07-23 | starting_equity=99419.92
+2026-07-23T10:03:42 | INFO     | session_runner | Account: equity=99419.92 paper=True
+2026-07-23T10:03:42 | INFO     | session_runner | Paper endpoint verified | hostname=paper-api.alpaca.markets key_prefix=PK
+2026-07-23T10:03:42 | INFO     | app.trading.session_recovery | Recovery: _pending_entries set to 0 (broker-confirmed open orders; DB had 0 rows)
+2026-07-23T10:03:42 | INFO     | app.risk.risk_manager | RiskManager: counters restored from DB | entries 0→0 | pending 0→0 | pnl 0.00
+2026-07-23T10:03:42 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-07-23T10:03:42 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-07-23T10:03:42 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T10:03:42 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T10:03:42 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T10:03:44 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T10:03:44 | INFO     | session_runner |   XLY     score=85.0  signal=SHORT    reasons: rvol=3.05x (high), atr=1.95% (wide-range), orb_breakdown
+2026-07-23T10:03:44 | INFO     | session_runner |   QQQ     score=65.0  signal=SHORT    reasons: rvol=1.76x (elevated), atr=1.88% (wide-range), trend_down
+2026-07-23T10:03:44 | INFO     | session_runner |   SPY     score=63.0  signal=SHORT    reasons: rvol=1.85x (elevated), atr=1.00% (good range), near_orb_level
+2026-07-23T10:03:44 | INFO     | session_runner |   XLF     score=63.0  signal=SHORT    reasons: rvol=1.66x (elevated), atr=1.15% (good range), orb_breakdown
+2026-07-23T10:03:44 | INFO     | session_runner |   IWM     score=50.0  signal=NEUTRAL  reasons: rvol=2.23x (high), atr=1.34% (good range), trend_sideways
+2026-07-23T10:03:44 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T10:03:44 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T10:03:44 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.SHORT | total_candidates=37
+2026-07-23T10:03:44 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=SHORT)
+2026-07-23T10:03:44 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.437 | spread_pct=0.019 | OI=3879 | vol=5207
+2026-07-23T10:03:44 | INFO     | app.evaluation.market_data_observer | Tradier market-data observer enabled (read-only)
+2026-07-23T10:03:44 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=1.90% | OI=3879 | vol=5207
+2026-07-23T10:03:45 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00733000 | delta=N/A | spread_pct=0.038 | OI=1922 | vol=8478
+2026-07-23T10:03:45 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00733000 | exp=2026-07-23 | spread=3.77% | OI=1922 | vol=8478
+2026-07-23T10:03:45 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00682000 | delta=N/A | spread_pct=0.044 | OI=299 | vol=2787
+2026-07-23T10:03:45 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00682000 | exp=2026-07-23 | spread=4.44% | OI=299 | vol=2787
+2026-07-23T10:03:45 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T10:03:45 | INFO     | session_runner | Active symbols from scan: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T10:03:45 | INFO     | session_runner | [cycle 1] 10:03:45 ET | positions=0 | entries=0
+2026-07-23T10:03:45 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T10:03:45 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:03:45 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:03:46 | INFO     | session_runner | [bridge:SPY] rsi_trend ready: sufficient bars
+2026-07-23T10:03:46 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for SPY/vwap_reclaim — skipped
+2026-07-23T10:03:46 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00732000 | delta=N/A | spread_pct=0.054 | OI=2803 | vol=9475
+2026-07-23T10:03:46 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN SPY260723P00732000 | APPROVED | qty=1 | risk=$19.00
+2026-07-23T10:03:46 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SPY260723P00732000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.19', 'order_class': 'simple'}
+2026-07-23T10:03:46 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=1 exits=0
+2026-07-23T10:03:46 | INFO     | session_runner | Order placed: 5bd12f58 | SPY260723P00732000 | limit=0.19 | status=pending_new
+2026-07-23T10:03:46 | INFO     | app.trading.trade_journal | Journal entry 162: short SPY260723P00732000 @ 0.1900
+2026-07-23T10:03:46 | INFO     | app.trading.fill_tracker | FillTracker registered 5bd12f58 | SPY260723P00732000 | limit=0.1900
+2026-07-23T10:03:46 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:03:46 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:04:16 | INFO     | session_runner | [cycle 2] 10:04:16 ET | positions=0 | entries=0
+2026-07-23T10:04:16 | INFO     | app.trading.fill_tracker | FillTracker: FILL 5bd12f58 @ 0.1700 (1/1 contracts)
+2026-07-23T10:04:16 | INFO     | app.trading.trade_journal | Journal fill 162: filled=1 @ 0.1700 ttf=32s
+2026-07-23T10:04:16 | INFO     | app.trading.position_manager | Position opened | SPY260723P00732000 | entry=0.1700 | qty=1
+2026-07-23T10:04:16 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=1 pending=0 exits=0
+2026-07-23T10:04:16 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-07-23T10:04:16 | INFO     | session_runner | Exit triggered | SPY260723P00732000 | reason=trailing_stop | bid=0.1200 | pnl_est=-5.00
+2026-07-23T10:04:16 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SPY260723P00732000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.12', 'order_class': 'simple'}
+2026-07-23T10:04:17 | INFO     | app.trading.position_manager | Exit pending | SPY260723P00732000 | order=447cc5f7 | limit=0.1200 | reason=trailing_stop | mandatory=False
+2026-07-23T10:04:17 | INFO     | session_runner | Exit order placed | SPY260723P00732000 | limit=0.1200 | order_id=447cc5f7 | reason=trailing_stop
+2026-07-23T10:04:17 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:04:17 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:04:18 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:04:18 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:04:48 | INFO     | session_runner | [cycle 3] 10:04:48 ET | positions=1 | entries=1
+2026-07-23T10:04:48 | INFO     | app.trading.position_manager | Partial fill | SPY260723P00732000 | +1 @ 0.1400 | total_confirmed=1
+2026-07-23T10:04:48 | INFO     | app.trading.position_manager | Loss recorded on SPY260723P00732000 (pnl=-3.00) — cooldown active for 15 min
+2026-07-23T10:04:48 | INFO     | app.trading.position_manager | Position closed (confirmed) | SPY260723P00732000 | exit=0.1400 | pnl=-3.00
+2026-07-23T10:04:48 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=1 exits=1 daily_pnl=-3.00
+2026-07-23T10:04:48 | INFO     | app.trading.trade_journal | Journal exit 162: reason=trailing_stop pnl=-3.00 hold=31s
+2026-07-23T10:04:48 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-07-23T10:04:48 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:04:48 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:04:48 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:04:48 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:05:18 | INFO     | session_runner | [cycle 4] 10:05:18 ET | positions=0 | entries=1
+2026-07-23T10:05:19 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:05:19 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:05:19 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:05:19 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:05:49 | INFO     | session_runner | [cycle 5] 10:05:49 ET | positions=0 | entries=1
+2026-07-23T10:05:49 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:05:49 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:05:49 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:05:49 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:06:19 | INFO     | session_runner | [cycle 6] 10:06:19 ET | positions=0 | entries=1
+2026-07-23T10:06:20 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:06:20 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:06:20 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:06:20 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:06:50 | INFO     | session_runner | [cycle 7] 10:06:50 ET | positions=0 | entries=1
+2026-07-23T10:06:50 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:06:50 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:06:51 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:06:51 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:07:21 | INFO     | session_runner | [cycle 8] 10:07:21 ET | positions=0 | entries=1
+2026-07-23T10:07:21 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:07:21 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:07:21 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:07:21 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:07:51 | INFO     | session_runner | [cycle 9] 10:07:51 ET | positions=0 | entries=1
+2026-07-23T10:07:51 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:07:51 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:07:52 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:07:52 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:08:22 | INFO     | session_runner | [cycle 10] 10:08:22 ET | positions=0 | entries=1
+2026-07-23T10:08:22 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:08:22 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:08:22 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:08:22 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:08:52 | INFO     | session_runner | [cycle 11] 10:08:52 ET | positions=0 | entries=1
+2026-07-23T10:08:52 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T10:08:52 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T10:08:52 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T10:08:52 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T10:08:54 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T10:08:54 | INFO     | session_runner |   XLY     score=85.0  signal=SHORT    reasons: rvol=2.86x (high), atr=1.95% (wide-range), orb_breakdown
+2026-07-23T10:08:54 | INFO     | session_runner |   XLF     score=63.0  signal=SHORT    reasons: rvol=1.69x (elevated), atr=1.15% (good range), orb_breakdown
+2026-07-23T10:08:54 | INFO     | session_runner |   XLE     score=57.0  signal=LONG     reasons: rvol=2.50x (high), atr=1.72% (wide-range), trend_sideways
+2026-07-23T10:08:54 | INFO     | session_runner |   QQQ     score=55.0  signal=SHORT    reasons: rvol=1.63x (elevated), atr=1.88% (wide-range), trend_down
+2026-07-23T10:08:54 | INFO     | session_runner |   IWM     score=50.0  signal=NEUTRAL  reasons: rvol=2.15x (high), atr=1.34% (good range), trend_sideways
+2026-07-23T10:08:54 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00057500 | delta=N/A | spread_pct=0.052 | OI=1733 | vol=141
+2026-07-23T10:08:54 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed XLE | XLE260724C00057500 | exp=2026-07-24 | spread=5.20% | OI=1733 | vol=141
+2026-07-23T10:08:54 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.418 | spread_pct=0.019 | OI=3879 | vol=6212
+2026-07-23T10:08:54 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=1.94% | OI=3879 | vol=6212
+2026-07-23T10:08:54 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.SHORT | total_candidates=37
+2026-07-23T10:08:54 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=SHORT)
+2026-07-23T10:08:54 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T10:08:54 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T10:08:54 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00682000 | delta=N/A | spread_pct=0.039 | OI=299 | vol=3412
+2026-07-23T10:08:54 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00682000 | exp=2026-07-23 | spread=3.92% | OI=299 | vol=3412
+2026-07-23T10:08:54 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['XLE', 'QQQ', 'AAPL']
+2026-07-23T10:08:54 | INFO     | session_runner | Re-scan updated active symbols: ['XLE', 'QQQ', 'AAPL']
+2026-07-23T10:08:55 | INFO     | session_runner | [bridge:XLE] rsi_trend ready: sufficient bars
+2026-07-23T10:08:55 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for XLE/vwap_reclaim — skipped
+2026-07-23T10:08:55 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:08:55 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:08:55 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:08:55 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:09:25 | INFO     | session_runner | [cycle 12] 10:09:25 ET | positions=0 | entries=1
+2026-07-23T10:09:26 | INFO     | session_runner | [bridge:XLE] rsi_trend ready: sufficient bars
+2026-07-23T10:09:26 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for XLE/vwap_reclaim — skipped
+2026-07-23T10:09:26 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:09:26 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:09:26 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:09:26 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:09:56 | INFO     | session_runner | [cycle 13] 10:09:56 ET | positions=0 | entries=1
+2026-07-23T10:09:57 | INFO     | session_runner | [bridge:XLE] rsi_trend ready: sufficient bars
+2026-07-23T10:09:57 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for XLE/vwap_reclaim — skipped
+2026-07-23T10:09:57 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:09:57 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:09:57 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:09:57 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:10:28 | INFO     | session_runner | [cycle 14] 10:10:28 ET | positions=0 | entries=1
+2026-07-23T10:10:28 | INFO     | session_runner | [bridge:XLE] rsi_trend ready: sufficient bars
+2026-07-23T10:10:28 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for XLE/vwap_reclaim — skipped
+2026-07-23T10:10:28 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:10:28 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:10:28 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:10:28 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:10:58 | INFO     | session_runner | [cycle 15] 10:10:58 ET | positions=0 | entries=1
+2026-07-23T10:10:59 | INFO     | session_runner | [bridge:XLE] rsi_trend ready: sufficient bars
+2026-07-23T10:10:59 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for XLE/vwap_reclaim — skipped
+2026-07-23T10:10:59 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:10:59 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:10:59 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:10:59 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:11:29 | INFO     | session_runner | [cycle 16] 10:11:29 ET | positions=0 | entries=1
+2026-07-23T10:11:30 | INFO     | session_runner | [bridge:XLE] rsi_trend ready: sufficient bars
+2026-07-23T10:11:30 | INFO     | session_runner | Cooldown active — skipping XLE signal
+2026-07-23T10:11:30 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00056500 | delta=N/A | spread_pct=0.085 | OI=877 | vol=77
+2026-07-23T10:11:30 | INFO     | app.evaluation.shadow_book | ShadowBook: simulating vwap_reclaim XLE260724C00056500 @ 3.9200 (blocked: cooldown_after_loss, fill-validated at entry)
+2026-07-23T10:11:30 | INFO     | app.trading.trade_journal | Journal rejection 163: XLE — cooldown_after_loss
+2026-07-23T10:11:30 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for XLE/vwap_reclaim — skipped
+2026-07-23T10:11:30 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:11:30 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:11:31 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:11:31 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:12:01 | INFO     | session_runner | [cycle 17] 10:12:01 ET | positions=0 | entries=1
+2026-07-23T10:12:01 | INFO     | session_runner | [bridge:XLE] rsi_trend ready: sufficient bars
+2026-07-23T10:12:01 | INFO     | session_runner | Cooldown active — skipping XLE signal
+2026-07-23T10:12:01 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00056500 | delta=N/A | spread_pct=0.088 | OI=877 | vol=77
+2026-07-23T10:12:01 | INFO     | app.trading.trade_journal | Journal rejection 164: XLE — cooldown_after_loss
+2026-07-23T10:12:01 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for XLE/vwap_reclaim — skipped
+2026-07-23T10:12:02 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:12:02 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:12:02 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:12:02 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:12:32 | INFO     | session_runner | [cycle 18] 10:12:32 ET | positions=0 | entries=1
+2026-07-23T10:12:33 | INFO     | session_runner | [bridge:XLE] rsi_trend ready: sufficient bars
+2026-07-23T10:12:33 | INFO     | session_runner | Cooldown active — skipping XLE signal
+2026-07-23T10:12:33 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00060500 | delta=0.425 | spread_pct=0.085 | OI=1367 | vol=323
+2026-07-23T10:12:33 | INFO     | app.trading.trade_journal | Journal rejection 165: XLE — cooldown_after_loss
+2026-07-23T10:12:33 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for XLE/vwap_reclaim — skipped
+2026-07-23T10:12:33 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:12:33 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:12:34 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:12:34 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:13:04 | INFO     | session_runner | [cycle 19] 10:13:04 ET | positions=0 | entries=1
+2026-07-23T10:13:04 | INFO     | session_runner | [bridge:XLE] rsi_trend ready: sufficient bars
+2026-07-23T10:13:04 | INFO     | session_runner | Cooldown active — skipping XLE signal
+2026-07-23T10:13:04 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.LONG | total_candidates=42
+2026-07-23T10:13:04 | INFO     | app.trading.trade_journal | Journal rejection 166: XLE — cooldown_after_loss
+2026-07-23T10:13:04 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for XLE/vwap_reclaim — skipped
+2026-07-23T10:13:05 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:13:05 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:13:05 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:13:05 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:13:35 | INFO     | session_runner | [cycle 20] 10:13:35 ET | positions=0 | entries=1
+2026-07-23T10:13:36 | INFO     | session_runner | [bridge:XLE] rsi_trend ready: sufficient bars
+2026-07-23T10:13:36 | INFO     | session_runner | Cooldown active — skipping XLE signal
+2026-07-23T10:13:36 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00060500 | delta=0.402 | spread_pct=0.092 | OI=1367 | vol=323
+2026-07-23T10:13:36 | INFO     | app.trading.trade_journal | Journal rejection 167: XLE — cooldown_after_loss
+2026-07-23T10:13:36 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for XLE/vwap_reclaim — skipped
+2026-07-23T10:13:36 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:13:36 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:13:36 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:13:36 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:14:07 | INFO     | session_runner | [cycle 21] 10:14:07 ET | positions=0 | entries=1
+2026-07-23T10:14:07 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T10:14:07 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T10:14:07 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T10:14:07 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T10:14:07 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T10:14:09 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T10:14:09 | INFO     | session_runner |   XLY     score=85.0  signal=SHORT    reasons: rvol=2.77x (high), atr=1.96% (wide-range), orb_breakdown
+2026-07-23T10:14:09 | INFO     | session_runner |   QQQ     score=65.0  signal=SHORT    reasons: rvol=1.57x (elevated), atr=1.88% (wide-range), trend_down
+2026-07-23T10:14:09 | INFO     | session_runner |   XLE     score=65.0  signal=LONG     reasons: rvol=2.46x (high), atr=1.72% (wide-range), near_orb_level
+2026-07-23T10:14:09 | INFO     | session_runner |   IWM     score=60.0  signal=LONG     reasons: rvol=2.11x (high), atr=1.33% (good range), trend_sideways
+2026-07-23T10:14:09 | INFO     | session_runner |   AAPL    score=48.0  signal=LONG     reasons: atr=2.40% (wide-range), near_orb_level, trend_up
+2026-07-23T10:14:09 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T10:14:09 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T10:14:09 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.LONG | total_candidates=42
+2026-07-23T10:14:09 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLE (signal=LONG)
+2026-07-23T10:14:09 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.400 | spread_pct=0.028 | OI=3879 | vol=6832
+2026-07-23T10:14:09 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=2.75% | OI=3879 | vol=6832
+2026-07-23T10:14:09 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723C00295000 | delta=N/A | spread_pct=0.095 | OI=1012 | vol=7264
+2026-07-23T10:14:09 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260723C00295000 | exp=2026-07-23 | spread=9.52% | OI=1012 | vol=7264
+2026-07-23T10:14:09 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00683000 | delta=N/A | spread_pct=0.043 | OI=183 | vol=4565
+2026-07-23T10:14:09 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00683000 | exp=2026-07-23 | spread=4.26% | OI=183 | vol=4565
+2026-07-23T10:14:09 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'IWM', 'AAPL']
+2026-07-23T10:14:09 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'IWM', 'AAPL']
+2026-07-23T10:14:09 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:14:09 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:14:10 | INFO     | session_runner | [bridge:IWM] rsi_trend ready: sufficient bars
+2026-07-23T10:14:10 | INFO     | session_runner | Cooldown active — skipping IWM signal
+2026-07-23T10:14:10 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723C00293000 | delta=N/A | spread_pct=0.018 | OI=371 | vol=23180
+2026-07-23T10:14:10 | INFO     | app.evaluation.shadow_book | ShadowBook: simulating vwap_reclaim IWM260723C00293000 @ 0.5600 (blocked: cooldown_after_loss, fill-validated at entry)
+2026-07-23T10:14:10 | INFO     | app.trading.trade_journal | Journal rejection 168: IWM — cooldown_after_loss
+2026-07-23T10:14:10 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for IWM/vwap_reclaim — skipped
+2026-07-23T10:14:10 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:14:10 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:14:41 | INFO     | session_runner | [cycle 22] 10:14:41 ET | positions=0 | entries=1
+2026-07-23T10:14:41 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:14:41 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:14:42 | INFO     | session_runner | [bridge:IWM] rsi_trend ready: sufficient bars
+2026-07-23T10:14:42 | INFO     | session_runner | Cooldown active — skipping IWM signal
+2026-07-23T10:14:42 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723C00294000 | delta=N/A | spread_pct=0.051 | OI=893 | vol=14685
+2026-07-23T10:14:42 | INFO     | app.trading.trade_journal | Journal rejection 169: IWM — cooldown_after_loss
+2026-07-23T10:14:42 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for IWM/vwap_reclaim — skipped
+2026-07-23T10:14:42 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:14:42 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:15:12 | INFO     | session_runner | [cycle 23] 10:15:12 ET | positions=0 | entries=1
+2026-07-23T10:15:13 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:15:13 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:15:13 | INFO     | session_runner | [bridge:IWM] rsi_trend ready: sufficient bars
+2026-07-23T10:15:13 | INFO     | session_runner | Cooldown active — skipping IWM signal
+2026-07-23T10:15:14 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723C00293000 | delta=N/A | spread_pct=0.022 | OI=371 | vol=24449
+2026-07-23T10:15:14 | INFO     | app.trading.trade_journal | Journal rejection 170: IWM — cooldown_after_loss
+2026-07-23T10:15:14 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for IWM/vwap_reclaim — skipped
+2026-07-23T10:15:14 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:15:14 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:15:44 | INFO     | session_runner | [cycle 24] 10:15:44 ET | positions=0 | entries=1
+2026-07-23T10:15:45 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:15:45 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:15:45 | INFO     | session_runner | [bridge:IWM] rsi_trend ready: sufficient bars
+2026-07-23T10:15:45 | INFO     | session_runner | Cooldown active — skipping IWM signal
+2026-07-23T10:15:46 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723C00294000 | delta=N/A | spread_pct=0.044 | OI=893 | vol=14996
+2026-07-23T10:15:46 | INFO     | app.trading.trade_journal | Journal rejection 171: IWM — cooldown_after_loss
+2026-07-23T10:15:46 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for IWM/vwap_reclaim — skipped
+2026-07-23T10:15:46 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:15:46 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:16:16 | INFO     | session_runner | [cycle 25] 10:16:16 ET | positions=0 | entries=1
+2026-07-23T10:16:17 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-07-23T10:16:17 | INFO     | session_runner | Direction mismatch: scanner=SHORT strategy=LONG for QQQ/vwap_reclaim — skipped
+2026-07-23T10:16:17 | INFO     | session_runner | [bridge:IWM] rsi_trend ready: sufficient bars
+2026-07-23T10:16:17 | INFO     | session_runner | Cooldown active — skipping IWM signal
+2026-07-23T10:16:17 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723C00294000 | delta=N/A | spread_pct=0.051 | OI=893 | vol=15310
+2026-07-23T10:16:17 | INFO     | app.trading.trade_journal | Journal rejection 172: IWM — cooldown_after_loss
+2026-07-23T10:16:18 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for IWM/vwap_reclaim — skipped
+2026-07-23T10:16:18 | INFO     | session_runner | [bridge:AAPL] rsi_trend ready: sufficient bars
+2026-07-23T10:16:18 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:16:18 | INFO     | session_runner | Direction mismatch: scanner=LONG strategy=SHORT for AAPL/vwap_reclaim — skipped
+2026-07-23T10:16:48 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:16:48 | INFO     | session_runner | [cycle 26] 10:16:48 ET | positions=0 | entries=1
+2026-07-23T10:17:18 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:17:18 | INFO     | session_runner | [cycle 27] 10:17:18 ET | positions=0 | entries=1
+2026-07-23T10:17:48 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:17:48 | INFO     | session_runner | [cycle 28] 10:17:48 ET | positions=0 | entries=1
+2026-07-23T10:18:18 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:18:18 | INFO     | session_runner | [cycle 29] 10:18:18 ET | positions=0 | entries=1
+2026-07-23T10:18:48 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:18:48 | INFO     | session_runner | [cycle 30] 10:18:48 ET | positions=0 | entries=1
+2026-07-23T10:19:19 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:19:19 | INFO     | session_runner | [cycle 31] 10:19:19 ET | positions=0 | entries=1
+2026-07-23T10:19:19 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T10:19:19 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T10:19:19 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T10:19:19 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T10:19:20 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T10:19:20 | INFO     | session_runner |   XLY     score=85.0  signal=SHORT    reasons: rvol=2.65x (high), atr=1.96% (wide-range), orb_breakdown
+2026-07-23T10:19:20 | INFO     | session_runner |   QQQ     score=65.0  signal=SHORT    reasons: rvol=1.51x (elevated), atr=1.88% (wide-range), trend_down
+2026-07-23T10:19:20 | INFO     | session_runner |   XLE     score=65.0  signal=LONG     reasons: rvol=2.36x (high), atr=1.72% (wide-range), near_orb_level
+2026-07-23T10:19:20 | INFO     | session_runner |   XLF     score=56.0  signal=LONG     reasons: rvol=1.54x (elevated), atr=1.15% (good range), near_orb_level
+2026-07-23T10:19:20 | INFO     | session_runner |   SPY     score=53.0  signal=NEUTRAL  reasons: rvol=1.54x (elevated), atr=1.00% (good range), near_orb_level
+2026-07-23T10:19:20 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00060500 | delta=0.406 | spread_pct=0.067 | OI=1367 | vol=361
+2026-07-23T10:19:20 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed XLE | XLE260724C00060500 | exp=2026-07-24 | spread=6.67% | OI=1367 | vol=361
+2026-07-23T10:19:21 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T10:19:21 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T10:19:21 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T10:19:21 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T10:19:21 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723C00294000 | delta=N/A | spread_pct=0.049 | OI=893 | vol=16327
+2026-07-23T10:19:21 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260723C00294000 | exp=2026-07-23 | spread=4.88% | OI=893 | vol=16327
+2026-07-23T10:19:21 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00682000 | delta=N/A | spread_pct=0.043 | OI=299 | vol=4685
+2026-07-23T10:19:21 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00682000 | exp=2026-07-23 | spread=4.26% | OI=299 | vol=4685
+2026-07-23T10:19:21 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'XLE', 'IWM']
+2026-07-23T10:19:21 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'XLE', 'IWM']
+2026-07-23T10:19:51 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:19:51 | INFO     | session_runner | [cycle 32] 10:19:51 ET | positions=0 | entries=1
+2026-07-23T10:20:21 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:20:21 | INFO     | session_runner | [cycle 33] 10:20:21 ET | positions=0 | entries=1
+2026-07-23T10:20:51 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:20:51 | INFO     | session_runner | [cycle 34] 10:20:51 ET | positions=0 | entries=1
+2026-07-23T10:21:21 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:21:21 | INFO     | session_runner | [cycle 35] 10:21:21 ET | positions=0 | entries=1
+2026-07-23T10:21:21 | INFO     | app.evaluation.shadow_book | ShadowBook: closed vwap_reclaim IWM260723C00293000 @ 0.4000 → -16.00 (trailing_stop, fill-validated)
+2026-07-23T10:21:51 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:21:51 | INFO     | session_runner | [cycle 36] 10:21:51 ET | positions=0 | entries=1
+2026-07-23T10:22:22 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:22:22 | INFO     | session_runner | [cycle 37] 10:22:22 ET | positions=0 | entries=1
+2026-07-23T10:22:52 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:22:52 | INFO     | session_runner | [cycle 38] 10:22:52 ET | positions=0 | entries=1
+2026-07-23T10:23:22 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:23:22 | INFO     | session_runner | [cycle 39] 10:23:22 ET | positions=0 | entries=1
+2026-07-23T10:23:52 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:23:52 | INFO     | session_runner | [cycle 40] 10:23:52 ET | positions=0 | entries=1
+2026-07-23T10:24:22 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:24:22 | INFO     | session_runner | [cycle 41] 10:24:22 ET | positions=0 | entries=1
+2026-07-23T10:24:22 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T10:24:22 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T10:24:22 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T10:24:22 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T10:24:22 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T10:24:23 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T10:24:23 | INFO     | session_runner |   XLY     score=85.0  signal=SHORT    reasons: rvol=2.49x (high), atr=1.97% (wide-range), orb_breakdown
+2026-07-23T10:24:23 | INFO     | session_runner |   XLE     score=77.0  signal=LONG     reasons: rvol=2.24x (high), atr=1.72% (wide-range), orb_breakout
+2026-07-23T10:24:23 | INFO     | session_runner |   XLF     score=63.0  signal=SHORT    reasons: rvol=1.51x (elevated), atr=1.15% (good range), orb_breakdown
+2026-07-23T10:24:23 | INFO     | session_runner |   QQQ     score=55.0  signal=SHORT    reasons: rvol=1.49x (normal), atr=1.88% (wide-range), trend_down
+2026-07-23T10:24:23 | INFO     | session_runner |   SPY     score=53.0  signal=NEUTRAL  reasons: rvol=1.75x (elevated), atr=1.00% (good range), near_orb_level
+2026-07-23T10:24:24 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T10:24:24 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T10:24:24 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00056000 | delta=N/A | spread_pct=0.045 | OI=3750 | vol=175
+2026-07-23T10:24:24 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed XLE | XLE260724C00056000 | exp=2026-07-24 | spread=4.45% | OI=3750 | vol=175
+2026-07-23T10:24:24 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLF260724P00055500 | delta=-0.453 | spread_pct=0.047 | OI=2081 | vol=1105
+2026-07-23T10:24:24 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed XLF | XLF260724P00055500 | exp=2026-07-24 | spread=4.65% | OI=2081 | vol=1105
+2026-07-23T10:24:24 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.450 | spread_pct=0.005 | OI=3879 | vol=10775
+2026-07-23T10:24:24 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=0.47% | OI=3879 | vol=10775
+2026-07-23T10:24:24 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00680000 | delta=N/A | spread_pct=0.065 | OI=3018 | vol=5685
+2026-07-23T10:24:24 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00680000 | exp=2026-07-23 | spread=6.45% | OI=3018 | vol=5685
+2026-07-23T10:24:24 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['XLE', 'XLF', 'QQQ']
+2026-07-23T10:24:24 | INFO     | session_runner | Re-scan updated active symbols: ['XLE', 'XLF', 'QQQ']
+2026-07-23T10:24:54 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:24:54 | INFO     | session_runner | [cycle 42] 10:24:54 ET | positions=0 | entries=1
+2026-07-23T10:25:24 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:25:24 | INFO     | session_runner | [cycle 43] 10:25:24 ET | positions=0 | entries=1
+2026-07-23T10:25:55 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:25:55 | INFO     | session_runner | [cycle 44] 10:25:55 ET | positions=0 | entries=1
+2026-07-23T10:26:25 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:26:25 | INFO     | session_runner | [cycle 45] 10:26:25 ET | positions=0 | entries=1
+2026-07-23T10:26:55 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:26:55 | INFO     | session_runner | [cycle 46] 10:26:55 ET | positions=0 | entries=1
+2026-07-23T10:27:25 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:27:25 | INFO     | session_runner | [cycle 47] 10:27:25 ET | positions=0 | entries=1
+2026-07-23T10:27:55 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:27:55 | INFO     | session_runner | [cycle 48] 10:27:55 ET | positions=0 | entries=1
+2026-07-23T10:28:25 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:28:25 | INFO     | session_runner | [cycle 49] 10:28:25 ET | positions=0 | entries=1
+2026-07-23T10:28:55 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:28:55 | INFO     | session_runner | [cycle 50] 10:28:55 ET | positions=0 | entries=1
+2026-07-23T10:29:25 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:29:25 | INFO     | session_runner | [cycle 51] 10:29:25 ET | positions=0 | entries=1
+2026-07-23T10:29:26 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T10:29:26 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T10:29:26 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T10:29:26 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T10:29:27 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T10:29:27 | INFO     | session_runner |   XLY     score=85.0  signal=SHORT    reasons: rvol=2.39x (high), atr=2.00% (wide-range), orb_breakdown
+2026-07-23T10:29:27 | INFO     | session_runner |   XLE     score=65.0  signal=LONG     reasons: rvol=2.13x (high), atr=1.73% (wide-range), near_orb_level
+2026-07-23T10:29:27 | INFO     | session_runner |   SPY     score=63.0  signal=SHORT    reasons: rvol=1.66x (elevated), atr=1.00% (good range), near_orb_level
+2026-07-23T10:29:27 | INFO     | session_runner |   QQQ     score=63.0  signal=SHORT    reasons: rvol=1.43x (normal), atr=1.88% (wide-range), near_orb_level
+2026-07-23T10:29:27 | INFO     | session_runner |   XLF     score=53.0  signal=SHORT    reasons: rvol=1.42x (normal), atr=1.15% (good range), orb_breakdown
+2026-07-23T10:29:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.SHORT | total_candidates=37
+2026-07-23T10:29:27 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=SHORT)
+2026-07-23T10:29:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00056000 | delta=N/A | spread_pct=0.059 | OI=3750 | vol=175
+2026-07-23T10:29:27 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed XLE | XLE260724C00056000 | exp=2026-07-24 | spread=5.89% | OI=3750 | vol=175
+2026-07-23T10:29:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.435 | spread_pct=0.024 | OI=3879 | vol=11919
+2026-07-23T10:29:27 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=2.44% | OI=3879 | vol=11919
+2026-07-23T10:29:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T10:29:27 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T10:29:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00734000 | delta=N/A | spread_pct=0.027 | OI=921 | vol=25996
+2026-07-23T10:29:27 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00734000 | exp=2026-07-23 | spread=2.74% | OI=921 | vol=25996
+2026-07-23T10:29:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00682000 | delta=N/A | spread_pct=0.054 | OI=299 | vol=6887
+2026-07-23T10:29:27 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00682000 | exp=2026-07-23 | spread=5.41% | OI=299 | vol=6887
+2026-07-23T10:29:27 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['XLE', 'SPY', 'QQQ']
+2026-07-23T10:29:27 | INFO     | session_runner | Re-scan updated active symbols: ['XLE', 'SPY', 'QQQ']
+2026-07-23T10:29:57 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:29:57 | INFO     | session_runner | [cycle 52] 10:29:57 ET | positions=0 | entries=1
+2026-07-23T10:30:27 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:30:27 | INFO     | session_runner | [cycle 53] 10:30:27 ET | positions=0 | entries=1
+2026-07-23T10:30:58 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:30:58 | INFO     | session_runner | [cycle 54] 10:30:58 ET | positions=0 | entries=1
+2026-07-23T10:31:28 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:31:28 | INFO     | session_runner | [cycle 55] 10:31:28 ET | positions=0 | entries=1
+2026-07-23T10:31:58 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:31:58 | INFO     | session_runner | [cycle 56] 10:31:58 ET | positions=0 | entries=1
+2026-07-23T10:32:28 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:32:28 | INFO     | session_runner | [cycle 57] 10:32:28 ET | positions=0 | entries=1
+2026-07-23T10:32:58 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:32:58 | INFO     | session_runner | [cycle 58] 10:32:58 ET | positions=0 | entries=1
+2026-07-23T10:33:28 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:33:28 | INFO     | session_runner | [cycle 59] 10:33:28 ET | positions=0 | entries=1
+2026-07-23T10:33:58 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:33:58 | INFO     | session_runner | [cycle 60] 10:33:58 ET | positions=0 | entries=1
+2026-07-23T10:34:29 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:34:29 | INFO     | session_runner | [cycle 61] 10:34:29 ET | positions=0 | entries=1
+2026-07-23T10:34:29 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T10:34:29 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T10:34:29 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T10:34:29 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T10:34:29 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T10:34:31 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T10:34:31 | INFO     | session_runner |   XLY     score=85.0  signal=SHORT    reasons: rvol=2.34x (high), atr=2.00% (wide-range), orb_breakdown
+2026-07-23T10:34:31 | INFO     | session_runner |   XLE     score=77.0  signal=LONG     reasons: rvol=2.03x (high), atr=1.74% (wide-range), orb_breakout
+2026-07-23T10:34:31 | INFO     | session_runner |   QQQ     score=75.0  signal=SHORT    reasons: rvol=1.39x (normal), atr=1.89% (wide-range), orb_breakdown
+2026-07-23T10:34:31 | INFO     | session_runner |   SPY     score=63.0  signal=SHORT    reasons: rvol=1.58x (elevated), atr=1.00% (good range), near_orb_level
+2026-07-23T10:34:31 | INFO     | session_runner |   IWM     score=50.0  signal=SHORT    reasons: rvol=1.64x (elevated), atr=1.34% (good range), trend_sideways
+2026-07-23T10:34:31 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T10:34:31 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T10:34:31 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00060500 | delta=0.448 | spread_pct=0.078 | OI=1367 | vol=519
+2026-07-23T10:34:31 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed XLE | XLE260724C00060500 | exp=2026-07-24 | spread=7.79% | OI=1367 | vol=519
+2026-07-23T10:34:31 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723P00290000 | delta=N/A | spread_pct=0.035 | OI=4149 | vol=36825
+2026-07-23T10:34:31 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260723P00290000 | exp=2026-07-23 | spread=3.51% | OI=4149 | vol=36825
+2026-07-23T10:34:31 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00325000 | delta=0.346 | spread_pct=0.021 | OI=5250 | vol=13188
+2026-07-23T10:34:31 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00325000 | exp=2026-07-24 | spread=2.08% | OI=5250 | vol=13188
+2026-07-23T10:34:31 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00733000 | delta=N/A | spread_pct=0.035 | OI=1922 | vol=22787
+2026-07-23T10:34:31 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00733000 | exp=2026-07-23 | spread=3.51% | OI=1922 | vol=22787
+2026-07-23T10:34:31 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00683000 | delta=N/A | spread_pct=0.036 | OI=183 | vol=7272
+2026-07-23T10:34:31 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00683000 | exp=2026-07-23 | spread=3.64% | OI=183 | vol=7272
+2026-07-23T10:34:31 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['XLE', 'QQQ', 'SPY']
+2026-07-23T10:34:31 | INFO     | session_runner | Re-scan updated active symbols: ['XLE', 'QQQ', 'SPY']
+2026-07-23T10:35:01 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:35:01 | INFO     | session_runner | [cycle 62] 10:35:01 ET | positions=0 | entries=1
+2026-07-23T10:35:32 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:35:32 | INFO     | session_runner | [cycle 63] 10:35:32 ET | positions=0 | entries=1
+2026-07-23T10:36:02 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:36:02 | INFO     | session_runner | [cycle 64] 10:36:02 ET | positions=0 | entries=1
+2026-07-23T10:36:32 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:36:32 | INFO     | session_runner | [cycle 65] 10:36:32 ET | positions=0 | entries=1
+2026-07-23T10:37:03 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:37:03 | INFO     | session_runner | [cycle 66] 10:37:03 ET | positions=0 | entries=1
+2026-07-23T10:37:33 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:37:33 | INFO     | session_runner | [cycle 67] 10:37:33 ET | positions=0 | entries=1
+2026-07-23T10:38:03 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:38:03 | INFO     | session_runner | [cycle 68] 10:38:03 ET | positions=0 | entries=1
+2026-07-23T10:38:33 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:38:33 | INFO     | session_runner | [cycle 69] 10:38:33 ET | positions=0 | entries=1
+2026-07-23T10:39:03 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:39:03 | INFO     | session_runner | [cycle 70] 10:39:03 ET | positions=0 | entries=1
+2026-07-23T10:39:33 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:39:33 | INFO     | session_runner | [cycle 71] 10:39:33 ET | positions=0 | entries=1
+2026-07-23T10:39:33 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T10:39:33 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T10:39:33 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T10:39:33 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T10:39:35 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T10:39:35 | INFO     | session_runner |   XLY     score=85.0  signal=SHORT    reasons: rvol=2.29x (high), atr=2.00% (wide-range), orb_breakdown
+2026-07-23T10:39:35 | INFO     | session_runner |   AAPL    score=58.0  signal=LONG     reasons: atr=2.38% (wide-range), near_orb_level, trend_up
+2026-07-23T10:39:35 | INFO     | session_runner |   XLE     score=55.0  signal=LONG     reasons: rvol=1.99x (elevated), atr=1.74% (wide-range), near_orb_level
+2026-07-23T10:39:35 | INFO     | session_runner |   SPY     score=53.0  signal=NEUTRAL  reasons: rvol=1.56x (elevated), atr=1.00% (good range), near_orb_level
+2026-07-23T10:39:35 | INFO     | session_runner |   XLF     score=46.0  signal=LONG     reasons: rvol=1.27x (normal), atr=1.15% (good range), near_orb_level
+2026-07-23T10:39:35 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLF260724C00056000 | delta=0.308 | spread_pct=0.080 | OI=3463 | vol=375
+2026-07-23T10:39:35 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed XLF | XLF260724C00056000 | exp=2026-07-24 | spread=8.00% | OI=3463 | vol=375
+2026-07-23T10:39:35 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T10:39:35 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T10:39:35 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00325000 | delta=0.363 | spread_pct=0.027 | OI=5250 | vol=14934
+2026-07-23T10:39:35 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00325000 | exp=2026-07-24 | spread=2.70% | OI=5250 | vol=14934
+2026-07-23T10:39:35 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.LONG | total_candidates=42
+2026-07-23T10:39:35 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLE (signal=LONG)
+2026-07-23T10:39:35 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00682000 | delta=N/A | spread_pct=0.069 | OI=299 | vol=8404
+2026-07-23T10:39:35 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00682000 | exp=2026-07-23 | spread=6.90% | OI=299 | vol=8404
+2026-07-23T10:39:35 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['AAPL', 'XLF', 'QQQ']
+2026-07-23T10:39:35 | INFO     | session_runner | Re-scan updated active symbols: ['AAPL', 'XLF', 'QQQ']
+2026-07-23T10:40:05 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:40:05 | INFO     | session_runner | [cycle 72] 10:40:05 ET | positions=0 | entries=1
+2026-07-23T10:40:35 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:40:35 | INFO     | session_runner | [cycle 73] 10:40:35 ET | positions=0 | entries=1
+2026-07-23T10:41:06 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:41:06 | INFO     | session_runner | [cycle 74] 10:41:06 ET | positions=0 | entries=1
+2026-07-23T10:41:36 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:41:36 | INFO     | session_runner | [cycle 75] 10:41:36 ET | positions=0 | entries=1
+2026-07-23T10:42:06 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:42:06 | INFO     | session_runner | [cycle 76] 10:42:06 ET | positions=0 | entries=1
+2026-07-23T10:42:36 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:42:36 | INFO     | session_runner | [cycle 77] 10:42:36 ET | positions=0 | entries=1
+2026-07-23T10:43:06 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:43:06 | INFO     | session_runner | [cycle 78] 10:43:06 ET | positions=0 | entries=1
+2026-07-23T10:43:36 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:43:36 | INFO     | session_runner | [cycle 79] 10:43:36 ET | positions=0 | entries=1
+2026-07-23T10:44:07 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:44:07 | INFO     | session_runner | [cycle 80] 10:44:07 ET | positions=0 | entries=1
+2026-07-23T10:44:37 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:44:37 | INFO     | session_runner | [cycle 81] 10:44:37 ET | positions=0 | entries=1
+2026-07-23T10:44:37 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T10:44:37 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T10:44:37 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T10:44:37 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T10:44:37 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T10:44:38 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T10:44:38 | INFO     | session_runner |   XLY     score=85.0  signal=SHORT    reasons: rvol=2.19x (high), atr=2.00% (wide-range), orb_breakdown
+2026-07-23T10:44:38 | INFO     | session_runner |   QQQ     score=75.0  signal=SHORT    reasons: rvol=1.37x (normal), atr=1.90% (wide-range), orb_breakdown
+2026-07-23T10:44:38 | INFO     | session_runner |   SPY     score=63.0  signal=SHORT    reasons: rvol=1.54x (elevated), atr=1.00% (good range), near_orb_level
+2026-07-23T10:44:38 | INFO     | session_runner |   XLE     score=55.0  signal=LONG     reasons: rvol=1.99x (elevated), atr=1.74% (wide-range), near_orb_level
+2026-07-23T10:44:38 | INFO     | session_runner |   AAPL    score=50.0  signal=LONG     reasons: atr=2.39% (wide-range), trend_up, rsi=54 (healthy)
+2026-07-23T10:44:38 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T10:44:38 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T10:44:38 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00060500 | delta=0.412 | spread_pct=0.061 | OI=1367 | vol=543
+2026-07-23T10:44:38 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed XLE | XLE260724C00060500 | exp=2026-07-24 | spread=6.06% | OI=1367 | vol=543
+2026-07-23T10:44:38 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T10:44:38 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T10:44:38 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.468 | spread_pct=0.014 | OI=3879 | vol=14584
+2026-07-23T10:44:38 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=1.40% | OI=3879 | vol=14584
+2026-07-23T10:44:38 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00733000 | delta=N/A | spread_pct=0.038 | OI=1922 | vol=24912
+2026-07-23T10:44:38 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00733000 | exp=2026-07-23 | spread=3.77% | OI=1922 | vol=24912
+2026-07-23T10:44:38 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00682000 | delta=N/A | spread_pct=0.047 | OI=299 | vol=8782
+2026-07-23T10:44:38 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00682000 | exp=2026-07-23 | spread=4.65% | OI=299 | vol=8782
+2026-07-23T10:44:38 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'XLE']
+2026-07-23T10:44:39 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'XLE']
+2026-07-23T10:45:09 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:45:09 | INFO     | session_runner | [cycle 82] 10:45:09 ET | positions=0 | entries=1
+2026-07-23T10:45:39 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:45:39 | INFO     | session_runner | [cycle 83] 10:45:39 ET | positions=0 | entries=1
+2026-07-23T10:46:09 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:46:09 | INFO     | session_runner | [cycle 84] 10:46:09 ET | positions=0 | entries=1
+2026-07-23T10:46:39 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:46:39 | INFO     | session_runner | [cycle 85] 10:46:39 ET | positions=0 | entries=1
+2026-07-23T10:47:09 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:47:09 | INFO     | session_runner | [cycle 86] 10:47:09 ET | positions=0 | entries=1
+2026-07-23T10:47:40 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:47:40 | INFO     | session_runner | [cycle 87] 10:47:40 ET | positions=0 | entries=1
+2026-07-23T10:48:10 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:48:10 | INFO     | session_runner | [cycle 88] 10:48:10 ET | positions=0 | entries=1
+2026-07-23T10:48:40 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:48:40 | INFO     | session_runner | [cycle 89] 10:48:40 ET | positions=0 | entries=1
+2026-07-23T10:49:10 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:49:10 | INFO     | session_runner | [cycle 90] 10:49:10 ET | positions=0 | entries=1
+2026-07-23T10:49:40 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:49:40 | INFO     | session_runner | [cycle 91] 10:49:40 ET | positions=0 | entries=1
+2026-07-23T10:49:40 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T10:49:40 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T10:49:40 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T10:49:40 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T10:49:42 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T10:49:42 | INFO     | session_runner |   XLY     score=85.0  signal=SHORT    reasons: rvol=2.09x (high), atr=2.00% (wide-range), orb_breakdown
+2026-07-23T10:49:42 | INFO     | session_runner |   QQQ     score=75.0  signal=SHORT    reasons: rvol=1.34x (normal), atr=1.90% (wide-range), orb_breakdown
+2026-07-23T10:49:42 | INFO     | session_runner |   SPY     score=63.0  signal=SHORT    reasons: rvol=1.51x (elevated), atr=1.00% (good range), near_orb_level
+2026-07-23T10:49:42 | INFO     | session_runner |   XLF     score=56.0  signal=LONG     reasons: rvol=1.14x (normal), atr=1.15% (good range), near_orb_level
+2026-07-23T10:49:42 | INFO     | session_runner |   XLE     score=55.0  signal=LONG     reasons: rvol=1.96x (elevated), atr=1.74% (wide-range), near_orb_level
+2026-07-23T10:49:42 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00060500 | delta=0.412 | spread_pct=0.067 | OI=1367 | vol=557
+2026-07-23T10:49:42 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed XLE | XLE260724C00060500 | exp=2026-07-24 | spread=6.67% | OI=1367 | vol=557
+2026-07-23T10:49:42 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T10:49:42 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T10:49:42 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T10:49:42 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T10:49:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00734000 | delta=N/A | spread_pct=0.026 | OI=921 | vol=38263
+2026-07-23T10:49:43 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00734000 | exp=2026-07-23 | spread=2.60% | OI=921 | vol=38263
+2026-07-23T10:49:43 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00680000 | delta=N/A | spread_pct=0.065 | OI=3018 | vol=9123
+2026-07-23T10:49:43 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00680000 | exp=2026-07-23 | spread=6.45% | OI=3018 | vol=9123
+2026-07-23T10:49:43 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'XLE']
+2026-07-23T10:49:43 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'XLE']
+2026-07-23T10:50:13 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:50:13 | INFO     | session_runner | [cycle 92] 10:50:13 ET | positions=0 | entries=1
+2026-07-23T10:50:43 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:50:43 | INFO     | session_runner | [cycle 93] 10:50:43 ET | positions=0 | entries=1
+2026-07-23T10:51:13 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:51:13 | INFO     | session_runner | [cycle 94] 10:51:13 ET | positions=0 | entries=1
+2026-07-23T10:51:43 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:51:43 | INFO     | session_runner | [cycle 95] 10:51:43 ET | positions=0 | entries=1
+2026-07-23T10:52:13 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:52:13 | INFO     | session_runner | [cycle 96] 10:52:13 ET | positions=0 | entries=1
+2026-07-23T10:52:44 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:52:44 | INFO     | session_runner | [cycle 97] 10:52:44 ET | positions=0 | entries=1
+2026-07-23T10:53:14 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:53:14 | INFO     | session_runner | [cycle 98] 10:53:14 ET | positions=0 | entries=1
+2026-07-23T10:53:44 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:53:44 | INFO     | session_runner | [cycle 99] 10:53:44 ET | positions=0 | entries=1
+2026-07-23T10:54:14 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:54:14 | INFO     | session_runner | [cycle 100] 10:54:14 ET | positions=0 | entries=1
+2026-07-23T10:54:44 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:54:44 | INFO     | session_runner | [cycle 101] 10:54:44 ET | positions=0 | entries=1
+2026-07-23T10:54:44 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T10:54:44 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T10:54:44 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T10:54:44 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T10:54:44 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T10:54:45 | INFO     | session_runner | Scan: 6 passed, 4 rejected
+2026-07-23T10:54:45 | INFO     | session_runner |   XLY     score=85.0  signal=SHORT    reasons: rvol=2.03x (high), atr=2.01% (wide-range), orb_breakdown
+2026-07-23T10:54:45 | INFO     | session_runner |   QQQ     score=75.0  signal=SHORT    reasons: rvol=1.34x (normal), atr=1.92% (wide-range), orb_breakdown
+2026-07-23T10:54:45 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.49x (normal), atr=1.01% (good range), orb_breakdown
+2026-07-23T10:54:45 | INFO     | session_runner |   AAPL    score=48.0  signal=LONG     reasons: atr=2.39% (wide-range), near_orb_level, trend_up
+2026-07-23T10:54:45 | INFO     | session_runner |   XLF     score=46.0  signal=LONG     reasons: rvol=1.10x (normal), atr=1.15% (good range), near_orb_level
+2026-07-23T10:54:46 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T10:54:46 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T10:54:46 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T10:54:46 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T10:54:46 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.412 | spread_pct=0.022 | OI=3879 | vol=18870
+2026-07-23T10:54:46 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=2.20% | OI=3879 | vol=18870
+2026-07-23T10:54:46 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00732000 | delta=N/A | spread_pct=0.044 | OI=2803 | vol=21107
+2026-07-23T10:54:46 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00732000 | exp=2026-07-23 | spread=4.44% | OI=2803 | vol=21107
+2026-07-23T10:54:46 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00678000 | delta=N/A | spread_pct=0.087 | OI=257 | vol=5145
+2026-07-23T10:54:46 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00678000 | exp=2026-07-23 | spread=8.70% | OI=257 | vol=5145
+2026-07-23T10:54:46 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T10:54:46 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T10:55:16 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:55:16 | INFO     | session_runner | [cycle 102] 10:55:16 ET | positions=0 | entries=1
+2026-07-23T10:55:46 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:55:46 | INFO     | session_runner | [cycle 103] 10:55:46 ET | positions=0 | entries=1
+2026-07-23T10:56:16 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:56:16 | INFO     | session_runner | [cycle 104] 10:56:16 ET | positions=0 | entries=1
+2026-07-23T10:56:46 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:56:46 | INFO     | session_runner | [cycle 105] 10:56:46 ET | positions=0 | entries=1
+2026-07-23T10:57:16 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:57:16 | INFO     | session_runner | [cycle 106] 10:57:16 ET | positions=0 | entries=1
+2026-07-23T10:57:47 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:57:47 | INFO     | session_runner | [cycle 107] 10:57:47 ET | positions=0 | entries=1
+2026-07-23T10:58:17 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:58:17 | INFO     | session_runner | [cycle 108] 10:58:17 ET | positions=0 | entries=1
+2026-07-23T10:58:47 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:58:47 | INFO     | session_runner | [cycle 109] 10:58:47 ET | positions=0 | entries=1
+2026-07-23T10:59:17 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:59:17 | INFO     | session_runner | [cycle 110] 10:59:17 ET | positions=0 | entries=1
+2026-07-23T10:59:47 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T10:59:47 | INFO     | session_runner | [cycle 111] 10:59:47 ET | positions=0 | entries=1
+2026-07-23T10:59:47 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T10:59:47 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T10:59:47 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T10:59:47 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T10:59:48 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T10:59:48 | INFO     | session_runner |   QQQ     score=75.0  signal=SHORT    reasons: rvol=1.34x (normal), atr=1.93% (wide-range), orb_breakdown
+2026-07-23T10:59:48 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.95x (elevated), atr=2.01% (wide-range), orb_breakdown
+2026-07-23T10:59:48 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.45x (normal), atr=1.01% (good range), orb_breakdown
+2026-07-23T10:59:48 | INFO     | session_runner |   XLF     score=56.0  signal=LONG     reasons: rvol=1.06x (normal), atr=1.15% (good range), near_orb_level
+2026-07-23T10:59:48 | INFO     | session_runner |   XLE     score=55.0  signal=LONG     reasons: rvol=1.83x (elevated), atr=1.74% (wide-range), near_orb_level
+2026-07-23T10:59:48 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T10:59:48 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T10:59:48 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.LONG | total_candidates=42
+2026-07-23T10:59:48 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLE (signal=LONG)
+2026-07-23T10:59:49 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T10:59:49 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T10:59:49 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.426 | spread_pct=0.037 | OI=3879 | vol=19658
+2026-07-23T10:59:49 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=3.67% | OI=3879 | vol=19658
+2026-07-23T10:59:49 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00732000 | delta=N/A | spread_pct=0.049 | OI=2803 | vol=22372
+2026-07-23T10:59:49 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00732000 | exp=2026-07-23 | spread=4.88% | OI=2803 | vol=22372
+2026-07-23T10:59:49 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00680000 | delta=N/A | spread_pct=0.057 | OI=3018 | vol=9639
+2026-07-23T10:59:49 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00680000 | exp=2026-07-23 | spread=5.71% | OI=3018 | vol=9639
+2026-07-23T10:59:49 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T10:59:49 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T11:00:19 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:00:19 | INFO     | session_runner | [cycle 112] 11:00:19 ET | positions=0 | entries=1
+2026-07-23T11:00:49 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:00:49 | INFO     | session_runner | [cycle 113] 11:00:49 ET | positions=0 | entries=1
+2026-07-23T11:01:19 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:01:19 | INFO     | session_runner | [cycle 114] 11:01:19 ET | positions=0 | entries=1
+2026-07-23T11:01:49 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:01:49 | INFO     | session_runner | [cycle 115] 11:01:49 ET | positions=0 | entries=1
+2026-07-23T11:02:20 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:02:20 | INFO     | session_runner | [cycle 116] 11:02:20 ET | positions=0 | entries=1
+2026-07-23T11:02:50 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:02:50 | INFO     | session_runner | [cycle 117] 11:02:50 ET | positions=0 | entries=1
+2026-07-23T11:03:20 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:03:20 | INFO     | session_runner | [cycle 118] 11:03:20 ET | positions=0 | entries=1
+2026-07-23T11:03:50 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:03:50 | INFO     | session_runner | [cycle 119] 11:03:50 ET | positions=0 | entries=1
+2026-07-23T11:04:21 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:04:21 | INFO     | session_runner | [cycle 120] 11:04:21 ET | positions=0 | entries=1
+2026-07-23T11:04:51 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:04:51 | INFO     | session_runner | [cycle 121] 11:04:51 ET | positions=0 | entries=1
+2026-07-23T11:04:51 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T11:04:51 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T11:04:51 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T11:04:51 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T11:04:51 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T11:04:53 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T11:04:53 | INFO     | session_runner |   QQQ     score=75.0  signal=SHORT    reasons: rvol=1.35x (normal), atr=1.93% (wide-range), orb_breakdown
+2026-07-23T11:04:53 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.88x (elevated), atr=2.01% (wide-range), orb_breakdown
+2026-07-23T11:04:53 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.43x (normal), atr=1.01% (good range), orb_breakdown
+2026-07-23T11:04:53 | INFO     | session_runner |   XLF     score=56.0  signal=LONG     reasons: rvol=1.01x (normal), atr=1.15% (good range), near_orb_level
+2026-07-23T11:04:53 | INFO     | session_runner |   IWM     score=50.0  signal=SHORT    reasons: rvol=1.50x (elevated), atr=1.34% (good range), trend_sideways
+2026-07-23T11:04:53 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T11:04:53 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T11:04:53 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T11:04:53 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T11:04:53 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723P00289000 | delta=N/A | spread_pct=0.061 | OI=343 | vol=18248
+2026-07-23T11:04:53 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260723P00289000 | exp=2026-07-23 | spread=6.06% | OI=343 | vol=18248
+2026-07-23T11:04:53 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.430 | spread_pct=0.021 | OI=3879 | vol=20737
+2026-07-23T11:04:53 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=2.11% | OI=3879 | vol=20737
+2026-07-23T11:04:54 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00732000 | delta=N/A | spread_pct=0.038 | OI=2803 | vol=23749
+2026-07-23T11:04:54 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00732000 | exp=2026-07-23 | spread=3.77% | OI=2803 | vol=23749
+2026-07-23T11:04:54 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00680000 | delta=N/A | spread_pct=0.051 | OI=3018 | vol=10050
+2026-07-23T11:04:54 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00680000 | exp=2026-07-23 | spread=5.13% | OI=3018 | vol=10050
+2026-07-23T11:04:54 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T11:04:54 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T11:05:24 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:05:24 | INFO     | session_runner | [cycle 122] 11:05:24 ET | positions=0 | entries=1
+2026-07-23T11:05:54 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:05:54 | INFO     | session_runner | [cycle 123] 11:05:54 ET | positions=0 | entries=1
+2026-07-23T11:06:24 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:06:24 | INFO     | session_runner | [cycle 124] 11:06:24 ET | positions=0 | entries=1
+2026-07-23T11:06:54 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:06:54 | INFO     | session_runner | [cycle 125] 11:06:54 ET | positions=0 | entries=1
+2026-07-23T11:07:24 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:07:24 | INFO     | session_runner | [cycle 126] 11:07:24 ET | positions=0 | entries=1
+2026-07-23T11:07:54 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:07:54 | INFO     | session_runner | [cycle 127] 11:07:54 ET | positions=0 | entries=1
+2026-07-23T11:08:24 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:08:24 | INFO     | session_runner | [cycle 128] 11:08:24 ET | positions=0 | entries=1
+2026-07-23T11:08:54 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:08:54 | INFO     | session_runner | [cycle 129] 11:08:54 ET | positions=0 | entries=1
+2026-07-23T11:09:25 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:09:25 | INFO     | session_runner | [cycle 130] 11:09:25 ET | positions=0 | entries=1
+2026-07-23T11:09:55 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:09:55 | INFO     | session_runner | [cycle 131] 11:09:55 ET | positions=0 | entries=1
+2026-07-23T11:09:55 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T11:09:55 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T11:09:55 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T11:09:55 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T11:09:56 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T11:09:56 | INFO     | session_runner |   QQQ     score=75.0  signal=SHORT    reasons: rvol=1.31x (normal), atr=1.95% (wide-range), orb_breakdown
+2026-07-23T11:09:56 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.82x (elevated), atr=2.01% (wide-range), orb_breakdown
+2026-07-23T11:09:56 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.41x (normal), atr=1.03% (good range), orb_breakdown
+2026-07-23T11:09:56 | INFO     | session_runner |   XLE     score=45.0  signal=NEUTRAL  reasons: rvol=1.74x (elevated), atr=1.74% (wide-range), near_orb_level
+2026-07-23T11:09:56 | INFO     | session_runner |   XLF     score=41.0  signal=LONG     reasons: atr=1.15% (good range), near_orb_level, trend_up
+2026-07-23T11:09:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T11:09:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T11:09:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T11:09:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T11:09:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723P00289000 | delta=N/A | spread_pct=0.061 | OI=343 | vol=18750
+2026-07-23T11:09:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260723P00289000 | exp=2026-07-23 | spread=6.06% | OI=343 | vol=18750
+2026-07-23T11:09:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00731000 | delta=N/A | spread_pct=0.047 | OI=1305 | vol=27327
+2026-07-23T11:09:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00731000 | exp=2026-07-23 | spread=4.65% | OI=1305 | vol=27327
+2026-07-23T11:09:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00678000 | delta=N/A | spread_pct=0.069 | OI=257 | vol=6273
+2026-07-23T11:09:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00678000 | exp=2026-07-23 | spread=6.90% | OI=257 | vol=6273
+2026-07-23T11:09:56 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T11:09:57 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T11:10:27 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:10:27 | INFO     | session_runner | [cycle 132] 11:10:27 ET | positions=0 | entries=1
+2026-07-23T11:10:57 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:10:57 | INFO     | session_runner | [cycle 133] 11:10:57 ET | positions=0 | entries=1
+2026-07-23T11:11:27 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:11:27 | INFO     | session_runner | [cycle 134] 11:11:27 ET | positions=0 | entries=1
+2026-07-23T11:11:57 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:11:57 | INFO     | session_runner | [cycle 135] 11:11:57 ET | positions=0 | entries=1
+2026-07-23T11:12:27 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:12:27 | INFO     | session_runner | [cycle 136] 11:12:27 ET | positions=0 | entries=1
+2026-07-23T11:12:57 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:12:57 | INFO     | session_runner | [cycle 137] 11:12:57 ET | positions=0 | entries=1
+2026-07-23T11:13:27 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:13:27 | INFO     | session_runner | [cycle 138] 11:13:27 ET | positions=0 | entries=1
+2026-07-23T11:13:57 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:13:57 | INFO     | session_runner | [cycle 139] 11:13:57 ET | positions=0 | entries=1
+2026-07-23T11:14:27 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:14:27 | INFO     | session_runner | [cycle 140] 11:14:27 ET | positions=0 | entries=1
+2026-07-23T11:14:58 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:14:58 | INFO     | session_runner | [cycle 141] 11:14:58 ET | positions=0 | entries=1
+2026-07-23T11:14:59 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T11:14:59 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T11:14:59 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T11:14:59 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T11:14:59 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T11:15:01 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T11:15:01 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.80x (elevated), atr=2.01% (wide-range), orb_breakdown
+2026-07-23T11:15:01 | INFO     | session_runner |   QQQ     score=70.0  signal=SHORT    reasons: rvol=1.32x (normal), atr=1.98% (wide-range), orb_breakdown
+2026-07-23T11:15:01 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.42x (normal), atr=1.04% (good range), orb_breakdown
+2026-07-23T11:15:01 | INFO     | session_runner |   XLE     score=55.0  signal=LONG     reasons: rvol=1.73x (elevated), atr=1.74% (wide-range), near_orb_level
+2026-07-23T11:15:01 | INFO     | session_runner |   AAPL    score=50.0  signal=LONG     reasons: atr=2.39% (wide-range), trend_up, rsi=54 (healthy)
+2026-07-23T11:15:01 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00058000 | delta=N/A | spread_pct=0.073 | OI=14214 | vol=1972
+2026-07-23T11:15:01 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed XLE | XLE260724C00058000 | exp=2026-07-24 | spread=7.34% | OI=14214 | vol=1972
+2026-07-23T11:15:01 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T11:15:01 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T11:15:01 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T11:15:01 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T11:15:02 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.464 | spread_pct=0.005 | OI=3879 | vol=21561
+2026-07-23T11:15:02 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=0.46% | OI=3879 | vol=21561
+2026-07-23T11:15:02 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00731000 | delta=N/A | spread_pct=0.039 | OI=1305 | vol=33168
+2026-07-23T11:15:02 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00731000 | exp=2026-07-23 | spread=3.92% | OI=1305 | vol=33168
+2026-07-23T11:15:02 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00676000 | delta=N/A | spread_pct=0.095 | OI=146 | vol=5557
+2026-07-23T11:15:02 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00676000 | exp=2026-07-23 | spread=9.52% | OI=146 | vol=5557
+2026-07-23T11:15:02 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'XLE']
+2026-07-23T11:15:02 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'XLE']
+2026-07-23T11:15:32 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:15:32 | INFO     | session_runner | [cycle 142] 11:15:32 ET | positions=0 | entries=1
+2026-07-23T11:16:03 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:16:03 | INFO     | session_runner | [cycle 143] 11:16:03 ET | positions=0 | entries=1
+2026-07-23T11:16:33 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:16:33 | INFO     | session_runner | [cycle 144] 11:16:33 ET | positions=0 | entries=1
+2026-07-23T11:17:03 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:17:03 | INFO     | session_runner | [cycle 145] 11:17:03 ET | positions=0 | entries=1
+2026-07-23T11:17:33 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:17:33 | INFO     | session_runner | [cycle 146] 11:17:33 ET | positions=0 | entries=1
+2026-07-23T11:18:03 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:18:03 | INFO     | session_runner | [cycle 147] 11:18:03 ET | positions=0 | entries=1
+2026-07-23T11:18:33 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:18:33 | INFO     | session_runner | [cycle 148] 11:18:33 ET | positions=0 | entries=1
+2026-07-23T11:19:03 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:19:03 | INFO     | session_runner | [cycle 149] 11:19:03 ET | positions=0 | entries=1
+2026-07-23T11:19:33 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:19:33 | INFO     | session_runner | [cycle 150] 11:19:33 ET | positions=0 | entries=1
+2026-07-23T11:20:04 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:20:04 | INFO     | session_runner | [cycle 151] 11:20:04 ET | positions=0 | entries=1
+2026-07-23T11:20:04 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T11:20:04 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T11:20:04 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T11:20:04 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T11:20:06 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T11:20:06 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.80x (elevated), atr=2.03% (wide-range), orb_breakdown
+2026-07-23T11:20:06 | INFO     | session_runner |   QQQ     score=70.0  signal=SHORT    reasons: rvol=1.33x (normal), atr=1.98% (wide-range), orb_breakdown
+2026-07-23T11:20:06 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.42x (normal), atr=1.04% (good range), orb_breakdown
+2026-07-23T11:20:06 | INFO     | session_runner |   XLE     score=55.0  signal=LONG     reasons: rvol=1.69x (elevated), atr=1.74% (wide-range), near_orb_level
+2026-07-23T11:20:06 | INFO     | session_runner |   AAPL    score=50.0  signal=LONG     reasons: atr=2.39% (wide-range), trend_up, rsi=54 (healthy)
+2026-07-23T11:20:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00058000 | delta=N/A | spread_pct=0.087 | OI=14214 | vol=1972
+2026-07-23T11:20:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed XLE | XLE260724C00058000 | exp=2026-07-24 | spread=8.70% | OI=14214 | vol=1972
+2026-07-23T11:20:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.467 | spread_pct=0.005 | OI=3879 | vol=22406
+2026-07-23T11:20:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=0.46% | OI=3879 | vol=22406
+2026-07-23T11:20:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T11:20:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T11:20:07 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723P00289000 | delta=N/A | spread_pct=0.054 | OI=343 | vol=22016
+2026-07-23T11:20:07 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260723P00289000 | exp=2026-07-23 | spread=5.41% | OI=343 | vol=22016
+2026-07-23T11:20:07 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00735000 | delta=N/A | spread_pct=0.013 | OI=1531 | vol=164786
+2026-07-23T11:20:07 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00735000 | exp=2026-07-23 | spread=1.26% | OI=1531 | vol=164786
+2026-07-23T11:20:07 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00677000 | delta=N/A | spread_pct=0.087 | OI=464 | vol=6452
+2026-07-23T11:20:07 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00677000 | exp=2026-07-23 | spread=8.70% | OI=464 | vol=6452
+2026-07-23T11:20:07 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'XLE']
+2026-07-23T11:20:07 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'XLE']
+2026-07-23T11:20:37 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:20:37 | INFO     | session_runner | [cycle 152] 11:20:37 ET | positions=0 | entries=1
+2026-07-23T11:21:07 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:21:07 | INFO     | session_runner | [cycle 153] 11:21:07 ET | positions=0 | entries=1
+2026-07-23T11:21:37 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:21:37 | INFO     | session_runner | [cycle 154] 11:21:37 ET | positions=0 | entries=1
+2026-07-23T11:22:07 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:22:07 | INFO     | session_runner | [cycle 155] 11:22:07 ET | positions=0 | entries=1
+2026-07-23T11:22:37 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:22:37 | INFO     | session_runner | [cycle 156] 11:22:37 ET | positions=0 | entries=1
+2026-07-23T11:23:08 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:23:08 | INFO     | session_runner | [cycle 157] 11:23:08 ET | positions=0 | entries=1
+2026-07-23T11:23:38 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:23:38 | INFO     | session_runner | [cycle 158] 11:23:38 ET | positions=0 | entries=1
+2026-07-23T11:24:08 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:24:08 | INFO     | session_runner | [cycle 159] 11:24:08 ET | positions=0 | entries=1
+2026-07-23T11:24:38 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:24:38 | INFO     | session_runner | [cycle 160] 11:24:38 ET | positions=0 | entries=1
+2026-07-23T11:25:09 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:25:09 | INFO     | session_runner | [cycle 161] 11:25:09 ET | positions=0 | entries=1
+2026-07-23T11:25:09 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T11:25:09 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T11:25:09 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T11:25:09 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T11:25:09 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T11:25:12 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T11:25:12 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.76x (elevated), atr=2.05% (wide-range), orb_breakdown
+2026-07-23T11:25:12 | INFO     | session_runner |   QQQ     score=70.0  signal=SHORT    reasons: rvol=1.34x (normal), atr=1.99% (wide-range), orb_breakdown
+2026-07-23T11:25:12 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.42x (normal), atr=1.05% (good range), orb_breakdown
+2026-07-23T11:25:12 | INFO     | session_runner |   XLE     score=55.0  signal=LONG     reasons: rvol=1.71x (elevated), atr=1.74% (wide-range), near_orb_level
+2026-07-23T11:25:12 | INFO     | session_runner |   IWM     score=48.0  signal=SHORT    reasons: rvol=1.37x (normal), atr=1.35% (good range), near_orb_level
+2026-07-23T11:25:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T11:25:12 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T11:25:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLE260724C00057500 | delta=N/A | spread_pct=0.074 | OI=1733 | vol=145
+2026-07-23T11:25:12 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed XLE | XLE260724C00057500 | exp=2026-07-24 | spread=7.38% | OI=1733 | vol=145
+2026-07-23T11:25:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.435 | spread_pct=0.010 | OI=3879 | vol=23352
+2026-07-23T11:25:12 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=1.02% | OI=3879 | vol=23352
+2026-07-23T11:25:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723P00288000 | delta=N/A | spread_pct=0.069 | OI=324 | vol=12824
+2026-07-23T11:25:12 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260723P00288000 | exp=2026-07-23 | spread=6.90% | OI=324 | vol=12824
+2026-07-23T11:25:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00730000 | delta=N/A | spread_pct=0.049 | OI=11622 | vol=58527
+2026-07-23T11:25:12 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00730000 | exp=2026-07-23 | spread=4.88% | OI=11622 | vol=58527
+2026-07-23T11:25:12 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00676000 | delta=N/A | spread_pct=0.080 | OI=146 | vol=6052
+2026-07-23T11:25:12 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00676000 | exp=2026-07-23 | spread=8.00% | OI=146 | vol=6052
+2026-07-23T11:25:12 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'XLE']
+2026-07-23T11:25:12 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'XLE']
+2026-07-23T11:25:42 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:25:42 | INFO     | session_runner | [cycle 162] 11:25:42 ET | positions=0 | entries=1
+2026-07-23T11:26:13 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:26:13 | INFO     | session_runner | [cycle 163] 11:26:13 ET | positions=0 | entries=1
+2026-07-23T11:26:43 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:26:43 | INFO     | session_runner | [cycle 164] 11:26:43 ET | positions=0 | entries=1
+2026-07-23T11:27:13 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:27:13 | INFO     | session_runner | [cycle 165] 11:27:13 ET | positions=0 | entries=1
+2026-07-23T11:27:43 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:27:43 | INFO     | session_runner | [cycle 166] 11:27:43 ET | positions=0 | entries=1
+2026-07-23T11:28:13 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:28:13 | INFO     | session_runner | [cycle 167] 11:28:13 ET | positions=0 | entries=1
+2026-07-23T11:28:44 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:28:44 | INFO     | session_runner | [cycle 168] 11:28:44 ET | positions=0 | entries=1
+2026-07-23T11:29:14 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:29:14 | INFO     | session_runner | [cycle 169] 11:29:14 ET | positions=0 | entries=1
+2026-07-23T11:29:44 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:29:44 | INFO     | session_runner | [cycle 170] 11:29:44 ET | positions=0 | entries=1
+2026-07-23T11:30:14 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:30:14 | INFO     | session_runner | [cycle 171] 11:30:14 ET | positions=0 | entries=1
+2026-07-23T11:30:14 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T11:30:14 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T11:30:14 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T11:30:14 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T11:30:17 | INFO     | session_runner | Scan: 6 passed, 4 rejected
+2026-07-23T11:30:17 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.73x (elevated), atr=2.06% (wide-range), orb_breakdown
+2026-07-23T11:30:17 | INFO     | session_runner |   QQQ     score=70.0  signal=SHORT    reasons: rvol=1.30x (normal), atr=2.00% (wide-range), orb_breakdown
+2026-07-23T11:30:17 | INFO     | session_runner |   SPY     score=60.0  signal=SHORT    reasons: rvol=1.41x (normal), atr=1.05% (good range), orb_breakdown
+2026-07-23T11:30:17 | INFO     | session_runner |   IWM     score=48.0  signal=SHORT    reasons: rvol=1.35x (normal), atr=1.35% (good range), near_orb_level
+2026-07-23T11:30:17 | INFO     | session_runner |   AAPL    score=48.0  signal=LONG     reasons: atr=2.39% (wide-range), near_orb_level, trend_up
+2026-07-23T11:30:17 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T11:30:17 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T11:30:17 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.425 | spread_pct=0.038 | OI=3879 | vol=24386
+2026-07-23T11:30:17 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=3.77% | OI=3879 | vol=24386
+2026-07-23T11:30:17 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723P00288000 | delta=N/A | spread_pct=0.069 | OI=324 | vol=13297
+2026-07-23T11:30:17 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260723P00288000 | exp=2026-07-23 | spread=6.90% | OI=324 | vol=13297
+2026-07-23T11:30:17 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T11:30:17 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T11:30:18 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00730000 | delta=N/A | spread_pct=0.039 | OI=11622 | vol=60977
+2026-07-23T11:30:18 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00730000 | exp=2026-07-23 | spread=3.92% | OI=11622 | vol=60977
+2026-07-23T11:30:18 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00675000 | delta=N/A | spread_pct=0.080 | OI=5054 | vol=11155
+2026-07-23T11:30:18 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00675000 | exp=2026-07-23 | spread=8.00% | OI=5054 | vol=11155
+2026-07-23T11:30:18 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T11:30:18 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T11:30:48 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:30:48 | INFO     | session_runner | [cycle 172] 11:30:48 ET | positions=0 | entries=1
+2026-07-23T11:31:18 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:31:18 | INFO     | session_runner | [cycle 173] 11:31:18 ET | positions=0 | entries=1
+2026-07-23T11:31:48 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:31:48 | INFO     | session_runner | [cycle 174] 11:31:48 ET | positions=0 | entries=1
+2026-07-23T11:32:18 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:32:18 | INFO     | session_runner | [cycle 175] 11:32:18 ET | positions=0 | entries=1
+2026-07-23T11:32:48 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:32:48 | INFO     | session_runner | [cycle 176] 11:32:48 ET | positions=0 | entries=1
+2026-07-23T11:33:18 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:33:18 | INFO     | session_runner | [cycle 177] 11:33:18 ET | positions=0 | entries=1
+2026-07-23T11:33:49 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:33:49 | INFO     | session_runner | [cycle 178] 11:33:49 ET | positions=0 | entries=1
+2026-07-23T11:34:19 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:34:19 | INFO     | session_runner | [cycle 179] 11:34:19 ET | positions=0 | entries=1
+2026-07-23T11:34:49 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:34:49 | INFO     | session_runner | [cycle 180] 11:34:49 ET | positions=0 | entries=1
+2026-07-23T11:35:19 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:35:19 | INFO     | session_runner | [cycle 181] 11:35:19 ET | positions=0 | entries=1
+2026-07-23T11:35:19 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T11:35:19 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T11:35:19 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T11:35:19 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T11:35:19 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T11:35:22 | INFO     | session_runner | Scan: 6 passed, 4 rejected
+2026-07-23T11:35:22 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.72x (elevated), atr=2.06% (wide-range), orb_breakdown
+2026-07-23T11:35:22 | INFO     | session_runner |   QQQ     score=70.0  signal=SHORT    reasons: rvol=1.32x (normal), atr=2.00% (wide-range), orb_breakdown
+2026-07-23T11:35:22 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.43x (normal), atr=1.06% (good range), orb_breakdown
+2026-07-23T11:35:22 | INFO     | session_runner |   IWM     score=48.0  signal=SHORT    reasons: rvol=1.33x (normal), atr=1.35% (good range), near_orb_level
+2026-07-23T11:35:22 | INFO     | session_runner |   AAPL    score=48.0  signal=LONG     reasons: atr=2.39% (wide-range), near_orb_level, trend_up
+2026-07-23T11:35:22 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T11:35:22 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T11:35:22 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T11:35:22 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T11:35:22 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723P00290000 | delta=N/A | spread_pct=0.024 | OI=4149 | vol=59156
+2026-07-23T11:35:22 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260723P00290000 | exp=2026-07-23 | spread=2.35% | OI=4149 | vol=59156
+2026-07-23T11:35:22 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.403 | spread_pct=0.052 | OI=3879 | vol=25379
+2026-07-23T11:35:22 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=5.22% | OI=3879 | vol=25379
+2026-07-23T11:35:22 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00730000 | delta=N/A | spread_pct=0.054 | OI=11622 | vol=63681
+2026-07-23T11:35:22 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00730000 | exp=2026-07-23 | spread=5.41% | OI=11622 | vol=63681
+2026-07-23T11:35:22 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00676000 | delta=N/A | spread_pct=0.087 | OI=146 | vol=6305
+2026-07-23T11:35:22 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00676000 | exp=2026-07-23 | spread=8.70% | OI=146 | vol=6305
+2026-07-23T11:35:22 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T11:35:22 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T11:35:52 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:35:52 | INFO     | session_runner | [cycle 182] 11:35:52 ET | positions=0 | entries=1
+2026-07-23T11:36:22 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:36:22 | INFO     | session_runner | [cycle 183] 11:36:22 ET | positions=0 | entries=1
+2026-07-23T11:36:53 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:36:53 | INFO     | session_runner | [cycle 184] 11:36:53 ET | positions=0 | entries=1
+2026-07-23T11:37:23 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:37:23 | INFO     | session_runner | [cycle 185] 11:37:23 ET | positions=0 | entries=1
+2026-07-23T11:37:53 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:37:53 | INFO     | session_runner | [cycle 186] 11:37:53 ET | positions=0 | entries=1
+2026-07-23T11:38:23 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:38:23 | INFO     | session_runner | [cycle 187] 11:38:23 ET | positions=0 | entries=1
+2026-07-23T11:38:53 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:38:53 | INFO     | session_runner | [cycle 188] 11:38:53 ET | positions=0 | entries=1
+2026-07-23T11:39:23 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:39:23 | INFO     | session_runner | [cycle 189] 11:39:23 ET | positions=0 | entries=1
+2026-07-23T11:39:53 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:39:53 | INFO     | session_runner | [cycle 190] 11:39:53 ET | positions=0 | entries=1
+2026-07-23T11:40:23 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:40:23 | INFO     | session_runner | [cycle 191] 11:40:23 ET | positions=0 | entries=1
+2026-07-23T11:40:23 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T11:40:23 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T11:40:23 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T11:40:23 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T11:40:26 | INFO     | session_runner | Scan: 6 passed, 4 rejected
+2026-07-23T11:40:26 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.69x (elevated), atr=2.06% (wide-range), orb_breakdown
+2026-07-23T11:40:26 | INFO     | session_runner |   QQQ     score=70.0  signal=SHORT    reasons: rvol=1.33x (normal), atr=2.00% (wide-range), orb_breakdown
+2026-07-23T11:40:26 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.44x (normal), atr=1.06% (good range), orb_breakdown
+2026-07-23T11:40:26 | INFO     | session_runner |   XLE     score=55.0  signal=SHORT    reasons: rvol=1.65x (elevated), atr=1.75% (wide-range), near_orb_level
+2026-07-23T11:40:26 | INFO     | session_runner |   XLF     score=51.0  signal=LONG     reasons: atr=1.15% (good range), near_orb_level, trend_up
+2026-07-23T11:40:26 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T11:40:26 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T11:40:26 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.SHORT | total_candidates=42
+2026-07-23T11:40:26 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLE (signal=SHORT)
+2026-07-23T11:40:26 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723P00290000 | delta=N/A | spread_pct=0.039 | OI=4149 | vol=64054
+2026-07-23T11:40:26 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260723P00290000 | exp=2026-07-23 | spread=3.92% | OI=4149 | vol=64054
+2026-07-23T11:40:26 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T11:40:26 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T11:40:26 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00732000 | delta=N/A | spread_pct=0.041 | OI=2803 | vol=48860
+2026-07-23T11:40:26 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00732000 | exp=2026-07-23 | spread=4.08% | OI=2803 | vol=48860
+2026-07-23T11:40:27 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00678000 | delta=N/A | spread_pct=0.069 | OI=257 | vol=8717
+2026-07-23T11:40:27 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00678000 | exp=2026-07-23 | spread=6.90% | OI=257 | vol=8717
+2026-07-23T11:40:27 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T11:40:27 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T11:40:57 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:40:57 | INFO     | session_runner | [cycle 192] 11:40:57 ET | positions=0 | entries=1
+2026-07-23T11:41:27 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:41:27 | INFO     | session_runner | [cycle 193] 11:41:27 ET | positions=0 | entries=1
+2026-07-23T11:41:57 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:41:57 | INFO     | session_runner | [cycle 194] 11:41:57 ET | positions=0 | entries=1
+2026-07-23T11:42:27 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:42:27 | INFO     | session_runner | [cycle 195] 11:42:27 ET | positions=0 | entries=1
+2026-07-23T11:42:57 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:42:57 | INFO     | session_runner | [cycle 196] 11:42:57 ET | positions=0 | entries=1
+2026-07-23T11:43:27 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:43:27 | INFO     | session_runner | [cycle 197] 11:43:27 ET | positions=0 | entries=1
+2026-07-23T11:43:57 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:43:57 | INFO     | session_runner | [cycle 198] 11:43:57 ET | positions=0 | entries=1
+2026-07-23T11:44:28 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:44:28 | INFO     | session_runner | [cycle 199] 11:44:28 ET | positions=0 | entries=1
+2026-07-23T11:44:58 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:44:58 | INFO     | session_runner | [cycle 200] 11:44:58 ET | positions=0 | entries=1
+2026-07-23T11:45:28 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:45:28 | INFO     | session_runner | [cycle 201] 11:45:28 ET | positions=0 | entries=1
+2026-07-23T11:45:28 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T11:45:28 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T11:45:28 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T11:45:28 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T11:45:28 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T11:45:31 | INFO     | session_runner | Scan: 6 passed, 4 rejected
+2026-07-23T11:45:31 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.66x (elevated), atr=2.06% (wide-range), orb_breakdown
+2026-07-23T11:45:31 | INFO     | session_runner |   QQQ     score=70.0  signal=SHORT    reasons: rvol=1.30x (normal), atr=2.00% (wide-range), orb_breakdown
+2026-07-23T11:45:31 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.42x (normal), atr=1.06% (good range), orb_breakdown
+2026-07-23T11:45:31 | INFO     | session_runner |   XLE     score=55.0  signal=SHORT    reasons: rvol=1.64x (elevated), atr=1.75% (wide-range), near_orb_level
+2026-07-23T11:45:31 | INFO     | session_runner |   XLF     score=41.0  signal=LONG     reasons: atr=1.15% (good range), near_orb_level, trend_up
+2026-07-23T11:45:31 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T11:45:31 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T11:45:31 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.SHORT | total_candidates=42
+2026-07-23T11:45:31 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLE (signal=SHORT)
+2026-07-23T11:45:31 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T11:45:31 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T11:45:31 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723P00289000 | delta=N/A | spread_pct=0.057 | OI=343 | vol=29261
+2026-07-23T11:45:31 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260723P00289000 | exp=2026-07-23 | spread=5.71% | OI=343 | vol=29261
+2026-07-23T11:45:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00730000 | delta=N/A | spread_pct=0.054 | OI=11622 | vol=77557
+2026-07-23T11:45:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00730000 | exp=2026-07-23 | spread=5.41% | OI=11622 | vol=77557
+2026-07-23T11:45:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00678000 | delta=N/A | spread_pct=0.057 | OI=257 | vol=9429
+2026-07-23T11:45:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00678000 | exp=2026-07-23 | spread=5.71% | OI=257 | vol=9429
+2026-07-23T11:45:32 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T11:45:32 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T11:46:02 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:46:02 | INFO     | session_runner | [cycle 202] 11:46:02 ET | positions=0 | entries=1
+2026-07-23T11:46:32 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:46:32 | INFO     | session_runner | [cycle 203] 11:46:32 ET | positions=0 | entries=1
+2026-07-23T11:47:02 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:47:02 | INFO     | session_runner | [cycle 204] 11:47:02 ET | positions=0 | entries=1
+2026-07-23T11:47:32 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:47:32 | INFO     | session_runner | [cycle 205] 11:47:32 ET | positions=0 | entries=1
+2026-07-23T11:48:02 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:48:02 | INFO     | session_runner | [cycle 206] 11:48:02 ET | positions=0 | entries=1
+2026-07-23T11:48:33 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:48:33 | INFO     | session_runner | [cycle 207] 11:48:33 ET | positions=0 | entries=1
+2026-07-23T11:49:03 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:49:03 | INFO     | session_runner | [cycle 208] 11:49:03 ET | positions=0 | entries=1
+2026-07-23T11:49:33 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:49:33 | INFO     | session_runner | [cycle 209] 11:49:33 ET | positions=0 | entries=1
+2026-07-23T11:50:03 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:50:03 | INFO     | session_runner | [cycle 210] 11:50:03 ET | positions=0 | entries=1
+2026-07-23T11:50:34 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:50:34 | INFO     | session_runner | [cycle 211] 11:50:34 ET | positions=0 | entries=1
+2026-07-23T11:50:34 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T11:50:34 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T11:50:34 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T11:50:34 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T11:50:37 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T11:50:37 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.64x (elevated), atr=2.06% (wide-range), orb_breakdown
+2026-07-23T11:50:37 | INFO     | session_runner |   QQQ     score=70.0  signal=SHORT    reasons: rvol=1.29x (normal), atr=2.00% (wide-range), orb_breakdown
+2026-07-23T11:50:37 | INFO     | session_runner |   XLE     score=67.0  signal=SHORT    reasons: rvol=1.61x (elevated), atr=1.75% (wide-range), orb_breakdown
+2026-07-23T11:50:37 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.39x (normal), atr=1.06% (good range), orb_breakdown
+2026-07-23T11:50:37 | INFO     | session_runner |   AAPL    score=55.0  signal=SHORT    reasons: atr=2.40% (wide-range), orb_breakdown, rsi=52 (healthy)
+2026-07-23T11:50:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.SHORT | total_candidates=42
+2026-07-23T11:50:37 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLE (signal=SHORT)
+2026-07-23T11:50:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T11:50:37 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T11:50:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724P00320000 | delta=-0.451 | spread_pct=0.034 | OI=8015 | vol=31175
+2026-07-23T11:50:37 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724P00320000 | exp=2026-07-24 | spread=3.44% | OI=8015 | vol=31175
+2026-07-23T11:50:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T11:50:37 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T11:50:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00677000 | delta=N/A | spread_pct=0.080 | OI=464 | vol=7894
+2026-07-23T11:50:37 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00677000 | exp=2026-07-23 | spread=8.00% | OI=464 | vol=7894
+2026-07-23T11:50:37 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00732000 | delta=N/A | spread_pct=0.033 | OI=2803 | vol=62465
+2026-07-23T11:50:37 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00732000 | exp=2026-07-23 | spread=3.28% | OI=2803 | vol=62465
+2026-07-23T11:50:37 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T11:50:37 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T11:51:07 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:51:07 | INFO     | session_runner | [cycle 212] 11:51:07 ET | positions=0 | entries=1
+2026-07-23T11:51:37 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:51:37 | INFO     | session_runner | [cycle 213] 11:51:37 ET | positions=0 | entries=1
+2026-07-23T11:52:07 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:52:07 | INFO     | session_runner | [cycle 214] 11:52:07 ET | positions=0 | entries=1
+2026-07-23T11:52:38 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:52:38 | INFO     | session_runner | [cycle 215] 11:52:38 ET | positions=0 | entries=1
+2026-07-23T11:53:08 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:53:08 | INFO     | session_runner | [cycle 216] 11:53:08 ET | positions=0 | entries=1
+2026-07-23T11:53:38 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:53:38 | INFO     | session_runner | [cycle 217] 11:53:38 ET | positions=0 | entries=1
+2026-07-23T11:54:08 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:54:08 | INFO     | session_runner | [cycle 218] 11:54:08 ET | positions=0 | entries=1
+2026-07-23T11:54:38 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:54:38 | INFO     | session_runner | [cycle 219] 11:54:38 ET | positions=0 | entries=1
+2026-07-23T11:55:08 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:55:08 | INFO     | session_runner | [cycle 220] 11:55:08 ET | positions=0 | entries=1
+2026-07-23T11:55:38 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:55:38 | INFO     | session_runner | [cycle 221] 11:55:38 ET | positions=0 | entries=1
+2026-07-23T11:55:38 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T11:55:39 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T11:55:39 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T11:55:39 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T11:55:39 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T11:55:41 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T11:55:41 | INFO     | session_runner |   QQQ     score=75.0  signal=SHORT    reasons: rvol=1.27x (normal), atr=2.00% (wide-range), orb_breakdown
+2026-07-23T11:55:41 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.60x (elevated), atr=2.06% (wide-range), orb_breakdown
+2026-07-23T11:55:41 | INFO     | session_runner |   XLE     score=67.0  signal=SHORT    reasons: rvol=1.57x (elevated), atr=1.75% (wide-range), orb_breakdown
+2026-07-23T11:55:41 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.37x (normal), atr=1.06% (good range), orb_breakdown
+2026-07-23T11:55:41 | INFO     | session_runner |   AAPL    score=55.0  signal=SHORT    reasons: atr=2.40% (wide-range), orb_breakdown, rsi=52 (healthy)
+2026-07-23T11:55:41 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected XLF260724C00056000 | delta=0.292 | spread_pct=0.080 | OI=3463 | vol=503
+2026-07-23T11:55:41 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed XLF | XLF260724C00056000 | exp=2026-07-24 | spread=8.00% | OI=3463 | vol=503
+2026-07-23T11:55:41 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T11:55:41 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T11:55:41 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.SHORT | total_candidates=42
+2026-07-23T11:55:41 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLE (signal=SHORT)
+2026-07-23T11:55:41 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724P00320000 | delta=-0.449 | spread_pct=0.025 | OI=8015 | vol=31730
+2026-07-23T11:55:41 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724P00320000 | exp=2026-07-24 | spread=2.54% | OI=8015 | vol=31730
+2026-07-23T11:55:41 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00680000 | delta=N/A | spread_pct=0.065 | OI=3018 | vol=23345
+2026-07-23T11:55:41 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00680000 | exp=2026-07-23 | spread=6.45% | OI=3018 | vol=23345
+2026-07-23T11:55:41 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00732000 | delta=N/A | spread_pct=0.047 | OI=2803 | vol=68577
+2026-07-23T11:55:41 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00732000 | exp=2026-07-23 | spread=4.65% | OI=2803 | vol=68577
+2026-07-23T11:55:41 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T11:55:41 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T11:56:11 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:56:11 | INFO     | session_runner | [cycle 222] 11:56:11 ET | positions=0 | entries=1
+2026-07-23T11:56:41 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:56:41 | INFO     | session_runner | [cycle 223] 11:56:41 ET | positions=0 | entries=1
+2026-07-23T11:57:12 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:57:12 | INFO     | session_runner | [cycle 224] 11:57:12 ET | positions=0 | entries=1
+2026-07-23T11:57:42 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:57:42 | INFO     | session_runner | [cycle 225] 11:57:42 ET | positions=0 | entries=1
+2026-07-23T11:58:12 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:58:12 | INFO     | session_runner | [cycle 226] 11:58:12 ET | positions=0 | entries=1
+2026-07-23T11:58:42 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:58:42 | INFO     | session_runner | [cycle 227] 11:58:42 ET | positions=0 | entries=1
+2026-07-23T11:59:12 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:59:12 | INFO     | session_runner | [cycle 228] 11:59:12 ET | positions=0 | entries=1
+2026-07-23T11:59:42 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T11:59:42 | INFO     | session_runner | [cycle 229] 11:59:42 ET | positions=0 | entries=1
+2026-07-23T12:00:12 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:00:12 | INFO     | session_runner | [cycle 230] 12:00:12 ET | positions=0 | entries=1
+2026-07-23T12:00:43 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:00:43 | INFO     | session_runner | [cycle 231] 12:00:43 ET | positions=0 | entries=1
+2026-07-23T12:00:43 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T12:00:43 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T12:00:43 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T12:00:43 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T12:00:46 | INFO     | session_runner | Scan: 6 passed, 4 rejected
+2026-07-23T12:00:46 | INFO     | session_runner |   QQQ     score=75.0  signal=SHORT    reasons: rvol=1.25x (normal), atr=2.00% (wide-range), orb_breakdown
+2026-07-23T12:00:46 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.56x (elevated), atr=2.05% (wide-range), orb_breakdown
+2026-07-23T12:00:46 | INFO     | session_runner |   XLE     score=67.0  signal=SHORT    reasons: rvol=1.54x (elevated), atr=1.75% (wide-range), orb_breakdown
+2026-07-23T12:00:46 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.36x (normal), atr=1.06% (good range), orb_breakdown
+2026-07-23T12:00:46 | INFO     | session_runner |   XLF     score=41.0  signal=LONG     reasons: atr=1.15% (good range), near_orb_level, trend_up
+2026-07-23T12:00:46 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.SHORT | total_candidates=42
+2026-07-23T12:00:46 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLE (signal=SHORT)
+2026-07-23T12:00:46 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T12:00:46 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T12:00:46 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T12:00:46 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T12:00:47 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260723P00290000 | delta=N/A | spread_pct=0.043 | OI=4149 | vol=74507
+2026-07-23T12:00:47 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260723P00290000 | exp=2026-07-23 | spread=4.26% | OI=4149 | vol=74507
+2026-07-23T12:00:47 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00733000 | delta=N/A | spread_pct=0.034 | OI=1922 | vol=119766
+2026-07-23T12:00:47 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00733000 | exp=2026-07-23 | spread=3.39% | OI=1922 | vol=119766
+2026-07-23T12:00:47 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00679000 | delta=N/A | spread_pct=0.087 | OI=482 | vol=10289
+2026-07-23T12:00:47 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00679000 | exp=2026-07-23 | spread=8.70% | OI=482 | vol=10289
+2026-07-23T12:00:47 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T12:00:47 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'IWM']
+2026-07-23T12:01:17 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:01:17 | INFO     | session_runner | [cycle 232] 12:01:17 ET | positions=0 | entries=1
+2026-07-23T12:01:47 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:01:47 | INFO     | session_runner | [cycle 233] 12:01:47 ET | positions=0 | entries=1
+2026-07-23T12:02:17 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:02:17 | INFO     | session_runner | [cycle 234] 12:02:17 ET | positions=0 | entries=1
+2026-07-23T12:02:47 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:02:47 | INFO     | session_runner | [cycle 235] 12:02:47 ET | positions=0 | entries=1
+2026-07-23T12:03:17 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:03:17 | INFO     | session_runner | [cycle 236] 12:03:17 ET | positions=0 | entries=1
+2026-07-23T12:03:47 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:03:47 | INFO     | session_runner | [cycle 237] 12:03:47 ET | positions=0 | entries=1
+2026-07-23T12:04:18 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:04:18 | INFO     | session_runner | [cycle 238] 12:04:18 ET | positions=0 | entries=1
+2026-07-23T12:04:48 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:04:48 | INFO     | session_runner | [cycle 239] 12:04:48 ET | positions=0 | entries=1
+2026-07-23T12:05:18 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:05:18 | INFO     | session_runner | [cycle 240] 12:05:18 ET | positions=0 | entries=1
+2026-07-23T12:05:48 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:05:48 | INFO     | session_runner | [cycle 241] 12:05:48 ET | positions=0 | entries=1
+2026-07-23T12:05:48 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T12:05:48 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T12:05:48 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T12:05:48 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T12:05:48 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T12:05:50 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T12:05:50 | INFO     | session_runner |   QQQ     score=75.0  signal=SHORT    reasons: rvol=1.26x (normal), atr=1.99% (wide-range), orb_breakdown
+2026-07-23T12:05:50 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.58x (elevated), atr=2.05% (wide-range), orb_breakdown
+2026-07-23T12:05:50 | INFO     | session_runner |   XLE     score=67.0  signal=SHORT    reasons: rvol=1.53x (elevated), atr=1.75% (wide-range), orb_breakdown
+2026-07-23T12:05:50 | INFO     | session_runner |   SPY     score=65.0  signal=SHORT    reasons: rvol=1.37x (normal), atr=1.06% (good range), orb_breakdown
+2026-07-23T12:05:50 | INFO     | session_runner |   AAPL    score=55.0  signal=SHORT    reasons: atr=2.40% (wide-range), orb_breakdown, rsi=52 (healthy)
+2026-07-23T12:05:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.SHORT | total_candidates=42
+2026-07-23T12:05:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLE (signal=SHORT)
+2026-07-23T12:05:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T12:05:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T12:05:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T12:05:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T12:05:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724P00320000 | delta=-0.464 | spread_pct=0.010 | OI=8015 | vol=32244
+2026-07-23T12:05:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724P00320000 | exp=2026-07-24 | spread=0.98% | OI=8015 | vol=32244
+2026-07-23T12:05:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00731000 | delta=N/A | spread_pct=0.074 | OI=1305 | vol=60620
+2026-07-23T12:05:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00731000 | exp=2026-07-23 | spread=7.41% | OI=1305 | vol=60620
+2026-07-23T12:05:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00682000 | delta=N/A | spread_pct=0.051 | OI=299 | vol=22465
+2026-07-23T12:05:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00682000 | exp=2026-07-23 | spread=5.13% | OI=299 | vol=22465
+2026-07-23T12:05:51 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T12:05:51 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T12:06:21 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:06:21 | INFO     | session_runner | [cycle 242] 12:06:21 ET | positions=0 | entries=1
+2026-07-23T12:06:51 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:06:51 | INFO     | session_runner | [cycle 243] 12:06:51 ET | positions=0 | entries=1
+2026-07-23T12:07:21 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:07:21 | INFO     | session_runner | [cycle 244] 12:07:21 ET | positions=0 | entries=1
+2026-07-23T12:07:51 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:07:51 | INFO     | session_runner | [cycle 245] 12:07:51 ET | positions=0 | entries=1
+2026-07-23T12:08:22 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:08:22 | INFO     | session_runner | [cycle 246] 12:08:22 ET | positions=0 | entries=1
+2026-07-23T12:08:52 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:08:52 | INFO     | session_runner | [cycle 247] 12:08:52 ET | positions=0 | entries=1
+2026-07-23T12:09:22 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:09:22 | INFO     | session_runner | [cycle 248] 12:09:22 ET | positions=0 | entries=1
+2026-07-23T12:09:52 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:09:52 | INFO     | session_runner | [cycle 249] 12:09:52 ET | positions=0 | entries=1
+2026-07-23T12:10:22 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:10:22 | INFO     | session_runner | [cycle 250] 12:10:22 ET | positions=0 | entries=1
+2026-07-23T12:10:52 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:10:52 | INFO     | session_runner | [cycle 251] 12:10:52 ET | positions=0 | entries=1
+2026-07-23T12:10:52 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T12:10:52 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T12:10:52 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T12:10:52 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T12:10:54 | INFO     | session_runner | Scan: 7 passed, 3 rejected
+2026-07-23T12:10:54 | INFO     | session_runner |   QQQ     score=75.0  signal=SHORT    reasons: rvol=1.25x (normal), atr=1.99% (wide-range), orb_breakdown
+2026-07-23T12:10:54 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.55x (elevated), atr=2.05% (wide-range), orb_breakdown
+2026-07-23T12:10:54 | INFO     | session_runner |   XLE     score=67.0  signal=SHORT    reasons: rvol=1.51x (elevated), atr=1.75% (wide-range), orb_breakdown
+2026-07-23T12:10:54 | INFO     | session_runner |   SPY     score=55.0  signal=SHORT    reasons: rvol=1.36x (normal), atr=1.06% (good range), orb_breakdown
+2026-07-23T12:10:54 | INFO     | session_runner |   AAPL    score=48.0  signal=LONG     reasons: atr=2.39% (wide-range), near_orb_level, trend_up
+2026-07-23T12:10:54 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.SHORT | total_candidates=42
+2026-07-23T12:10:54 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLE (signal=SHORT)
+2026-07-23T12:10:54 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T12:10:54 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T12:10:54 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.423 | spread_pct=0.052 | OI=3879 | vol=27760
+2026-07-23T12:10:54 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=5.16% | OI=3879 | vol=27760
+2026-07-23T12:10:55 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T12:10:55 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T12:10:55 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected SPY260723P00734000 | delta=N/A | spread_pct=0.035 | OI=921 | vol=129100
+2026-07-23T12:10:55 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed SPY | SPY260723P00734000 | exp=2026-07-23 | spread=3.51% | OI=921 | vol=129100
+2026-07-23T12:10:55 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00687000 | delta=N/A | spread_pct=0.019 | OI=246 | vol=55083
+2026-07-23T12:10:55 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00687000 | exp=2026-07-23 | spread=1.94% | OI=246 | vol=55083
+2026-07-23T12:10:55 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T12:10:55 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'SPY', 'AAPL']
+2026-07-23T12:11:25 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:11:25 | INFO     | session_runner | [cycle 252] 12:11:25 ET | positions=0 | entries=1
+2026-07-23T12:11:55 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:11:55 | INFO     | session_runner | [cycle 253] 12:11:55 ET | positions=0 | entries=1
+2026-07-23T12:11:55 | INFO     | app.evaluation.shadow_book | ShadowBook: closed vwap_reclaim XLE260724C00056500 @ 3.1800 → -74.00 (max_hold, fill-validated)
+2026-07-23T12:12:25 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:12:25 | INFO     | session_runner | [cycle 254] 12:12:25 ET | positions=0 | entries=1
+2026-07-23T12:12:55 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:12:55 | INFO     | session_runner | [cycle 255] 12:12:55 ET | positions=0 | entries=1
+2026-07-23T12:13:25 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:13:25 | INFO     | session_runner | [cycle 256] 12:13:25 ET | positions=0 | entries=1
+2026-07-23T12:13:55 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:13:55 | INFO     | session_runner | [cycle 257] 12:13:55 ET | positions=0 | entries=1
+2026-07-23T12:14:25 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:14:25 | INFO     | session_runner | [cycle 258] 12:14:25 ET | positions=0 | entries=1
+2026-07-23T12:14:55 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:14:55 | INFO     | session_runner | [cycle 259] 12:14:55 ET | positions=0 | entries=1
+2026-07-23T12:15:25 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:15:25 | INFO     | session_runner | [cycle 260] 12:15:25 ET | positions=0 | entries=1
+2026-07-23T12:15:55 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:15:55 | INFO     | session_runner | [cycle 261] 12:15:55 ET | positions=0 | entries=1
+2026-07-23T12:15:56 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T12:15:56 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T12:15:56 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T12:15:56 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T12:15:56 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T12:15:58 | INFO     | session_runner | Scan: 6 passed, 4 rejected
+2026-07-23T12:15:58 | INFO     | session_runner |   XLY     score=75.0  signal=SHORT    reasons: rvol=1.55x (elevated), atr=2.05% (wide-range), orb_breakdown
+2026-07-23T12:15:58 | INFO     | session_runner |   XLE     score=67.0  signal=SHORT    reasons: rvol=1.51x (elevated), atr=1.75% (wide-range), orb_breakdown
+2026-07-23T12:15:58 | INFO     | session_runner |   QQQ     score=65.0  signal=SHORT    reasons: rvol=1.26x (normal), atr=1.99% (wide-range), orb_breakdown
+2026-07-23T12:15:58 | INFO     | session_runner |   SPY     score=43.0  signal=NEUTRAL  reasons: rvol=1.34x (normal), atr=1.06% (good range), near_orb_level
+2026-07-23T12:15:58 | INFO     | session_runner |   XLF     score=41.0  signal=LONG     reasons: atr=1.15% (good range), near_orb_level, trend_up
+2026-07-23T12:15:58 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T12:15:58 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T12:15:58 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T12:15:58 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T12:15:58 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.SHORT | total_candidates=42
+2026-07-23T12:15:58 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLE (signal=SHORT)
+2026-07-23T12:15:58 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.432 | spread_pct=0.039 | OI=3879 | vol=28113
+2026-07-23T12:15:58 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=3.94% | OI=3879 | vol=28113
+2026-07-23T12:15:58 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00683000 | delta=N/A | spread_pct=0.061 | OI=183 | vol=28306
+2026-07-23T12:15:58 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00683000 | exp=2026-07-23 | spread=6.06% | OI=183 | vol=28306
+2026-07-23T12:15:58 | INFO     | session_runner | AlpacaConfirmer: 2 confirmed symbols: ['QQQ', 'AAPL']
+2026-07-23T12:15:58 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'AAPL']
+2026-07-23T12:16:28 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:16:28 | INFO     | session_runner | [cycle 262] 12:16:28 ET | positions=0 | entries=1
+2026-07-23T12:16:58 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:16:58 | INFO     | session_runner | [cycle 263] 12:16:58 ET | positions=0 | entries=1
+2026-07-23T12:17:29 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:17:29 | INFO     | session_runner | [cycle 264] 12:17:29 ET | positions=0 | entries=1
+2026-07-23T12:17:59 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:17:59 | INFO     | session_runner | [cycle 265] 12:17:59 ET | positions=0 | entries=1
+2026-07-23T12:18:29 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:18:29 | INFO     | session_runner | [cycle 266] 12:18:29 ET | positions=0 | entries=1
+2026-07-23T12:18:59 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:18:59 | INFO     | session_runner | [cycle 267] 12:18:59 ET | positions=0 | entries=1
+2026-07-23T12:19:29 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:19:29 | INFO     | session_runner | [cycle 268] 12:19:29 ET | positions=0 | entries=1
+2026-07-23T12:19:59 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:19:59 | INFO     | session_runner | [cycle 269] 12:19:59 ET | positions=0 | entries=1
+2026-07-23T12:20:29 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:20:29 | INFO     | session_runner | [cycle 270] 12:20:29 ET | positions=0 | entries=1
+2026-07-23T12:20:59 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:20:59 | INFO     | session_runner | [cycle 271] 12:20:59 ET | positions=0 | entries=1
+2026-07-23T12:20:59 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T12:20:59 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T12:20:59 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T12:20:59 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T12:21:02 | INFO     | session_runner | Scan: 6 passed, 4 rejected
+2026-07-23T12:21:02 | INFO     | session_runner |   QQQ     score=65.0  signal=SHORT    reasons: rvol=1.23x (normal), atr=1.99% (wide-range), orb_breakdown
+2026-07-23T12:21:02 | INFO     | session_runner |   XLY     score=65.0  signal=SHORT    reasons: rvol=1.47x (normal), atr=2.05% (wide-range), orb_breakdown
+2026-07-23T12:21:02 | INFO     | session_runner |   XLE     score=57.0  signal=SHORT    reasons: rvol=1.45x (normal), atr=1.75% (wide-range), orb_breakdown
+2026-07-23T12:21:02 | INFO     | session_runner |   AAPL    score=48.0  signal=LONG     reasons: atr=2.39% (wide-range), near_orb_level, trend_up
+2026-07-23T12:21:02 | INFO     | session_runner |   SPY     score=43.0  signal=NEUTRAL  reasons: rvol=1.28x (normal), atr=1.06% (good range), near_orb_level
+2026-07-23T12:21:02 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.SHORT | total_candidates=42
+2026-07-23T12:21:02 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLE (signal=SHORT)
+2026-07-23T12:21:02 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T12:21:02 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T12:21:02 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T12:21:02 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T12:21:02 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.399 | spread_pct=0.051 | OI=3879 | vol=28684
+2026-07-23T12:21:02 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=5.06% | OI=3879 | vol=28684
+2026-07-23T12:21:02 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260723P00683000 | delta=N/A | spread_pct=0.065 | OI=183 | vol=29599
+2026-07-23T12:21:02 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260723P00683000 | exp=2026-07-23 | spread=6.45% | OI=183 | vol=29599
+2026-07-23T12:21:02 | INFO     | session_runner | AlpacaConfirmer: 2 confirmed symbols: ['QQQ', 'AAPL']
+2026-07-23T12:21:02 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'AAPL']
+2026-07-23T12:21:32 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:21:32 | INFO     | session_runner | [cycle 272] 12:21:32 ET | positions=0 | entries=1
+2026-07-23T12:22:04 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:22:04 | INFO     | session_runner | [cycle 273] 12:22:04 ET | positions=0 | entries=1
+2026-07-23T12:22:34 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:22:34 | INFO     | session_runner | [cycle 274] 12:22:34 ET | positions=0 | entries=1
+2026-07-23T12:23:04 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:23:04 | INFO     | session_runner | [cycle 275] 12:23:04 ET | positions=0 | entries=1
+2026-07-23T12:23:34 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:23:34 | INFO     | session_runner | [cycle 276] 12:23:34 ET | positions=0 | entries=1
+2026-07-23T12:24:04 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:24:04 | INFO     | session_runner | [cycle 277] 12:24:04 ET | positions=0 | entries=1
+2026-07-23T12:24:34 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:24:34 | INFO     | session_runner | [cycle 278] 12:24:34 ET | positions=0 | entries=1
+2026-07-23T12:25:04 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:25:04 | INFO     | session_runner | [cycle 279] 12:25:04 ET | positions=0 | entries=1
+2026-07-23T12:25:34 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:25:34 | INFO     | session_runner | [cycle 280] 12:25:34 ET | positions=0 | entries=1
+2026-07-23T12:26:04 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:26:04 | INFO     | session_runner | [cycle 281] 12:26:04 ET | positions=0 | entries=1
+2026-07-23T12:26:04 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0 orders_confirmed=True positions_confirmed=True
+2026-07-23T12:26:04 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-23T12:26:04 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /root/trader/config/ticker_universe.yaml (blacklist=0)
+2026-07-23T12:26:04 | INFO     | app.scanning.universe_loader | UniverseLoader: 10 symbols from 2 group(s) (blacklist=0)
+2026-07-23T12:26:04 | INFO     | session_runner | Universe scan: 10 symbols from 2 group(s) | max_active=3
+2026-07-23T12:26:07 | INFO     | session_runner | Scan: 5 passed, 5 rejected
+2026-07-23T12:26:07 | INFO     | session_runner |   XLY     score=65.0  signal=SHORT    reasons: rvol=1.45x (normal), atr=2.05% (wide-range), orb_breakdown
+2026-07-23T12:26:07 | INFO     | session_runner |   XLE     score=57.0  signal=SHORT    reasons: rvol=1.43x (normal), atr=1.75% (wide-range), orb_breakdown
+2026-07-23T12:26:07 | INFO     | session_runner |   XLF     score=51.0  signal=LONG     reasons: atr=1.15% (good range), near_orb_level, trend_up
+2026-07-23T12:26:07 | INFO     | session_runner |   AAPL    score=48.0  signal=LONG     reasons: atr=2.39% (wide-range), near_orb_level, trend_up
+2026-07-23T12:26:07 | INFO     | session_runner |   SPY     score=43.0  signal=NEUTRAL  reasons: rvol=1.28x (normal), atr=1.06% (good range), near_orb_level
+2026-07-23T12:26:07 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLE SignalDirection.SHORT | total_candidates=42
+2026-07-23T12:26:07 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLE (signal=SHORT)
+2026-07-23T12:26:07 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLF SignalDirection.LONG | total_candidates=37
+2026-07-23T12:26:07 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLF (signal=LONG)
+2026-07-23T12:26:07 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.SHORT | total_candidates=51
+2026-07-23T12:26:07 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=SHORT)
+2026-07-23T12:26:07 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AAPL260724C00322500 | delta=0.410 | spread_pct=0.068 | OI=3879 | vol=29347
+2026-07-23T12:26:07 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AAPL | AAPL260724C00322500 | exp=2026-07-24 | spread=6.77% | OI=3879 | vol=29347
+2026-07-23T12:26:07 | INFO     | session_runner | AlpacaConfirmer: 1 confirmed symbols: ['AAPL']
+2026-07-23T12:26:07 | INFO     | session_runner | Re-scan updated active symbols: ['AAPL']
+2026-07-23T12:26:37 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:26:37 | INFO     | session_runner | [cycle 282] 12:26:37 ET | positions=0 | entries=1
+2026-07-23T12:27:07 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:27:07 | INFO     | session_runner | [cycle 283] 12:27:07 ET | positions=0 | entries=1
+2026-07-23T12:27:37 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:27:37 | INFO     | session_runner | [cycle 284] 12:27:37 ET | positions=0 | entries=1
+2026-07-23T12:28:07 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:28:07 | INFO     | session_runner | [cycle 285] 12:28:07 ET | positions=0 | entries=1
+2026-07-23T12:28:37 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:28:37 | INFO     | session_runner | [cycle 286] 12:28:37 ET | positions=0 | entries=1
+2026-07-23T12:29:08 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:29:08 | INFO     | session_runner | [cycle 287] 12:29:08 ET | positions=0 | entries=1
+2026-07-23T12:29:38 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:29:38 | INFO     | session_runner | [cycle 288] 12:29:38 ET | positions=0 | entries=1
+2026-07-23T12:30:08 | WARNING  | session_runner | Kill switch active — new entries halted, exits continue
+2026-07-23T12:30:08 | INFO     | session_runner | [cycle 289] 12:30:08 ET | positions=0 | entries=1
+2026-07-23T12:30:08 | WARNING  | session_runner | EOD time reached — cancelling pending orders and liquidating all positions
+2026-07-23T12:30:08 | INFO     | session_runner | EOD complete — exiting session loop
+2026-07-23T12:30:08 | INFO     | session_runner | Shutdown: 0 position(s) open, 0 order(s) pending
+2026-07-23T12:30:08 | INFO     | session_runner | Health report: {"session_date": "2026-07-23", "generated_at": "2026-07-23T12:30:08.225103-04:00", "api_errors": 0, "reconciliation_warnings": [], "trades": {"total_closed": 1, "wins": 0, "losses": 1, "win_rate": 0.0, "still_open": 0, "rejected": 10, "cancelled": 0}, "realized_pnl": -3.0, "unrealized_pnl": 0, "avg_win": 0.0, "avg_loss": -3.0, "max_drawdown": 0.0, "orders": {"submitted": 1, "filled": 1, "partial_fills": 0, "cancelled": 0, "stale_cancels": 0, "rejected": 10, "status_breakdown": {"filled": 1}}, "by_strategy": {"vwap_reclaim": {"trades": 1, "wins": 0, "losses": 1, "pnl": -3.0, "win_rate": 0.0}}}
+2026-07-23T12:30:08 | INFO     | session_runner | Health report written to logs/session_2026-07-23.json
+2026-07-23T12:30:08 | INFO     | app.evaluation.post_session | Post-session: ORB forward performance: 0 rows updated
+2026-07-23T12:30:08 | INFO     | app.evaluation.post_session | Post-session: evaluation report saved → evaluation/reports/2026-07-23.json
+2026-07-23T12:30:08 | INFO     | app.evaluation.ledger | Evaluation ledger saved to evaluation/ledger.json (31 session(s))
+2026-07-23T12:30:08 | INFO     | app.evaluation.post_session | Post-session complete | date=2026-07-23 | cancelled=0 | report=evaluation/reports/2026-07-23.json | ledger=True
+2026-07-23T12:30:08 | INFO     | session_runner | Post-session evaluation | report=evaluation/reports/2026-07-23.json | ledger_updated=True | errors=none
+2026-07-23T12:30:08 | INFO     | session_runner | Session complete | cycles=289 | entry_orders_placed=1 | pnl=-3.00

@@ -5,6 +5,8 @@ from decimal import Decimal
 from types import SimpleNamespace
 from zoneinfo import ZoneInfo
 
+import pytest
+
 from app.brokers.broker_interface import OptionChain, OptionContract
 from app.strategies.liquidity_filter import LiquidityFilter
 from app.strategies.strategy_base import Signal, SignalDirection
@@ -69,8 +71,12 @@ def test_trailing_stop_arms_after_favorable_move(monkeypatch):
 
     manager.update_price(position.option_symbol, 0.26)
     assert position.trailing_stop_armed is True
-    assert position.trailing_stop_level == 0.195
-    assert manager.should_exit(position.option_symbol, 0.19, now) == "trailing_stop"
+    assert position.trailing_stop_level == pytest.approx(0.195)
+    assert manager.should_exit(
+        position.option_symbol,
+        0.19,
+        now,
+    ) == "trailing_stop"
 
 
 def _contract() -> OptionContract:
@@ -99,6 +105,25 @@ def _thresholds() -> dict:
         "delta_target_max": 0.45,
         "max_contract_cost": 1000,
     }
+
+
+def _chain_and_signal() -> tuple[OptionChain, Signal]:
+    contract = _contract()
+    chain = OptionChain(
+        symbol="SPY",
+        expiration=contract.expiration,
+        underlying_price=Decimal("732"),
+        puts=[contract],
+        fetched_at=datetime.now(tz=timezone.utc),
+    )
+    signal = Signal(
+        strategy_id="vwap_reclaim",
+        symbol="SPY",
+        direction=SignalDirection.SHORT,
+        timestamp=datetime.now(tz=ET),
+        price=732.0,
+    )
+    return chain, signal
 
 
 def test_tradier_gate_vetoes_low_delta_contract(tmp_path):
@@ -150,26 +175,52 @@ def test_liquidity_filter_returns_none_when_tradier_vetoes(monkeypatch):
     )
 
     liquidity_filter = LiquidityFilter(_thresholds())
-    contract = _contract()
-    chain = OptionChain(
-        symbol="SPY",
-        expiration=contract.expiration,
-        underlying_price=Decimal("732"),
-        puts=[contract],
-        fetched_at=datetime.now(tz=timezone.utc),
-    )
-    signal = Signal(
-        strategy_id="vwap_reclaim",
-        symbol="SPY",
-        direction=SignalDirection.SHORT,
-        timestamp=datetime.now(tz=ET),
-        price=732.0,
-    )
+    chain, signal = _chain_and_signal()
 
     assert liquidity_filter.select_contract(chain, signal) is None
     assert (
         liquidity_filter.classify_no_contract_reason(chain, signal)
         == "tradier_contract_veto"
+    )
+
+
+def test_disabled_gate_invocation_error_preserves_legacy_selection(monkeypatch):
+    monkeypatch.setenv("TRADIER_CONTRACT_GATE_MODE", "off")
+
+    def broken_gate():
+        raise RuntimeError("gate unavailable")
+
+    monkeypatch.setattr(
+        "app.trading.tradier_contract_gate.get_tradier_contract_gate",
+        broken_gate,
+    )
+
+    liquidity_filter = LiquidityFilter(_thresholds())
+    chain, signal = _chain_and_signal()
+
+    selected = liquidity_filter.select_contract(chain, signal)
+    assert selected is not None
+    assert selected.option_symbol == "SPY260723P00732000"
+
+
+def test_enabled_gate_invocation_error_is_fail_closed(monkeypatch):
+    monkeypatch.setenv("TRADIER_CONTRACT_GATE_MODE", "veto")
+
+    def broken_gate():
+        raise RuntimeError("gate unavailable")
+
+    monkeypatch.setattr(
+        "app.trading.tradier_contract_gate.get_tradier_contract_gate",
+        broken_gate,
+    )
+
+    liquidity_filter = LiquidityFilter(_thresholds())
+    chain, signal = _chain_and_signal()
+
+    assert liquidity_filter.select_contract(chain, signal) is None
+    assert (
+        liquidity_filter.classify_no_contract_reason(chain, signal)
+        == "tradier_contract_gate_error"
     )
 
 

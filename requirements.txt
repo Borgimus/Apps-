@@ -9,10 +9,8 @@ yfinance>=0.2.36
 pandas>=2.1.0
 numpy>=1.26.0
 scipy>=1.11.0
-pandas-ta>=0.3.14b
-
-# Backtesting
-vectorbt>=0.26.1
+# Backtesting (vectorbt requires numba; omit for test-only environments)
+# vectorbt>=0.26.1
 
 # API / Dashboard
 fastapi>=0.109.0

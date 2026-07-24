@@ -34,8 +34,12 @@ class OpeningRangeBreakoutStrategy(StrategyBase):
         self._min_range_pts: float = self.params.get("min_range_pts", 0.5)
         self._volume_confirmation: bool = self.params.get("volume_confirmation", True)
 
+    @property
+    def min_bars_required(self) -> int:
+        return self._range_minutes + 2
+
     def generate_signals(self, bars: pd.DataFrame, symbol: str) -> List[Signal]:
-        if not self.validate_bars(bars, min_rows=self._range_minutes + 2):
+        if not self.validate_bars(bars, min_rows=self.min_bars_required):
             return []
 
         bars = bars.copy()
@@ -60,16 +64,21 @@ class OpeningRangeBreakoutStrategy(StrategyBase):
 
     def _process_day(self, day_bars: pd.DataFrame, symbol: str) -> List[Signal]:
         signals: List[Signal] = []
-        market_open = time(9, 30)
-        range_end_offset = pd.Timedelta(minutes=self._range_minutes)
+        # Canonical opening range: [09:30, 09:30+range_minutes) anchored to clock time,
+        # not to the first bar. Exclusive upper bound = half-open interval.
+        orb_open = time(9, 30)
+        orb_close_minutes = 9 * 60 + 30 + self._range_minutes
+        orb_close_h, orb_close_m = divmod(orb_close_minutes, 60)
+        orb_close = time(orb_close_h, orb_close_m)
 
         # Opening range bars
         first_bar_time = day_bars.index[0].time() if not day_bars.empty else None
         if first_bar_time is None or first_bar_time > time(9, 45):
             return []  # no early-session bars
 
-        range_cutoff = day_bars.index[0] + range_end_offset
-        range_bars = day_bars[day_bars.index <= range_cutoff]
+        range_bars = day_bars[
+            (day_bars.index.time >= orb_open) & (day_bars.index.time < orb_close)
+        ]
         if range_bars.empty:
             return []
 
@@ -89,8 +98,8 @@ class OpeningRangeBreakoutStrategy(StrategyBase):
 
         avg_vol = range_bars["volume"].mean()
 
-        # Scan post-range bars for breakout
-        post_range = day_bars[day_bars.index > range_cutoff]
+        # Post-range bars start at orb_close (inclusive — the cutoff bar is NOT in the range)
+        post_range = day_bars[day_bars.index.time >= orb_close]
         for ts, row in post_range.iterrows():
             vol_ok = not self._volume_confirmation or row["volume"] > avg_vol
 

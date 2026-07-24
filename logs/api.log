@@ -1,0 +1,4 @@
+2026-07-22T09:31:04 | INFO     | app.api.dashboard_api | Dashboard API started | live_trading=False
+2026-07-22T10:26:16 | INFO     | app.api.dashboard_api | Dashboard API started | live_trading=False
+2026-07-22T13:00:55 | INFO     | app.api.dashboard_api | Dashboard API started | live_trading=False
+2026-07-22T14:23:19 | INFO     | app.api.dashboard_api | Dashboard API started | live_trading=False

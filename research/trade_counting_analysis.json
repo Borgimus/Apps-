@@ -1,0 +1,304 @@
+{
+  "generated_at": "2026-06-01T20:10:06Z",
+  "research_scope": "Trade counting semantics investigation \u2014 read-only, no code changes",
+  "1_what_increments_max_trades_per_day": {
+    "answer": "Both entry ORDER PLACEMENT and position EXIT each increment the counter by 1.",
+    "increment_events": [
+      {
+        "event": "Entry order placed with broker",
+        "source_file": "scripts/session_runner.py",
+        "source_line": 971,
+        "code": "risk.record_trade()",
+        "timing": "Immediately after broker.place_option_order() returns a non-None order object",
+        "note": "Called at ORDER SUBMISSION time, NOT at fill confirmation time. This means a limit order that is later cancelled or rejected still consumed a slot."
+      },
+      {
+        "event": "Position exit (trailing_stop / stop_loss / take_profit)",
+        "source_file": "scripts/session_runner.py",
+        "source_line": 243,
+        "code": "risk.record_trade(Decimal(str(pnl)))",
+        "timing": "Inside position_monitor(), when pm.should_exit() returns a reason",
+        "note": "Exit orders bypass check_order entirely \u2014 they are never blocked by the risk limit. However they DO increment the counter, reducing available entry slots."
+      },
+      {
+        "event": "EOD forced liquidation exit",
+        "source_file": "scripts/session_runner.py",
+        "source_line": 388,
+        "code": "risk.record_trade(Decimal(str(pnl)))",
+        "timing": "Inside eod_liquidate(), when positions are force-closed at session end",
+        "note": "Same semantics as regular exit."
+      }
+    ],
+    "does_NOT_increment": [
+      "Fill confirmation by FillTracker.poll() \u2014 the risk parameter is passed to _handle_fill() but never used",
+      "Partial fills",
+      "Order cancellation or rejection",
+      "Risk-gate rejection (check_order failure)",
+      "Dedup / cooldown skips"
+    ],
+    "docstring_discrepancy": {
+      "docstring_text": "Call when an order is filled to track daily counters.",
+      "actual_behavior": "Called at order PLACEMENT for entries (before fill), and at EXIT for closures.",
+      "implication": "The docstring states fill-time semantics but entry calls happen before fill confirmation. A placed order that cancels (unfilled) still consumed a trade slot."
+    },
+    "check_order_scope": "check_order() is called exactly ONCE in session_runner.py (line 854) \u2014 for ENTRY orders only. Exit orders never pass through check_order()."
+  },
+  "2_lifecycle_count_2026_05_29": {
+    "session_date": "2026-05-29",
+    "starting_counter": 0,
+    "timeline": [
+      {
+        "time": "10:34:01.775946",
+        "event": "SNOW VWAP entry order placed with broker",
+        "call": "risk.record_trade()",
+        "counter_after": 1,
+        "check_before": "counter=0 < 3 \u2192 PASSES",
+        "note": "scan_and_place() processes SNOW signal first (highest ranked at 10:34)"
+      },
+      {
+        "time": "10:35:36.312081",
+        "event": "SNOW fill confirmed by FillTracker.poll()",
+        "call": "(none \u2014 FillTracker._handle_fill() does NOT call record_trade())",
+        "counter_after": 1,
+        "note": "Counter unchanged at fill confirmation. PM.open() called with actual fill price."
+      },
+      {
+        "time": "10:37:07.422310",
+        "event": "SNOW trailing_stop exit triggered by position_monitor()",
+        "call": "risk.record_trade(pnl=-31.50)",
+        "counter_after": 2,
+        "note": "Hold=91s. Exit order placed with broker (SELL_TO_CLOSE). Counter increments regardless of exit fill."
+      },
+      {
+        "time": "11:04:19.486139",
+        "event": "Scan cycle: MSFT VWAP signal processed FIRST (score=60, higher rank in scan)",
+        "call": "check_order() \u2192 counter=2 < 3 \u2192 PASSES \u2192 place_option_order() \u2192 risk.record_trade()",
+        "counter_after": 3,
+        "note": "In the same scan cycle, DIA ORB (q=3, sc=53) and DIA VWAP (q=1, sc=53) also present. After MSFT is placed (counter=3), they hit the risk gate."
+      },
+      {
+        "time": "11:04:19.486139",
+        "event": "DIA ORB check_order() in same scan cycle after MSFT placed",
+        "call": "check_order() \u2192 counter=3 >= 3 \u2192 BLOCKED",
+        "counter_after": 3,
+        "note": "Block reason: 'risk: Max trades per day reached: 3/3'. Bridge row #1 of 5 at '3/3'."
+      },
+      {
+        "time": "11:04:19.486139",
+        "event": "DIA VWAP check_order() in same scan cycle",
+        "call": "check_order() \u2192 counter=3 >= 3 \u2192 BLOCKED",
+        "counter_after": 3,
+        "note": "Block reason: '3/3'. Bridge row #2 of 5 at '3/3'."
+      },
+      {
+        "time": "11:04:53.462087",
+        "event": "Next scan cycle: DIA ORB and DIA VWAP checked again",
+        "call": "check_order() \u00d7 2 \u2192 counter=3 >= 3 \u2192 BLOCKED \u00d7 2",
+        "counter_after": 3,
+        "note": "Bridge rows #3 and #4 at '3/3'."
+      },
+      {
+        "time": "11:04:53.546112",
+        "event": "MSFT fill confirmed by FillTracker.poll()",
+        "call": "(none)",
+        "counter_after": 3,
+        "note": "Counter unchanged at fill confirmation."
+      },
+      {
+        "time": "11:05:24.751724",
+        "event": "Next scan cycle: DIA VWAP blocked (DIA ORB not evaluated here)",
+        "call": "check_order() \u2192 counter=3 >= 3 \u2192 BLOCKED",
+        "counter_after": 3,
+        "note": "Bridge row #5 (final) at '3/3'."
+      },
+      {
+        "time": "11:05:55.445879",
+        "event": "MSFT trailing_stop exit triggered by position_monitor()",
+        "call": "risk.record_trade(pnl=-9.00)",
+        "counter_after": 4,
+        "note": "Hold=62s. Simultaneously: MSFT loss triggers 15-minute cooldown_after_loss timer for DIA signals."
+      },
+      {
+        "time": "11:05:55 to 11:20:34",
+        "event": "DIA signals (ORB and VWAP) enter 15-minute cooldown_after_loss",
+        "call": "(skipped before reaching risk gate \u2014 cooldown check is earlier in pipeline)",
+        "counter_after": 4,
+        "note": "26 ORB + 26 VWAP DIA bridge rows stamped as 'skipped / cooldown_after_loss' during this window. Risk gate is never reached \u2014 counter remains 4 but not visible in block reasons."
+      },
+      {
+        "time": "11:21:04.309265",
+        "event": "Cooldown expires. DIA ORB and DIA VWAP return to risk gate.",
+        "call": "check_order() \u2192 counter=4 >= 3 \u2192 BLOCKED",
+        "counter_after": 4,
+        "note": "Block reason transitions to '4/3'. Remains '4/3' for all subsequent 149 blocks."
+      },
+      {
+        "time": "12:00+ to 12:30",
+        "event": "MSTR ORB signals appear (49 bridge rows)",
+        "call": "check_order() \u2192 counter=4 >= 3 \u2192 BLOCKED",
+        "counter_after": 4,
+        "note": "All 49 MSTR ORB signals blocked as '4/3'. None evaluated on merit."
+      }
+    ],
+    "final_counter": 4,
+    "total_record_trade_calls": 4,
+    "breakdown": {
+      "entry_placements": 2,
+      "exit_closures": 2,
+      "fill_confirmations": 0
+    },
+    "orb_signals_blocked_before_merit_evaluation": {
+      "total": 77,
+      "at_3_over_3": 2,
+      "at_4_over_3": 75,
+      "first_orb_block_time": "11:04:19.486139",
+      "last_orb_block_time": "12:29:55.208847",
+      "note": "Every single ORB signal was blocked by the risk counter. No ORB signal reached quality/liquidity/spread evaluation."
+    }
+  },
+  "3_effective_session_capacity": {
+    "formula_explanation": "With current semantics (entries + exits each count): each complete round-trip costs 2 counter units. The check fires at entry only (check_order not called for exits). An entry is allowed when counter < max. Exit always succeeds but increments counter. With interleaved entry/exit pattern: max_entries = ceil(max / 2).",
+    "interleaved_pattern_analysis": {
+      "description": "Worst case for entry capacity: each entry is followed by an exit before the next entry.",
+      "max_3": {
+        "sequence": "E\u21921, X\u21922, E\u21923(check:2<3\u2713), X\u21924, E\u2192check:4>=3 BLOCKED",
+        "max_entries": 2,
+        "max_round_trips": 2,
+        "counter_at_session_end": 4,
+        "effective_round_trips_with_max_active_2": "2 (same \u2014 sequential pattern)"
+      },
+      "max_5": {
+        "sequence": "E\u21921, X\u21922, E\u21923, X\u21924, E\u21925(check:4<5\u2713), X\u21926, E\u2192check:6>=5 BLOCKED",
+        "max_entries": 3,
+        "max_round_trips": 3,
+        "counter_at_session_end": 6,
+        "effective_round_trips_with_max_active_2": "3"
+      },
+      "max_10": {
+        "sequence": "E\u21921,X\u21922,E\u21923,X\u21924,E\u21925,X\u21926,E\u21927,X\u21928,E\u21929(check:8<10\u2713),X\u219210,E\u2192check:10>=10 BLOCKED",
+        "max_entries": 5,
+        "max_round_trips": 5,
+        "counter_at_session_end": 10,
+        "effective_round_trips_with_max_active_2": "5"
+      }
+    },
+    "concurrent_positions_analysis": {
+      "description": "With max_active_positions=2: two entries can occur before any exit. This is worse.",
+      "max_3": {
+        "sequence": "E1\u21921, E2\u21922, X1\u21923, E3\u2192check:3>=3 BLOCKED",
+        "max_entries": 2,
+        "note": "Same as interleaved \u2014 2 entries max under max=3 regardless of concurrency"
+      },
+      "max_5": {
+        "sequence": "E1\u21921, E2\u21922, X1\u21923, E3\u21924(check:3<5\u2713), X2\u21925, E4\u2192check:5>=5 BLOCKED",
+        "max_entries": 3,
+        "note": "Same as interleaved"
+      },
+      "max_10": {
+        "sequence": "E1\u21921,E2\u21922,X1\u21923,E3\u21924,X2\u21925,E4\u21926,X3\u21927,E5\u21928(check:7<10\u2713),X4\u21929,E6\u2192check:9<10\u2713\u219210,X5\u219211, BLOCKED",
+        "max_entries": 6,
+        "note": "Slightly more entries with concurrency under max=10"
+      }
+    },
+    "summary_table": [
+      {
+        "max_trades_per_day": 3,
+        "effective_entries": 2,
+        "effective_round_trips": 2,
+        "counter_at_limit": 4
+      },
+      {
+        "max_trades_per_day": 5,
+        "effective_entries": 3,
+        "effective_round_trips": 3,
+        "counter_at_limit": 6
+      },
+      {
+        "max_trades_per_day": 10,
+        "effective_entries": 5,
+        "effective_round_trips": 5,
+        "counter_at_limit": 10
+      }
+    ]
+  },
+  "4_interpretation_comparison": {
+    "interpretations": {
+      "A_current": {
+        "name": "Current: count entries (at placement) + count exits",
+        "rule": "record_trade() called on: entry order placement + position exit closure",
+        "check_semantics": "counter >= max blocks next entry; exits never blocked"
+      },
+      "B_round_trip": {
+        "name": "Alternative: count completed round-trip positions",
+        "rule": "record_trade() would be called only when a position is fully closed (entry+exit pair)",
+        "check_semantics": "counter >= max blocks next entry; exits never blocked"
+      },
+      "C_entry_only": {
+        "name": "Alternative: count entry orders only",
+        "rule": "record_trade() would be called only on entry order placement",
+        "check_semantics": "counter >= max blocks next entry; exits not counted at all"
+      }
+    },
+    "2026_05_29_simulation": {
+      "A_current": {
+        "trades_executed": 2,
+        "counter_at_session_end": 4,
+        "orb_signals_evaluated": 0,
+        "orb_signals_blocked": 77,
+        "first_block_time": "11:04:19 (immediately after MSFT placement)",
+        "premium_at_risk_peak": "$102 (SNOW 1.04\u00d7100) + $26 (MSFT 0.26\u00d7100) = $128 max concurrent"
+      },
+      "B_round_trip": {
+        "trades_executed": 2,
+        "counter_at_session_end": 2,
+        "orb_signals_evaluated": "DIA ORB from 11:04 AM onward (counter=2 < 3)",
+        "first_orb_opportunity": "11:04:19 \u2014 DIA ORB quality=3, scanner=53",
+        "orb_signals_blocked": 0,
+        "note": "SNOW completes as a round-trip at 10:37 (counter=1). MSFT completes as round-trip at 11:05 (counter=2). DIA ORB at 11:04 runs during MSFT's open position; counter=1 \u2192 can trade. DIA ORB cooldown starts at 11:05 but MSTR ORB arrives at 12:04 with counter=2 < 3.",
+        "premium_at_risk_peak": "Same actual positions taken"
+      },
+      "C_entry_only": {
+        "trades_executed": 2,
+        "counter_at_session_end": 2,
+        "orb_signals_evaluated": "DIA ORB from 11:04 AM (counter=2 < 3)",
+        "first_orb_opportunity": "11:04:19 \u2014 DIA ORB quality=3, scanner=53",
+        "note": "SNOW entry (counter=1), MSFT entry (counter=2). Third entry slot available. DIA ORB at 11:04 would have been evaluated with counter=2.",
+        "premium_at_risk_peak": "Same actual positions + potential 3rd position (ORB)"
+      }
+    },
+    "risk_exposure_difference": {
+      "A_current_vs_B_round_trip": {
+        "open_positions": "Identical \u2014 same 2 trades executed",
+        "closed_positions": "Identical",
+        "difference": "Under B, ORB slots open after each COMPLETED trade. Risk exposure per trade is identical; total exposure determined by max_active_positions=2.",
+        "max_concurrent_premium_risk": "max_active_positions=2 limits concurrent risk independently of max_trades_per_day"
+      },
+      "A_current_vs_C_entry_only": {
+        "difference": "Under C, exits free up a slot. 3rd entry (ORB) becomes available after 2 entries. Max exposure slightly higher: 3 entries possible vs 2 under current.",
+        "safety_note": "max_active_positions=2 remains the binding constraint on concurrent positions."
+      }
+    }
+  },
+  "5_design_intent": {
+    "docstring_evidence": {
+      "text": "record_trade(): \"Call when an order is filled to track daily counters.\"",
+      "interpretation": "The word 'filled' strongly implies this should count completed fills, not order submissions. In trading, 'a trade' most naturally means an entry order (one-sided).",
+      "discrepancy": "The actual implementation calls record_trade() at ORDER PLACEMENT for entries, not at fill. This means an order placed but then cancelled (unfilled) consumes a slot."
+    },
+    "naming_convention_evidence": {
+      "counter_name": "_trades_today",
+      "config_field": "max_trades_per_day",
+      "industry_convention": "'Trades per day' in systematic trading almost universally means number of round-trip positions opened. A trader who 'made 3 trades today' means opened and closed 3 positions. It does not mean 3 order submissions (which could be 1 entry + 2 re-submissions of the same idea)."
+    },
+    "class_documentation_evidence": {
+      "class_docstring": "RiskManager docstring: \"max_trades_per_day\"",
+      "list_position": "Listed alongside max_risk_per_trade, max_daily_loss \u2014 these are all position-level constraints",
+      "implication": "The peer constraints (max_risk_per_trade, max_daily_loss) are evaluated once per ENTRY. Symmetry suggests max_trades_per_day was also intended as an entry-level constraint."
+    },
+    "test_evidence": {
+      "test_max_trades_per_day": "test_risk_manager.py lines 113-123: the test calls rm.record_trade() three times then checks that check_order() fails. The test does NOT distinguish entry vs exit \u2014 it treats record_trade() as a generic 'something happened' counter. This is ambiguous and consistent with either interpretation."
+    },
+    "most_likely_intent": "Based on: (1) the docstring saying 'when an order is FILLED', (2) the naming convention 'trades_per_day' = positions opened, (3) symmetry with other entry-level constraints, the most defensible design intent is: max_trades_per_day = maximum number of ENTRY ORDERS (one-sided) per session, counted at FILL confirmation. The current implementation diverges from this in two ways: (a) entry is counted at placement, not fill; (b) exits also consume slots.",
+    "impact_on_session": "On 2026-05-29 with max=3: Under intended (entry-only-at-fill) semantics: 2 entries consumed 2 slots, 1 slot remained. ORB DIA at 11:04 AM would have seen counter=2 < 3 and been evaluated on merit. Under current (placement+exit) semantics: after MSFT placement the counter hit 3, locking out all subsequent signals immediately \u2014 before fills even confirmed."
+  }
+}

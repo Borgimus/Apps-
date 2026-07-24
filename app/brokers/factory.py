@@ -56,7 +56,10 @@ def get_broker(settings=None) -> BrokerInterface:
 
     if broker_name == "paper":
         from .paper_broker import PaperBroker
-        return PaperBroker()
+        from ..data.yfinance_data import YFinanceDataSource
+        broker = PaperBroker()
+        broker.set_data_source(YFinanceDataSource())
+        return broker
 
     raise ValueError(
         f"Unknown broker '{broker_name}'. Supported: alpaca, tradier, ibkr, paper"

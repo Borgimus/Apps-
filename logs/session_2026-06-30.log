@@ -1,0 +1,604 @@
+=== session_runner start 09:30 ET ===
+2026-06-30T13:30:38 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-30T13:30:38 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-30T13:30:51 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-30T13:30:51 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-30T13:30:51 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-30T13:30:51 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-30T13:30:51 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-30T13:30:51 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-30T13:30:51 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-30T13:30:51 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-30T13:30:51 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+2026-06-30T13:30:51 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-06-30  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Tuesday 2026-06-30 — trading day
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Tuesday 2026-06-30 — trading day
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: No prior session log today — first run of the day
+2026-06-30T13:30:52 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: No prior session log today — first run of the day
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Tuesday 2026-06-30 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-06-30T13:30:52 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Tuesday 2026-06-30 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-06-30T13:30:52 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Tuesday 2026-06-30 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-06-30T13:30:52 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-30T13:30:52 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-30T13:30:52 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-30 | starting_equity=98960.60
+2026-06-30T13:30:52 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-30 | starting_equity=98960.60
+2026-06-30T13:30:52 | INFO     | session_runner | Account: equity=98960.60 paper=True
+2026-06-30T13:30:52 | INFO     | session_runner | Account: equity=98960.60 paper=True
+2026-06-30T13:30:52 | INFO     | app.trading.session_recovery | Recovery: re-linked carryover position RIVN260702C00017000 to journal row 196 (session_date=2026-06-29) strategy=orb original_entry=2026-06-29 11:40:05.499647-04:00
+2026-06-30T13:30:52 | INFO     | app.trading.session_recovery | Recovery: re-linked carryover position RIVN260702C00017000 to journal row 196 (session_date=2026-06-29) strategy=orb original_entry=2026-06-29 11:40:05.499647-04:00
+2026-06-30T13:30:52 | INFO     | app.trading.position_manager | Position opened | RIVN260702C00017000 | entry=0.2900 | qty=1
+2026-06-30T13:30:52 | INFO     | app.trading.position_manager | Position opened | RIVN260702C00017000 | entry=0.2900 | qty=1
+2026-06-30T13:30:52 | INFO     | app.trading.session_recovery | Recovery: loaded broker position RIVN260702C00017000 qty=1 cost=0.2900 journal_id=196
+2026-06-30T13:30:52 | INFO     | app.trading.session_recovery | Recovery: loaded broker position RIVN260702C00017000 qty=1 cost=0.2900 journal_id=196
+2026-06-30T13:30:52 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 1 broker positions, 0 warnings, 0 errors
+2026-06-30T13:30:52 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 1 broker positions, 0 warnings, 0 errors
+2026-06-30T13:30:52 | INFO     | session_runner | Recovery loaded 0 pending order(s), 1 broker position(s)
+2026-06-30T13:30:52 | INFO     | session_runner | Recovery loaded 0 pending order(s), 1 broker position(s)
+2026-06-30T13:30:52 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-30T13:30:52 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-30T13:30:52 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-30T13:30:52 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-30T13:30:52 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-30T13:30:52 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-30T13:30:52 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-30T13:30:52 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-30T13:30:55 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-30T13:30:55 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-30T13:30:56 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: SPY intraday data stale (age=4852s, threshold=1200s)
+2026-06-30T13:30:56 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: SPY intraday data stale (age=4852s, threshold=1200s)
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLE today — falling back to previous_close=53.57
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLE today — falling back to previous_close=53.57
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLE intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLE intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLY today — falling back to previous_close=117.11
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLY today — falling back to previous_close=117.11
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLY intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLY intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: IWM intraday data stale (age=5452s, threshold=1200s)
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLK today — falling back to previous_close=185.42
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: IWM intraday data stale (age=5452s, threshold=1200s)
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLK today — falling back to previous_close=185.42
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLK intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: DIA intraday data stale (age=3952s, threshold=1200s)
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLK intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: DIA intraday data stale (age=3952s, threshold=1200s)
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLF today — falling back to previous_close=53.70
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLF today — falling back to previous_close=53.70
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLF intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLF intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: GOOGL intraday data stale (age=3952s, threshold=1200s)
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: GOOGL intraday data stale (age=3952s, threshold=1200s)
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: MSFT intraday data stale (age=3652s, threshold=1200s)
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: MSFT intraday data stale (age=3652s, threshold=1200s)
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for META today — falling back to previous_close=562.37
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for META today — falling back to previous_close=562.37
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: META intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: META intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for TSLA today — falling back to previous_close=411.66
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for NVDA today — falling back to previous_close=194.92
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for TSLA today — falling back to previous_close=411.66
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: TSLA intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for NVDA today — falling back to previous_close=194.92
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: NVDA intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: TSLA intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: NVDA intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AMZN intraday data stale (age=3952s, threshold=1200s)
+2026-06-30T13:30:58 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AMZN intraday data stale (age=3952s, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AMD intraday data stale (age=3352s, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AMD intraday data stale (age=3352s, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: PLTR intraday data stale (age=2752s, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: PLTR intraday data stale (age=2752s, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for SNOW today — falling back to previous_close=251.56
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for SNOW today — falling back to previous_close=251.56
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: SNOW intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: SNOW intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for SHOP today — falling back to previous_close=114.20
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for SHOP today — falling back to previous_close=114.20
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: SHOP intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: SHOP intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: COIN intraday data stale (age=1552s, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: COIN intraday data stale (age=1552s, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for MSTR today — falling back to previous_close=92.62
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for MSTR today — falling back to previous_close=92.62
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: MSTR intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: MSTR intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for ARM today — falling back to previous_close=343.80
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for ARM today — falling back to previous_close=343.80
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: ARM intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:30:59 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: ARM intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for NET today — falling back to previous_close=243.95
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for NET today — falling back to previous_close=243.95
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: NET intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: NET intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for CRWD today — falling back to previous_close=742.61
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for CRWD today — falling back to previous_close=742.61
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: CRWD intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for DDOG today — falling back to previous_close=248.46
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: CRWD intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for DDOG today — falling back to previous_close=248.46
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: DDOG intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: DDOG intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for HOOD today — falling back to previous_close=101.89
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for HOOD today — falling back to previous_close=101.89
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: HOOD intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: HOOD intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for RIOT today — falling back to previous_close=27.75
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for RIOT today — falling back to previous_close=27.75
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: RIOT intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: RIOT intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for RIVN today — falling back to previous_close=16.79
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for RIVN today — falling back to previous_close=16.79
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: RIVN intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:00 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: RIVN intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for AFRM today — falling back to previous_close=81.81
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for AFRM today — falling back to previous_close=81.81
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AFRM intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AFRM intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for UBER today — falling back to previous_close=75.43
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for UBER today — falling back to previous_close=75.43
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: UBER intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: UBER intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for DKNG today — falling back to previous_close=25.81
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for DKNG today — falling back to previous_close=25.81
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: DKNG intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: DKNG intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for ROKU today — falling back to previous_close=136.52
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for ROKU today — falling back to previous_close=136.52
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: ROKU intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: ROKU intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for LYFT today — falling back to previous_close=15.27
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for LYFT today — falling back to previous_close=15.27
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: LYFT intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: LYFT intraday data stale (age=no bars, threshold=1200s)
+2026-06-30T13:31:01 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-30T13:31:01 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-30T13:31:01 | INFO     | session_runner |   SMH     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T13:31:01 | INFO     | session_runner |   SMH     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T13:31:01 | INFO     | session_runner |   AVGO    score=58.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-30T13:31:01 | INFO     | session_runner |   AVGO    score=58.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-30T13:31:01 | INFO     | session_runner |   MARA    score=50.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-30T13:31:01 | INFO     | session_runner |   MARA    score=50.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-30T13:31:01 | INFO     | session_runner |   SPY     score=48.0  signal=LONG     REJECTED: scanner_data_stale, low_volume_chop
+2026-06-30T13:31:01 | INFO     | session_runner |   SPY     score=48.0  signal=LONG     REJECTED: scanner_data_stale, low_volume_chop
+2026-06-30T13:31:01 | INFO     | session_runner |   QQQ     score=48.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T13:31:01 | INFO     | session_runner |   QQQ     score=48.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T13:31:01 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-30T13:31:01 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-30T13:31:01 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-06-30T13:31:01 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-06-30T13:31:01 | INFO     | session_runner | [cycle 1] 09:31:01 ET | positions=1 | entries=0
+2026-06-30T13:31:01 | INFO     | session_runner | [cycle 1] 09:31:01 ET | positions=1 | entries=0
+2026-06-30T13:31:02 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-30T13:31:02 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-30T13:31:02 | INFO     | session_runner | Position exit | RIVN260702C00017000 | reason=max_hold | price=0.2100 | pnl=-8.00
+2026-06-30T13:31:02 | INFO     | session_runner | Position exit | RIVN260702C00017000 | reason=max_hold | price=0.2100 | pnl=-8.00
+2026-06-30T13:31:02 | WARNING  | session_runner | Exit spread warning | RIVN260702C00017000 | spread_pct=0.415 > max=0.100 | bid=0.2100 ask=0.3200 | reason=max_hold
+2026-06-30T13:31:02 | WARNING  | session_runner | Exit spread warning | RIVN260702C00017000 | spread_pct=0.415 > max=0.100 | bid=0.2100 ask=0.3200 | reason=max_hold
+2026-06-30T13:31:02 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'RIVN260702C00017000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.21', 'order_class': 'simple'}
+2026-06-30T13:31:02 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'RIVN260702C00017000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.21', 'order_class': 'simple'}
+2026-06-30T13:31:02 | INFO     | session_runner | Exit order placed | RIVN260702C00017000 | limit=0.2100 | order_id=e46c88b1-b344-4e89-ac79-b3eb0f482571
+2026-06-30T13:31:02 | INFO     | session_runner | Exit order placed | RIVN260702C00017000 | limit=0.2100 | order_id=e46c88b1-b344-4e89-ac79-b3eb0f482571
+2026-06-30T13:31:02 | INFO     | app.trading.position_manager | Loss recorded on RIVN260702C00017000 (pnl=-8.00) — cooldown active for 15 min
+2026-06-30T13:31:02 | INFO     | app.trading.position_manager | Loss recorded on RIVN260702C00017000 (pnl=-8.00) — cooldown active for 15 min
+2026-06-30T13:31:02 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=0 exits=1 daily_pnl=-8.00
+2026-06-30T13:31:02 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=0 exits=1 daily_pnl=-8.00
+2026-06-30T13:31:02 | INFO     | app.trading.trade_journal | Journal exit 196: reason=max_hold pnl=-8.00 hold=78656s
+2026-06-30T13:31:02 | INFO     | app.trading.trade_journal | Journal exit 196: reason=max_hold pnl=-8.00 hold=78656s
+2026-06-30T13:31:02 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-06-30T13:31:02 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-06-30T13:31:32 | INFO     | session_runner | [cycle 2] 09:31:32 ET | positions=0 | entries=0
+2026-06-30T13:31:32 | INFO     | session_runner | [cycle 2] 09:31:32 ET | positions=0 | entries=0
+2026-06-30T13:32:02 | INFO     | session_runner | [cycle 3] 09:32:02 ET | positions=0 | entries=0
+2026-06-30T13:32:02 | INFO     | session_runner | [cycle 3] 09:32:02 ET | positions=0 | entries=0
+2026-06-30T13:32:32 | INFO     | session_runner | [cycle 4] 09:32:32 ET | positions=0 | entries=0
+2026-06-30T13:32:32 | INFO     | session_runner | [cycle 4] 09:32:32 ET | positions=0 | entries=0
+2026-06-30T13:33:02 | INFO     | session_runner | [cycle 5] 09:33:02 ET | positions=0 | entries=0
+2026-06-30T13:33:02 | INFO     | session_runner | [cycle 5] 09:33:02 ET | positions=0 | entries=0
+2026-06-30T13:33:32 | INFO     | session_runner | [cycle 6] 09:33:32 ET | positions=0 | entries=0
+2026-06-30T13:33:32 | INFO     | session_runner | [cycle 6] 09:33:32 ET | positions=0 | entries=0
+2026-06-30T13:34:02 | INFO     | session_runner | [cycle 7] 09:34:02 ET | positions=0 | entries=0
+2026-06-30T13:34:02 | INFO     | session_runner | [cycle 7] 09:34:02 ET | positions=0 | entries=0
+2026-06-30T13:34:32 | INFO     | session_runner | [cycle 8] 09:34:32 ET | positions=0 | entries=0
+2026-06-30T13:34:32 | INFO     | session_runner | [cycle 8] 09:34:32 ET | positions=0 | entries=0
+2026-06-30T13:35:02 | INFO     | session_runner | [cycle 9] 09:35:02 ET | positions=0 | entries=0
+2026-06-30T13:35:02 | INFO     | session_runner | [cycle 9] 09:35:02 ET | positions=0 | entries=0
+2026-06-30T13:35:32 | INFO     | session_runner | [cycle 10] 09:35:32 ET | positions=0 | entries=0
+2026-06-30T13:35:32 | INFO     | session_runner | [cycle 10] 09:35:32 ET | positions=0 | entries=0
+2026-06-30T13:36:02 | INFO     | session_runner | [cycle 11] 09:36:02 ET | positions=0 | entries=0
+2026-06-30T13:36:02 | INFO     | session_runner | [cycle 11] 09:36:02 ET | positions=0 | entries=0
+2026-06-30T13:36:33 | INFO     | session_runner | [cycle 12] 09:36:33 ET | positions=0 | entries=0
+2026-06-30T13:36:33 | INFO     | session_runner | [cycle 12] 09:36:33 ET | positions=0 | entries=0
+2026-06-30T13:37:03 | INFO     | session_runner | [cycle 13] 09:37:03 ET | positions=0 | entries=0
+2026-06-30T13:37:03 | INFO     | session_runner | [cycle 13] 09:37:03 ET | positions=0 | entries=0
+2026-06-30T13:37:33 | INFO     | session_runner | [cycle 14] 09:37:33 ET | positions=0 | entries=0
+2026-06-30T13:37:33 | INFO     | session_runner | [cycle 14] 09:37:33 ET | positions=0 | entries=0
+2026-06-30T13:38:03 | INFO     | session_runner | [cycle 15] 09:38:03 ET | positions=0 | entries=0
+2026-06-30T13:38:03 | INFO     | session_runner | [cycle 15] 09:38:03 ET | positions=0 | entries=0
+2026-06-30T13:38:33 | INFO     | session_runner | [cycle 16] 09:38:33 ET | positions=0 | entries=0
+2026-06-30T13:38:33 | INFO     | session_runner | [cycle 16] 09:38:33 ET | positions=0 | entries=0
+2026-06-30T13:39:03 | INFO     | session_runner | [cycle 17] 09:39:03 ET | positions=0 | entries=0
+2026-06-30T13:39:03 | INFO     | session_runner | [cycle 17] 09:39:03 ET | positions=0 | entries=0
+2026-06-30T13:39:33 | INFO     | session_runner | [cycle 18] 09:39:33 ET | positions=0 | entries=0
+2026-06-30T13:39:33 | INFO     | session_runner | [cycle 18] 09:39:33 ET | positions=0 | entries=0
+2026-06-30T13:40:03 | INFO     | session_runner | [cycle 19] 09:40:03 ET | positions=0 | entries=0
+2026-06-30T13:40:03 | INFO     | session_runner | [cycle 19] 09:40:03 ET | positions=0 | entries=0
+2026-06-30T13:40:33 | INFO     | session_runner | [cycle 20] 09:40:33 ET | positions=0 | entries=0
+2026-06-30T13:40:33 | INFO     | session_runner | [cycle 20] 09:40:33 ET | positions=0 | entries=0
+2026-06-30T13:41:03 | INFO     | session_runner | [cycle 21] 09:41:03 ET | positions=0 | entries=0
+2026-06-30T13:41:03 | INFO     | session_runner | [cycle 21] 09:41:03 ET | positions=0 | entries=0
+2026-06-30T13:41:03 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-30T13:41:03 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-30T13:41:33 | INFO     | session_runner | [cycle 22] 09:41:33 ET | positions=0 | entries=0
+2026-06-30T13:41:33 | INFO     | session_runner | [cycle 22] 09:41:33 ET | positions=0 | entries=0
+2026-06-30T13:42:03 | INFO     | session_runner | [cycle 23] 09:42:03 ET | positions=0 | entries=0
+2026-06-30T13:42:03 | INFO     | session_runner | [cycle 23] 09:42:03 ET | positions=0 | entries=0
+2026-06-30T13:42:34 | INFO     | session_runner | [cycle 24] 09:42:34 ET | positions=0 | entries=0
+2026-06-30T13:42:34 | INFO     | session_runner | [cycle 24] 09:42:34 ET | positions=0 | entries=0
+2026-06-30T13:43:04 | INFO     | session_runner | [cycle 25] 09:43:04 ET | positions=0 | entries=0
+2026-06-30T13:43:04 | INFO     | session_runner | [cycle 25] 09:43:04 ET | positions=0 | entries=0
+=== session_runner start 10:19 ET ===
+2026-06-30T14:19:31 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-30T14:19:31 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-30T14:19:47 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-30T14:19:47 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-30T14:19:47 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-30T14:19:47 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-30T14:19:47 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-30T14:19:47 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-30T14:19:47 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-30T14:19:47 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-30T14:19:47 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+2026-06-30T14:19:47 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-06-30  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Tuesday 2026-06-30 — trading day
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Tuesday 2026-06-30 — trading day
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: Last session log: 2204s ago
+2026-06-30T14:19:48 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: Last session log: 2204s ago
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Tuesday 2026-06-30 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 2204s ago
+
+  Result: PASS
+2026-06-30T14:19:48 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Tuesday 2026-06-30 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 2204s ago
+
+  Result: PASS
+2026-06-30T14:19:48 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Tuesday 2026-06-30 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 2204s ago
+
+  Result: PASS
+2026-06-30T14:19:48 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-30T14:19:48 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-30T14:19:48 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-30 | starting_equity=98960.58
+2026-06-30T14:19:48 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-30 | starting_equity=98960.58
+2026-06-30T14:19:48 | INFO     | session_runner | Account: equity=98960.58 paper=True
+2026-06-30T14:19:48 | INFO     | session_runner | Account: equity=98960.58 paper=True
+2026-06-30T14:19:48 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-30T14:19:48 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-30T14:19:48 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-30T14:19:48 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-30T14:19:48 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-30T14:19:48 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-30T14:19:48 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-30T14:19:48 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-30T14:19:48 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-30T14:19:48 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-30T14:19:51 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-30T14:19:51 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-30T14:19:56 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-30T14:19:56 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-30T14:19:57 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-30T14:19:57 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-30T14:19:57 | INFO     | session_runner |   SMH     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:19:57 | INFO     | session_runner |   SMH     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:19:57 | INFO     | session_runner |   RIVN    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:19:57 | INFO     | session_runner |   RIVN    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:19:57 | INFO     | session_runner |   IWM     score=65.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:19:57 | INFO     | session_runner |   IWM     score=65.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:19:57 | INFO     | session_runner |   AAPL    score=62.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:19:57 | INFO     | session_runner |   AAPL    score=62.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:19:57 | INFO     | session_runner |   TSLA    score=62.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:19:57 | INFO     | session_runner |   TSLA    score=62.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:19:57 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-30T14:19:57 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-30T14:19:57 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-06-30T14:19:57 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-06-30T14:19:57 | INFO     | session_runner | [cycle 1] 10:19:57 ET | positions=0 | entries=0
+2026-06-30T14:19:57 | INFO     | session_runner | [cycle 1] 10:19:57 ET | positions=0 | entries=0
+2026-06-30T14:19:58 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-30T14:19:58 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-30T14:20:28 | INFO     | session_runner | [cycle 2] 10:20:28 ET | positions=0 | entries=0
+2026-06-30T14:20:28 | INFO     | session_runner | [cycle 2] 10:20:28 ET | positions=0 | entries=0
+2026-06-30T14:20:58 | INFO     | session_runner | [cycle 3] 10:20:58 ET | positions=0 | entries=0
+2026-06-30T14:20:58 | INFO     | session_runner | [cycle 3] 10:20:58 ET | positions=0 | entries=0
+2026-06-30T14:21:28 | INFO     | session_runner | [cycle 4] 10:21:28 ET | positions=0 | entries=0
+2026-06-30T14:21:28 | INFO     | session_runner | [cycle 4] 10:21:28 ET | positions=0 | entries=0
+2026-06-30T14:21:58 | INFO     | session_runner | [cycle 5] 10:21:58 ET | positions=0 | entries=0
+2026-06-30T14:21:58 | INFO     | session_runner | [cycle 5] 10:21:58 ET | positions=0 | entries=0
+2026-06-30T14:22:28 | INFO     | session_runner | [cycle 6] 10:22:28 ET | positions=0 | entries=0
+2026-06-30T14:22:28 | INFO     | session_runner | [cycle 6] 10:22:28 ET | positions=0 | entries=0
+2026-06-30T14:22:58 | INFO     | session_runner | [cycle 7] 10:22:58 ET | positions=0 | entries=0
+2026-06-30T14:22:58 | INFO     | session_runner | [cycle 7] 10:22:58 ET | positions=0 | entries=0
+2026-06-30T14:23:28 | INFO     | session_runner | [cycle 8] 10:23:28 ET | positions=0 | entries=0
+2026-06-30T14:23:28 | INFO     | session_runner | [cycle 8] 10:23:28 ET | positions=0 | entries=0
+2026-06-30T14:23:58 | INFO     | session_runner | [cycle 9] 10:23:58 ET | positions=0 | entries=0
+2026-06-30T14:23:58 | INFO     | session_runner | [cycle 9] 10:23:58 ET | positions=0 | entries=0
+2026-06-30T14:24:28 | INFO     | session_runner | [cycle 10] 10:24:28 ET | positions=0 | entries=0
+2026-06-30T14:24:28 | INFO     | session_runner | [cycle 10] 10:24:28 ET | positions=0 | entries=0
+2026-06-30T14:24:58 | INFO     | session_runner | [cycle 11] 10:24:58 ET | positions=0 | entries=0
+2026-06-30T14:24:58 | INFO     | session_runner | [cycle 11] 10:24:58 ET | positions=0 | entries=0
+2026-06-30T14:25:28 | INFO     | session_runner | [cycle 12] 10:25:28 ET | positions=0 | entries=0
+2026-06-30T14:25:28 | INFO     | session_runner | [cycle 12] 10:25:28 ET | positions=0 | entries=0
+2026-06-30T14:25:58 | INFO     | session_runner | [cycle 13] 10:25:58 ET | positions=0 | entries=0
+2026-06-30T14:25:58 | INFO     | session_runner | [cycle 13] 10:25:58 ET | positions=0 | entries=0
+=== start 10:36 ET ===
+2026-06-30T14:36:30 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-30T14:36:30 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-30T14:36:34 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-30T14:36:34 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-30T14:36:34 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-30T14:36:34 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-30T14:36:34 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-30T14:36:34 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-30T14:36:34 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-30T14:36:34 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-30T14:36:34 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+2026-06-30T14:36:34 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-06-30  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Tuesday 2026-06-30 — trading day
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Tuesday 2026-06-30 — trading day
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: Last session log: 636s ago
+2026-06-30T14:36:35 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: Last session log: 636s ago
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Tuesday 2026-06-30 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 636s ago
+
+  Result: PASS
+2026-06-30T14:36:35 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Tuesday 2026-06-30 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 636s ago
+
+  Result: PASS
+2026-06-30T14:36:35 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Tuesday 2026-06-30 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 636s ago
+
+  Result: PASS
+2026-06-30T14:36:35 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-30T14:36:35 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-30T14:36:35 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-30 | starting_equity=98960.58
+2026-06-30T14:36:35 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-30 | starting_equity=98960.58
+2026-06-30T14:36:35 | INFO     | session_runner | Account: equity=98960.58 paper=True
+2026-06-30T14:36:35 | INFO     | session_runner | Account: equity=98960.58 paper=True
+2026-06-30T14:36:35 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-30T14:36:35 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-30T14:36:35 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-30T14:36:35 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-30T14:36:35 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-30T14:36:35 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-30T14:36:35 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-30T14:36:35 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-30T14:36:35 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-30T14:36:35 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-30T14:36:37 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-30T14:36:37 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-30T14:36:42 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-30T14:36:42 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-30T14:36:43 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-30T14:36:43 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-30T14:36:43 | INFO     | session_runner |   QQQ     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:36:43 | INFO     | session_runner |   QQQ     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:36:43 | INFO     | session_runner |   XLK     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:36:43 | INFO     | session_runner |   XLK     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:36:43 | INFO     | session_runner |   SMH     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:36:43 | INFO     | session_runner |   SMH     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:36:43 | INFO     | session_runner |   RIOT    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:36:43 | INFO     | session_runner |   RIOT    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-30T14:36:43 | INFO     | session_runner |   ROKU    score=70.0  signal=LONG     REJECTED: low_volume_chop, insufficient_underlying_volume
+2026-06-30T14:36:43 | INFO     | session_runner |   ROKU    score=70.0  signal=LONG     REJECTED: low_volume_chop, insufficient_underlying_volume
+2026-06-30T14:36:43 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-30T14:36:43 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-30T14:36:43 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-06-30T14:36:43 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-06-30T14:36:43 | INFO     | session_runner | [cycle 1] 10:36:43 ET | positions=0 | entries=0
+2026-06-30T14:36:43 | INFO     | session_runner | [cycle 1] 10:36:43 ET | positions=0 | entries=0
+2026-06-30T14:36:44 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-30T14:36:44 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-30T14:37:14 | INFO     | session_runner | [cycle 2] 10:37:14 ET | positions=0 | entries=0
+2026-06-30T14:37:14 | INFO     | session_runner | [cycle 2] 10:37:14 ET | positions=0 | entries=0
+2026-06-30T14:37:44 | INFO     | session_runner | [cycle 3] 10:37:44 ET | positions=0 | entries=0
+2026-06-30T14:37:44 | INFO     | session_runner | [cycle 3] 10:37:44 ET | positions=0 | entries=0
+2026-06-30T14:38:14 | INFO     | session_runner | [cycle 4] 10:38:14 ET | positions=0 | entries=0
+2026-06-30T14:38:14 | INFO     | session_runner | [cycle 4] 10:38:14 ET | positions=0 | entries=0
+2026-06-30T14:38:44 | INFO     | session_runner | [cycle 5] 10:38:44 ET | positions=0 | entries=0
+2026-06-30T14:38:44 | INFO     | session_runner | [cycle 5] 10:38:44 ET | positions=0 | entries=0
+2026-06-30T14:39:14 | INFO     | session_runner | [cycle 6] 10:39:14 ET | positions=0 | entries=0
+2026-06-30T14:39:14 | INFO     | session_runner | [cycle 6] 10:39:14 ET | positions=0 | entries=0
+2026-06-30T14:39:44 | INFO     | session_runner | [cycle 7] 10:39:44 ET | positions=0 | entries=0
+2026-06-30T14:39:44 | INFO     | session_runner | [cycle 7] 10:39:44 ET | positions=0 | entries=0
+2026-06-30T14:40:14 | INFO     | session_runner | [cycle 8] 10:40:14 ET | positions=0 | entries=0
+2026-06-30T14:40:14 | INFO     | session_runner | [cycle 8] 10:40:14 ET | positions=0 | entries=0
+2026-06-30T14:40:44 | INFO     | session_runner | [cycle 9] 10:40:44 ET | positions=0 | entries=0
+2026-06-30T14:40:44 | INFO     | session_runner | [cycle 9] 10:40:44 ET | positions=0 | entries=0
+2026-06-30T14:41:14 | INFO     | session_runner | [cycle 10] 10:41:14 ET | positions=0 | entries=0
+2026-06-30T14:41:14 | INFO     | session_runner | [cycle 10] 10:41:14 ET | positions=0 | entries=0
+2026-06-30T14:41:44 | INFO     | session_runner | [cycle 11] 10:41:44 ET | positions=0 | entries=0
+2026-06-30T14:41:44 | INFO     | session_runner | [cycle 11] 10:41:44 ET | positions=0 | entries=0
+2026-06-30T14:42:14 | INFO     | session_runner | [cycle 12] 10:42:14 ET | positions=0 | entries=0
+2026-06-30T14:42:14 | INFO     | session_runner | [cycle 12] 10:42:14 ET | positions=0 | entries=0
+2026-06-30T14:42:44 | INFO     | session_runner | [cycle 13] 10:42:44 ET | positions=0 | entries=0
+2026-06-30T14:42:44 | INFO     | session_runner | [cycle 13] 10:42:44 ET | positions=0 | entries=0
+2026-06-30T14:43:14 | INFO     | session_runner | [cycle 14] 10:43:14 ET | positions=0 | entries=0
+2026-06-30T14:43:14 | INFO     | session_runner | [cycle 14] 10:43:14 ET | positions=0 | entries=0
+2026-06-30T14:43:44 | INFO     | session_runner | [cycle 15] 10:43:44 ET | positions=0 | entries=0
+2026-06-30T14:43:44 | INFO     | session_runner | [cycle 15] 10:43:44 ET | positions=0 | entries=0
+2026-06-30T14:44:14 | INFO     | session_runner | [cycle 16] 10:44:14 ET | positions=0 | entries=0
+2026-06-30T14:44:14 | INFO     | session_runner | [cycle 16] 10:44:14 ET | positions=0 | entries=0
+2026-06-30T14:44:44 | INFO     | session_runner | [cycle 17] 10:44:44 ET | positions=0 | entries=0
+2026-06-30T14:44:44 | INFO     | session_runner | [cycle 17] 10:44:44 ET | positions=0 | entries=0
+2026-06-30T14:45:14 | INFO     | session_runner | [cycle 18] 10:45:14 ET | positions=0 | entries=0
+2026-06-30T14:45:14 | INFO     | session_runner | [cycle 18] 10:45:14 ET | positions=0 | entries=0
+2026-06-30T14:45:44 | INFO     | session_runner | [cycle 19] 10:45:44 ET | positions=0 | entries=0
+2026-06-30T14:45:44 | INFO     | session_runner | [cycle 19] 10:45:44 ET | positions=0 | entries=0
+2026-06-30T14:46:14 | INFO     | session_runner | [cycle 20] 10:46:14 ET | positions=0 | entries=0
+2026-06-30T14:46:14 | INFO     | session_runner | [cycle 20] 10:46:14 ET | positions=0 | entries=0
+2026-06-30T14:46:44 | INFO     | session_runner | [cycle 21] 10:46:44 ET | positions=0 | entries=0
+2026-06-30T14:46:44 | INFO     | session_runner | [cycle 21] 10:46:44 ET | positions=0 | entries=0
+2026-06-30T14:46:45 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-30T14:46:45 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-30T14:47:15 | INFO     | session_runner | [cycle 22] 10:47:15 ET | positions=0 | entries=0
+2026-06-30T14:47:15 | INFO     | session_runner | [cycle 22] 10:47:15 ET | positions=0 | entries=0
+2026-06-30T14:47:45 | INFO     | session_runner | [cycle 23] 10:47:45 ET | positions=0 | entries=0
+2026-06-30T14:47:45 | INFO     | session_runner | [cycle 23] 10:47:45 ET | positions=0 | entries=0
+2026-06-30T14:48:15 | INFO     | session_runner | [cycle 24] 10:48:15 ET | positions=0 | entries=0
+2026-06-30T14:48:15 | INFO     | session_runner | [cycle 24] 10:48:15 ET | positions=0 | entries=0
+2026-06-30T14:48:45 | INFO     | session_runner | [cycle 25] 10:48:45 ET | positions=0 | entries=0
+2026-06-30T14:48:45 | INFO     | session_runner | [cycle 25] 10:48:45 ET | positions=0 | entries=0
+2026-06-30T14:49:15 | INFO     | session_runner | [cycle 26] 10:49:15 ET | positions=0 | entries=0
+2026-06-30T14:49:15 | INFO     | session_runner | [cycle 26] 10:49:15 ET | positions=0 | entries=0

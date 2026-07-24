@@ -16,7 +16,7 @@ A modular Python system for researching, backtesting, and paper-trading day-trad
 | `app/risk/` | Pre-trade risk manager with hard-coded guardrails |
 | `app/backtesting/` | Vectorised backtester with P&L reports |
 | `app/api/` | FastAPI dashboard + WebSocket signal stream |
-| `paper_trader.py` | Full intraday trading loop (paper mode by default) |
+| `scripts/session_runner.py` | Hardened unattended trading loop |
 | `main.py` | CLI entry point |
 
 ---
@@ -76,7 +76,66 @@ ALPACA_SECRET_KEY=your_secret
 ALPACA_BASE_URL=https://paper-api.alpaca.markets
 ```
 
-### 3. Run backtests
+---
+
+## How to Run
+
+### Unit tests
+
+```bash
+pytest tests/ -v
+```
+
+All 59 tests should pass.  Coverage includes:
+
+- ORB strategy with 5-minute intraday bars (13 tests in `test_intraday_orb.py`)
+- Risk sizing, session buffers, kill switch, daily loss guardrails
+- Broker interface (PaperBroker), paper order placement end-to-end
+- Strategy signal generation for ORB, RSI, VWAP, MA Compression
+
+### Integration test (real Alpaca paper account)
+
+Requires Alpaca API credentials in `.env`.
+
+```bash
+python scripts/integration_test.py
+```
+
+This fetches live SPY bars, runs all strategies, risk-checks a live option
+contract selected from the Alpaca chain, places a paper limit order, then
+immediately cancels it.
+
+### Dashboard (standalone)
+
+Starts the FastAPI dashboard without the trading loop.  Broker-dependent
+endpoints (`/account`, `/positions`) return 503; all others work fully.
+
+```bash
+uvicorn app.api.dashboard_api:app --reload
+# Open: http://127.0.0.1:8000/health
+# Docs: http://127.0.0.1:8000/docs
+```
+
+To start the dashboard with a live broker connection and the trading loop
+running in the background, use `python scripts/session_runner.py` (which
+starts the trading loop) and `python main.py dashboard` (which starts the
+API) in separate processes, or run them together via `docker-compose up`.
+
+
+### Kill switch
+
+To halt all order submissions immediately:
+
+```bash
+touch ./KILL_SWITCH          # activate
+rm ./KILL_SWITCH             # deactivate
+
+# Or via the dashboard API:
+curl -X POST http://127.0.0.1:8000/kill-switch/activate
+curl -X DELETE http://127.0.0.1:8000/kill-switch
+```
+
+### Backtests
 
 ```bash
 python main.py backtest --symbol SPY QQQ --start 2023-01-01 --end 2024-12-31
@@ -85,14 +144,6 @@ python main.py backtest --symbol SPY QQQ --start 2023-01-01 --end 2024-12-31
 Reports are saved to `./backtest_results/`.
 
 > ⚠️ Backtest results use **synthetic options pricing** (Black-Scholes) because yfinance does not provide historical options data. Results are clearly marked as `[APPROXIMATE]`.
-
-### 4. Start paper trading
-
-```bash
-python main.py trade
-```
-
-Opens the dashboard at `http://127.0.0.1:8000`.
 
 ### 5. Dashboard API
 
@@ -212,6 +263,187 @@ Test coverage includes:
 
 ---
 
+## Unattended Session Runner
+
+`scripts/session_runner.py` is the hardened, crash-safe trading loop.
+It is designed to run unattended and restart automatically after a crash.
+
+```bash
+# Single paper session (places real Alpaca paper orders)
+python scripts/session_runner.py
+
+# Dry-run (no orders placed, full pipeline exercised)
+python scripts/session_runner.py --dry-run
+
+# Multiple symbols, custom poll interval
+python scripts/session_runner.py --symbol SPY QQQ --poll 60
+
+# Cancel unfilled orders on shutdown, reconcile every 15 minutes
+python scripts/session_runner.py --cancel-pending --reconcile-interval 15
+```
+
+On startup the runner:
+1. Reloads any pending orders from the database (crash recovery)
+2. Reconciles local positions against the broker
+3. Enters the polling loop (fill tracking → position monitor → signal scan)
+
+On shutdown (SIGTERM/SIGINT or market close):
+1. Final fill poll so no fills are missed
+2. Optional pending-order cancellation (`--cancel-pending`)
+3. Position liquidation
+4. Session health report written to `logs/session_YYYY-MM-DD.json`
+
+---
+
+## Docker Deployment
+
+```bash
+cp .env.example .env
+# Edit .env with your broker credentials and alert settings
+
+docker compose up -d
+```
+
+Two services start:
+- **dashboard** — FastAPI on port 8000; restarts on crash; healthcheck on `/health`
+- **session-runner** — Runs `session_runner.py`; restarts on crash; waits for dashboard to be healthy first
+
+Logs and the SQLite database are mounted from the host so they persist across container restarts:
+
+```
+./logs/   → /app/logs   (trading.log, errors.log, session_*.json, etc.)
+./data/   → /app/data
+```
+
+To stop cleanly:
+
+```bash
+docker compose down
+```
+
+To tail live logs:
+
+```bash
+docker compose logs -f session-runner
+```
+
+---
+
+## Monitoring Dashboard
+
+Once the dashboard service is running, open **http://localhost:8000** in your browser.
+
+The dashboard auto-refreshes every 30 seconds and shows:
+- Daily P&L, win rate, open positions count
+- Risk status (drawdown, trades remaining, kill switch state)
+- Open positions table with unrealised P&L
+- Pending orders table with age
+- Recent fills and rejections
+- Scrollable session log
+- Kill switch toggle buttons
+
+---
+
+## Logging
+
+All events are written to multiple rotating files under `./logs/`:
+
+| File | Contents |
+|------|----------|
+| `trading.log` | All events (plain text, 10 MB × 5) |
+| `trading.jsonl` | All events as NDJSON — machine-readable (20 MB × 10) |
+| `errors.log` | ERROR and above only (5 MB × 10) |
+| `broker.log` | `app.brokers.*` events only (5 MB × 5) |
+| `api.log` | `app.api.*` events only (5 MB × 5) |
+| `session_YYYY-MM-DD.log` | Today's session in plain text (daily rotation, 30 days) |
+| `session_YYYY-MM-DD.json` | End-of-day health report (JSON) |
+
+Query with `jq`:
+
+```bash
+# All fills today
+jq 'select(.msg | contains("FILL"))' logs/trading.jsonl
+
+# All errors
+jq 'select(.level == "ERROR")' logs/trading.jsonl
+```
+
+---
+
+## Alerts
+
+Configure Slack and/or email by setting environment variables in `.env`:
+
+```bash
+# Slack
+ALERT_SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+
+# Email (Gmail example)
+ALERT_EMAIL_FROM=bot@gmail.com
+ALERT_EMAIL_TO=you@gmail.com
+ALERT_SMTP_HOST=smtp.gmail.com
+ALERT_SMTP_PORT=587
+ALERT_SMTP_USER=bot@gmail.com
+ALERT_SMTP_PASSWORD=app_password_here
+
+# Only send warning+ events (default: info = everything)
+ALERT_MIN_LEVEL=warning
+```
+
+Alerts fire for these 15 events:
+
+| Event | Default level |
+|-------|--------------|
+| Session started/stopped | info |
+| Order submitted/filled/partial | info |
+| Order cancelled/rejected/stale-cancelled | warning |
+| Stop loss / Take profit | warning / info |
+| Daily loss threshold reached | critical |
+| Kill switch activated | critical |
+| API/broker error | warning |
+| EOD liquidation | info |
+| Session summary | info |
+
+If no channels are configured the alert service is a no-op — no errors are raised.
+
+---
+
+## Safe Stop
+
+To stop the session runner without losing any in-flight data:
+
+```bash
+# Graceful (recommended): SIGTERM triggers final fill poll + health report
+kill -TERM $(pgrep -f session_runner)
+
+# Or create the kill switch file to halt new orders first, then stop:
+touch ./KILL_SWITCH
+# ... wait for current positions to be managed ...
+kill -TERM $(pgrep -f session_runner)
+```
+
+With Docker:
+
+```bash
+docker compose stop session-runner   # sends SIGTERM, waits for graceful exit
+```
+
+---
+
+## Paper Mode Enforcement
+
+The session runner enforces paper trading at startup:
+
+```python
+if settings.live_trading_enabled:
+    logger.critical("LIVE_TRADING_ENABLED=true — aborting.")
+    sys.exit(1)
+```
+
+`LIVE_TRADING_ENABLED` must never be set to `true` when using `session_runner.py`.
+
+---
+
 ## Project Structure
 
 ```
@@ -223,10 +455,17 @@ Test coverage includes:
 │   ├── risk/            # Pre-trade risk manager
 │   ├── backtesting/     # Backtest engine + report generator
 │   ├── api/             # FastAPI dashboard + SQLAlchemy models
-│   └── utils/           # Logging setup
+│   ├── trading/         # FillTracker, PositionManager, TradeJournal,
+│   │                    # PendingOrderStore, Reconciler, SessionRecovery,
+│   │                    # HealthReporter
+│   └── utils/           # Logging setup, alert service
+├── scripts/
+│   ├── session_runner.py  # Hardened unattended trading loop
+│   └── integration_test.py
 ├── tests/               # pytest unit tests
-├── paper_trader.py      # Intraday trading loop orchestrator
 ├── main.py              # CLI entry point
+├── Dockerfile
+├── docker-compose.yml
 ├── config.yaml          # Default configuration
 ├── .env.example         # Environment variable template
 └── requirements.txt
@@ -243,6 +482,136 @@ This project uses **yfinance**, which scrapes unofficial Yahoo Finance endpoints
 - **Must not** be used as the execution-grade data source for placing orders
 
 For actual order flow, the system always uses broker-provided quotes, option chains, Greeks, and bid/ask spreads via the broker API adapters.
+
+---
+
+## Paper Evaluation Mode
+
+Paper evaluation mode adds a structured workflow around each session: a pre-session checklist that blocks unsafe starts, rich daily reports, and a cumulative ledger that tracks performance across days.
+
+### Enabling evaluation mode
+
+Set the env var before running:
+
+```bash
+PAPER_EVALUATION_MODE=true python scripts/session_runner.py --eval --symbol SPY QQQ
+```
+
+Or add to `.env`:
+
+```
+PAPER_EVALUATION_MODE=true
+EVALUATION_OUTPUT_DIR=./evaluation
+EVALUATION_LEDGER_FILE=./evaluation/ledger.json
+```
+
+The `--eval` CLI flag is a shorthand that sets `PAPER_EVALUATION_MODE=true` automatically.
+
+### Verifying paper-only mode
+
+Evaluation mode will **refuse to start** if any of the following required checks fail:
+
+| Check | What it verifies |
+|---|---|
+| `paper_mode_confirmed` | `LIVE_TRADING_ENABLED` is false |
+| `kill_switch_inactive` | No kill-switch file exists |
+| `broker_reachable` | Broker responds and confirms paper account |
+| `db_writable` | SQLite/Postgres responds to a SELECT 1 |
+| `logs_writable` | Log directory accepts a write probe |
+| `daily_loss_reset` | Risk manager PnL is zero (fresh session) |
+| `no_stale_pending_orders` | No pending orders left over from prior sessions |
+
+Advisory checks (non-blocking): `market_day`, `data_feed_fresh`.
+
+The checklist prints to stdout and is logged before the session starts. Exit code 2 means a required check failed.
+
+### Daily reports
+
+After each session a report is written to `evaluation/reports/YYYY-MM-DD.{json,md}`.
+
+**Report contents:**
+
+| Section | Metrics |
+|---|---|
+| Trade counts | Signals, submitted, fills, cancels, rejects |
+| PnL | Realized, unrealized, win rate, avg win/loss |
+| Risk | Max drawdown, largest win/loss |
+| Cost | Slippage total, spread cost estimate |
+| System | API errors, kill switch events |
+| Per-strategy | All metrics broken down by strategy |
+| Notes | Auto-generated observations |
+| Recommendations | Auto-generated improvement suggestions |
+
+Reading reports:
+
+```bash
+# Today's JSON report (machine-readable)
+cat evaluation/reports/$(date +%F).json | jq .
+
+# Today's Markdown report (human-readable)
+cat evaluation/reports/$(date +%F).md
+```
+
+### Cumulative ledger
+
+`evaluation/ledger.json` accumulates statistics across all evaluation sessions:
+
+```
+total_trading_days    Total sessions in the ledger
+total_trades          All closed trades (all days)
+total_pnl             Cumulative realized PnL
+expectancy            Average PnL per trade
+win_rate              Fraction of winning trades
+profit_factor         Gross wins / gross losses
+max_drawdown          Largest peak-to-trough drawdown (cumulative curve)
+pnl_by_strategy       PnL, win rate by strategy
+pnl_by_entry_hour     PnL, trade count by entry hour (ET)
+pnl_by_delta_bucket   PnL by option delta range
+pnl_by_spread_bucket  PnL by bid/ask spread width
+reject_counts_by_reason  Why trades were rejected
+```
+
+Reading the ledger:
+
+```bash
+cat evaluation/ledger.json | jq .cumulative
+```
+
+### What metrics matter
+
+These are the primary metrics to watch during a paper evaluation period:
+
+- **Expectancy** — must be positive after ≥20 trades before any live consideration
+- **Profit factor** — target ≥1.5; below 1.0 means losing strategy
+- **Win rate** — context-dependent; a 40% win rate with 2:1 reward/risk is breakeven
+- **Max drawdown** — compare against starting equity; keep below 5% of paper equity
+- **Slippage** — large or consistently negative slippage means limit prices need tuning
+- **Rejection rate** — persistent >50% rejection rate means filters are too tight
+
+### Minimum recommended evaluation period
+
+Run at least **20 trading days** (≈4 weeks) before drawing conclusions. Options strategies have high variance and single-week results are noise.
+
+Extend evaluation if:
+- Fewer than 20 fills occurred (sample too small)
+- More than one market regime occurred (e.g., trending + volatile weeks)
+- Strategy parameters were changed mid-evaluation
+
+### Important: strategy changes during evaluation
+
+**Do NOT change strategy parameters during an evaluation period** unless you are fixing a clear mechanical bug (e.g., wrong column name, off-by-one in a filter).
+
+Acceptable mid-evaluation changes:
+- Bug fixes that do not change strategy logic
+- Configuration changes forced by broker API updates
+
+Changes that restart the evaluation clock:
+- Adjusting entry/exit thresholds
+- Changing symbol universe
+- Modifying stop-loss or take-profit levels
+- Adding or removing strategies
+
+When you make a logic change, start a fresh evaluation period and keep the old ledger archived.
 
 ---
 

@@ -1,0 +1,998 @@
+2026-06-11T13:29:58 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-11T13:30:15 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-11T13:30:15 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-11T13:30:15 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-11T13:30:15 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-11T13:30:15 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=300s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-06-11  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 300s
+════════════════════════════════════════════════════════════
+
+2026-06-11T13:30:16 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-11T13:30:16 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-11T13:30:16 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Thursday 2026-06-11 — trading day
+2026-06-11T13:30:16 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-11T13:30:16 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-11T13:30:16 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-11T13:30:16 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-11T13:30:16 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-11T13:30:16 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: No prior session log today — first run of the day
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Thursday 2026-06-11 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-06-11T13:30:16 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Thursday 2026-06-11 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-06-11T13:30:16 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-11T13:30:16 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-11 | starting_equity=99097.13
+2026-06-11T13:30:16 | INFO     | session_runner | Account: equity=99097.13 paper=True
+2026-06-11T13:30:16 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-11T13:30:16 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-11T13:30:16 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T13:30:16 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T13:30:16 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T13:30:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T13:30:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T13:30:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T13:30:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T13:30:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T13:30:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T13:30:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T13:30:17 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T13:30:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T13:30:19 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T13:30:19 | INFO     | session_runner |   XLE     score=48.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:30:19 | INFO     | session_runner |   ARM     score=48.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:30:19 | INFO     | session_runner |   SHOP    score=48.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T13:30:19 | INFO     | session_runner |   SNOW    score=48.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:30:19 | INFO     | session_runner |   XLF     score=46.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:30:20 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T13:30:20 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-06-11T13:30:20 | INFO     | session_runner | [cycle 1] 09:30:20 ET | positions=0 | entries=0
+2026-06-11T13:30:20 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T13:35:20 | INFO     | session_runner | [cycle 2] 09:35:20 ET | positions=0 | entries=0
+2026-06-11T13:35:20 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T13:35:20 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T13:35:20 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T13:35:20 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T13:35:20 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T13:35:20 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T13:35:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T13:35:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T13:35:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T13:35:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T13:35:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T13:35:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T13:35:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T13:35:22 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T13:35:22 | INFO     | session_runner |   ARM     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:35:22 | INFO     | session_runner |   XLY     score=50.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T13:35:22 | INFO     | session_runner |   AMD     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:35:22 | INFO     | session_runner |   SHOP    score=50.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T13:35:22 | INFO     | session_runner |   XLF     score=46.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:35:22 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T13:35:22 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T13:40:22 | INFO     | session_runner | [cycle 3] 09:40:22 ET | positions=0 | entries=0
+2026-06-11T13:40:22 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T13:40:22 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T13:40:23 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T13:40:23 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T13:40:23 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T13:40:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T13:40:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T13:40:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T13:40:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T13:40:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T13:40:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T13:40:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T13:40:24 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T13:40:24 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T13:40:25 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T13:40:25 | INFO     | session_runner |   XLK     score=50.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T13:40:25 | INFO     | session_runner |   XLE     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:40:25 | INFO     | session_runner |   ARM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:40:25 | INFO     | session_runner |   SHOP    score=50.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T13:40:25 | INFO     | session_runner |   META    score=48.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T13:40:25 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T13:40:25 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T13:45:25 | INFO     | session_runner | [cycle 4] 09:45:25 ET | positions=0 | entries=0
+2026-06-11T13:45:25 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T13:45:25 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T13:45:25 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T13:45:25 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T13:45:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T13:45:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T13:45:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T13:45:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T13:45:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T13:45:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T13:45:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T13:45:26 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T13:45:27 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T13:45:30 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T13:45:30 | INFO     | session_runner |   QQQ     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:45:30 | INFO     | session_runner |   XLK     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:45:30 | INFO     | session_runner |   SMH     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:45:30 | INFO     | session_runner |   ARM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:45:30 | INFO     | session_runner |   XLF     score=46.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:45:30 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T13:45:30 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T13:50:30 | INFO     | session_runner | [cycle 5] 09:50:30 ET | positions=0 | entries=0
+2026-06-11T13:50:30 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T13:50:30 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T13:50:30 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T13:50:30 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T13:50:30 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T13:50:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T13:50:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T13:50:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T13:50:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T13:50:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T13:50:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T13:50:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T13:50:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T13:50:32 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T13:50:33 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T13:50:33 | INFO     | session_runner |   IWM     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:50:33 | INFO     | session_runner |   SMH     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:50:33 | INFO     | session_runner |   ARM     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:50:33 | INFO     | session_runner |   XLK     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:50:33 | INFO     | session_runner |   XLY     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:50:33 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T13:50:33 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T13:55:33 | INFO     | session_runner | [cycle 6] 09:55:33 ET | positions=0 | entries=0
+2026-06-11T13:55:33 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T13:55:33 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T13:55:33 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T13:55:33 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T13:55:33 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T13:55:33 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T13:55:33 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T13:55:33 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T13:55:34 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T13:55:34 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T13:55:34 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T13:55:34 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T13:55:34 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T13:55:35 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T13:55:35 | INFO     | session_runner |   IWM     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:55:35 | INFO     | session_runner |   SMH     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:55:35 | INFO     | session_runner |   XLE     score=55.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T13:55:35 | INFO     | session_runner |   XLY     score=55.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:55:35 | INFO     | session_runner |   QQQ     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T13:55:35 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T13:55:35 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T14:00:35 | INFO     | session_runner | [cycle 7] 10:00:35 ET | positions=0 | entries=0
+2026-06-11T14:00:36 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T14:00:36 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T14:00:36 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T14:00:36 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T14:00:36 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T14:00:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T14:00:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T14:00:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T14:00:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T14:00:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T14:00:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T14:00:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T14:00:37 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T14:00:37 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T14:00:38 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T14:00:38 | INFO     | session_runner |   IWM     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:00:38 | INFO     | session_runner |   CRWD    score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:00:38 | INFO     | session_runner |   XLE     score=55.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:00:38 | INFO     | session_runner |   XLY     score=55.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:00:38 | INFO     | session_runner |   SMH     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:00:38 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T14:00:38 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T14:05:39 | INFO     | session_runner | [cycle 8] 10:05:39 ET | positions=0 | entries=0
+2026-06-11T14:05:39 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T14:05:39 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T14:05:39 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T14:05:39 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T14:05:39 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T14:05:39 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T14:05:39 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T14:05:39 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T14:05:39 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T14:05:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T14:05:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T14:05:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T14:05:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T14:05:41 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T14:05:41 | INFO     | session_runner |   SMH     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:05:41 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:05:41 | INFO     | session_runner |   DDOG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:05:41 | INFO     | session_runner |   XLK     score=62.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:05:41 | INFO     | session_runner |   NET     score=62.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:05:41 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T14:05:41 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T14:10:41 | INFO     | session_runner | [cycle 9] 10:10:41 ET | positions=0 | entries=0
+2026-06-11T14:10:42 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T14:10:42 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T14:10:42 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T14:10:42 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T14:10:42 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T14:10:42 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T14:10:42 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T14:10:42 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T14:10:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T14:10:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T14:10:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T14:10:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T14:10:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T14:10:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T14:10:44 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T14:10:44 | INFO     | session_runner |   NET     score=62.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:10:44 | INFO     | session_runner |   IWM     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:10:44 | INFO     | session_runner |   CRWD    score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:10:44 | INFO     | session_runner |   XLF     score=53.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:10:44 | INFO     | session_runner |   SMH     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:10:44 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T14:10:44 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T14:15:44 | INFO     | session_runner | [cycle 10] 10:15:44 ET | positions=0 | entries=0
+2026-06-11T14:15:44 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T14:15:44 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T14:15:44 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T14:15:44 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T14:15:45 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T14:15:45 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T14:15:45 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T14:15:45 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T14:15:45 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T14:15:45 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T14:15:45 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T14:15:45 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T14:15:46 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T14:15:48 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T14:15:48 | INFO     | session_runner |   META    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:15:48 | INFO     | session_runner |   XLF     score=53.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:15:48 | INFO     | session_runner |   AAPL    score=52.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:15:48 | INFO     | session_runner |   SMH     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:15:48 | INFO     | session_runner |   ARM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:15:48 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T14:15:48 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T14:20:48 | INFO     | session_runner | [cycle 11] 10:20:48 ET | positions=0 | entries=0
+2026-06-11T14:20:48 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T14:20:48 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T14:20:48 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T14:20:48 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T14:20:48 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T14:20:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T14:20:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T14:20:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T14:20:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T14:20:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T14:20:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T14:20:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T14:20:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T14:20:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T14:20:50 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T14:20:50 | INFO     | session_runner |   META    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:20:50 | INFO     | session_runner |   XLF     score=53.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:20:50 | INFO     | session_runner |   AAPL    score=52.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:20:50 | INFO     | session_runner |   GOOGL   score=52.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:20:50 | INFO     | session_runner |   NVDA    score=50.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:20:50 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T14:20:50 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T14:25:50 | INFO     | session_runner | [cycle 12] 10:25:50 ET | positions=0 | entries=0
+2026-06-11T14:25:50 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T14:25:50 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T14:25:50 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T14:25:50 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T14:25:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T14:25:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T14:25:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T14:25:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T14:25:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T14:25:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T14:25:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T14:25:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T14:25:53 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T14:25:54 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T14:25:54 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:25:54 | INFO     | session_runner |   NET     score=62.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:25:54 | INFO     | session_runner |   IWM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:25:54 | INFO     | session_runner |   SMH     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:25:54 | INFO     | session_runner |   ARM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:25:54 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T14:25:54 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T14:30:54 | INFO     | session_runner | [cycle 13] 10:30:54 ET | positions=0 | entries=0
+2026-06-11T14:30:54 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T14:30:54 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T14:30:54 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T14:30:54 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T14:30:54 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T14:30:55 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T14:30:55 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T14:30:55 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T14:30:55 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T14:30:55 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T14:30:55 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T14:30:55 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T14:30:55 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T14:30:56 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T14:30:56 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T14:30:56 | INFO     | session_runner |   META    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:30:56 | INFO     | session_runner |   CRWD    score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:30:56 | INFO     | session_runner |   IWM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:30:56 | INFO     | session_runner |   SMH     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:30:56 | INFO     | session_runner |   ARM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:30:56 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T14:30:56 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T14:35:57 | INFO     | session_runner | [cycle 14] 10:35:57 ET | positions=0 | entries=0
+2026-06-11T14:35:57 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T14:35:57 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T14:35:57 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T14:35:57 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T14:35:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T14:35:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T14:35:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T14:35:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T14:35:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T14:35:57 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T14:35:58 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T14:35:58 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T14:35:58 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T14:35:59 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T14:35:59 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:35:59 | INFO     | session_runner |   GOOGL   score=52.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:35:59 | INFO     | session_runner |   IWM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:35:59 | INFO     | session_runner |   SMH     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:35:59 | INFO     | session_runner |   ARM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:35:59 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T14:35:59 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T14:40:59 | INFO     | session_runner | [cycle 15] 10:40:59 ET | positions=0 | entries=0
+2026-06-11T14:41:00 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T14:41:00 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T14:41:00 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T14:41:00 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T14:41:00 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T14:41:00 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T14:41:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T14:41:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T14:41:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T14:41:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T14:41:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T14:41:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T14:41:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T14:41:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T14:41:03 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T14:41:03 | INFO     | session_runner |   CRWD    score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:41:03 | INFO     | session_runner |   IWM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:41:03 | INFO     | session_runner |   SMH     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:41:03 | INFO     | session_runner |   ARM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:41:03 | INFO     | session_runner |   SHOP    score=50.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:41:03 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T14:41:04 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T14:46:04 | INFO     | session_runner | [cycle 16] 10:46:04 ET | positions=0 | entries=0
+2026-06-11T14:46:04 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T14:46:04 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T14:46:04 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T14:46:04 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T14:46:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T14:46:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T14:46:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T14:46:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T14:46:05 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T14:46:05 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T14:46:05 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T14:46:05 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T14:46:05 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T14:46:06 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T14:46:06 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:46:06 | INFO     | session_runner |   META    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:46:06 | INFO     | session_runner |   IWM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:46:06 | INFO     | session_runner |   SHOP    score=50.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:46:06 | INFO     | session_runner |   SNOW    score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:46:06 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T14:46:06 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T14:51:06 | INFO     | session_runner | [cycle 17] 10:51:06 ET | positions=0 | entries=0
+2026-06-11T14:51:07 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T14:51:07 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T14:51:07 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T14:51:07 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T14:51:07 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T14:51:07 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T14:51:07 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T14:51:07 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T14:51:07 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T14:51:07 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T14:51:07 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T14:51:08 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T14:51:08 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T14:51:08 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T14:51:09 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T14:51:09 | INFO     | session_runner |   SHOP    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:51:09 | INFO     | session_runner |   META    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:51:09 | INFO     | session_runner |   MSFT    score=52.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:51:09 | INFO     | session_runner |   IWM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T14:51:09 | INFO     | session_runner |   NVDA    score=50.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:51:09 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T14:51:09 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T14:56:09 | INFO     | session_runner | [cycle 18] 10:56:09 ET | positions=0 | entries=0
+2026-06-11T14:56:09 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T14:56:09 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T14:56:09 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T14:56:09 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T14:56:10 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T14:56:10 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T14:56:10 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T14:56:10 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T14:56:10 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T14:56:10 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T14:56:10 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T14:56:10 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T14:56:11 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T14:56:12 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T14:56:12 | INFO     | session_runner |   SHOP    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:56:12 | INFO     | session_runner |   META    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:56:12 | INFO     | session_runner |   NVDA    score=57.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:56:12 | INFO     | session_runner |   XLF     score=53.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:56:12 | INFO     | session_runner |   AAPL    score=52.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T14:56:12 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T14:56:12 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T15:01:12 | INFO     | session_runner | [cycle 19] 11:01:12 ET | positions=0 | entries=0
+2026-06-11T15:01:12 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T15:01:12 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T15:01:12 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T15:01:12 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T15:01:12 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T15:01:13 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T15:01:13 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T15:01:13 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T15:01:13 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T15:01:13 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T15:01:13 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T15:01:13 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T15:01:13 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T15:01:14 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T15:01:14 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T15:01:14 | INFO     | session_runner |   SHOP    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:01:14 | INFO     | session_runner |   XLK     score=62.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:01:14 | INFO     | session_runner |   SMH     score=62.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:01:14 | INFO     | session_runner |   META    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:01:14 | INFO     | session_runner |   MSTR    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:01:15 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T15:01:15 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T15:06:15 | INFO     | session_runner | [cycle 20] 11:06:15 ET | positions=0 | entries=0
+2026-06-11T15:06:15 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T15:06:15 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T15:06:15 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T15:06:15 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T15:06:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T15:06:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T15:06:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T15:06:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T15:06:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T15:06:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T15:06:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T15:06:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T15:06:16 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T15:06:17 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T15:06:17 | INFO     | session_runner |   SHOP    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:06:17 | INFO     | session_runner |   META    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:06:17 | INFO     | session_runner |   MSTR    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:06:17 | INFO     | session_runner |   CRWD    score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:06:17 | INFO     | session_runner |   NVDA    score=57.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:06:17 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T15:06:17 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T15:11:17 | INFO     | session_runner | [cycle 21] 11:11:17 ET | positions=0 | entries=0
+2026-06-11T15:11:17 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T15:11:17 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T15:11:17 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T15:11:17 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T15:11:17 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T15:11:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T15:11:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T15:11:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T15:11:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T15:11:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T15:11:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T15:11:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T15:11:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T15:11:18 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T15:11:19 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T15:11:19 | INFO     | session_runner |   SHOP    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:11:19 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:11:19 | INFO     | session_runner |   DDOG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:11:19 | INFO     | session_runner |   META    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:11:19 | INFO     | session_runner |   XLF     score=53.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:11:19 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T15:11:19 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T15:16:19 | INFO     | session_runner | [cycle 22] 11:16:19 ET | positions=0 | entries=0
+2026-06-11T15:16:19 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T15:16:19 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T15:16:19 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T15:16:19 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T15:16:20 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T15:16:20 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T15:16:20 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T15:16:20 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T15:16:20 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T15:16:20 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T15:16:20 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T15:16:20 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T15:16:21 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T15:16:22 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T15:16:22 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:16:22 | INFO     | session_runner |   DDOG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:16:22 | INFO     | session_runner |   IWM     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:16:22 | INFO     | session_runner |   XLF     score=53.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:16:22 | INFO     | session_runner |   MSFT    score=52.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:16:22 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T15:16:22 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T15:21:22 | INFO     | session_runner | [cycle 23] 11:21:22 ET | positions=0 | entries=0
+2026-06-11T15:21:22 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T15:21:22 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T15:21:22 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T15:21:22 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T15:21:22 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T15:21:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T15:21:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T15:21:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T15:21:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T15:21:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T15:21:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T15:21:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T15:21:23 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T15:21:25 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T15:21:27 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T15:21:27 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:21:27 | INFO     | session_runner |   DDOG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:21:27 | INFO     | session_runner |   IWM     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:21:27 | INFO     | session_runner |   XLF     score=53.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:21:27 | INFO     | session_runner |   SMH     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:21:27 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T15:21:27 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T15:26:27 | INFO     | session_runner | [cycle 24] 11:26:27 ET | positions=0 | entries=0
+2026-06-11T15:26:27 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T15:26:27 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T15:26:27 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T15:26:27 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T15:26:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T15:26:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T15:26:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T15:26:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T15:26:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T15:26:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T15:26:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T15:26:28 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T15:26:29 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T15:26:29 | INFO     | session_runner | Scan: 0 passed, 27 rejected
+2026-06-11T15:26:29 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:26:29 | INFO     | session_runner |   DDOG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:26:29 | INFO     | session_runner |   XLF     score=53.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:26:29 | INFO     | session_runner |   IWM     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:26:29 | INFO     | session_runner |   NVDA    score=50.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:26:29 | WARNING  | session_runner | STANDBY: all_27_candidates_rejected_fallback_disabled
+2026-06-11T15:26:29 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-11T15:31:30 | INFO     | session_runner | [cycle 25] 11:31:30 ET | positions=0 | entries=0
+2026-06-11T15:31:30 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T15:31:30 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T15:31:30 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T15:31:30 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T15:31:30 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T15:31:30 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T15:31:30 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T15:31:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T15:31:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T15:31:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T15:31:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T15:31:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T15:31:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T15:31:31 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T15:31:32 | INFO     | session_runner | Scan: 1 passed, 26 rejected
+2026-06-11T15:31:32 | INFO     | session_runner |   QQQ     score=42.0  signal=SHORT    reasons: atr=2.40% (wide-range), trend_sideways, rsi=36 (healthy)
+2026-06-11T15:31:32 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:31:32 | INFO     | session_runner |   META    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:31:32 | INFO     | session_runner |   MSTR    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:31:32 | INFO     | session_runner |   NVDA    score=57.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:31:33 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260611P00685000 | delta=N/A | spread_pct=0.020 | OI=1875 | vol=34970
+2026-06-11T15:31:33 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260611P00685000 | exp=2026-06-11 | spread=1.98% | OI=1875 | vol=34970
+2026-06-11T15:31:33 | INFO     | session_runner | AlpacaConfirmer: 1 confirmed symbols: ['QQQ']
+2026-06-11T15:31:33 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ']
+2026-06-11T15:31:34 | INFO     | session_runner | [bridge:QQQ] rsi_trend ready: sufficient bars
+2026-06-11T15:31:34 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260611P00686000 | delta=N/A | spread_pct=0.018 | OI=976 | vol=15958
+2026-06-11T15:31:34 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN QQQ260611P00686000 | APPROVED | qty=1 | risk=$57.00
+2026-06-11T15:31:34 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'QQQ260611P00686000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.57', 'order_class': 'simple'}
+2026-06-11T15:31:34 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=1 exits=0
+2026-06-11T15:31:34 | INFO     | session_runner | Order placed: 4617a369 | QQQ260611P00686000 | limit=0.57 | status=pending_new
+2026-06-11T15:31:34 | INFO     | app.trading.trade_journal | Journal entry 8: short QQQ260611P00686000 @ 0.5700
+2026-06-11T15:31:34 | INFO     | app.trading.fill_tracker | FillTracker registered 4617a369 | QQQ260611P00686000 | limit=0.5700
+2026-06-11T15:36:34 | INFO     | session_runner | [cycle 26] 11:36:34 ET | positions=0 | entries=0
+2026-06-11T15:36:34 | WARNING  | app.trading.fill_tracker | FillTracker: stale order 4617a369 (5 min) — cancelling
+2026-06-11T15:36:35 | WARNING  | app.brokers.alpaca_broker | Cancel failed | order_id=4617a369-7519-471f-b111-7e48bb8768e5 | status=422
+2026-06-11T15:36:35 | INFO     | app.risk.risk_manager | RiskManager: entry cancelled | entries=0 pending=0 exits=0
+2026-06-11T15:36:35 | INFO     | app.trading.trade_journal | Journal cancellation 8: stale_cancelled
+2026-06-11T15:36:35 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T15:36:35 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T15:36:35 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T15:36:35 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T15:36:35 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T15:36:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T15:36:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T15:36:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T15:36:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T15:36:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T15:36:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T15:36:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T15:36:36 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T15:36:37 | INFO     | session_runner | Scan: 1 passed, 26 rejected
+2026-06-11T15:36:37 | INFO     | session_runner |   IWM     score=50.0  signal=LONG     reasons: atr=2.28% (wide-range), trend_up, rsi=51 (healthy)
+2026-06-11T15:36:37 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:36:37 | INFO     | session_runner |   DDOG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:36:37 | INFO     | session_runner |   META    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:36:37 | INFO     | session_runner |   XLF     score=53.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:36:38 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260611C00290000 | delta=N/A | spread_pct=0.087 | OI=1200 | vol=27093
+2026-06-11T15:36:38 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260611C00290000 | exp=2026-06-11 | spread=8.70% | OI=1200 | vol=27093
+2026-06-11T15:36:38 | INFO     | session_runner | AlpacaConfirmer: 1 confirmed symbols: ['IWM']
+2026-06-11T15:36:38 | INFO     | session_runner | Re-scan updated active symbols: ['IWM']
+2026-06-11T15:36:38 | INFO     | session_runner | [bridge:IWM] rsi_trend ready: sufficient bars
+2026-06-11T15:36:38 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260611C00290000 | delta=N/A | spread_pct=0.087 | OI=1200 | vol=27093
+2026-06-11T15:36:38 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN IWM260611C00290000 | APPROVED | qty=1 | risk=$12.00
+2026-06-11T15:36:38 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'IWM260611C00290000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.12', 'order_class': 'simple'}
+2026-06-11T15:36:38 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=1 exits=0
+2026-06-11T15:36:38 | INFO     | session_runner | Order placed: d55e18ad | IWM260611C00290000 | limit=0.12 | status=pending_new
+2026-06-11T15:36:38 | INFO     | app.trading.trade_journal | Journal entry 9: long IWM260611C00290000 @ 0.1200
+2026-06-11T15:36:38 | INFO     | app.trading.fill_tracker | FillTracker registered d55e18ad | IWM260611C00290000 | limit=0.1200
+2026-06-11T15:41:38 | INFO     | session_runner | [cycle 27] 11:41:38 ET | positions=0 | entries=0
+2026-06-11T15:41:38 | WARNING  | app.trading.fill_tracker | FillTracker: stale order d55e18ad (5 min) — cancelling
+2026-06-11T15:41:39 | WARNING  | app.brokers.alpaca_broker | Cancel failed | order_id=d55e18ad-29cf-4d0d-9319-94496165448e | status=422
+2026-06-11T15:41:39 | INFO     | app.risk.risk_manager | RiskManager: entry cancelled | entries=0 pending=0 exits=0
+2026-06-11T15:41:39 | INFO     | app.trading.trade_journal | Journal cancellation 9: stale_cancelled
+2026-06-11T15:41:39 | INFO     | app.trading.position_manager | Position opened | IWM260611C00290000 | entry=0.1000 | qty=1
+2026-06-11T15:41:39 | WARNING  | app.trading.reconciler | Reconciler: Reconciled: added broker position IWM260611C00290000 qty=1 cost=0.1000
+2026-06-11T15:41:39 | INFO     | app.trading.position_manager | Position opened | QQQ260611P00686000 | entry=0.5400 | qty=1
+2026-06-11T15:41:39 | WARNING  | app.trading.reconciler | Reconciler: Reconciled: added broker position QQQ260611P00686000 qty=1 cost=0.5400
+2026-06-11T15:41:39 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=2 local_pos=0 broker_orders=0 local_pending=0 repaired=2 flagged=0
+2026-06-11T15:41:39 | INFO     | session_runner | Position exit | QQQ260611P00686000 | reason=trailing_stop | price=0.3100 | pnl=-23.00
+2026-06-11T15:41:39 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'QQQ260611P00686000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.31', 'order_class': 'simple'}
+2026-06-11T15:41:39 | INFO     | session_runner | Exit order placed | QQQ260611P00686000 | limit=0.3100 | order_id=893553a5-3ea4-4ce8-9ca9-d6ad824fd550
+2026-06-11T15:41:39 | INFO     | app.trading.position_manager | Loss recorded on QQQ260611P00686000 (pnl=-23.00) — cooldown active for 15 min
+2026-06-11T15:41:39 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=0 exits=1 daily_pnl=-23.00
+2026-06-11T15:41:39 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-06-11T15:41:39 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T15:41:39 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T15:41:39 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T15:41:39 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T15:41:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T15:41:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T15:41:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T15:41:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T15:41:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T15:41:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T15:41:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T15:41:40 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T15:41:41 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T15:41:42 | INFO     | session_runner | Scan: 2 passed, 25 rejected
+2026-06-11T15:41:42 | INFO     | session_runner |   IWM     score=58.0  signal=LONG     reasons: atr=2.28% (wide-range), near_orb_level, trend_up
+2026-06-11T15:41:42 | INFO     | session_runner |   QQQ     score=42.0  signal=LONG     reasons: atr=2.39% (wide-range), trend_sideways, rsi=39 (healthy)
+2026-06-11T15:41:42 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:41:42 | INFO     | session_runner |   DDOG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:41:42 | INFO     | session_runner |   MSFT    score=52.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:41:42 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260611C00289000 | delta=N/A | spread_pct=0.041 | OI=469 | vol=47115
+2026-06-11T15:41:42 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260611C00289000 | exp=2026-06-11 | spread=4.08% | OI=469 | vol=47115
+2026-06-11T15:41:42 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260611C00713000 | delta=N/A | spread_pct=0.036 | OI=396 | vol=29038
+2026-06-11T15:41:42 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260611C00713000 | exp=2026-06-11 | spread=3.64% | OI=396 | vol=29038
+2026-06-11T15:41:42 | INFO     | session_runner | AlpacaConfirmer: 2 confirmed symbols: ['IWM', 'QQQ']
+2026-06-11T15:41:42 | INFO     | session_runner | Re-scan updated active symbols: ['IWM', 'QQQ']
+2026-06-11T15:46:42 | INFO     | session_runner | [cycle 28] 11:46:42 ET | positions=1 | entries=0
+2026-06-11T15:46:42 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T15:46:42 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T15:46:42 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T15:46:42 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T15:46:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T15:46:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T15:46:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T15:46:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T15:46:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T15:46:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T15:46:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T15:46:43 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T15:46:44 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T15:46:44 | INFO     | session_runner | Scan: 1 passed, 26 rejected
+2026-06-11T15:46:44 | INFO     | session_runner |   IWM     score=50.0  signal=LONG     reasons: atr=2.28% (wide-range), trend_up, rsi=51 (healthy)
+2026-06-11T15:46:44 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:46:44 | INFO     | session_runner |   DDOG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:46:44 | INFO     | session_runner |   MSTR    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:46:44 | INFO     | session_runner |   NVDA    score=57.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:46:45 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260611C00289000 | delta=N/A | spread_pct=0.054 | OI=469 | vol=47888
+2026-06-11T15:46:45 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260611C00289000 | exp=2026-06-11 | spread=5.41% | OI=469 | vol=47888
+2026-06-11T15:46:45 | INFO     | session_runner | AlpacaConfirmer: 1 confirmed symbols: ['IWM']
+2026-06-11T15:46:45 | INFO     | session_runner | Re-scan updated active symbols: ['IWM']
+2026-06-11T15:51:45 | INFO     | session_runner | [cycle 29] 11:51:45 ET | positions=1 | entries=0
+2026-06-11T15:51:45 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T15:51:46 | INFO     | session_runner | Position exit | IWM260611C00290000 | reason=trailing_stop | price=0.0400 | pnl=-6.00
+2026-06-11T15:51:46 | WARNING  | session_runner | Exit spread warning | IWM260611C00290000 | spread_pct=0.769 > max=0.100 | bid=0.0400 ask=0.0900 | reason=trailing_stop
+2026-06-11T15:51:46 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'IWM260611C00290000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.04', 'order_class': 'simple'}
+2026-06-11T15:51:46 | INFO     | session_runner | Exit order placed | IWM260611C00290000 | limit=0.0400 | order_id=8c951639-ec81-47ce-b220-2810b13ed452
+2026-06-11T15:51:46 | INFO     | app.trading.position_manager | Loss recorded on IWM260611C00290000 (pnl=-6.00) — cooldown active for 15 min
+2026-06-11T15:51:46 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=0 exits=2 daily_pnl=-29.00
+2026-06-11T15:51:46 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-06-11T15:51:46 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T15:51:46 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T15:51:46 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T15:51:46 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T15:51:46 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T15:51:46 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T15:51:46 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T15:51:46 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T15:51:46 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T15:51:46 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T15:51:46 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T15:51:47 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T15:51:47 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T15:51:48 | INFO     | session_runner | Scan: 1 passed, 26 rejected
+2026-06-11T15:51:48 | INFO     | session_runner |   IWM     score=40.0  signal=LONG     reasons: atr=2.28% (wide-range), trend_up, rsi=51 (healthy)
+2026-06-11T15:51:48 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:51:48 | INFO     | session_runner |   DDOG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:51:48 | INFO     | session_runner |   META    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:51:48 | INFO     | session_runner |   MSTR    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:51:48 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260611C00289000 | delta=N/A | spread_pct=0.069 | OI=469 | vol=48309
+2026-06-11T15:51:48 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260611C00289000 | exp=2026-06-11 | spread=6.90% | OI=469 | vol=48309
+2026-06-11T15:51:48 | INFO     | session_runner | AlpacaConfirmer: 1 confirmed symbols: ['IWM']
+2026-06-11T15:51:48 | INFO     | session_runner | Re-scan updated active symbols: ['IWM']
+2026-06-11T15:56:48 | INFO     | session_runner | [cycle 30] 11:56:48 ET | positions=0 | entries=0
+2026-06-11T15:56:48 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T15:56:48 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T15:56:48 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T15:56:48 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T15:56:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T15:56:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T15:56:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T15:56:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T15:56:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T15:56:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T15:56:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T15:56:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T15:56:49 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T15:56:50 | INFO     | session_runner | Scan: 1 passed, 26 rejected
+2026-06-11T15:56:50 | INFO     | session_runner |   IWM     score=40.0  signal=LONG     reasons: atr=2.29% (wide-range), trend_up, rsi=50 (healthy)
+2026-06-11T15:56:50 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T15:56:50 | INFO     | session_runner |   META    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:56:50 | INFO     | session_runner |   MSTR    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:56:50 | INFO     | session_runner |   XLF     score=53.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T15:56:51 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260611C00289000 | delta=N/A | spread_pct=0.087 | OI=469 | vol=48949
+2026-06-11T15:56:51 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260611C00289000 | exp=2026-06-11 | spread=8.70% | OI=469 | vol=48949
+2026-06-11T15:56:51 | INFO     | session_runner | AlpacaConfirmer: 1 confirmed symbols: ['IWM']
+2026-06-11T15:56:51 | INFO     | session_runner | Re-scan updated active symbols: ['IWM']
+2026-06-11T16:01:51 | INFO     | session_runner | [cycle 31] 12:01:51 ET | positions=0 | entries=0
+2026-06-11T16:01:51 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T16:01:51 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T16:01:51 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T16:01:51 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T16:01:51 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T16:01:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T16:01:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T16:01:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T16:01:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T16:01:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T16:01:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T16:01:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T16:01:52 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T16:01:53 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T16:01:54 | INFO     | session_runner | Scan: 2 passed, 25 rejected
+2026-06-11T16:01:54 | INFO     | session_runner |   IWM     score=50.0  signal=LONG     reasons: atr=2.28% (wide-range), trend_up, rsi=51 (healthy)
+2026-06-11T16:01:54 | INFO     | session_runner |   QQQ     score=42.0  signal=LONG     reasons: atr=2.39% (wide-range), trend_sideways, rsi=39 (healthy)
+2026-06-11T16:01:54 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T16:01:54 | INFO     | session_runner |   DDOG    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T16:01:54 | INFO     | session_runner |   MSTR    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T16:01:54 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260611C00288000 | delta=N/A | spread_pct=0.039 | OI=427 | vol=67581
+2026-06-11T16:01:54 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260611C00288000 | exp=2026-06-11 | spread=3.92% | OI=427 | vol=67581
+2026-06-11T16:02:00 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for QQQ SignalDirection.LONG | total_candidates=187
+2026-06-11T16:02:00 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for QQQ (signal=LONG)
+2026-06-11T16:02:00 | INFO     | session_runner | AlpacaConfirmer: 1 confirmed symbols: ['IWM']
+2026-06-11T16:02:00 | INFO     | session_runner | Re-scan updated active symbols: ['IWM']
+2026-06-11T16:07:00 | INFO     | session_runner | [cycle 32] 12:07:00 ET | positions=0 | entries=0
+2026-06-11T16:07:00 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T16:07:00 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T16:07:00 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T16:07:00 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T16:07:00 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T16:07:00 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T16:07:00 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T16:07:00 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T16:07:00 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T16:07:00 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T16:07:00 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T16:07:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T16:07:01 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T16:07:02 | INFO     | session_runner | Scan: 2 passed, 25 rejected
+2026-06-11T16:07:02 | INFO     | session_runner |   IWM     score=50.0  signal=LONG     reasons: atr=2.28% (wide-range), trend_up, rsi=51 (healthy)
+2026-06-11T16:07:02 | INFO     | session_runner |   QQQ     score=42.0  signal=LONG     reasons: atr=2.39% (wide-range), trend_sideways, rsi=39 (healthy)
+2026-06-11T16:07:02 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T16:07:02 | INFO     | session_runner |   MSTR    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T16:07:02 | INFO     | session_runner |   DDOG    score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T16:07:03 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260611C00289000 | delta=N/A | spread_pct=0.069 | OI=469 | vol=50171
+2026-06-11T16:07:03 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260611C00289000 | exp=2026-06-11 | spread=6.90% | OI=469 | vol=50171
+2026-06-11T16:07:03 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260611C00715000 | delta=N/A | spread_pct=0.080 | OI=2186 | vol=39553
+2026-06-11T16:07:03 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260611C00715000 | exp=2026-06-11 | spread=8.00% | OI=2186 | vol=39553
+2026-06-11T16:07:03 | INFO     | session_runner | AlpacaConfirmer: 2 confirmed symbols: ['IWM', 'QQQ']
+2026-06-11T16:07:03 | INFO     | session_runner | Re-scan updated active symbols: ['IWM', 'QQQ']
+2026-06-11T16:12:03 | INFO     | session_runner | [cycle 33] 12:12:03 ET | positions=0 | entries=0
+2026-06-11T16:12:03 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-11T16:12:03 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T16:12:03 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T16:12:03 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T16:12:03 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T16:12:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T16:12:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T16:12:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T16:12:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T16:12:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T16:12:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T16:12:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T16:12:04 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T16:12:05 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T16:12:06 | INFO     | session_runner | Scan: 4 passed, 23 rejected
+2026-06-11T16:12:06 | INFO     | session_runner |   IWM     score=50.0  signal=LONG     reasons: atr=2.28% (wide-range), trend_up, rsi=52 (healthy)
+2026-06-11T16:12:06 | INFO     | session_runner |   DIA     score=43.0  signal=LONG     reasons: atr=1.32% (good range), near_orb_level, trend_sideways
+2026-06-11T16:12:06 | INFO     | session_runner |   QQQ     score=42.0  signal=LONG     reasons: atr=2.38% (wide-range), trend_sideways, rsi=40 (healthy)
+2026-06-11T16:12:06 | INFO     | session_runner |   XLK     score=42.0  signal=LONG     reasons: atr=3.58% (wide-range), trend_sideways, rsi=42 (healthy)
+2026-06-11T16:12:06 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T16:12:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260611C00289000 | delta=N/A | spread_pct=0.061 | OI=469 | vol=50695
+2026-06-11T16:12:06 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260611C00289000 | exp=2026-06-11 | spread=6.06% | OI=469 | vol=50695
+2026-06-11T16:12:07 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected DIA260612C00506000 | delta=0.413 | spread_pct=0.097 | OI=217 | vol=206
+2026-06-11T16:12:07 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed DIA | DIA260612C00506000 | exp=2026-06-12 | spread=9.72% | OI=217 | vol=206
+2026-06-11T16:12:07 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLK SignalDirection.LONG | total_candidates=85
+2026-06-11T16:12:07 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLK (signal=LONG)
+2026-06-11T16:12:07 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260611C00715000 | delta=N/A | spread_pct=0.065 | OI=2186 | vol=39865
+2026-06-11T16:12:07 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260611C00715000 | exp=2026-06-11 | spread=6.45% | OI=2186 | vol=39865
+2026-06-11T16:12:07 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['IWM', 'DIA', 'QQQ']
+2026-06-11T16:12:07 | INFO     | session_runner | Re-scan updated active symbols: ['IWM', 'DIA', 'QQQ']
+2026-06-11T16:12:07 | INFO     | session_runner | [bridge:DIA] rsi_trend ready: sufficient bars
+2026-06-11T16:12:07 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected DIA260612C00506000 | delta=0.412 | spread_pct=0.088 | OI=217 | vol=206
+2026-06-11T16:12:07 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN DIA260612C00506000 | APPROVED | qty=1 | risk=$200.90
+2026-06-11T16:12:07 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'DIA260612C00506000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '2.01', 'order_class': 'simple'}
+2026-06-11T16:12:08 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=1 exits=2
+2026-06-11T16:12:08 | INFO     | session_runner | Order placed: b32c943f | DIA260612C00506000 | limit=2.01 | status=pending_new
+2026-06-11T16:12:08 | INFO     | app.trading.trade_journal | Journal entry 10: long DIA260612C00506000 @ 2.0100
+2026-06-11T16:12:08 | INFO     | app.trading.fill_tracker | FillTracker registered b32c943f | DIA260612C00506000 | limit=2.0100
+2026-06-11T16:12:08 | INFO     | session_runner | Max symbols traded per day (3) reached
+2026-06-11T16:17:08 | INFO     | session_runner | [cycle 34] 12:17:08 ET | positions=0 | entries=0
+2026-06-11T16:17:08 | WARNING  | app.trading.fill_tracker | FillTracker: stale order b32c943f (5 min) — cancelling
+2026-06-11T16:17:08 | WARNING  | app.brokers.alpaca_broker | Cancel failed | order_id=b32c943f-f1ce-4131-a221-c774c861b0eb | status=422
+2026-06-11T16:17:08 | INFO     | app.risk.risk_manager | RiskManager: entry cancelled | entries=0 pending=0 exits=2
+2026-06-11T16:17:08 | INFO     | app.trading.trade_journal | Journal cancellation 10: stale_cancelled
+2026-06-11T16:17:08 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T16:17:08 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T16:17:08 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T16:17:08 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T16:17:08 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T16:17:08 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T16:17:09 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T16:17:09 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T16:17:09 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T16:17:09 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T16:17:09 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T16:17:09 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T16:17:09 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T16:17:10 | INFO     | session_runner | Scan: 4 passed, 23 rejected
+2026-06-11T16:17:10 | INFO     | session_runner |   IWM     score=50.0  signal=LONG     reasons: atr=2.28% (wide-range), trend_up, rsi=52 (healthy)
+2026-06-11T16:17:10 | INFO     | session_runner |   DIA     score=43.0  signal=LONG     reasons: atr=1.32% (good range), near_orb_level, trend_sideways
+2026-06-11T16:17:10 | INFO     | session_runner |   QQQ     score=42.0  signal=LONG     reasons: atr=2.38% (wide-range), trend_sideways, rsi=40 (healthy)
+2026-06-11T16:17:10 | INFO     | session_runner |   XLK     score=42.0  signal=LONG     reasons: atr=3.58% (wide-range), trend_sideways, rsi=42 (healthy)
+2026-06-11T16:17:10 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T16:17:10 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected DIA260612C00505000 | delta=0.466 | spread_pct=0.050 | OI=140 | vol=639
+2026-06-11T16:17:10 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed DIA | DIA260612C00505000 | exp=2026-06-12 | spread=4.96% | OI=140 | vol=639
+2026-06-11T16:17:11 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260611C00289000 | delta=N/A | spread_pct=0.080 | OI=469 | vol=51237
+2026-06-11T16:17:11 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260611C00289000 | exp=2026-06-11 | spread=8.00% | OI=469 | vol=51237
+2026-06-11T16:17:11 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLK SignalDirection.LONG | total_candidates=85
+2026-06-11T16:17:11 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLK (signal=LONG)
+2026-06-11T16:17:11 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260611C00716000 | delta=N/A | spread_pct=0.080 | OI=505 | vol=18560
+2026-06-11T16:17:11 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260611C00716000 | exp=2026-06-11 | spread=8.00% | OI=505 | vol=18560
+2026-06-11T16:17:11 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['IWM', 'DIA', 'QQQ']
+2026-06-11T16:17:11 | INFO     | session_runner | Re-scan updated active symbols: ['IWM', 'DIA', 'QQQ']
+2026-06-11T16:22:11 | INFO     | session_runner | [cycle 35] 12:22:11 ET | positions=0 | entries=0
+2026-06-11T16:22:11 | INFO     | app.trading.position_manager | Position opened | DIA260612C00506000 | entry=2.0100 | qty=1
+2026-06-11T16:22:11 | WARNING  | app.trading.reconciler | Reconciler: Reconciled: added broker position DIA260612C00506000 qty=1 cost=2.0100
+2026-06-11T16:22:11 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=0 broker_orders=0 local_pending=0 repaired=1 flagged=0
+2026-06-11T16:22:11 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T16:22:11 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T16:22:11 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T16:22:11 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T16:22:12 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T16:22:12 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T16:22:12 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T16:22:12 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T16:22:12 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T16:22:12 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T16:22:12 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T16:22:12 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T16:22:12 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T16:22:13 | INFO     | session_runner | Scan: 4 passed, 23 rejected
+2026-06-11T16:22:13 | INFO     | session_runner |   DIA     score=43.0  signal=LONG     reasons: atr=1.32% (good range), near_orb_level, trend_sideways
+2026-06-11T16:22:13 | INFO     | session_runner |   QQQ     score=42.0  signal=LONG     reasons: atr=2.38% (wide-range), trend_sideways, rsi=40 (healthy)
+2026-06-11T16:22:13 | INFO     | session_runner |   XLK     score=42.0  signal=LONG     reasons: atr=3.59% (wide-range), trend_sideways, rsi=42 (healthy)
+2026-06-11T16:22:13 | INFO     | session_runner |   IWM     score=40.0  signal=LONG     reasons: atr=2.28% (wide-range), trend_up, rsi=51 (healthy)
+2026-06-11T16:22:13 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T16:22:14 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLK SignalDirection.LONG | total_candidates=85
+2026-06-11T16:22:14 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLK (signal=LONG)
+2026-06-11T16:22:14 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected DIA260612C00505000 | delta=0.458 | spread_pct=0.069 | OI=140 | vol=639
+2026-06-11T16:22:14 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed DIA | DIA260612C00505000 | exp=2026-06-12 | spread=6.87% | OI=140 | vol=639
+2026-06-11T16:22:14 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260611C00288000 | delta=N/A | spread_pct=0.044 | OI=427 | vol=72096
+2026-06-11T16:22:14 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260611C00288000 | exp=2026-06-11 | spread=4.44% | OI=427 | vol=72096
+2026-06-11T16:22:14 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260611C00712000 | delta=N/A | spread_pct=0.035 | OI=1008 | vol=46833
+2026-06-11T16:22:14 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260611C00712000 | exp=2026-06-11 | spread=3.51% | OI=1008 | vol=46833
+2026-06-11T16:22:14 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['DIA', 'QQQ', 'IWM']
+2026-06-11T16:22:14 | INFO     | session_runner | Re-scan updated active symbols: ['DIA', 'QQQ', 'IWM']
+2026-06-11T16:27:14 | INFO     | session_runner | [cycle 36] 12:27:14 ET | positions=1 | entries=0
+2026-06-11T16:27:14 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-11T16:27:14 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-11T16:27:14 | INFO     | app.scanning.universe_loader | UniverseLoader: 27 symbols from 3 group(s) (blacklist=0)
+2026-06-11T16:27:14 | INFO     | session_runner | Universe scan: 27 symbols from 3 group(s) | max_active=3
+2026-06-11T16:27:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: DIA"}}}
+2026-06-11T16:27:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: QQQ"}}}
+2026-06-11T16:27:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLK"}}}
+2026-06-11T16:27:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLY"}}}
+2026-06-11T16:27:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLF"}}}
+2026-06-11T16:27:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SPY"}}}
+2026-06-11T16:27:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: XLE"}}}
+2026-06-11T16:27:15 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: IWM"}}}
+2026-06-11T16:27:16 | ERROR    | yfinance | HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"No fundamentals data found for symbol: SMH"}}}
+2026-06-11T16:27:16 | INFO     | session_runner | Scan: 2 passed, 25 rejected
+2026-06-11T16:27:16 | INFO     | session_runner |   QQQ     score=42.0  signal=LONG     reasons: atr=2.39% (wide-range), trend_sideways, rsi=39 (healthy)
+2026-06-11T16:27:16 | INFO     | session_runner |   IWM     score=40.0  signal=LONG     reasons: atr=2.29% (wide-range), trend_up, rsi=50 (healthy)
+2026-06-11T16:27:16 | INFO     | session_runner |   CRWD    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-11T16:27:16 | INFO     | session_runner |   MSTR    score=60.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T16:27:16 | INFO     | session_runner |   MSFT    score=52.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-11T16:27:17 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260611C00288000 | delta=N/A | spread_pct=0.080 | OI=427 | vol=74306
+2026-06-11T16:27:17 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260611C00288000 | exp=2026-06-11 | spread=8.00% | OI=427 | vol=74306
+2026-06-11T16:27:17 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected QQQ260611C00712000 | delta=N/A | spread_pct=0.049 | OI=1008 | vol=48303
+2026-06-11T16:27:17 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed QQQ | QQQ260611C00712000 | exp=2026-06-11 | spread=4.88% | OI=1008 | vol=48303
+2026-06-11T16:27:17 | INFO     | session_runner | AlpacaConfirmer: 2 confirmed symbols: ['QQQ', 'IWM']
+2026-06-11T16:27:17 | INFO     | session_runner | Re-scan updated active symbols: ['QQQ', 'IWM']
+2026-06-11T16:32:17 | INFO     | session_runner | [cycle 37] 12:32:17 ET | positions=1 | entries=0
+2026-06-11T16:32:17 | WARNING  | session_runner | EOD time reached — cancelling pending orders and liquidating all positions
+2026-06-11T16:32:17 | WARNING  | session_runner | EOD liquidation: closing 1 position(s)
+2026-06-11T16:32:17 | WARNING  | session_runner | Exit spread warning | DIA260612C00506000 | spread_pct=0.101 > max=0.100 | bid=1.4100 ask=1.5600 | reason=eod_exit (proceeding)
+2026-06-11T16:32:17 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'DIA260612C00506000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '1.41', 'order_class': 'simple'}
+2026-06-11T16:32:18 | INFO     | session_runner | EOD exit order placed | DIA260612C00506000 | limit=1.4100 | order_id=16aef947-18d7-4a2c-86ca-4ee67105f33c
+2026-06-11T16:32:18 | INFO     | app.trading.position_manager | Loss recorded on DIA260612C00506000 (pnl=-60.00) — cooldown active for 15 min
+2026-06-11T16:32:18 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=0 exits=3 daily_pnl=-89.00
+2026-06-11T16:32:18 | INFO     | session_runner | EOD closed DIA260612C00506000 pnl=-60.00
+2026-06-11T16:32:18 | INFO     | session_runner | EOD complete — exiting session loop
+2026-06-11T16:32:18 | INFO     | session_runner | Shutdown: 0 position(s) open, 0 order(s) pending
+2026-06-11T16:32:18 | INFO     | session_runner | Health report: {"session_date": "2026-06-11", "generated_at": "2026-06-11T12:32:18.113417-04:00", "api_errors": 0, "reconciliation_warnings": [], "trades": {"total_closed": 0, "wins": 0, "losses": 0, "win_rate": 0.0, "still_open": 0, "rejected": 0, "cancelled": 3}, "realized_pnl": 0, "unrealized_pnl": 0, "avg_win": 0.0, "avg_loss": 0.0, "max_drawdown": 0.0, "orders": {"submitted": 3, "filled": 0, "partial_fills": 0, "cancelled": 3, "stale_cancels": 3, "rejected": 0, "status_breakdown": {"cancelled": 3}}, "by_strategy": {}}
+2026-06-11T16:32:18 | INFO     | session_runner | Health report written to logs/session_2026-06-11.json
+2026-06-11T16:32:18 | WARNING  | app.evaluation.post_session | Post-session: 1 orphaned broker position(s) not in local state: ['DIA260612C00506000']
+2026-06-11T16:32:18 | INFO     | app.evaluation.post_session | Post-session: ORB forward performance: 0 rows updated
+2026-06-11T16:32:18 | INFO     | app.evaluation.post_session | Post-session: evaluation report saved → evaluation/reports/2026-06-11.json
+2026-06-11T16:32:18 | WARNING  | app.evaluation.ledger | Skipping malformed ledger entry: LedgerEntry.__init__() got an unexpected keyword argument 'notes'
+2026-06-11T16:32:18 | INFO     | app.evaluation.ledger | Evaluation ledger saved to evaluation/ledger.json (12 session(s))
+2026-06-11T16:32:18 | INFO     | app.evaluation.post_session | Post-session complete | date=2026-06-11 | cancelled=0 | report=evaluation/reports/2026-06-11.json | ledger=True
+2026-06-11T16:32:18 | INFO     | session_runner | Post-session evaluation | report=evaluation/reports/2026-06-11.json | ledger_updated=True | errors=none
+2026-06-11T16:32:18 | INFO     | session_runner | Session complete | cycles=37 | placed=2 | pnl=-89.00
+
+  Session complete — 37 cycles | 2 orders | P&L $-89.00
+
+pdated
+2026-06-11T16:32:18 | INFO     | app.evaluation.post_session | Post-session: evaluation report saved → evaluation/reports/2026-06-11.json
+2026-06-11T16:32:18 | WARNING  | app.evaluation.ledger | Skipping malformed ledger entry: LedgerEntry.__init__() got an unexpected keyword argument 'notes'
+2026-06-11T16:32:18 | INFO     | app.evaluation.ledger | Evaluation ledger saved to evaluation/ledger.json (12 session(s))
+2026-06-11T16:32:18 | INFO     | app.evaluation.post_session | Post-session complete | date=2026-06-11 | cancelled=0 | report=evaluation/reports/2026-06-11.json | ledger=True
+2026-06-11T16:32:18 | INFO     | session_runner | Post-session evaluation | report=evaluation/reports/2026-06-11.json | ledger_updated=True | errors=none
+2026-06-11T16:32:18 | INFO     | session_runner | Session complete | cycles=37 | placed=2 | pnl=-89.00

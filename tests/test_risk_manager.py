@@ -116,7 +116,7 @@ def test_max_trades_per_day(mock_option_contract):
 
     # Fill to the limit
     for _ in range(3):
-        rm.record_trade()
+        rm.record_entry_pending()
 
     result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=SAFE_NOW)
     assert not result.passed
@@ -126,7 +126,7 @@ def test_max_trades_per_day(mock_option_contract):
 def test_under_max_trades_passes(mock_option_contract):
     rm = RiskManager(_make_settings())
     rm.start_session(EQUITY)
-    rm.record_trade()
+    rm.record_entry_pending()
 
     result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=SAFE_NOW)
     assert RiskCheck.MAX_TRADES_PER_DAY not in result.failed_checks
@@ -138,7 +138,7 @@ def test_max_daily_loss(mock_option_contract):
     rm = RiskManager(_make_settings())
     rm.start_session(EQUITY)
     # Record a loss exceeding 2% of $100,000 = $2,000
-    rm.record_trade(pnl=Decimal("-2500"))
+    rm.record_exit(pnl=Decimal("-2500"))
 
     result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=SAFE_NOW)
     assert not result.passed
@@ -148,7 +148,7 @@ def test_max_daily_loss(mock_option_contract):
 def test_within_daily_loss_passes(mock_option_contract):
     rm = RiskManager(_make_settings())
     rm.start_session(EQUITY)
-    rm.record_trade(pnl=Decimal("-500"))  # only 0.5% loss
+    rm.record_exit(pnl=Decimal("-500"))  # only 0.5% loss
 
     result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=SAFE_NOW)
     assert RiskCheck.MAX_DAILY_LOSS not in result.failed_checks
@@ -243,6 +243,48 @@ def test_position_sizing_expensive_option():
     # At $15.00 ask → cost per contract = $1500 > $1000 → 0 contracts
     n = rm.position_size_contracts(EQUITY, Decimal("15.00"))
     assert n == 0
+
+
+# ── EOD entry cutoff ─────────────────────────────────────────────────────────
+
+def test_eod_entry_cutoff_blocks_too_close(mock_option_contract):
+    from app.config.settings import PositionSettings
+    settings = _make_settings(
+        position=PositionSettings(eod_exit_time="12:30", min_entry_minutes_before_eod=30),
+    )
+    rm = RiskManager(settings)
+    rm.start_session(EQUITY)
+    # 12:20 ET — only 10 min before 12:30 EOD, below the 30-min minimum
+    near_eod = datetime(2024, 1, 2, 12, 20, tzinfo=ET)
+    result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=near_eod)
+    assert not result.passed
+    assert RiskCheck.EOD_ENTRY_CUTOFF in result.failed_checks
+
+
+def test_eod_entry_cutoff_passes_with_enough_time(mock_option_contract):
+    from app.config.settings import PositionSettings
+    settings = _make_settings(
+        position=PositionSettings(eod_exit_time="12:30", min_entry_minutes_before_eod=30),
+    )
+    rm = RiskManager(settings)
+    rm.start_session(EQUITY)
+    # 11:45 ET — 45 min before 12:30 EOD, above the 30-min minimum
+    safe = datetime(2024, 1, 2, 11, 45, tzinfo=ET)
+    result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=safe)
+    assert RiskCheck.EOD_ENTRY_CUTOFF not in result.failed_checks
+
+
+def test_eod_entry_cutoff_ignored_after_eod(mock_option_contract):
+    from app.config.settings import PositionSettings
+    settings = _make_settings(
+        position=PositionSettings(eod_exit_time="12:30", min_entry_minutes_before_eod=30),
+    )
+    rm = RiskManager(settings)
+    rm.start_session(EQUITY)
+    # 13:00 ET — past EOD; the check must not fire (session_buffer handles this window)
+    after_eod = datetime(2024, 1, 2, 13, 0, tzinfo=ET)
+    result = rm.check_order(_make_order(), EQUITY, mock_option_contract, now=after_eod)
+    assert RiskCheck.EOD_ENTRY_CUTOFF not in result.failed_checks
 
 
 # ── Earnings blackout ─────────────────────────────────────────────────────────

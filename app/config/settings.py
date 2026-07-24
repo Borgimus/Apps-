@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import List, Optional
 
 import yaml
-from pydantic import field_validator, model_validator
+from pydantic import field_validator, model_validator  # noqa: F401 (model_validator used below)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -47,7 +47,7 @@ def _yaml_get(*keys, default=None):
 
 
 class RiskSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="RISK_", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="RISK_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     max_risk_per_trade: float = _yaml_get("risk", "max_risk_per_trade", default=0.01)
     max_trades_per_day: int = _yaml_get("risk", "max_trades_per_day", default=3)
@@ -57,19 +57,98 @@ class RiskSettings(BaseSettings):
     max_spread_pct: float = _yaml_get("risk", "max_spread_pct", default=0.10)
     earnings_blackout_days: int = _yaml_get("risk", "earnings_blackout_days", default=1)
     allow_earnings_trades: bool = _yaml_get("risk", "allow_earnings_trades", default=False)
+    # Underlying-level liquidity guards (applied in CandidateScorer)
+    min_underlying_price: float = _yaml_get("risk", "min_underlying_price", default=5.0)
+    min_underlying_avg_volume: int = _yaml_get(
+        "risk", "min_underlying_avg_volume", default=500_000
+    )
 
 
 class OptionsSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="OPTIONS_", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="OPTIONS_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     preferred_dte: List[int] = _yaml_get("options", "preferred_dte", default=[0, 1, 2])
     delta_target_min: float = _yaml_get("options", "delta_target_min", default=0.35)
     delta_target_max: float = _yaml_get("options", "delta_target_max", default=0.45)
     limit_price_offset_pct: float = _yaml_get("options", "limit_price_offset_pct", default=0.02)
 
+    # Pricing modes: bid | mid | ask | marketable_limit
+    entry_limit_price_mode: str = _yaml_get("options", "entry_limit_price_mode", default="mid")
+    exit_limit_price_mode: str = _yaml_get("options", "exit_limit_price_mode", default="mid")
+    # Fraction of spread width added above ask in marketable_limit mode
+    entry_marketable_offset_pct: float = _yaml_get("options", "entry_marketable_offset_pct", default=0.01)
+    exit_marketable_offset_pct: float = _yaml_get("options", "exit_marketable_offset_pct", default=0.01)
+
+
+class PositionSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="POSITION_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    stop_loss_pct: float = _yaml_get("position", "stop_loss_pct", default=0.50)
+    take_profit_pct: float = _yaml_get("position", "take_profit_pct", default=1.00)
+    trailing_stop_pct: float = _yaml_get("position", "trailing_stop_pct", default=0.25)
+    max_hold_minutes: int = _yaml_get("position", "max_hold_minutes", default=120)
+    eod_exit_time: str = _yaml_get("position", "eod_exit_time", default="15:45")
+    cooldown_after_loss_minutes: int = _yaml_get("position", "cooldown_after_loss_minutes", default=15)
+    # Minimum minutes remaining before eod_exit_time required to allow a new entry.
+    # Prevents entering positions that will be force-closed before they can develop.
+    min_entry_minutes_before_eod: int = _yaml_get(
+        "position", "min_entry_minutes_before_eod", default=30
+    )
+    # Maximum age of a strategy signal in minutes. Signals older than this are
+    # discarded before ordering. 0 = disabled (use date-only filter only).
+    max_signal_age_minutes: int = _yaml_get(
+        "position", "max_signal_age_minutes", default=60
+    )
+
+
+class UniverseSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="UNIVERSE_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    mode: str = _yaml_get("universe", "mode", default="manual")
+    file: str = _yaml_get("universe", "file", default="./config/ticker_universe.yaml")
+    max_symbols_per_scan: int = _yaml_get("universe", "max_symbols_per_scan", default=10)
+    max_active_symbols: int = _yaml_get("universe", "max_active_symbols", default=3)
+    max_symbols_traded_per_day: int = _yaml_get("universe", "max_symbols_traded_per_day", default=1)
+    max_active_positions: int = _yaml_get("universe", "max_active_positions", default=1)
+    min_scan_score: float = _yaml_get("universe", "min_scan_score", default=40.0)
+    scan_interval_minutes: int = _yaml_get("universe", "scan_interval_minutes", default=30)
+    # When all scanner candidates are rejected, block CLI fallback trades (safe default=False).
+    # If True, fallback is still gated by fallback_min_rvol.
+    allow_cli_fallback_when_scanner_rejects: bool = _yaml_get(
+        "universe", "allow_cli_fallback_when_scanner_rejects", default=False
+    )
+    fallback_min_rvol: float = _yaml_get("universe", "fallback_min_rvol", default=0.20)
+    # Hard cap on contracts per individual position (1 = never size up).
+    max_contracts_per_position: int = _yaml_get(
+        "universe", "max_contracts_per_position", default=1
+    )
+    # Group-based universe settings
+    groups_enabled: str = _yaml_get(
+        "universe", "groups_enabled",
+        default="core_etfs,mega_cap,liquid_growth",
+    )
+    include_experimental: bool = _yaml_get(
+        "universe", "include_experimental", default=False
+    )
+    max_total_symbols: int = _yaml_get("universe", "max_total_symbols", default=40)
+    max_per_group: int = _yaml_get("universe", "max_per_group", default=15)
+
+
+class RSITrendSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_prefix="RSI_TREND_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    enabled: bool = _yaml_get("strategies", "rsi_trend", "enabled", default=True)
+    rsi_period: int = _yaml_get("strategies", "rsi_trend", "rsi_period", default=14)
+    rsi_oversold: float = _yaml_get("strategies", "rsi_trend", "rsi_oversold", default=35.0)
+    rsi_overbought: float = _yaml_get("strategies", "rsi_trend", "rsi_overbought", default=65.0)
+    trend_ema_period: int = _yaml_get("strategies", "rsi_trend", "trend_ema_period", default=50)
+    bar_interval: str = _yaml_get("strategies", "rsi_trend", "bar_interval", default="5m")
+    # Allowed: "standard" | "fast_intraday_diagnostic" (paper-only, disabled by default)
+    mode: str = _yaml_get("strategies", "rsi_trend", "mode", default="standard")
+
 
 class BacktestSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="BACKTEST_", extra="ignore")
+    model_config = SettingsConfigDict(env_prefix="BACKTEST_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     output_dir: str = _yaml_get("backtesting", "output_dir", default="./backtest_results")
     default_start: str = _yaml_get("backtesting", "default_start", default="2023-01-01")
@@ -133,6 +212,54 @@ class Settings(BaseSettings):
     risk: RiskSettings = RiskSettings()
     options: OptionsSettings = OptionsSettings()
     backtesting: BacktestSettings = BacktestSettings()
+    position: PositionSettings = PositionSettings()
+    universe: UniverseSettings = UniverseSettings()
+    rsi_trend: RSITrendSettings = RSITrendSettings()
+
+    # ── Paper evaluation permissive entry mode ────────────────────────────────
+    # When true: single qualifying strategy signal can enter if scanner, liquidity,
+    # spread, and risk gates all pass.  Requires paper_evaluation_mode=true and
+    # live_trading_enabled=false.  Adds signal-to-trade bridge diagnostics and
+    # deterministic signal ranking.  No effect on existing behavior when false.
+    paper_eval_permissive_entry_mode: bool = False
+
+    # ── ORB slot reservation ──────────────────────────────────────────────────
+    # Before this ET time, if non-ORB entries used ≥ (max_trades_per_day − 1),
+    # remaining entry slots are reserved for ORB signals only.
+    # Active only when paper_eval_permissive_entry_mode=true.
+    orb_slot_reserve_until: str = "11:30"
+
+    # ── Paper evaluation mode ─────────────────────────────────────────────────
+    # When enabled: paper-only session with pre/post checklists, daily reports,
+    # and a cumulative ledger.  Incompatible with live_trading_enabled=true.
+    paper_evaluation_mode: bool = False
+    evaluation_output_dir: str = "./evaluation"
+    evaluation_ledger_file: str = "./evaluation/ledger.json"
+
+    # ── Realistic fill test mode ──────────────────────────────────────────────
+    # Forces marketable_limit pricing, SPY-only, qty=1, detailed telemetry.
+    # Requires paper account.  Hard-stops if spread exceeds fill_test_max_spread_pct.
+    realistic_fill_test_mode: bool = False
+    entry_order_timeout_secs: int = 120    # stale cancel threshold for entry orders
+    exit_order_timeout_secs: int = 120     # stale cancel threshold for exit orders
+    fill_test_max_spread_pct: float = 0.20 # abort contract if spread/mid > this
+
+    @model_validator(mode="after")
+    def guard_eval_mode(self):
+        if self.paper_evaluation_mode and self.live_trading_enabled:
+            raise ValueError(
+                "paper_evaluation_mode and live_trading_enabled cannot both be true."
+            )
+        if self.paper_eval_permissive_entry_mode:
+            if self.live_trading_enabled:
+                raise ValueError(
+                    "paper_eval_permissive_entry_mode cannot be used with live_trading_enabled=true."
+                )
+            if not self.paper_evaluation_mode:
+                raise ValueError(
+                    "paper_eval_permissive_entry_mode requires paper_evaluation_mode=true."
+                )
+        return self
 
     @field_validator("live_trading_enabled", mode="before")
     @classmethod

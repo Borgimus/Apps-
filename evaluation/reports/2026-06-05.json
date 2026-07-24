@@ -1,0 +1,297 @@
+{
+  "date": "2026-06-05",
+  "session_start": "2026-06-05 11:04:06 EDT",
+  "session_end": "2026-06-05 12:30:27 EDT",
+  "total_signals": 0,
+  "trades_submitted": 4,
+  "trades_filled": 3,
+  "trades_cancelled": 1,
+  "trades_rejected": 62,
+  "realized_pnl": 2.0000000000000036,
+  "unrealized_pnl": 0,
+  "win_rate": 0.3333333333333333,
+  "avg_win": 13.00000000000001,
+  "avg_loss": -5.5000000000000036,
+  "max_drawdown": 11.000000000000007,
+  "largest_win": 13.00000000000001,
+  "largest_loss": -8.000000000000007,
+  "slippage_total": -0.0399999999999999,
+  "spread_cost_estimate": 5.999999999999993,
+  "fill_rate": 0.75,
+  "cancel_rate": 0.25,
+  "missed_fills_count": 1,
+  "time_to_fill_avg_secs": 32.114185666666664,
+  "avg_spread_at_entry": 0.05698278015161027,
+  "avg_spread_at_exit": 0.10090702947845802,
+  "stop_loss_hit_pct": 0.0,
+  "take_profit_hit_pct": 0.0,
+  "eod_exit_pct": 0.0,
+  "fill_rate_by_mode": {
+    "marketable_limit": 0.75
+  },
+  "cancel_rate_by_mode": {
+    "marketable_limit": 0.25
+  },
+  "avg_fill_latency_by_mode": {
+    "marketable_limit": 32.114185666666664
+  },
+  "cancel_reason_breakdown": {
+    "stale_cancelled": 1
+  },
+  "scanned_symbols_count": 459,
+  "candidate_count_passed": 142,
+  "candidate_count_rejected": 317,
+  "selected_symbols": [
+    "AVGO",
+    "MSTR",
+    "NVDA",
+    "TSLA",
+    "IWM",
+    "COIN",
+    "QQQ",
+    "SMH",
+    "AVGO",
+    "MSTR",
+    "COIN",
+    "NVDA",
+    "TSLA",
+    "QQQ",
+    "IWM",
+    "SMH",
+    "AVGO",
+    "COIN",
+    "MSTR",
+    "QQQ",
+    "NVDA",
+    "TSLA",
+    "SMH",
+    "IWM",
+    "AVGO",
+    "COIN",
+    "MSTR",
+    "QQQ",
+    "NVDA",
+    "TSLA",
+    "SMH",
+    "IWM",
+    "QQQ",
+    "AVGO",
+    "SMH",
+    "MSTR",
+    "NVDA",
+    "TSLA",
+    "IWM",
+    "QQQ",
+    "AVGO",
+    "SMH",
+    "MSTR",
+    "NVDA",
+    "TSLA",
+    "IWM",
+    "QQQ",
+    "AVGO",
+    "SMH",
+    "MSTR",
+    "NVDA",
+    "TSLA",
+    "IWM",
+    "QQQ",
+    "AVGO",
+    "IWM",
+    "MSTR",
+    "NVDA",
+    "TSLA",
+    "QQQ",
+    "AVGO",
+    "MSTR",
+    "IWM",
+    "NVDA",
+    "TSLA",
+    "QQQ",
+    "TSLA",
+    "AVGO",
+    "MSTR",
+    "IWM",
+    "NVDA",
+    "QQQ",
+    "TSLA",
+    "AVGO",
+    "MSTR",
+    "IWM",
+    "NVDA",
+    "QQQ",
+    "TSLA",
+    "MSTR",
+    "IWM",
+    "NVDA",
+    "QQQ",
+    "IWM",
+    "TSLA",
+    "NVDA",
+    "QQQ",
+    "IWM",
+    "TSLA",
+    "NVDA",
+    "QQQ",
+    "IWM",
+    "NVDA",
+    "QQQ",
+    "IWM",
+    "NVDA",
+    "QQQ",
+    "IWM",
+    "NVDA"
+  ],
+  "top_candidates": [
+    {
+      "symbol": "QQQ",
+      "score": 62.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "QQQ",
+      "score": 62.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "QQQ",
+      "score": 62.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "QQQ",
+      "score": 62.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "QQQ",
+      "score": 62.0,
+      "signal_type": "SHORT"
+    }
+  ],
+  "candidates_by_group": {
+    "liquid_growth": 187,
+    "core_etfs": 153,
+    "mega_cap": 119
+  },
+  "rejected_by_group": {
+    "core_etfs": 81,
+    "mega_cap": 108,
+    "liquid_growth": 128
+  },
+  "trades_by_group": {
+    "liquid_growth": 1,
+    "core_etfs": 2
+  },
+  "pnl_by_group": {
+    "liquid_growth": 13.00000000000001,
+    "core_etfs": -11.000000000000007
+  },
+  "liquidity_rejections": 0,
+  "pnl_by_symbol": {
+    "MSTR": 13.0,
+    "QQQ": -3.0,
+    "IWM": -8.0
+  },
+  "win_rate_by_symbol": {
+    "MSTR": 1.0,
+    "QQQ": 0.0,
+    "IWM": 0.0
+  },
+  "expectancy_by_symbol": {
+    "MSTR": 13.0,
+    "QQQ": -3.0,
+    "IWM": -8.0
+  },
+  "api_errors": 0,
+  "kill_switch_events": 0,
+  "by_strategy": [
+    {
+      "strategy_id": "orb",
+      "signals": 0,
+      "submitted": 2,
+      "fills": 1,
+      "cancels": 1,
+      "rejects": 0,
+      "realized_pnl": 13.00000000000001,
+      "wins": 1,
+      "losses": 0,
+      "win_rate": 1.0,
+      "avg_win": 13.00000000000001,
+      "avg_loss": null
+    },
+    {
+      "strategy_id": "vwap_reclaim",
+      "signals": 0,
+      "submitted": 2,
+      "fills": 2,
+      "cancels": 0,
+      "rejects": 62,
+      "realized_pnl": -11.000000000000007,
+      "wins": 0,
+      "losses": 2,
+      "win_rate": 0.0,
+      "avg_win": null,
+      "avg_loss": -5.5000000000000036
+    }
+  ],
+  "scanner_standby_activated": false,
+  "standby_reason": null,
+  "exit_spread_warning_count": 2,
+  "bridge_entries_count": 757,
+  "bridge_traded_count": 4,
+  "bridge_blocked_count": 30,
+  "bridge_skipped_count": 723,
+  "bridge_by_strategy": {
+    "rsi_trend": {
+      "traded": 0,
+      "blocked": 0,
+      "skipped": 690
+    },
+    "orb": {
+      "traded": 2,
+      "blocked": 0,
+      "skipped": 0
+    },
+    "vwap_reclaim": {
+      "traded": 2,
+      "blocked": 30,
+      "skipped": 33
+    }
+  },
+  "bridge_top_blocked_reasons": [
+    "risk: Max entries per day reached: 3/3",
+    "liquidity_filter_no_contract"
+  ],
+  "sample_size_warning": "Sample size too small for statistical conclusions (3 fill(s) this session). Win rate and PnL metrics require 30+ trades to be meaningful.",
+  "orb_signals_total": 2,
+  "orb_signals_traded": 2,
+  "orb_signals_blocked": 0,
+  "orb_signals_skipped": 0,
+  "orb_quality_distribution": {
+    "2": 2
+  },
+  "orb_slot_reserved_events": 0,
+  "orb_actual_pnl": 13.00000000000001,
+  "orb_avg_quality": 2.0,
+  "orb_top_blocked_reasons": [],
+  "orb_avg_fwd_pct_5m": 0.0025,
+  "orb_avg_fwd_pct_15m": 0.0065,
+  "orb_avg_fwd_pct_30m": 0.0171,
+  "pnl_by_strategy": {
+    "orb": 13.00000000000001,
+    "vwap_reclaim": -11.000000000000007
+  },
+  "notes": [
+    "94% of signals were rejected (62/66)",
+    "Win rate 33% is below 40%",
+    "Net profit session: $2.00",
+    "2 exit spread warning(s) \u2014 spread exceeded max_spread_pct at exit",
+    "Entry counter fix validated: entries increment on fill (not at order placement), exits tracked separately and do not consume entry capacity"
+  ],
+  "recommendations": [
+    "Review signal filters \u2014 high rejection rate may indicate overly strict criteria or poor market fit",
+    "Win rate below 40%; consider tightening entry criteria or adjusting profit/stop targets",
+    "Wide exit spreads recorded; consider using marketable_limit exit mode or tighter spread gate"
+  ]
+}

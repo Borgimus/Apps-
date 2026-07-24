@@ -1,0 +1,11 @@
+Shadow book report — 2026-07-23
+(shadow results are design/capacity evidence only; NOT part of the live-readiness paper sample)
+
+strategy         raw  opps  exec blocked validN  validPnL  theoN  theoPnL
+vwap_reclaim      11     3     1       2      2    -90.00      0    +0.00
+
+vwap_reclaim blocked-opportunity reasons: cooldown_after_loss=2
+
+Slot-competition check: 2/2 blocked opportunities were vwap_reclaim | fill-validated: 2 for -90.00 (0W) | theoretical: 0 for +0.00
+
+Baseline gate: >=10 unique capacity-blocked opportunities and >=5 sessions before evaluating cap changes (current blocked opps: 2)

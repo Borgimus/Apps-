@@ -340,8 +340,26 @@ class BacktestEngine:
             opt_entry = opt_price + spread_assumption / 2 + slippage
             quantity = 1  # 1 contract per trade in backtest
 
-            # Find exit bar (next bar or end of day)
-            exit_bar_idx = min(entry_bar_idx + 1, len(bars) - 1)
+            # Find exit bar: EOD of the entry session for intraday bars (5-minute data),
+            # or next bar for daily data.  The previous implementation always used
+            # entry_bar_idx + 1, which exits on the very next bar regardless of time frame.
+            entry_ts_bar = bars.index[entry_bar_idx]
+            _has_tz = getattr(entry_ts_bar, "tzinfo", None) is not None
+            _entry_date = entry_ts_bar.date() if hasattr(entry_ts_bar, "date") else None
+            _bar_freq_minutes = None
+            if len(bars) >= 2:
+                _freq = (bars.index[1] - bars.index[0]).total_seconds() / 60
+                _bar_freq_minutes = _freq if _freq > 0 else None
+            _is_intraday = _bar_freq_minutes is not None and _bar_freq_minutes < 1440
+
+            if _is_intraday and _entry_date is not None:
+                # Exit at EOD: last bar of the same calendar date
+                _same_day = [i for i, ts in enumerate(bars.index) if ts.date() == _entry_date]
+                exit_bar_idx = _same_day[-1] if _same_day else min(entry_bar_idx + 1, len(bars) - 1)
+            else:
+                # Daily bars: 1-bar hold (next close)
+                exit_bar_idx = min(entry_bar_idx + 1, len(bars) - 1)
+
             exit_bar = bars.iloc[exit_bar_idx]
             exit_price = float(exit_bar["close"])
             exit_ts = bars.index[exit_bar_idx]

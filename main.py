@@ -6,14 +6,14 @@ Usage
   # Run backtests on all strategies
   python main.py backtest --symbol SPY --start 2023-01-01 --end 2024-12-31
 
-  # Start paper trading + dashboard
-  python main.py trade
-
   # Start dashboard only (no trading)
   python main.py dashboard
 
   # List available strategies
   python main.py strategies
+
+  # Run unattended trading session
+  python scripts/session_runner.py
 
 SAFETY NOTE
 ───────────
@@ -96,34 +96,6 @@ async def _run_backtest(symbols, strategy_ids, start, end, interval, equity, out
             engine.save_report(result, output_dir)
 
     click.echo(f"\nCompleted {len(results)} backtests.")
-
-
-# ── Paper/Live Trading ────────────────────────────────────────────────────────
-
-@cli.command()
-def trade():
-    """Start paper trading loop + dashboard API."""
-    settings = get_settings()
-
-    if settings.live_trading_enabled:
-        click.echo(
-            "\n⚠️  WARNING: LIVE_TRADING_ENABLED=true\n"
-            "   Real money will be placed at risk.\n"
-            "   Press Ctrl+C within 5 seconds to abort.\n"
-        )
-        import time
-        try:
-            time.sleep(5)
-        except KeyboardInterrupt:
-            click.echo("Aborted.")
-            return
-
-    click.echo(
-        f"Starting {'LIVE' if settings.live_trading_enabled else 'PAPER'} trading "
-        f"| broker={settings.broker} | dashboard=http://{settings.api_host}:{settings.api_port}"
-    )
-    from paper_trader import main as trader_main
-    asyncio.run(trader_main())
 
 
 # ── Dashboard only ────────────────────────────────────────────────────────────

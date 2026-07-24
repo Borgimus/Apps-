@@ -1,0 +1,357 @@
+{
+  "meta": {
+    "generated_at": "2026-06-02",
+    "sessions_covered": ["2026-05-29", "2026-06-02"],
+    "signal_bridge_rows_total": 857,
+    "signal_bridge_rows_excluded_diagnostic": 639,
+    "signal_bridge_rows_analyzed": 218,
+    "traded_signals_with_age_data": 5,
+    "data_limitations": [
+      "5 traded signals across 2 sessions — statistically insufficient for hypothesis testing",
+      "All 5 executed trades are vwap_reclaim; no ORB or rsi_trend trades in the analysis set",
+      "No intraday position marks stored — MFE/MAE bounded by entry and exit prices only",
+      "Trailing-stop exits bound MAE at the stop trigger price; EOD exits provide no intraday bound",
+      "2026-05-29 blocked signals (all max_trades_per_day) are contaminated by the pre-fix entry counter bug: exits consumed entry slots, causing premature block. These blocks do not represent legitimate capacity limits and should not be interpreted as quality-based rejections",
+      "Signal selection is non-random: executed trades are those that cleared all risk/position gates in sequence, introducing survivor bias"
+    ],
+    "contamination_note": "On 2026-05-29, the max_trades_per_day counter was buggy: exits consumed entry slots. All 155 'Max trades per day reached' blocks on that date reflect the old bug. The counter was fixed in commit 2d15a18 before the 2026-06-02 session."
+  },
+  "signal_population": {
+    "total_analyzed": 218,
+    "by_strategy": {
+      "orb": 104,
+      "vwap_reclaim": 114,
+      "rsi_trend_diagnostic_excluded": 639
+    },
+    "by_decision": {
+      "traded": 5,
+      "blocked": 155,
+      "skipped": 58
+    },
+    "block_reason_breakdown": {
+      "risk_max_trades_reached_4_of_3": 149,
+      "risk_max_trades_reached_3_of_3": 5,
+      "risk_cost_exceeds_max": 1,
+      "note": "All 155 blocked signals were blocked at the risk gate, not liquidity or spread gates. On 2026-05-29 these reflect the pre-fix bug."
+    }
+  },
+  "age_bucket_analysis": {
+    "note": "MFE and MAE available only for trailing-stop exits. EOD exits provide known exit price only.",
+    "buckets": [
+      {
+        "bucket": "0-15min",
+        "range_seconds": [0, 900],
+        "signal_count": 2,
+        "trade_count": 0,
+        "win_count": null,
+        "loss_count": null,
+        "win_rate": null,
+        "avg_pnl": null,
+        "avg_mfe_pct": null,
+        "avg_mae_pct": null,
+        "avg_quality_score": 3.0,
+        "avg_scanner_score": 53.0,
+        "avg_age_min": 14.6,
+        "all_blocked_by": "risk: Max trades per day reached: 3/3",
+        "strategies": {"orb": 2},
+        "trades": []
+      },
+      {
+        "bucket": "15-30min",
+        "range_seconds": [900, 1800],
+        "signal_count": 25,
+        "trade_count": 1,
+        "win_count": 0,
+        "loss_count": 1,
+        "win_rate": 0.0,
+        "avg_pnl": -31.50,
+        "avg_mfe_pct": null,
+        "avg_mae_pct": -30.3,
+        "avg_quality_score": 3.0,
+        "avg_scanner_score": 53.28,
+        "avg_age_min": 23.6,
+        "strategies": {"orb": 24, "vwap_reclaim": 1},
+        "trades": [
+          {
+            "symbol": "SNOW",
+            "session_date": "2026-05-29",
+            "signal_age_min": 19.0,
+            "quality_score": 3.0,
+            "scanner_score": 60.0,
+            "rvol": 0.657,
+            "pnl": -31.50,
+            "exit_reason": "trailing_stop",
+            "fill_price": 1.04,
+            "exit_price": 0.725,
+            "mfe_pct": null,
+            "mae_pct": -30.3,
+            "hold_min": 1.5,
+            "iv": 0.0,
+            "delta": null,
+            "dte_at_entry": 0,
+            "note": "Same-day expiry (2026-05-29). iv=0 indicates data gap in journal. Trailing stop at 1.5 min."
+          }
+        ]
+      },
+      {
+        "bucket": "30-60min",
+        "range_seconds": [1800, 3600],
+        "signal_count": 33,
+        "trade_count": 1,
+        "win_count": 0,
+        "loss_count": 1,
+        "win_rate": 0.0,
+        "avg_pnl": -9.00,
+        "avg_mfe_pct": null,
+        "avg_mae_pct": -34.6,
+        "avg_quality_score": 2.82,
+        "avg_scanner_score": 53.5,
+        "avg_age_min": 39.3,
+        "strategies": {"orb": 29, "vwap_reclaim": 3, "others": 1},
+        "trades": [
+          {
+            "symbol": "MSFT",
+            "session_date": "2026-05-29",
+            "signal_age_min": 39.3,
+            "quality_score": 2.0,
+            "scanner_score": 60.0,
+            "rvol": 0.552,
+            "pnl": -9.00,
+            "exit_reason": "trailing_stop",
+            "fill_price": 0.26,
+            "exit_price": 0.17,
+            "mfe_pct": null,
+            "mae_pct": -34.6,
+            "hold_min": 1.0,
+            "iv": 0.0,
+            "delta": null,
+            "dte_at_entry": 0,
+            "note": "Same-day expiry (2026-05-29). iv=0 data gap. Trailing stop at 1.0 min. Very small absolute PnL ($9)."
+          }
+        ]
+      },
+      {
+        "bucket": "60-120min",
+        "range_seconds": [3600, 7200],
+        "signal_count": 128,
+        "trade_count": 2,
+        "win_count": 1,
+        "loss_count": 1,
+        "win_rate": 0.50,
+        "avg_pnl": -12.50,
+        "avg_mfe_pct": null,
+        "avg_mae_pct": null,
+        "avg_quality_score": 1.95,
+        "avg_scanner_score": 57.9,
+        "avg_age_min": 80.6,
+        "quality_distribution": {"1": 57, "2": 22, "3": 48, "4": 1},
+        "strategies": {"orb": 49, "vwap_reclaim": 79},
+        "trades": [
+          {
+            "symbol": "DIA",
+            "session_date": "2026-06-02",
+            "signal_age_min": 96.3,
+            "quality_score": 4.0,
+            "scanner_score": 53.0,
+            "rvol": 0.627,
+            "pnl": 25.00,
+            "exit_reason": "eod_exit",
+            "fill_price": 1.60,
+            "exit_price": 1.85,
+            "mfe_pct": 15.6,
+            "mae_pct": null,
+            "hold_min": 68.6,
+            "iv": 0.1418,
+            "delta": -0.352,
+            "dte_at_entry": 3,
+            "note": "Only quality-4 signal in the dataset. Low IV (14.18%). eod_exit — min MFE 15.6%, actual MAE unknown."
+          },
+          {
+            "symbol": "META",
+            "session_date": "2026-06-02",
+            "signal_age_min": 96.6,
+            "quality_score": 2.0,
+            "scanner_score": 60.0,
+            "rvol": 0.507,
+            "pnl": -50.00,
+            "exit_reason": "eod_exit",
+            "fill_price": 4.70,
+            "exit_price": 4.20,
+            "mfe_pct": null,
+            "mae_pct": -10.6,
+            "hold_min": 38.2,
+            "iv": 0.4462,
+            "delta": 0.446,
+            "dte_at_entry": 1,
+            "note": "1-day expiry. quality=2, confluence=1. eod_exit — MAE bounded at -10.6% (exit price), actual worst may differ."
+          }
+        ]
+      },
+      {
+        "bucket": "120+min",
+        "range_seconds": [7200, null],
+        "signal_count": 30,
+        "trade_count": 1,
+        "win_count": 0,
+        "loss_count": 1,
+        "win_rate": 0.0,
+        "avg_pnl": -103.50,
+        "avg_mfe_pct": null,
+        "avg_mae_pct": -26.5,
+        "avg_quality_score": 2.03,
+        "avg_scanner_score": 62.0,
+        "avg_age_min": 127.4,
+        "quality_distribution": {"2": 29, "3": 1},
+        "strategies": {"vwap_reclaim": 29, "orb": 1},
+        "trades": [
+          {
+            "symbol": "COIN",
+            "session_date": "2026-06-02",
+            "signal_age_min": 121.6,
+            "quality_score": 3.0,
+            "scanner_score": 62.0,
+            "rvol": 0.51,
+            "pnl": -103.50,
+            "exit_reason": "trailing_stop",
+            "fill_price": 3.90,
+            "exit_price": 2.865,
+            "mfe_pct": null,
+            "mae_pct": -26.5,
+            "hold_min": 28.2,
+            "iv": 0.8366,
+            "delta": -0.393,
+            "dte_at_entry": 3,
+            "orb_forward_data": {
+              "orb_signal_price": 172.73,
+              "entry_price": 176.91,
+              "fwd_5m_pct": -0.0023,
+              "fwd_15m_pct": -0.0080,
+              "fwd_30m_pct": -0.0127,
+              "interpretation": "Underlying was already rising from ORB signal time. Entry at $176.91 was $4.18 above ORB signal level. Direction wrong from generation."
+            },
+            "note": "Highest IV entry (83.66%). Signal age 2 hours — underlying had moved materially from breakdown level by entry."
+          }
+        ]
+      }
+    ]
+  },
+  "hypothesis_evaluation": {
+    "H1": {
+      "hypothesis": "Signal age negatively correlates with performance",
+      "result": "INCONCLUSIVE",
+      "evidence": {
+        "age_vs_pnl_traded": [
+          {"age_min": 19.0, "pnl": -31.50},
+          {"age_min": 39.3, "pnl": -9.00},
+          {"age_min": 96.3, "pnl": 25.00},
+          {"age_min": 96.6, "pnl": -50.00},
+          {"age_min": 121.6, "pnl": -103.50}
+        ],
+        "pearson_r": null,
+        "spearman_r": null,
+        "note": "5 observations, non-random selection — no valid correlation coefficient computable. The single win (DIA) was a 96-min signal, the second oldest category. The freshest signal (SNOW, 19 min) was also a loss. The oldest (COIN, 122 min) was the worst loss in absolute terms, consistent with H1, but cannot be generalized from n=1.",
+        "minimum_required_n": 30
+      }
+    },
+    "H2": {
+      "hypothesis": "Signals older than 60 minutes underperform fresh signals",
+      "result": "NOT SUPPORTED by this data",
+      "evidence": {
+        "under_60min": {
+          "n_trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "win_rate": 0.0,
+          "avg_pnl": -20.25,
+          "trades": ["SNOW -$31.50 (19 min)", "MSFT -$9.00 (39 min)"]
+        },
+        "60min_and_over": {
+          "n_trades": 3,
+          "wins": 1,
+          "losses": 2,
+          "win_rate": 0.333,
+          "avg_pnl": -42.83,
+          "trades": ["DIA +$25.00 (96 min)", "META -$50.00 (97 min)", "COIN -$103.50 (122 min)"]
+        },
+        "note": "Fresh signals had 0% win rate; stale signals had 33% win rate. Both groups lost money on average. H2 is not supported — the data, such as it is, directionally opposes the hypothesis. Sample size (2 vs 3) is insufficient for any conclusion. Confounds: quality score 4 (only win) happened to be in the 60-120min bucket; fresh trades had same-day expiry options (DTE=0) which introduces a different risk factor."
+      }
+    },
+    "H3": {
+      "hypothesis": "Quality score remains predictive after controlling for age",
+      "result": "CONSISTENT with data — cannot confirm with n=5",
+      "evidence": {
+        "by_quality": [
+          {"quality": 2.0, "n": 2, "wins": 0, "avg_pnl": -29.50, "age_range_min": [39.3, 96.6]},
+          {"quality": 3.0, "n": 2, "wins": 0, "avg_pnl": -67.50, "age_range_min": [19.0, 121.6]},
+          {"quality": 4.0, "n": 1, "wins": 1, "avg_pnl": 25.00, "age_range_min": [96.3, 96.3]}
+        ],
+        "confound": "The only quality-4 signal is also the only win, but n=1 at quality=4 makes this trivially true rather than evidential. Quality-3 average is worse than quality-2 due to COIN's large dollar loss and COIN's high IV (83.66%), which is a confounder independent of age.",
+        "controlling_for_age": "Both quality-2 trades (ages 39.3 and 96.6) and both quality-3 trades (ages 19.0 and 121.6) span the age spectrum — no clean age control is possible with this sample.",
+        "note": "Quality as predictor is consistent but not confirmable from 5 trades across 2 sessions."
+      }
+    },
+    "H4": {
+      "hypothesis": "Scanner score remains predictive after controlling for age",
+      "result": "NOT SUPPORTED — scanner score inversely correlated with outcome in this sample",
+      "evidence": {
+        "by_scanner_score": [
+          {"scanner": 53.0, "outcome": "win", "pnl": 25.00, "symbol": "DIA"},
+          {"scanner": 60.0, "outcome": "loss", "pnl": -9.00, "symbol": "MSFT"},
+          {"scanner": 60.0, "outcome": "loss", "pnl": -31.50, "symbol": "SNOW"},
+          {"scanner": 60.0, "outcome": "loss", "pnl": -50.00, "symbol": "META"},
+          {"scanner": 62.0, "outcome": "loss", "pnl": -103.50, "symbol": "COIN"}
+        ],
+        "note": "The lowest scanner score (53, DIA) was the only win. All four losses had scanner scores of 60-62. This opposes H4, but the pattern is consistent with confounds: high-scoring signals (60-62) concentrated in high-rvol, trend-following setups that didn't resolve in the session window, while the DIA low-score signal had a scanner/strategy direction disagreement that was actually correct.",
+        "confound": "DIA scanner signal was LONG (disagreement with strategy SHORT). It scored 53 partly because it lacked some breakout confirmation. The strategy correctly faded an RSI extension. Scanner score reflects breakout strength; the winning trade was a reversion, not a breakout."
+      }
+    }
+  },
+  "signal_age_distribution_all": {
+    "note": "218 actionable signals (quality > 0) across both sessions",
+    "buckets": [
+      {"bucket": "0-15min", "count": 2, "pct": 0.9, "avg_quality": 3.0, "avg_scanner": 53.0},
+      {"bucket": "15-30min", "count": 25, "pct": 11.5, "avg_quality": 3.0, "avg_scanner": 53.3},
+      {"bucket": "30-60min", "count": 33, "pct": 15.1, "avg_quality": 2.82, "avg_scanner": 53.5},
+      {"bucket": "60-120min", "count": 128, "pct": 58.7, "avg_quality": 1.95, "avg_scanner": 57.9},
+      {"bucket": "120+min", "count": 30, "pct": 13.8, "avg_quality": 2.03, "avg_scanner": 62.0}
+    ],
+    "structural_finding": "72.5% of actionable signals were older than 60 minutes. This is a property of how signals are generated (once per bar, carried forward) and the 60-second poll cycle. Fresh signals (0-15 min) represent less than 1% of the actionable population — they are extremely rare events in this system."
+  },
+  "quality_vs_age_crosstab": {
+    "note": "Signal count by quality score within each age bucket",
+    "data": [
+      {"bucket": "0-15min", "q1": 0, "q2": 0, "q3": 2, "q4": 0, "total": 2},
+      {"bucket": "15-30min", "q1": 0, "q2": 0, "q3": 25, "q4": 0, "total": 25},
+      {"bucket": "30-60min", "q1": 2, "q2": 2, "q3": 29, "q4": 0, "total": 33},
+      {"bucket": "60-120min", "q1": 57, "q2": 22, "q3": 48, "q4": 1, "total": 128},
+      {"bucket": "120+min", "q1": 0, "q2": 29, "q3": 1, "q4": 0, "total": 30}
+    ],
+    "finding": "Quality-3 signals cluster in the 15-60 min range. Quality-1 signals appear only in the 60-120 min range. Quality-2 signals dominate the 120+ min bucket. Quality is not monotone with age — some high-quality signals are old. The quality-4 signal (DIA) was 96 min old."
+  },
+  "orb_forward_performance": {
+    "rows_with_data": 1,
+    "coverage_note": "ORB forward performance data (orb_fwd_pct_5m/15m/30m) populated for only 1 signal (COIN/2026-06-02). Insufficient for age-stratified analysis.",
+    "single_record": {
+      "symbol": "COIN",
+      "session_date": "2026-06-02",
+      "age_min": 86.6,
+      "quality": 2.0,
+      "direction": "short",
+      "fwd_5m": -0.0023,
+      "fwd_15m": -0.0080,
+      "fwd_30m": -0.0127,
+      "interpretation": "Direction-adjusted returns are negative — underlying moved against SHORT. The ORB breakdown signal was wrong in direction."
+    }
+  },
+  "mfe_mae_summary": {
+    "available_data_points": 3,
+    "note": "Only trailing-stop exits provide bounded MAE (exit = stop trigger). EOD exits provide exit price only — MAE and MFE intraday are unknown.",
+    "records": [
+      {"symbol": "SNOW", "exit_reason": "trailing_stop", "mae_pct": -30.3, "mfe_pct": null, "age_min": 19.0},
+      {"symbol": "MSFT", "exit_reason": "trailing_stop", "mae_pct": -34.6, "mfe_pct": null, "age_min": 39.3},
+      {"symbol": "DIA", "exit_reason": "eod_exit", "mae_pct": null, "mfe_pct_min": 15.6, "age_min": 96.3},
+      {"symbol": "COIN", "exit_reason": "trailing_stop", "mae_pct": -26.5, "mfe_pct": null, "age_min": 121.6},
+      {"symbol": "META", "exit_reason": "eod_exit", "mae_pct_max": -10.6, "mfe_pct": null, "age_min": 96.6}
+    ]
+  }
+}

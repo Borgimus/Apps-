@@ -47,10 +47,15 @@ class RSITrendStrategy(StrategyBase):
         self._rsi_oversold: float = self.params.get("rsi_oversold", 35)
         self._rsi_overbought: float = self.params.get("rsi_overbought", 65)
         self._trend_ema_period: int = self.params.get("trend_ema_period", 50)
+        self._bar_interval: str = self.params.get("bar_interval", "5m")
+        self._mode: str = self.params.get("mode", "standard")
+
+    @property
+    def min_bars_required(self) -> int:
+        return max(self._rsi_period, self._trend_ema_period) + 5
 
     def generate_signals(self, bars: pd.DataFrame, symbol: str) -> List[Signal]:
-        min_rows = max(self._rsi_period, self._trend_ema_period) + 5
-        if not self.validate_bars(bars, min_rows=min_rows):
+        if not self.validate_bars(bars, min_rows=self.min_bars_required):
             return []
 
         bars = bars.copy()

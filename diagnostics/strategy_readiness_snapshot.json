@@ -1,0 +1,74 @@
+{
+  "generated_at": "2026-07-14T09:33:19.349951-04:00",
+  "session_date": "2026-07-14",
+  "bar_interval": "5m",
+  "rsi_trend_config": {
+    "rsi_period": 14,
+    "rsi_oversold": 35.0,
+    "rsi_overbought": 65.0,
+    "trend_ema_period": 50,
+    "bar_interval": "5m",
+    "mode": "standard"
+  },
+  "strategy_configs": [
+    {
+      "strategy_id": "orb",
+      "name": "Opening Range Breakout",
+      "min_bars_required": 17,
+      "earliest_ready_time_et": "10:55"
+    },
+    {
+      "strategy_id": "vwap_reclaim",
+      "name": "VWAP Reclaim/Rejection",
+      "min_bars_required": 7,
+      "earliest_ready_time_et": "10:05"
+    },
+    {
+      "strategy_id": "rsi_trend",
+      "name": "RSI + Trend Filter",
+      "min_bars_required": 55,
+      "earliest_ready_time_et": "14:05"
+    }
+  ],
+  "readiness": [
+    {
+      "symbol": "SPY",
+      "group": "cli_override",
+      "strategy_id": "orb",
+      "strategy_name": "Opening Range Breakout",
+      "min_bars_required": 17,
+      "bars_available_today": 1,
+      "bars_available_total": 168,
+      "ready": true,
+      "reason": "sufficient bars",
+      "earliest_ready_time_et": "10:55",
+      "currently_past_ready_time": false
+    },
+    {
+      "symbol": "SPY",
+      "group": "cli_override",
+      "strategy_id": "vwap_reclaim",
+      "strategy_name": "VWAP Reclaim/Rejection",
+      "min_bars_required": 7,
+      "bars_available_today": 1,
+      "bars_available_total": 168,
+      "ready": true,
+      "reason": "sufficient bars",
+      "earliest_ready_time_et": "10:05",
+      "currently_past_ready_time": false
+    },
+    {
+      "symbol": "SPY",
+      "group": "cli_override",
+      "strategy_id": "rsi_trend",
+      "strategy_name": "RSI + Trend Filter",
+      "min_bars_required": 55,
+      "bars_available_today": 1,
+      "bars_available_total": 168,
+      "ready": true,
+      "reason": "sufficient bars",
+      "earliest_ready_time_et": "14:05",
+      "currently_past_ready_time": false
+    }
+  ]
+}

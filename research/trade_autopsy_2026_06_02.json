@@ -1,0 +1,420 @@
+{
+  "session_date": "2026-06-02",
+  "generated_at": "2026-06-02T12:35:00-04:00",
+  "data_completeness_note": "No intraday position marks stored. MFE/MAE bounded by known entry and exit prices only. Underlying price at exit estimated via delta approximation; treat as directional indicator, not precise value.",
+  "trades": [
+    {
+      "trade_id": 302,
+      "symbol": "DIA",
+      "outcome": "win",
+      "realized_pnl": 25.00,
+      "signal": {
+        "strategy_id": "vwap_reclaim",
+        "direction": "short",
+        "scanner_score": 53.0,
+        "scanner_signal": "LONG",
+        "scanner_strategy_agreement": false,
+        "scanner_reasons": ["atr=0.91% (good range)", "orb_breakout", "trend_up", "rsi=79.5 (extreme)", "above_vwap"],
+        "signal_quality_score": 4.0,
+        "confluence_count": 5,
+        "signal_age_seconds": 5777,
+        "signal_age_minutes": 96.3,
+        "rvol_at_signal": 0.627,
+        "underlying_at_signal": 511.32
+      },
+      "contract": {
+        "option_symbol": "DIA260605P00511000",
+        "option_type": "put",
+        "strike": 511.0,
+        "expiration": "2026-06-05",
+        "days_to_expiry_at_entry": 3,
+        "delta": -0.352,
+        "iv": 0.1418
+      },
+      "entry": {
+        "time_et": "11:21:17",
+        "underlying_price": 511.32,
+        "bid": 1.54,
+        "ask": 1.62,
+        "spread_pct": 0.0506,
+        "limit_price": 1.62,
+        "fill_price": 1.60,
+        "slippage": -0.02,
+        "fill_latency_secs": 64
+      },
+      "exit": {
+        "time_et": "12:30:56",
+        "reason": "eod_exit",
+        "limit_price": 1.80,
+        "fill_price": 1.85,
+        "exit_slippage_vs_limit": 0.05,
+        "exit_spread_pct": null,
+        "hold_duration_secs": 4115,
+        "hold_duration_min": 68.6
+      },
+      "pnl_breakdown": {
+        "gross_pnl": 25.00,
+        "entry_spread_cost_est": 4.00,
+        "slippage_cost": -2.00,
+        "net_pnl_after_costs": 19.00
+      },
+      "mfe_mae": {
+        "known_min_mfe_dollars": 25.00,
+        "known_min_mfe_pct": 15.6,
+        "mae_dollars": null,
+        "mae_pct": null,
+        "note": "No intraday marks. Put appreciated monotonically based on eod_exit being the only exit event. MAE is unconstrained but direction was correct throughout."
+      },
+      "underlying_movement": {
+        "entry_price": 511.32,
+        "exit_price_est": 510.61,
+        "move_pts_est": -0.71,
+        "move_pct_est": -0.14,
+        "direction_correct": true,
+        "estimation_method": "delta_approximation: option_gain / abs(entry_delta)"
+      },
+      "assessment": {
+        "signal_quality": "strong",
+        "signal_notes": [
+          "Quality score 4/4 with 5 confluences — highest quality trade of the session",
+          "Scanner/strategy disagreement: scanner tagged LONG (orb_breakout, trend_up, rsi=79.5), vwap_reclaim generated SHORT",
+          "DIA RSI was 79.5 (extreme overbought) — vwap_reclaim correctly faded the extension",
+          "Signal was 96 min old at entry but high quality score offset staleness"
+        ],
+        "execution_quality": "good",
+        "execution_notes": [
+          "Entry spread 5.06% — within acceptable range for low-IV ETF option",
+          "Entry slippage -$0.02 (minor, 1.2% of entry price)",
+          "Exit filled $0.05 above limit ($1.85 vs $1.80 limit) — positive execution"
+        ],
+        "exit_management_quality": "acceptable",
+        "exit_management_notes": [
+          "EOD forced exit at 12:30. No trailing stop or take-profit triggered during 68.6 min hold",
+          "Put appreciated from $1.60 to $1.85 (+15.6%). Whether a better exit existed intraday is unknown",
+          "Low DIA IV (14.18%) means options move slowly — EOD exit captured directional gain without runaway theta decay"
+        ],
+        "verdict": "Signal was correct and strong. Execution was clean. EOD exit was forced but adequate. Scanner contradiction (LONG vs SHORT) was a false warning — vwap_reclaim correctly identified an overbought reversion. No evidence of poor signal, execution, or exit."
+      }
+    },
+    {
+      "trade_id": 303,
+      "symbol": "COIN",
+      "outcome": "loss",
+      "realized_pnl": -103.50,
+      "signal": {
+        "strategy_id": "vwap_reclaim",
+        "direction": "short",
+        "scanner_score": 62.0,
+        "scanner_signal": "SHORT",
+        "scanner_strategy_agreement": true,
+        "scanner_reasons": ["atr=6.82% (wide-range)", "orb_breakdown", "trend_sideways", "rsi=35.4 (near oversold)", "below_vwap"],
+        "signal_quality_score": 3.0,
+        "confluence_count": 3,
+        "signal_age_seconds": 7298,
+        "signal_age_minutes": 121.6,
+        "rvol_at_signal": 0.51,
+        "underlying_at_signal": 176.91,
+        "orb_concurrent_signal": {
+          "direction": "short",
+          "quality_score": 2.0,
+          "confluence_count": 3,
+          "underlying_at_orb_signal": 172.73,
+          "decision": "skipped",
+          "block_reason": "pending_order_exists"
+        }
+      },
+      "contract": {
+        "option_symbol": "COIN260605P00170000",
+        "option_type": "put",
+        "strike": 170.0,
+        "expiration": "2026-06-05",
+        "days_to_expiry_at_entry": 3,
+        "delta": -0.393,
+        "iv": 0.8366,
+        "iv_flag": "VERY HIGH — 83.66% IV indicates elevated premium and wide bid-ask spreads"
+      },
+      "entry": {
+        "time_et": "11:51:38",
+        "underlying_price": 176.91,
+        "bid": 3.65,
+        "ask": 3.97,
+        "spread_pct": 0.0840,
+        "limit_price": 3.97,
+        "fill_price": 3.90,
+        "slippage": -0.07,
+        "fill_latency_secs": 64
+      },
+      "exit": {
+        "time_et": "12:20:51",
+        "reason": "trailing_stop",
+        "limit_price": 2.82,
+        "fill_price": 2.865,
+        "exit_slippage_vs_limit": 0.045,
+        "exit_bid": 2.82,
+        "exit_ask": 2.91,
+        "exit_spread_pct": 0.0314,
+        "hold_duration_secs": 1689,
+        "hold_duration_min": 28.2
+      },
+      "pnl_breakdown": {
+        "gross_pnl": -103.50,
+        "entry_spread_cost_est": 16.00,
+        "slippage_cost": -7.00,
+        "net_pnl_after_costs": -126.50
+      },
+      "mfe_mae": {
+        "known_min_mfe_dollars": null,
+        "known_min_mfe_pct": null,
+        "mae_dollars": -103.50,
+        "mae_pct": -26.5,
+        "note": "No intraday marks. Put fell from $3.90 to $2.865 (-26.5%). Trailing stop was the exit mechanism — put may have moved adversely from the start or had a brief favorable period before reversing."
+      },
+      "orb_forward_performance": {
+        "orb_signal_underlying": 172.73,
+        "fwd_price_5m": 173.12,
+        "fwd_price_15m": 174.12,
+        "fwd_price_30m": 174.93,
+        "fwd_pct_5m": -0.0023,
+        "fwd_pct_15m": -0.0080,
+        "fwd_pct_30m": -0.0127,
+        "interpretation": "COIN underlying was rising from ORB signal time onward. Negative direction-adjusted returns confirm SHORT was wrong direction. By vwap_reclaim entry ($176.91), COIN was already +$4.18 above ORB signal level and continuing higher."
+      },
+      "underlying_movement": {
+        "entry_price": 176.91,
+        "exit_price_est": 179.56,
+        "move_pts_est": 2.65,
+        "move_pct_est": 1.50,
+        "direction_correct": false,
+        "estimation_method": "delta_approximation: option_loss / abs(entry_delta)"
+      },
+      "assessment": {
+        "signal_quality": "poor",
+        "signal_notes": [
+          "Signal age 121.6 min at entry — significantly stale. COIN price had moved materially from signal generation point.",
+          "At signal generation COIN was in orb_breakdown/below_vwap territory (ORB signal at $172.73). By entry, COIN was at $176.91 — $4.18 higher, already reclaiming VWAP.",
+          "rvol=0.51 — sub-normal volume. Low conviction in the directional move.",
+          "Very high IV at entry (83.66%). Premium was elevated; the put was expensive relative to historical norms for COIN, raising cost of being wrong.",
+          "rsi=35.4 at scanner — near oversold, not strongly below. Marginal SHORT signal from RSI perspective.",
+          "ORB forward data confirms the underlying was rising: +1.27% in 30 min from the ORB signal price."
+        ],
+        "execution_quality": "marginal",
+        "execution_notes": [
+          "Entry spread 8.4% — wide, at the high end of acceptable threshold (10%). High IV contributed.",
+          "Entry slippage -$0.07 (1.8% of fill price) — slightly elevated but within norms.",
+          "Exit spread 3.14% — tighter than entry, suggesting better exit conditions.",
+          "Exit filled $0.045 above limit — positive execution on exit."
+        ],
+        "exit_management_quality": "acceptable",
+        "exit_management_notes": [
+          "Trailing stop fired at 28.2 min, limiting loss to -$103.50. Without the stop, EOD exit would have occurred at ~12:30 at potentially worse prices given the upward trend.",
+          "Stop triggered when put fell to ~$2.865 from $3.90 entry (-26.5% of entry value or -$1.035).",
+          "Given wrong direction from the start, trailing stop performed its intended function."
+        ],
+        "verdict": "Signal was poor. The underlying had already moved materially against the SHORT by the time the signal was actioned (2-hour-old signal, price $4.18 above breakdown level). High IV inflated the entry cost and magnified the loss when direction was wrong. Execution was acceptable given market conditions. Exit management (trailing stop) limited damage correctly."
+      }
+    },
+    {
+      "trade_id": 304,
+      "symbol": "META",
+      "outcome": "loss",
+      "realized_pnl": -50.00,
+      "signal": {
+        "strategy_id": "vwap_reclaim",
+        "direction": "long",
+        "scanner_score": 60.0,
+        "scanner_signal": "LONG",
+        "scanner_strategy_agreement": true,
+        "scanner_reasons": ["atr=2.74% (wide-range)", "orb_breakout", "rsi=43 (healthy)", "above_vwap", "ma_compression"],
+        "scanner_trend": "down",
+        "scanner_trend_contradiction": "Scanner emitted LONG signal but recorded trend=down — internal scanner inconsistency",
+        "signal_quality_score": 2.0,
+        "confluence_count": 1,
+        "signal_age_seconds": 5798,
+        "signal_age_minutes": 96.6,
+        "rvol_at_signal": 0.507,
+        "underlying_at_signal": 602.92
+      },
+      "contract": {
+        "option_symbol": "META260603C00610000",
+        "option_type": "call",
+        "strike": 610.0,
+        "expiration": "2026-06-03",
+        "days_to_expiry_at_entry": 1,
+        "days_to_expiry_flag": "CRITICAL — 1-day expiry. Extreme theta decay. $7.08 OTM on a 1-day option.",
+        "delta": 0.446,
+        "iv": 0.4462,
+        "moneyness_at_entry": -7.08,
+        "moneyness_pct": -1.17
+      },
+      "entry": {
+        "time_et": "11:51:38",
+        "underlying_price": 602.92,
+        "bid": 4.58,
+        "ask": 4.78,
+        "spread_pct": 0.0427,
+        "limit_price": 4.78,
+        "fill_price": 4.70,
+        "slippage": -0.08,
+        "fill_latency_secs": 64
+      },
+      "intraday_mark": {
+        "time_et": "12:21:54",
+        "delta_observed": 0.421,
+        "delta_entry": 0.446,
+        "delta_change": -0.025,
+        "interpretation": "Delta declined 2.5 pts over 30 min — underlying drifted below strike or theta reduced sensitivity. Directionally unfavorable."
+      },
+      "exit": {
+        "time_et": "12:30:56",
+        "reason": "eod_exit",
+        "limit_price": 4.12,
+        "fill_price": 4.20,
+        "exit_slippage_vs_limit": 0.08,
+        "exit_spread_pct": null,
+        "hold_duration_secs": 2294,
+        "hold_duration_min": 38.2
+      },
+      "pnl_breakdown": {
+        "gross_pnl": -50.00,
+        "entry_spread_cost_est": 10.00,
+        "slippage_cost": -8.00,
+        "net_pnl_after_costs": -68.00
+      },
+      "mfe_mae": {
+        "known_min_mfe_dollars": null,
+        "known_min_mfe_pct": null,
+        "mae_dollars": -50.00,
+        "mae_pct": -10.6,
+        "note": "No intraday marks. Call declined from $4.70 to $4.20. Combination of mild underlying drift lower and theta decay on 1-day expiry."
+      },
+      "underlying_movement": {
+        "entry_price": 602.92,
+        "exit_price_est": 601.81,
+        "move_pts_est": -1.11,
+        "move_pct_est": -0.18,
+        "direction_correct": false,
+        "estimation_method": "delta_approximation: option_loss / entry_delta"
+      },
+      "theta_estimate": {
+        "hold_minutes": 38.2,
+        "approximate_theta_loss": "0.05_to_0.12",
+        "note": "1-day ATM option with 44.62% IV. Theta decay over 38 min was material relative to the option value. Exact split between delta P&L and theta unavailable without tick data."
+      },
+      "assessment": {
+        "signal_quality": "poor",
+        "signal_notes": [
+          "Quality score 2/4 with only 1 confluence factor — minimum threshold. Weakest signal of the session.",
+          "Scanner internal contradiction: trend=down but signal=LONG and above_vwap. Scanner was not internally consistent.",
+          "rvol=0.507 — barely above 0.5, sub-normal volume. Low directional conviction.",
+          "96.6 min signal age — stale. META at $602.92 at entry; no information on where price was when signal generated.",
+          "META was in an upward-trending market day (above_vwap, orb_breakout) but scanner trend field = down, suggesting recent price action reversed."
+        ],
+        "execution_quality": "acceptable",
+        "execution_notes": [
+          "Entry spread 4.27% — acceptable.",
+          "Entry slippage -$0.08 (1.7% of fill price) — within normal range.",
+          "Exit filled $0.08 above limit ($4.20 vs $4.12) — positive execution on exit."
+        ],
+        "exit_management_quality": "poor",
+        "exit_management_notes": [
+          "CRITICAL: 1-day expiry (2026-06-03) was selected for a 38.2 min hold. This contract expired the next day.",
+          "For a $7.08 OTM strike on a 1-day option with IV=44.62%, theta decay alone would significantly erode value over 38 min even if direction was correct.",
+          "No trailing stop triggered — the loss (-$50) remained below stop threshold. EOD exit was the only exit.",
+          "The LiquidityFilter selected this contract; the expiry selection logic chose the shortest expiry that passed delta and liquidity filters. This is a structural issue: 1-day OTM calls should require stronger signals."
+        ],
+        "verdict": "Signal was poor (quality 2/4, 1 confluence, trend contradiction). Contract selection amplified risk — a 1-day expiry option was entered with a below-minimum-threshold signal. Even a mild adverse drift (-$1.11 underlying) produced a $50 loss due to combined delta and theta effects. This is the weakest trade of the session: poor signal, wrong direction, and contract expiry structurally incompatible with a ~40 min hold window."
+      }
+    }
+  ],
+  "comparative_analysis": {
+    "scanner_score_ranking": {
+      "COIN": 62.0,
+      "META": 60.0,
+      "DIA": 53.0
+    },
+    "quality_score_ranking": {
+      "DIA": 4.0,
+      "COIN": 3.0,
+      "META": 2.0
+    },
+    "outcome_ranking": {
+      "DIA": "+$25.00 (win)",
+      "META": "-$50.00 (loss)",
+      "COIN": "-$103.50 (loss)"
+    },
+    "scanner_vs_quality_disagreement": "Scanner score ranked COIN and META above DIA. Quality score ranked DIA highest. DIA was the only winner. Quality score was a better predictor than scanner score in this session.",
+    "signal_age_seconds": {
+      "DIA": 5777,
+      "META": 5798,
+      "COIN": 7298
+    },
+    "signal_age_note": "COIN had the oldest signal (121.6 min). Signal age did not predict outcome for DIA/META (both ~96 min, one win one loss), but COIN's 2-hour staleness coincided with the worst outcome.",
+    "rvol_at_signal": {
+      "DIA": 0.627,
+      "META": 0.507,
+      "COIN": 0.510
+    },
+    "rvol_note": "All three trades had sub-normal volume (rvol < 1.0). DIA had the highest rvol and was the winner. COIN/META had the lowest rvol and both lost.",
+    "iv_at_entry": {
+      "DIA": 0.1418,
+      "META": 0.4462,
+      "COIN": 0.8366
+    },
+    "iv_note": "IV inversely correlated with outcome. Low-IV DIA win; high-IV COIN worst loss. High IV inflates premium, increases spread cost, and magnifies dollar losses when direction is wrong.",
+    "expiry_days_at_entry": {
+      "DIA": 3,
+      "COIN": 3,
+      "META": 1
+    },
+    "expiry_note": "META had a 1-day expiry with a $7.08 OTM strike — the least favorable contract structure. DIA and COIN had 3-day expiry.",
+    "direction_correct": {
+      "DIA": true,
+      "COIN": false,
+      "META": false
+    },
+    "exit_reason": {
+      "DIA": "eod_exit",
+      "COIN": "trailing_stop",
+      "META": "eod_exit"
+    }
+  },
+  "key_findings": [
+    {
+      "id": 1,
+      "finding": "Quality score was a stronger outcome predictor than scanner score in this session",
+      "evidence": "DIA: quality 4/4 → win. COIN: quality 3/4 → loss. META: quality 2/4 → worst loss. Scanner ranked COIN (62) > META (60) > DIA (53), opposite of actual outcomes."
+    },
+    {
+      "id": 2,
+      "finding": "Scanner/strategy direction disagreement did not indicate a bad trade",
+      "evidence": "DIA: scanner=LONG, vwap_reclaim=SHORT. Outcome: +$25.00. The strategy correctly faded an overbought condition (RSI 79.5) that the scanner treated as a breakout."
+    },
+    {
+      "id": 3,
+      "finding": "Signal staleness of 2+ hours coincided with worst trade",
+      "evidence": "COIN signal age: 121.6 min. COIN underlying was already $4.18 above the ORB breakdown level when the order was placed. ORB forward data confirms upward momentum from signal generation time."
+    },
+    {
+      "id": 4,
+      "finding": "Very high IV (83.66%) at entry made COIN an expensive trade to be wrong in",
+      "evidence": "COIN spread cost alone was estimated $16. Entry premium $3.90 on a $170 strike. A $1.035 adverse option move (-26.5% of entry) produced -$103.50 loss — the same % move on DIA ($0.25) produced +$25."
+    },
+    {
+      "id": 5,
+      "finding": "1-day expiry contract selection for META was incompatible with signal quality and hold window",
+      "evidence": "META260603C00610000 expired 2026-06-03 (1 day). Signal quality was 2/4 (1 confluence). Hold window was 38.2 min. Combined delta drift (-$1.11 underlying) and theta decay on a near-expiry OTM contract produced -$50.00 on a ~$1 adverse underlying move."
+    },
+    {
+      "id": 6,
+      "finding": "All three signals had sub-normal volume (rvol < 1.0)",
+      "evidence": "DIA: 0.627, COIN: 0.510, META: 0.507. Session-wide STANDBY was triggered by low volume chop in the opening scan. Even the 11:21 and 11:51 re-scans showed rvol below 1.0. Low volume conditions reduced signal reliability for all entries."
+    },
+    {
+      "id": 7,
+      "finding": "Trailing stop on COIN performed correctly",
+      "evidence": "Direction was wrong from entry. COIN kept rising. Trailing stop exited at -$103.50. Without stop, EOD exit would have occurred 10 min later at a likely worse price given the continued underlying rally."
+    }
+  ],
+  "no_parameter_changes": true,
+  "no_strategy_changes": true
+}

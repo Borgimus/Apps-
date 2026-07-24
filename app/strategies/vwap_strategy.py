@@ -36,18 +36,27 @@ class VWAPReclaimStrategy(StrategyBase):
         self._proximity_pct: float = self.params.get("proximity_pct", 0.002)
         self._confirmation_bars: int = self.params.get("confirmation_bars", 2)
 
+    @property
+    def min_bars_required(self) -> int:
+        return self._confirmation_bars + 5
+
     def generate_signals(self, bars: pd.DataFrame, symbol: str) -> List[Signal]:
-        if not self.validate_bars(bars, min_rows=self._confirmation_bars + 5):
+        if not self.validate_bars(bars, min_rows=self.min_bars_required):
             return []
 
         bars = bars.copy()
         bars.columns = bars.columns.str.lower()
 
-        # Compute daily VWAP — reset each calendar day
+        # Compute daily VWAP — reset each calendar day.
+        # Use an explicit loop for pandas 3.x compatibility; groupby().apply()
+        # changed its return shape in pandas 3 when the function returns a Series.
         bars["_date"] = bars.index.date
-        bars["vwap"] = bars.groupby("_date", group_keys=False).apply(
-            lambda g: YFinanceDataSource.compute_vwap(g)
-        )
+        vwap_values = pd.Series(index=bars.index, dtype=float)
+        for _, group in bars.groupby("_date"):
+            typical = (group["high"] + group["low"] + group["close"]) / 3
+            vwap_val = (typical * group["volume"]).cumsum() / group["volume"].cumsum()
+            vwap_values[group.index] = vwap_val
+        bars["vwap"] = vwap_values
 
         signals: List[Signal] = []
 
@@ -83,13 +92,14 @@ class VWAPReclaimStrategy(StrategyBase):
                     if i + k < n
                 )
                 if confirmed:
+                    conf_idx = i + self._confirmation_bars
                     signals.append(
                         Signal(
                             strategy_id=self.strategy_id,
                             symbol=symbol,
                             direction=SignalDirection.LONG,
-                            timestamp=timestamps[i].to_pydatetime(),
-                            price=float(price),
+                            timestamp=timestamps[conf_idx].to_pydatetime(),
+                            price=float(close[conf_idx]),
                             confidence=0.65,
                             notes=f"VWAP reclaim @ {v:.2f}",
                             metadata={"vwap": float(v), "proximity_pct": float(pct_from_vwap)},
@@ -106,13 +116,14 @@ class VWAPReclaimStrategy(StrategyBase):
                     if i + k < n
                 )
                 if confirmed:
+                    conf_idx = i + self._confirmation_bars
                     signals.append(
                         Signal(
                             strategy_id=self.strategy_id,
                             symbol=symbol,
                             direction=SignalDirection.SHORT,
-                            timestamp=timestamps[i].to_pydatetime(),
-                            price=float(price),
+                            timestamp=timestamps[conf_idx].to_pydatetime(),
+                            price=float(close[conf_idx]),
                             confidence=0.65,
                             notes=f"VWAP rejection @ {v:.2f}",
                             metadata={"vwap": float(v), "proximity_pct": float(pct_from_vwap)},

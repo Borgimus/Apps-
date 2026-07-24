@@ -1,0 +1,1726 @@
+2026-07-09T13:28:11 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-09T13:28:11 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-07-09T13:28:25 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-07-09T13:28:25 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-07-09T13:28:25 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-07-09T13:28:25 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-07-09T13:28:25 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-07-09T13:28:25 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-07-09T13:28:25 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-07-09T13:28:25 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-07-09T13:28:25 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+2026-07-09T13:28:25 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-07-09  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Thursday 2026-07-09 — trading day
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Thursday 2026-07-09 — trading day
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: No prior session log today — first run of the day
+2026-07-09T13:28:26 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: No prior session log today — first run of the day
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Thursday 2026-07-09 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-07-09T13:28:26 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Thursday 2026-07-09 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-07-09T13:28:26 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Thursday 2026-07-09 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-07-09T13:28:26 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-07-09T13:28:26 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-07-09T13:28:26 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-07-09 | starting_equity=98960.53
+2026-07-09T13:28:26 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-07-09 | starting_equity=98960.53
+2026-07-09T13:28:26 | INFO     | session_runner | Account: equity=98960.53 paper=True
+2026-07-09T13:28:26 | INFO     | session_runner | Account: equity=98960.53 paper=True
+2026-07-09T13:28:26 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-07-09T13:28:26 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-07-09T13:28:26 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-07-09T13:28:26 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-07-09T13:28:26 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-09T13:28:26 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-09T13:28:26 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-09T13:28:26 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-09T13:28:26 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-09T13:28:26 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-09T13:28:28 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-09T13:28:28 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-09T13:28:28 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: SPY intraday data stale (age=4407s, threshold=1200s)
+2026-07-09T13:28:28 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: SPY intraday data stale (age=4407s, threshold=1200s)
+2026-07-09T13:28:29 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for DIA today — falling back to previous_close=522.82
+2026-07-09T13:28:29 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for DIA today — falling back to previous_close=522.82
+2026-07-09T13:28:29 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: DIA intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:29 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: DIA intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for IWM today — falling back to previous_close=293.49
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for IWM today — falling back to previous_close=293.49
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: IWM intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLE today — falling back to previous_close=55.60
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: IWM intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLE today — falling back to previous_close=55.60
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLE intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLY today — falling back to previous_close=115.30
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: QQQ intraday data stale (age=2007s, threshold=1200s)
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLE intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLY today — falling back to previous_close=115.30
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLY intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: QQQ intraday data stale (age=2007s, threshold=1200s)
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLY intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLK today — falling back to previous_close=181.39
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for XLK today — falling back to previous_close=181.39
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLK intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: XLK intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for AAPL today — falling back to previous_close=313.33
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for AAPL today — falling back to previous_close=313.33
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AAPL intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AAPL intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for AMD today — falling back to previous_close=517.50
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for AMD today — falling back to previous_close=517.50
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AMD intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AMD intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for AMZN today — falling back to previous_close=243.60
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for AMZN today — falling back to previous_close=243.60
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AMZN intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AMZN intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: MSFT intraday data stale (age=2007s, threshold=1200s)
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: MSFT intraday data stale (age=2007s, threshold=1200s)
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for TSLA today — falling back to previous_close=393.86
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for TSLA today — falling back to previous_close=393.86
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: TSLA intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:31 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: TSLA intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: MSTR intraday data stale (age=1407s, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: MSTR intraday data stale (age=1407s, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for AVGO today — falling back to previous_close=388.73
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for NET today — falling back to previous_close=273.40
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for AVGO today — falling back to previous_close=388.73
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AVGO intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for NET today — falling back to previous_close=273.40
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AVGO intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: NET intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for SHOP today — falling back to previous_close=119.18
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: NET intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for SHOP today — falling back to previous_close=119.18
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: SHOP intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: SHOP intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for ARM today — falling back to previous_close=300.31
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for ARM today — falling back to previous_close=300.31
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: ARM intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: ARM intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: PLTR intraday data stale (age=5007s, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for COIN today — falling back to previous_close=159.35
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: PLTR intraday data stale (age=5007s, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for COIN today — falling back to previous_close=159.35
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: COIN intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: COIN intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for SNOW today — falling back to previous_close=261.35
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for SNOW today — falling back to previous_close=261.35
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: SNOW intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:32 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: SNOW intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for CRWD today — falling back to previous_close=191.07
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for CRWD today — falling back to previous_close=191.07
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: CRWD intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: CRWD intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for DDOG today — falling back to previous_close=261.31
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for DDOG today — falling back to previous_close=261.31
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: DDOG intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: DDOG intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for HOOD today — falling back to previous_close=113.55
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for HOOD today — falling back to previous_close=113.55
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: HOOD intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: HOOD intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for RIOT today — falling back to previous_close=21.07
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for RIOT today — falling back to previous_close=21.07
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: RIOT intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: RIOT intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for RIVN today — falling back to previous_close=16.65
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for RIVN today — falling back to previous_close=16.65
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: RIVN intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:33 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: RIVN intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for UBER today — falling back to previous_close=73.58
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for UBER today — falling back to previous_close=73.58
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: UBER intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: UBER intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for ROKU today — falling back to previous_close=139.28
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for ROKU today — falling back to previous_close=139.28
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: ROKU intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: ROKU intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for AFRM today — falling back to previous_close=81.30
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for AFRM today — falling back to previous_close=81.30
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AFRM intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: AFRM intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for LYFT today — falling back to previous_close=15.18
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for LYFT today — falling back to previous_close=15.18
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: LYFT intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: LYFT intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for DKNG today — falling back to previous_close=27.16
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: no intraday bars for DKNG today — falling back to previous_close=27.16
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: DKNG intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:34 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: DKNG intraday data stale (age=no bars, threshold=1200s)
+2026-07-09T13:28:34 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-07-09T13:28:34 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-07-09T13:28:34 | INFO     | session_runner |   MSFT    score=58.0  signal=SHORT    REJECTED: scanner_data_stale, low_volume_chop
+2026-07-09T13:28:34 | INFO     | session_runner |   MSFT    score=58.0  signal=SHORT    REJECTED: scanner_data_stale, low_volume_chop
+2026-07-09T13:28:34 | INFO     | session_runner |   GOOGL   score=58.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-09T13:28:34 | INFO     | session_runner |   GOOGL   score=58.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-09T13:28:34 | INFO     | session_runner |   XLY     score=53.0  signal=SHORT    REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop
+2026-07-09T13:28:34 | INFO     | session_runner |   XLY     score=53.0  signal=SHORT    REJECTED: data_fetch_error, scanner_data_stale, low_volume_chop
+2026-07-09T13:28:34 | INFO     | session_runner |   SMH     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T13:28:34 | INFO     | session_runner |   SMH     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T13:28:34 | INFO     | session_runner |   NVDA    score=50.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-09T13:28:34 | INFO     | session_runner |   NVDA    score=50.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-09T13:28:34 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-07-09T13:28:34 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-07-09T13:28:34 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-07-09T13:28:34 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-07-09T13:28:34 | INFO     | session_runner | Pre-market — waiting 85s until open
+2026-07-09T13:28:34 | INFO     | session_runner | Pre-market — waiting 85s until open
+2026-07-09T13:29:04 | INFO     | session_runner | Pre-market — waiting 55s until open
+2026-07-09T13:29:04 | INFO     | session_runner | Pre-market — waiting 55s until open
+2026-07-09T13:29:34 | INFO     | session_runner | Pre-market — waiting 25s until open
+2026-07-09T13:29:34 | INFO     | session_runner | Pre-market — waiting 25s until open
+2026-07-09T13:30:00 | INFO     | session_runner | [cycle 4] 09:30:00 ET | positions=0 | entries=0
+2026-07-09T13:30:00 | INFO     | session_runner | [cycle 4] 09:30:00 ET | positions=0 | entries=0
+2026-07-09T13:30:01 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T13:30:01 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T13:30:31 | INFO     | session_runner | [cycle 5] 09:30:31 ET | positions=0 | entries=0
+2026-07-09T13:30:31 | INFO     | session_runner | [cycle 5] 09:30:31 ET | positions=0 | entries=0
+2026-07-09T13:31:01 | INFO     | session_runner | [cycle 6] 09:31:01 ET | positions=0 | entries=0
+2026-07-09T13:31:01 | INFO     | session_runner | [cycle 6] 09:31:01 ET | positions=0 | entries=0
+2026-07-09T13:31:31 | INFO     | session_runner | [cycle 7] 09:31:31 ET | positions=0 | entries=0
+2026-07-09T13:31:31 | INFO     | session_runner | [cycle 7] 09:31:31 ET | positions=0 | entries=0
+2026-07-09T13:32:01 | INFO     | session_runner | [cycle 8] 09:32:01 ET | positions=0 | entries=0
+2026-07-09T13:32:01 | INFO     | session_runner | [cycle 8] 09:32:01 ET | positions=0 | entries=0
+2026-07-09T13:32:31 | INFO     | session_runner | [cycle 9] 09:32:31 ET | positions=0 | entries=0
+2026-07-09T13:32:31 | INFO     | session_runner | [cycle 9] 09:32:31 ET | positions=0 | entries=0
+2026-07-09T13:33:01 | INFO     | session_runner | [cycle 10] 09:33:01 ET | positions=0 | entries=0
+2026-07-09T13:33:01 | INFO     | session_runner | [cycle 10] 09:33:01 ET | positions=0 | entries=0
+2026-07-09T13:33:32 | INFO     | session_runner | [cycle 11] 09:33:32 ET | positions=0 | entries=0
+2026-07-09T13:33:32 | INFO     | session_runner | [cycle 11] 09:33:32 ET | positions=0 | entries=0
+2026-07-09T13:34:02 | INFO     | session_runner | [cycle 12] 09:34:02 ET | positions=0 | entries=0
+2026-07-09T13:34:02 | INFO     | session_runner | [cycle 12] 09:34:02 ET | positions=0 | entries=0
+2026-07-09T13:34:32 | INFO     | session_runner | [cycle 13] 09:34:32 ET | positions=0 | entries=0
+2026-07-09T13:34:32 | INFO     | session_runner | [cycle 13] 09:34:32 ET | positions=0 | entries=0
+2026-07-09T13:35:02 | INFO     | session_runner | [cycle 14] 09:35:02 ET | positions=0 | entries=0
+2026-07-09T13:35:02 | INFO     | session_runner | [cycle 14] 09:35:02 ET | positions=0 | entries=0
+2026-07-09T13:35:32 | INFO     | session_runner | [cycle 15] 09:35:32 ET | positions=0 | entries=0
+2026-07-09T13:35:32 | INFO     | session_runner | [cycle 15] 09:35:32 ET | positions=0 | entries=0
+2026-07-09T13:36:02 | INFO     | session_runner | [cycle 16] 09:36:02 ET | positions=0 | entries=0
+2026-07-09T13:36:02 | INFO     | session_runner | [cycle 16] 09:36:02 ET | positions=0 | entries=0
+2026-07-09T13:36:32 | INFO     | session_runner | [cycle 17] 09:36:32 ET | positions=0 | entries=0
+2026-07-09T13:36:32 | INFO     | session_runner | [cycle 17] 09:36:32 ET | positions=0 | entries=0
+2026-07-09T13:37:02 | INFO     | session_runner | [cycle 18] 09:37:02 ET | positions=0 | entries=0
+2026-07-09T13:37:02 | INFO     | session_runner | [cycle 18] 09:37:02 ET | positions=0 | entries=0
+2026-07-09T13:37:32 | INFO     | session_runner | [cycle 19] 09:37:32 ET | positions=0 | entries=0
+2026-07-09T13:37:32 | INFO     | session_runner | [cycle 19] 09:37:32 ET | positions=0 | entries=0
+2026-07-09T13:38:02 | INFO     | session_runner | [cycle 20] 09:38:02 ET | positions=0 | entries=0
+2026-07-09T13:38:02 | INFO     | session_runner | [cycle 20] 09:38:02 ET | positions=0 | entries=0
+2026-07-09T13:38:32 | INFO     | session_runner | [cycle 21] 09:38:32 ET | positions=0 | entries=0
+2026-07-09T13:38:32 | INFO     | session_runner | [cycle 21] 09:38:32 ET | positions=0 | entries=0
+2026-07-09T13:39:02 | INFO     | session_runner | [cycle 22] 09:39:02 ET | positions=0 | entries=0
+2026-07-09T13:39:02 | INFO     | session_runner | [cycle 22] 09:39:02 ET | positions=0 | entries=0
+2026-07-09T13:39:32 | INFO     | session_runner | [cycle 23] 09:39:32 ET | positions=0 | entries=0
+2026-07-09T13:39:32 | INFO     | session_runner | [cycle 23] 09:39:32 ET | positions=0 | entries=0
+2026-07-09T13:40:02 | INFO     | session_runner | [cycle 24] 09:40:02 ET | positions=0 | entries=0
+2026-07-09T13:40:02 | INFO     | session_runner | [cycle 24] 09:40:02 ET | positions=0 | entries=0
+2026-07-09T13:40:04 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T13:40:04 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T13:40:34 | INFO     | session_runner | [cycle 25] 09:40:34 ET | positions=0 | entries=0
+2026-07-09T13:40:34 | INFO     | session_runner | [cycle 25] 09:40:34 ET | positions=0 | entries=0
+2026-07-09T13:41:04 | INFO     | session_runner | [cycle 26] 09:41:04 ET | positions=0 | entries=0
+2026-07-09T13:41:04 | INFO     | session_runner | [cycle 26] 09:41:04 ET | positions=0 | entries=0
+2026-07-09T13:41:34 | INFO     | session_runner | [cycle 27] 09:41:34 ET | positions=0 | entries=0
+2026-07-09T13:41:34 | INFO     | session_runner | [cycle 27] 09:41:34 ET | positions=0 | entries=0
+2026-07-09T13:42:04 | INFO     | session_runner | [cycle 28] 09:42:04 ET | positions=0 | entries=0
+2026-07-09T13:42:04 | INFO     | session_runner | [cycle 28] 09:42:04 ET | positions=0 | entries=0
+2026-07-09T13:42:34 | INFO     | session_runner | [cycle 29] 09:42:34 ET | positions=0 | entries=0
+2026-07-09T13:42:34 | INFO     | session_runner | [cycle 29] 09:42:34 ET | positions=0 | entries=0
+2026-07-09T13:43:04 | INFO     | session_runner | [cycle 30] 09:43:04 ET | positions=0 | entries=0
+2026-07-09T13:43:04 | INFO     | session_runner | [cycle 30] 09:43:04 ET | positions=0 | entries=0
+2026-07-09T13:43:34 | INFO     | session_runner | [cycle 31] 09:43:34 ET | positions=0 | entries=0
+2026-07-09T13:43:34 | INFO     | session_runner | [cycle 31] 09:43:34 ET | positions=0 | entries=0
+2026-07-09T13:44:04 | INFO     | session_runner | [cycle 32] 09:44:04 ET | positions=0 | entries=0
+2026-07-09T13:44:04 | INFO     | session_runner | [cycle 32] 09:44:04 ET | positions=0 | entries=0
+2026-07-09T13:44:34 | INFO     | session_runner | [cycle 33] 09:44:34 ET | positions=0 | entries=0
+2026-07-09T13:44:34 | INFO     | session_runner | [cycle 33] 09:44:34 ET | positions=0 | entries=0
+2026-07-09T13:45:04 | INFO     | session_runner | [cycle 34] 09:45:04 ET | positions=0 | entries=0
+2026-07-09T13:45:04 | INFO     | session_runner | [cycle 34] 09:45:04 ET | positions=0 | entries=0
+2026-07-09T13:45:34 | INFO     | session_runner | [cycle 35] 09:45:34 ET | positions=0 | entries=0
+2026-07-09T13:45:34 | INFO     | session_runner | [cycle 35] 09:45:34 ET | positions=0 | entries=0
+2026-07-09T13:46:04 | INFO     | session_runner | [cycle 36] 09:46:04 ET | positions=0 | entries=0
+2026-07-09T13:46:04 | INFO     | session_runner | [cycle 36] 09:46:04 ET | positions=0 | entries=0
+2026-07-09T13:46:34 | INFO     | session_runner | [cycle 37] 09:46:34 ET | positions=0 | entries=0
+2026-07-09T13:46:34 | INFO     | session_runner | [cycle 37] 09:46:34 ET | positions=0 | entries=0
+2026-07-09T13:47:04 | INFO     | session_runner | [cycle 38] 09:47:04 ET | positions=0 | entries=0
+2026-07-09T13:47:04 | INFO     | session_runner | [cycle 38] 09:47:04 ET | positions=0 | entries=0
+2026-07-09T13:47:34 | INFO     | session_runner | [cycle 39] 09:47:34 ET | positions=0 | entries=0
+2026-07-09T13:47:34 | INFO     | session_runner | [cycle 39] 09:47:34 ET | positions=0 | entries=0
+2026-07-09T13:48:04 | INFO     | session_runner | [cycle 40] 09:48:04 ET | positions=0 | entries=0
+2026-07-09T13:48:04 | INFO     | session_runner | [cycle 40] 09:48:04 ET | positions=0 | entries=0
+2026-07-09T13:48:34 | INFO     | session_runner | [cycle 41] 09:48:34 ET | positions=0 | entries=0
+2026-07-09T13:48:34 | INFO     | session_runner | [cycle 41] 09:48:34 ET | positions=0 | entries=0
+2026-07-09T13:49:04 | INFO     | session_runner | [cycle 42] 09:49:04 ET | positions=0 | entries=0
+2026-07-09T13:49:04 | INFO     | session_runner | [cycle 42] 09:49:04 ET | positions=0 | entries=0
+2026-07-09T13:49:34 | INFO     | session_runner | [cycle 43] 09:49:34 ET | positions=0 | entries=0
+2026-07-09T13:49:34 | INFO     | session_runner | [cycle 43] 09:49:34 ET | positions=0 | entries=0
+2026-07-09T13:50:04 | INFO     | session_runner | [cycle 44] 09:50:04 ET | positions=0 | entries=0
+2026-07-09T13:50:04 | INFO     | session_runner | [cycle 44] 09:50:04 ET | positions=0 | entries=0
+2026-07-09T13:50:05 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T13:50:05 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T13:50:35 | INFO     | session_runner | [cycle 45] 09:50:35 ET | positions=0 | entries=0
+2026-07-09T13:50:35 | INFO     | session_runner | [cycle 45] 09:50:35 ET | positions=0 | entries=0
+2026-07-09T13:51:05 | INFO     | session_runner | [cycle 46] 09:51:05 ET | positions=0 | entries=0
+2026-07-09T13:51:05 | INFO     | session_runner | [cycle 46] 09:51:05 ET | positions=0 | entries=0
+2026-07-09T13:51:35 | INFO     | session_runner | [cycle 47] 09:51:35 ET | positions=0 | entries=0
+2026-07-09T13:51:35 | INFO     | session_runner | [cycle 47] 09:51:35 ET | positions=0 | entries=0
+2026-07-09T13:52:05 | INFO     | session_runner | [cycle 48] 09:52:05 ET | positions=0 | entries=0
+2026-07-09T13:52:05 | INFO     | session_runner | [cycle 48] 09:52:05 ET | positions=0 | entries=0
+2026-07-09T13:52:35 | INFO     | session_runner | [cycle 49] 09:52:35 ET | positions=0 | entries=0
+2026-07-09T13:52:35 | INFO     | session_runner | [cycle 49] 09:52:35 ET | positions=0 | entries=0
+2026-07-09T13:53:05 | INFO     | session_runner | [cycle 50] 09:53:05 ET | positions=0 | entries=0
+2026-07-09T13:53:05 | INFO     | session_runner | [cycle 50] 09:53:05 ET | positions=0 | entries=0
+2026-07-09T13:53:35 | INFO     | session_runner | [cycle 51] 09:53:35 ET | positions=0 | entries=0
+2026-07-09T13:53:35 | INFO     | session_runner | [cycle 51] 09:53:35 ET | positions=0 | entries=0
+2026-07-09T13:54:05 | INFO     | session_runner | [cycle 52] 09:54:05 ET | positions=0 | entries=0
+2026-07-09T13:54:05 | INFO     | session_runner | [cycle 52] 09:54:05 ET | positions=0 | entries=0
+2026-07-09T13:54:36 | INFO     | session_runner | [cycle 53] 09:54:36 ET | positions=0 | entries=0
+2026-07-09T13:54:36 | INFO     | session_runner | [cycle 53] 09:54:36 ET | positions=0 | entries=0
+2026-07-09T13:55:06 | INFO     | session_runner | [cycle 54] 09:55:06 ET | positions=0 | entries=0
+2026-07-09T13:55:06 | INFO     | session_runner | [cycle 54] 09:55:06 ET | positions=0 | entries=0
+2026-07-09T13:55:36 | INFO     | session_runner | [cycle 55] 09:55:36 ET | positions=0 | entries=0
+2026-07-09T13:55:36 | INFO     | session_runner | [cycle 55] 09:55:36 ET | positions=0 | entries=0
+2026-07-09T13:56:06 | INFO     | session_runner | [cycle 56] 09:56:06 ET | positions=0 | entries=0
+2026-07-09T13:56:06 | INFO     | session_runner | [cycle 56] 09:56:06 ET | positions=0 | entries=0
+2026-07-09T13:56:36 | INFO     | session_runner | [cycle 57] 09:56:36 ET | positions=0 | entries=0
+2026-07-09T13:56:36 | INFO     | session_runner | [cycle 57] 09:56:36 ET | positions=0 | entries=0
+2026-07-09T13:57:06 | INFO     | session_runner | [cycle 58] 09:57:06 ET | positions=0 | entries=0
+2026-07-09T13:57:06 | INFO     | session_runner | [cycle 58] 09:57:06 ET | positions=0 | entries=0
+2026-07-09T13:57:36 | INFO     | session_runner | [cycle 59] 09:57:36 ET | positions=0 | entries=0
+2026-07-09T13:57:36 | INFO     | session_runner | [cycle 59] 09:57:36 ET | positions=0 | entries=0
+2026-07-09T13:58:06 | INFO     | session_runner | [cycle 60] 09:58:06 ET | positions=0 | entries=0
+2026-07-09T13:58:06 | INFO     | session_runner | [cycle 60] 09:58:06 ET | positions=0 | entries=0
+2026-07-09T13:58:36 | INFO     | session_runner | [cycle 61] 09:58:36 ET | positions=0 | entries=0
+2026-07-09T13:58:36 | INFO     | session_runner | [cycle 61] 09:58:36 ET | positions=0 | entries=0
+2026-07-09T13:58:36 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-09T13:58:36 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-09T13:58:36 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-09T13:58:36 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-09T13:58:36 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-09T13:58:36 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-09T13:58:36 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-09T13:58:36 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-09T13:58:38 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-09T13:58:38 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-09T13:58:43 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-09T13:58:43 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-09T13:58:45 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-07-09T13:58:45 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-07-09T13:58:45 | INFO     | session_runner |   QQQ     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T13:58:45 | INFO     | session_runner |   QQQ     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T13:58:45 | INFO     | session_runner |   IWM     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T13:58:45 | INFO     | session_runner |   IWM     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T13:58:45 | INFO     | session_runner |   XLK     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T13:58:45 | INFO     | session_runner |   XLK     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T13:58:45 | INFO     | session_runner |   AMD     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T13:58:45 | INFO     | session_runner |   AMD     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T13:58:45 | INFO     | session_runner |   SOFI    score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T13:58:45 | INFO     | session_runner |   SOFI    score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T13:58:45 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-07-09T13:58:45 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-07-09T13:58:45 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-07-09T13:58:45 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-07-09T13:59:15 | INFO     | session_runner | [cycle 62] 09:59:15 ET | positions=0 | entries=0
+2026-07-09T13:59:15 | INFO     | session_runner | [cycle 62] 09:59:15 ET | positions=0 | entries=0
+2026-07-09T13:59:45 | INFO     | session_runner | [cycle 63] 09:59:45 ET | positions=0 | entries=0
+2026-07-09T13:59:45 | INFO     | session_runner | [cycle 63] 09:59:45 ET | positions=0 | entries=0
+2026-07-09T14:00:15 | INFO     | session_runner | [cycle 64] 10:00:15 ET | positions=0 | entries=0
+2026-07-09T14:00:15 | INFO     | session_runner | [cycle 64] 10:00:15 ET | positions=0 | entries=0
+2026-07-09T14:00:16 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T14:00:16 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T14:00:46 | INFO     | session_runner | [cycle 65] 10:00:46 ET | positions=0 | entries=0
+2026-07-09T14:00:46 | INFO     | session_runner | [cycle 65] 10:00:46 ET | positions=0 | entries=0
+2026-07-09T14:01:16 | INFO     | session_runner | [cycle 66] 10:01:16 ET | positions=0 | entries=0
+2026-07-09T14:01:16 | INFO     | session_runner | [cycle 66] 10:01:16 ET | positions=0 | entries=0
+2026-07-09T14:01:46 | INFO     | session_runner | [cycle 67] 10:01:46 ET | positions=0 | entries=0
+2026-07-09T14:01:46 | INFO     | session_runner | [cycle 67] 10:01:46 ET | positions=0 | entries=0
+2026-07-09T14:02:16 | INFO     | session_runner | [cycle 68] 10:02:16 ET | positions=0 | entries=0
+2026-07-09T14:02:16 | INFO     | session_runner | [cycle 68] 10:02:16 ET | positions=0 | entries=0
+2026-07-09T14:02:46 | INFO     | session_runner | [cycle 69] 10:02:46 ET | positions=0 | entries=0
+2026-07-09T14:02:46 | INFO     | session_runner | [cycle 69] 10:02:46 ET | positions=0 | entries=0
+2026-07-09T14:03:16 | INFO     | session_runner | [cycle 70] 10:03:16 ET | positions=0 | entries=0
+2026-07-09T14:03:16 | INFO     | session_runner | [cycle 70] 10:03:16 ET | positions=0 | entries=0
+2026-07-09T14:03:46 | INFO     | session_runner | [cycle 71] 10:03:46 ET | positions=0 | entries=0
+2026-07-09T14:03:46 | INFO     | session_runner | [cycle 71] 10:03:46 ET | positions=0 | entries=0
+2026-07-09T14:04:16 | INFO     | session_runner | [cycle 72] 10:04:16 ET | positions=0 | entries=0
+2026-07-09T14:04:16 | INFO     | session_runner | [cycle 72] 10:04:16 ET | positions=0 | entries=0
+2026-07-09T14:04:46 | INFO     | session_runner | [cycle 73] 10:04:46 ET | positions=0 | entries=0
+2026-07-09T14:04:46 | INFO     | session_runner | [cycle 73] 10:04:46 ET | positions=0 | entries=0
+2026-07-09T14:05:16 | INFO     | session_runner | [cycle 74] 10:05:16 ET | positions=0 | entries=0
+2026-07-09T14:05:16 | INFO     | session_runner | [cycle 74] 10:05:16 ET | positions=0 | entries=0
+2026-07-09T14:05:46 | INFO     | session_runner | [cycle 75] 10:05:46 ET | positions=0 | entries=0
+2026-07-09T14:05:46 | INFO     | session_runner | [cycle 75] 10:05:46 ET | positions=0 | entries=0
+2026-07-09T14:06:16 | INFO     | session_runner | [cycle 76] 10:06:16 ET | positions=0 | entries=0
+2026-07-09T14:06:16 | INFO     | session_runner | [cycle 76] 10:06:16 ET | positions=0 | entries=0
+2026-07-09T14:06:46 | INFO     | session_runner | [cycle 77] 10:06:46 ET | positions=0 | entries=0
+2026-07-09T14:06:46 | INFO     | session_runner | [cycle 77] 10:06:46 ET | positions=0 | entries=0
+2026-07-09T14:07:16 | INFO     | session_runner | [cycle 78] 10:07:16 ET | positions=0 | entries=0
+2026-07-09T14:07:16 | INFO     | session_runner | [cycle 78] 10:07:16 ET | positions=0 | entries=0
+2026-07-09T14:07:47 | INFO     | session_runner | [cycle 79] 10:07:47 ET | positions=0 | entries=0
+2026-07-09T14:07:47 | INFO     | session_runner | [cycle 79] 10:07:47 ET | positions=0 | entries=0
+2026-07-09T14:08:17 | INFO     | session_runner | [cycle 80] 10:08:17 ET | positions=0 | entries=0
+2026-07-09T14:08:17 | INFO     | session_runner | [cycle 80] 10:08:17 ET | positions=0 | entries=0
+2026-07-09T14:08:47 | INFO     | session_runner | [cycle 81] 10:08:47 ET | positions=0 | entries=0
+2026-07-09T14:08:47 | INFO     | session_runner | [cycle 81] 10:08:47 ET | positions=0 | entries=0
+2026-07-09T14:09:17 | INFO     | session_runner | [cycle 82] 10:09:17 ET | positions=0 | entries=0
+2026-07-09T14:09:17 | INFO     | session_runner | [cycle 82] 10:09:17 ET | positions=0 | entries=0
+2026-07-09T14:09:47 | INFO     | session_runner | [cycle 83] 10:09:47 ET | positions=0 | entries=0
+2026-07-09T14:09:47 | INFO     | session_runner | [cycle 83] 10:09:47 ET | positions=0 | entries=0
+2026-07-09T14:10:17 | INFO     | session_runner | [cycle 84] 10:10:17 ET | positions=0 | entries=0
+2026-07-09T14:10:17 | INFO     | session_runner | [cycle 84] 10:10:17 ET | positions=0 | entries=0
+2026-07-09T14:10:18 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T14:10:18 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T14:10:48 | INFO     | session_runner | [cycle 85] 10:10:48 ET | positions=0 | entries=0
+2026-07-09T14:10:48 | INFO     | session_runner | [cycle 85] 10:10:48 ET | positions=0 | entries=0
+2026-07-09T14:11:18 | INFO     | session_runner | [cycle 86] 10:11:18 ET | positions=0 | entries=0
+2026-07-09T14:11:18 | INFO     | session_runner | [cycle 86] 10:11:18 ET | positions=0 | entries=0
+2026-07-09T14:11:48 | INFO     | session_runner | [cycle 87] 10:11:48 ET | positions=0 | entries=0
+2026-07-09T14:11:48 | INFO     | session_runner | [cycle 87] 10:11:48 ET | positions=0 | entries=0
+2026-07-09T14:12:18 | INFO     | session_runner | [cycle 88] 10:12:18 ET | positions=0 | entries=0
+2026-07-09T14:12:18 | INFO     | session_runner | [cycle 88] 10:12:18 ET | positions=0 | entries=0
+2026-07-09T14:12:48 | INFO     | session_runner | [cycle 89] 10:12:48 ET | positions=0 | entries=0
+2026-07-09T14:12:48 | INFO     | session_runner | [cycle 89] 10:12:48 ET | positions=0 | entries=0
+2026-07-09T14:13:18 | INFO     | session_runner | [cycle 90] 10:13:18 ET | positions=0 | entries=0
+2026-07-09T14:13:18 | INFO     | session_runner | [cycle 90] 10:13:18 ET | positions=0 | entries=0
+2026-07-09T14:13:48 | INFO     | session_runner | [cycle 91] 10:13:48 ET | positions=0 | entries=0
+2026-07-09T14:13:48 | INFO     | session_runner | [cycle 91] 10:13:48 ET | positions=0 | entries=0
+2026-07-09T14:14:18 | INFO     | session_runner | [cycle 92] 10:14:18 ET | positions=0 | entries=0
+2026-07-09T14:14:18 | INFO     | session_runner | [cycle 92] 10:14:18 ET | positions=0 | entries=0
+2026-07-09T14:14:48 | INFO     | session_runner | [cycle 93] 10:14:48 ET | positions=0 | entries=0
+2026-07-09T14:14:48 | INFO     | session_runner | [cycle 93] 10:14:48 ET | positions=0 | entries=0
+2026-07-09T14:15:18 | INFO     | session_runner | [cycle 94] 10:15:18 ET | positions=0 | entries=0
+2026-07-09T14:15:18 | INFO     | session_runner | [cycle 94] 10:15:18 ET | positions=0 | entries=0
+2026-07-09T14:15:48 | INFO     | session_runner | [cycle 95] 10:15:48 ET | positions=0 | entries=0
+2026-07-09T14:15:48 | INFO     | session_runner | [cycle 95] 10:15:48 ET | positions=0 | entries=0
+2026-07-09T14:16:18 | INFO     | session_runner | [cycle 96] 10:16:18 ET | positions=0 | entries=0
+2026-07-09T14:16:18 | INFO     | session_runner | [cycle 96] 10:16:18 ET | positions=0 | entries=0
+2026-07-09T14:16:48 | INFO     | session_runner | [cycle 97] 10:16:48 ET | positions=0 | entries=0
+2026-07-09T14:16:48 | INFO     | session_runner | [cycle 97] 10:16:48 ET | positions=0 | entries=0
+2026-07-09T14:17:18 | INFO     | session_runner | [cycle 98] 10:17:18 ET | positions=0 | entries=0
+2026-07-09T14:17:18 | INFO     | session_runner | [cycle 98] 10:17:18 ET | positions=0 | entries=0
+2026-07-09T14:17:48 | INFO     | session_runner | [cycle 99] 10:17:48 ET | positions=0 | entries=0
+2026-07-09T14:17:48 | INFO     | session_runner | [cycle 99] 10:17:48 ET | positions=0 | entries=0
+2026-07-09T14:18:18 | INFO     | session_runner | [cycle 100] 10:18:18 ET | positions=0 | entries=0
+2026-07-09T14:18:18 | INFO     | session_runner | [cycle 100] 10:18:18 ET | positions=0 | entries=0
+2026-07-09T14:18:48 | INFO     | session_runner | [cycle 101] 10:18:48 ET | positions=0 | entries=0
+2026-07-09T14:18:48 | INFO     | session_runner | [cycle 101] 10:18:48 ET | positions=0 | entries=0
+2026-07-09T14:19:18 | INFO     | session_runner | [cycle 102] 10:19:18 ET | positions=0 | entries=0
+2026-07-09T14:19:18 | INFO     | session_runner | [cycle 102] 10:19:18 ET | positions=0 | entries=0
+2026-07-09T14:19:48 | INFO     | session_runner | [cycle 103] 10:19:48 ET | positions=0 | entries=0
+2026-07-09T14:19:48 | INFO     | session_runner | [cycle 103] 10:19:48 ET | positions=0 | entries=0
+2026-07-09T14:20:18 | INFO     | session_runner | [cycle 104] 10:20:18 ET | positions=0 | entries=0
+2026-07-09T14:20:18 | INFO     | session_runner | [cycle 104] 10:20:18 ET | positions=0 | entries=0
+2026-07-09T14:20:19 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T14:20:19 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T14:20:49 | INFO     | session_runner | [cycle 105] 10:20:49 ET | positions=0 | entries=0
+2026-07-09T14:20:49 | INFO     | session_runner | [cycle 105] 10:20:49 ET | positions=0 | entries=0
+2026-07-09T14:21:19 | INFO     | session_runner | [cycle 106] 10:21:19 ET | positions=0 | entries=0
+2026-07-09T14:21:19 | INFO     | session_runner | [cycle 106] 10:21:19 ET | positions=0 | entries=0
+2026-07-09T14:21:49 | INFO     | session_runner | [cycle 107] 10:21:49 ET | positions=0 | entries=0
+2026-07-09T14:21:49 | INFO     | session_runner | [cycle 107] 10:21:49 ET | positions=0 | entries=0
+2026-07-09T14:22:19 | INFO     | session_runner | [cycle 108] 10:22:19 ET | positions=0 | entries=0
+2026-07-09T14:22:19 | INFO     | session_runner | [cycle 108] 10:22:19 ET | positions=0 | entries=0
+2026-07-09T14:22:49 | INFO     | session_runner | [cycle 109] 10:22:49 ET | positions=0 | entries=0
+2026-07-09T14:22:49 | INFO     | session_runner | [cycle 109] 10:22:49 ET | positions=0 | entries=0
+2026-07-09T14:23:19 | INFO     | session_runner | [cycle 110] 10:23:19 ET | positions=0 | entries=0
+2026-07-09T14:23:19 | INFO     | session_runner | [cycle 110] 10:23:19 ET | positions=0 | entries=0
+2026-07-09T14:23:49 | INFO     | session_runner | [cycle 111] 10:23:49 ET | positions=0 | entries=0
+2026-07-09T14:23:49 | INFO     | session_runner | [cycle 111] 10:23:49 ET | positions=0 | entries=0
+2026-07-09T14:24:19 | INFO     | session_runner | [cycle 112] 10:24:19 ET | positions=0 | entries=0
+2026-07-09T14:24:19 | INFO     | session_runner | [cycle 112] 10:24:19 ET | positions=0 | entries=0
+2026-07-09T14:24:50 | INFO     | session_runner | [cycle 113] 10:24:50 ET | positions=0 | entries=0
+2026-07-09T14:24:50 | INFO     | session_runner | [cycle 113] 10:24:50 ET | positions=0 | entries=0
+2026-07-09T14:25:20 | INFO     | session_runner | [cycle 114] 10:25:20 ET | positions=0 | entries=0
+2026-07-09T14:25:20 | INFO     | session_runner | [cycle 114] 10:25:20 ET | positions=0 | entries=0
+2026-07-09T14:25:50 | INFO     | session_runner | [cycle 115] 10:25:50 ET | positions=0 | entries=0
+2026-07-09T14:25:50 | INFO     | session_runner | [cycle 115] 10:25:50 ET | positions=0 | entries=0
+2026-07-09T14:26:20 | INFO     | session_runner | [cycle 116] 10:26:20 ET | positions=0 | entries=0
+2026-07-09T14:26:20 | INFO     | session_runner | [cycle 116] 10:26:20 ET | positions=0 | entries=0
+2026-07-09T14:26:50 | INFO     | session_runner | [cycle 117] 10:26:50 ET | positions=0 | entries=0
+2026-07-09T14:26:50 | INFO     | session_runner | [cycle 117] 10:26:50 ET | positions=0 | entries=0
+2026-07-09T14:27:20 | INFO     | session_runner | [cycle 118] 10:27:20 ET | positions=0 | entries=0
+2026-07-09T14:27:20 | INFO     | session_runner | [cycle 118] 10:27:20 ET | positions=0 | entries=0
+2026-07-09T14:27:50 | INFO     | session_runner | [cycle 119] 10:27:50 ET | positions=0 | entries=0
+2026-07-09T14:27:50 | INFO     | session_runner | [cycle 119] 10:27:50 ET | positions=0 | entries=0
+2026-07-09T14:28:20 | INFO     | session_runner | [cycle 120] 10:28:20 ET | positions=0 | entries=0
+2026-07-09T14:28:20 | INFO     | session_runner | [cycle 120] 10:28:20 ET | positions=0 | entries=0
+2026-07-09T14:28:50 | INFO     | session_runner | [cycle 121] 10:28:50 ET | positions=0 | entries=0
+2026-07-09T14:28:50 | INFO     | session_runner | [cycle 121] 10:28:50 ET | positions=0 | entries=0
+2026-07-09T14:28:50 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-09T14:28:50 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-09T14:28:50 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-09T14:28:50 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-09T14:28:50 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-09T14:28:50 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-09T14:28:50 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-09T14:28:50 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-09T14:28:53 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-09T14:28:53 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-09T14:28:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-09T14:28:57 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-09T14:28:59 | INFO     | session_runner | Scan: 2 passed, 36 rejected
+2026-07-09T14:28:59 | INFO     | session_runner | Scan: 2 passed, 36 rejected
+2026-07-09T14:28:59 | INFO     | session_runner |   RIVN    score=70.0  signal=LONG     reasons: atr=8.83% (wide-range), orb_breakout, trend_up
+2026-07-09T14:28:59 | INFO     | session_runner |   RIVN    score=70.0  signal=LONG     reasons: atr=8.83% (wide-range), orb_breakout, trend_up
+2026-07-09T14:28:59 | INFO     | session_runner |   MARA    score=70.0  signal=LONG     reasons: atr=9.40% (wide-range), orb_breakout, trend_up
+2026-07-09T14:28:59 | INFO     | session_runner |   MARA    score=70.0  signal=LONG     reasons: atr=9.40% (wide-range), orb_breakout, trend_up
+2026-07-09T14:28:59 | INFO     | session_runner |   IWM     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T14:28:59 | INFO     | session_runner |   IWM     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T14:28:59 | INFO     | session_runner |   NVDA    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-09T14:28:59 | INFO     | session_runner |   NVDA    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-09T14:28:59 | INFO     | session_runner |   GOOGL   score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-09T14:28:59 | INFO     | session_runner |   GOOGL   score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-09T14:29:00 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710C00014000 | delta=0.422 | spread_pct=0.098 | OI=26650 | vol=3587
+2026-07-09T14:29:00 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710C00014000 | delta=0.422 | spread_pct=0.098 | OI=26650 | vol=3587
+2026-07-09T14:29:00 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MARA | MARA260710C00014000 | exp=2026-07-10 | spread=9.84% | OI=26650 | vol=3587
+2026-07-09T14:29:00 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MARA | MARA260710C00014000 | exp=2026-07-10 | spread=9.84% | OI=26650 | vol=3587
+2026-07-09T14:29:00 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260710C00018000 | delta=0.431 | spread_pct=0.030 | OI=6731 | vol=4858
+2026-07-09T14:29:00 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260710C00018000 | delta=0.431 | spread_pct=0.030 | OI=6731 | vol=4858
+2026-07-09T14:29:00 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed RIVN | RIVN260710C00018000 | exp=2026-07-10 | spread=2.99% | OI=6731 | vol=4858
+2026-07-09T14:29:00 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed RIVN | RIVN260710C00018000 | exp=2026-07-10 | spread=2.99% | OI=6731 | vol=4858
+2026-07-09T14:29:00 | INFO     | session_runner | AlpacaConfirmer: 2 confirmed symbols: ['RIVN', 'MARA']
+2026-07-09T14:29:00 | INFO     | session_runner | AlpacaConfirmer: 2 confirmed symbols: ['RIVN', 'MARA']
+2026-07-09T14:29:00 | INFO     | session_runner | Re-scan updated active symbols: ['RIVN', 'MARA']
+2026-07-09T14:29:00 | INFO     | session_runner | Re-scan updated active symbols: ['RIVN', 'MARA']
+2026-07-09T14:29:01 | INFO     | session_runner | [bridge:RIVN] rsi_trend ready: sufficient bars
+2026-07-09T14:29:01 | INFO     | session_runner | [bridge:RIVN] rsi_trend ready: sufficient bars
+2026-07-09T14:29:01 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260710C00018000 | delta=0.431 | spread_pct=0.030 | OI=6731 | vol=4858
+2026-07-09T14:29:01 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260710C00018000 | delta=0.431 | spread_pct=0.030 | OI=6731 | vol=4858
+2026-07-09T14:29:01 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN RIVN260710C00018000 | APPROVED | qty=1 | risk=$34.00
+2026-07-09T14:29:01 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN RIVN260710C00018000 | APPROVED | qty=1 | risk=$34.00
+2026-07-09T14:29:01 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'RIVN260710C00018000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.34', 'order_class': 'simple'}
+2026-07-09T14:29:01 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'RIVN260710C00018000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.34', 'order_class': 'simple'}
+2026-07-09T14:29:01 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=1 exits=0
+2026-07-09T14:29:01 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=1 exits=0
+2026-07-09T14:29:01 | INFO     | session_runner | Order placed: c61b9978 | RIVN260710C00018000 | limit=0.34 | status=pending_new
+2026-07-09T14:29:01 | INFO     | session_runner | Order placed: c61b9978 | RIVN260710C00018000 | limit=0.34 | status=pending_new
+2026-07-09T14:29:01 | INFO     | app.trading.trade_journal | Journal entry 198: long RIVN260710C00018000 @ 0.3400
+2026-07-09T14:29:01 | INFO     | app.trading.trade_journal | Journal entry 198: long RIVN260710C00018000 @ 0.3400
+2026-07-09T14:29:01 | INFO     | app.trading.fill_tracker | FillTracker registered c61b9978 | RIVN260710C00018000 | limit=0.3400
+2026-07-09T14:29:01 | INFO     | app.trading.fill_tracker | FillTracker registered c61b9978 | RIVN260710C00018000 | limit=0.3400
+2026-07-09T14:29:02 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:29:02 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:29:32 | INFO     | session_runner | [cycle 122] 10:29:32 ET | positions=0 | entries=0
+2026-07-09T14:29:32 | INFO     | session_runner | [cycle 122] 10:29:32 ET | positions=0 | entries=0
+2026-07-09T14:29:33 | INFO     | app.trading.fill_tracker | FillTracker: FILL c61b9978 @ 0.3200 (1/1 contracts)
+2026-07-09T14:29:33 | INFO     | app.trading.fill_tracker | FillTracker: FILL c61b9978 @ 0.3200 (1/1 contracts)
+2026-07-09T14:29:33 | INFO     | app.trading.trade_journal | Journal fill 198: filled=1 @ 0.3200 ttf=43s
+2026-07-09T14:29:33 | INFO     | app.trading.trade_journal | Journal fill 198: filled=1 @ 0.3200 ttf=43s
+2026-07-09T14:29:33 | INFO     | app.trading.position_manager | Position opened | RIVN260710C00018000 | entry=0.3200 | qty=1
+2026-07-09T14:29:33 | INFO     | app.trading.position_manager | Position opened | RIVN260710C00018000 | entry=0.3200 | qty=1
+2026-07-09T14:29:33 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=1 pending=0 exits=0
+2026-07-09T14:29:33 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=1 pending=0 exits=0
+2026-07-09T14:29:33 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-07-09T14:29:33 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-07-09T14:29:34 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:29:34 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:30:04 | INFO     | session_runner | [cycle 123] 10:30:04 ET | positions=1 | entries=1
+2026-07-09T14:30:04 | INFO     | session_runner | [cycle 123] 10:30:04 ET | positions=1 | entries=1
+2026-07-09T14:30:06 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:30:06 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:30:36 | INFO     | session_runner | [cycle 124] 10:30:36 ET | positions=1 | entries=1
+2026-07-09T14:30:36 | INFO     | session_runner | [cycle 124] 10:30:36 ET | positions=1 | entries=1
+2026-07-09T14:30:36 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T14:30:36 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T14:30:37 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:30:37 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:31:07 | INFO     | session_runner | [cycle 125] 10:31:07 ET | positions=1 | entries=1
+2026-07-09T14:31:07 | INFO     | session_runner | [cycle 125] 10:31:07 ET | positions=1 | entries=1
+2026-07-09T14:31:09 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:31:09 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:31:39 | INFO     | session_runner | [cycle 126] 10:31:39 ET | positions=1 | entries=1
+2026-07-09T14:31:39 | INFO     | session_runner | [cycle 126] 10:31:39 ET | positions=1 | entries=1
+2026-07-09T14:31:40 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:31:40 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:32:10 | INFO     | session_runner | [cycle 127] 10:32:10 ET | positions=1 | entries=1
+2026-07-09T14:32:10 | INFO     | session_runner | [cycle 127] 10:32:10 ET | positions=1 | entries=1
+2026-07-09T14:32:12 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:32:12 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:32:42 | INFO     | session_runner | [cycle 128] 10:32:42 ET | positions=1 | entries=1
+2026-07-09T14:32:42 | INFO     | session_runner | [cycle 128] 10:32:42 ET | positions=1 | entries=1
+2026-07-09T14:32:43 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:32:43 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:33:13 | INFO     | session_runner | [cycle 129] 10:33:13 ET | positions=1 | entries=1
+2026-07-09T14:33:13 | INFO     | session_runner | [cycle 129] 10:33:13 ET | positions=1 | entries=1
+2026-07-09T14:33:14 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:33:14 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:33:44 | INFO     | session_runner | [cycle 130] 10:33:44 ET | positions=1 | entries=1
+2026-07-09T14:33:44 | INFO     | session_runner | [cycle 130] 10:33:44 ET | positions=1 | entries=1
+2026-07-09T14:33:45 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:33:45 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:34:15 | INFO     | session_runner | [cycle 131] 10:34:15 ET | positions=1 | entries=1
+2026-07-09T14:34:15 | INFO     | session_runner | [cycle 131] 10:34:15 ET | positions=1 | entries=1
+2026-07-09T14:34:16 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:34:16 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:34:46 | INFO     | session_runner | [cycle 132] 10:34:46 ET | positions=1 | entries=1
+2026-07-09T14:34:46 | INFO     | session_runner | [cycle 132] 10:34:46 ET | positions=1 | entries=1
+2026-07-09T14:34:47 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:34:47 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:35:18 | INFO     | session_runner | [cycle 133] 10:35:18 ET | positions=1 | entries=1
+2026-07-09T14:35:18 | INFO     | session_runner | [cycle 133] 10:35:18 ET | positions=1 | entries=1
+2026-07-09T14:35:19 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:35:19 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:35:49 | INFO     | session_runner | [cycle 134] 10:35:49 ET | positions=1 | entries=1
+2026-07-09T14:35:49 | INFO     | session_runner | [cycle 134] 10:35:49 ET | positions=1 | entries=1
+2026-07-09T14:35:50 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:35:50 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:36:20 | INFO     | session_runner | [cycle 135] 10:36:20 ET | positions=1 | entries=1
+2026-07-09T14:36:20 | INFO     | session_runner | [cycle 135] 10:36:20 ET | positions=1 | entries=1
+2026-07-09T14:36:21 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:36:21 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:36:51 | INFO     | session_runner | [cycle 136] 10:36:51 ET | positions=1 | entries=1
+2026-07-09T14:36:51 | INFO     | session_runner | [cycle 136] 10:36:51 ET | positions=1 | entries=1
+2026-07-09T14:36:53 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:36:53 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:37:23 | INFO     | session_runner | [cycle 137] 10:37:23 ET | positions=1 | entries=1
+2026-07-09T14:37:23 | INFO     | session_runner | [cycle 137] 10:37:23 ET | positions=1 | entries=1
+2026-07-09T14:37:24 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:37:24 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:37:54 | INFO     | session_runner | [cycle 138] 10:37:54 ET | positions=1 | entries=1
+2026-07-09T14:37:54 | INFO     | session_runner | [cycle 138] 10:37:54 ET | positions=1 | entries=1
+2026-07-09T14:37:55 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:37:55 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:38:25 | INFO     | session_runner | [cycle 139] 10:38:25 ET | positions=1 | entries=1
+2026-07-09T14:38:25 | INFO     | session_runner | [cycle 139] 10:38:25 ET | positions=1 | entries=1
+2026-07-09T14:38:26 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:38:26 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:38:56 | INFO     | session_runner | [cycle 140] 10:38:56 ET | positions=1 | entries=1
+2026-07-09T14:38:56 | INFO     | session_runner | [cycle 140] 10:38:56 ET | positions=1 | entries=1
+2026-07-09T14:38:58 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:38:58 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:39:28 | INFO     | session_runner | [cycle 141] 10:39:28 ET | positions=1 | entries=1
+2026-07-09T14:39:28 | INFO     | session_runner | [cycle 141] 10:39:28 ET | positions=1 | entries=1
+2026-07-09T14:39:29 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:39:29 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:39:59 | INFO     | session_runner | [cycle 142] 10:39:59 ET | positions=1 | entries=1
+2026-07-09T14:39:59 | INFO     | session_runner | [cycle 142] 10:39:59 ET | positions=1 | entries=1
+2026-07-09T14:40:00 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:40:00 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:40:30 | INFO     | session_runner | [cycle 143] 10:40:30 ET | positions=1 | entries=1
+2026-07-09T14:40:30 | INFO     | session_runner | [cycle 143] 10:40:30 ET | positions=1 | entries=1
+2026-07-09T14:40:32 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:40:32 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:41:02 | INFO     | session_runner | [cycle 144] 10:41:02 ET | positions=1 | entries=1
+2026-07-09T14:41:02 | INFO     | session_runner | [cycle 144] 10:41:02 ET | positions=1 | entries=1
+2026-07-09T14:41:04 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T14:41:04 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T14:41:05 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:41:05 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:41:35 | INFO     | session_runner | [cycle 145] 10:41:35 ET | positions=1 | entries=1
+2026-07-09T14:41:35 | INFO     | session_runner | [cycle 145] 10:41:35 ET | positions=1 | entries=1
+2026-07-09T14:41:36 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:41:36 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:42:06 | INFO     | session_runner | [cycle 146] 10:42:06 ET | positions=1 | entries=1
+2026-07-09T14:42:06 | INFO     | session_runner | [cycle 146] 10:42:06 ET | positions=1 | entries=1
+2026-07-09T14:42:08 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:42:08 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:42:38 | INFO     | session_runner | [cycle 147] 10:42:38 ET | positions=1 | entries=1
+2026-07-09T14:42:38 | INFO     | session_runner | [cycle 147] 10:42:38 ET | positions=1 | entries=1
+2026-07-09T14:42:40 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:42:40 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:43:10 | INFO     | session_runner | [cycle 148] 10:43:10 ET | positions=1 | entries=1
+2026-07-09T14:43:10 | INFO     | session_runner | [cycle 148] 10:43:10 ET | positions=1 | entries=1
+2026-07-09T14:43:11 | INFO     | session_runner | Position exit | RIVN260710C00018000 | reason=trailing_stop | price=0.3200 | pnl=0.00
+2026-07-09T14:43:11 | INFO     | session_runner | Position exit | RIVN260710C00018000 | reason=trailing_stop | price=0.3200 | pnl=0.00
+2026-07-09T14:43:12 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'RIVN260710C00018000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.32', 'order_class': 'simple'}
+2026-07-09T14:43:12 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'RIVN260710C00018000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.32', 'order_class': 'simple'}
+2026-07-09T14:43:12 | INFO     | session_runner | Exit order placed | RIVN260710C00018000 | limit=0.3200 | order_id=618d4a90-a5aa-409c-8d93-a6b7bba1d1fa
+2026-07-09T14:43:12 | INFO     | session_runner | Exit order placed | RIVN260710C00018000 | limit=0.3200 | order_id=618d4a90-a5aa-409c-8d93-a6b7bba1d1fa
+2026-07-09T14:43:12 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=1 exits=1 daily_pnl=0.00
+2026-07-09T14:43:12 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=1 exits=1 daily_pnl=0.00
+2026-07-09T14:43:12 | INFO     | app.trading.trade_journal | Journal exit 198: reason=trailing_stop pnl=0.00 hold=817s
+2026-07-09T14:43:12 | INFO     | app.trading.trade_journal | Journal exit 198: reason=trailing_stop pnl=0.00 hold=817s
+2026-07-09T14:43:12 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-07-09T14:43:12 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-07-09T14:43:13 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:43:13 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:43:43 | INFO     | session_runner | [cycle 149] 10:43:43 ET | positions=0 | entries=1
+2026-07-09T14:43:43 | INFO     | session_runner | [cycle 149] 10:43:43 ET | positions=0 | entries=1
+2026-07-09T14:43:43 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:43:43 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:44:13 | INFO     | session_runner | [cycle 150] 10:44:13 ET | positions=0 | entries=1
+2026-07-09T14:44:13 | INFO     | session_runner | [cycle 150] 10:44:13 ET | positions=0 | entries=1
+2026-07-09T14:44:14 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:44:14 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:44:44 | INFO     | session_runner | [cycle 151] 10:44:44 ET | positions=0 | entries=1
+2026-07-09T14:44:44 | INFO     | session_runner | [cycle 151] 10:44:44 ET | positions=0 | entries=1
+2026-07-09T14:44:46 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:44:46 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:45:16 | INFO     | session_runner | [cycle 152] 10:45:16 ET | positions=0 | entries=1
+2026-07-09T14:45:16 | INFO     | session_runner | [cycle 152] 10:45:16 ET | positions=0 | entries=1
+2026-07-09T14:45:17 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:45:17 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:45:47 | INFO     | session_runner | [cycle 153] 10:45:47 ET | positions=0 | entries=1
+2026-07-09T14:45:47 | INFO     | session_runner | [cycle 153] 10:45:47 ET | positions=0 | entries=1
+2026-07-09T14:45:47 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:45:47 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:46:17 | INFO     | session_runner | [cycle 154] 10:46:17 ET | positions=0 | entries=1
+2026-07-09T14:46:17 | INFO     | session_runner | [cycle 154] 10:46:17 ET | positions=0 | entries=1
+2026-07-09T14:46:18 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:46:18 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:46:48 | INFO     | session_runner | [cycle 155] 10:46:48 ET | positions=0 | entries=1
+2026-07-09T14:46:48 | INFO     | session_runner | [cycle 155] 10:46:48 ET | positions=0 | entries=1
+2026-07-09T14:46:49 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:46:49 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:47:19 | INFO     | session_runner | [cycle 156] 10:47:19 ET | positions=0 | entries=1
+2026-07-09T14:47:19 | INFO     | session_runner | [cycle 156] 10:47:19 ET | positions=0 | entries=1
+2026-07-09T14:47:20 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:47:20 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:47:50 | INFO     | session_runner | [cycle 157] 10:47:50 ET | positions=0 | entries=1
+2026-07-09T14:47:50 | INFO     | session_runner | [cycle 157] 10:47:50 ET | positions=0 | entries=1
+2026-07-09T14:47:51 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:47:51 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:48:21 | INFO     | session_runner | [cycle 158] 10:48:21 ET | positions=0 | entries=1
+2026-07-09T14:48:21 | INFO     | session_runner | [cycle 158] 10:48:21 ET | positions=0 | entries=1
+2026-07-09T14:48:21 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:48:21 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:48:51 | INFO     | session_runner | [cycle 159] 10:48:51 ET | positions=0 | entries=1
+2026-07-09T14:48:51 | INFO     | session_runner | [cycle 159] 10:48:51 ET | positions=0 | entries=1
+2026-07-09T14:48:52 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:48:52 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:49:22 | INFO     | session_runner | [cycle 160] 10:49:22 ET | positions=0 | entries=1
+2026-07-09T14:49:22 | INFO     | session_runner | [cycle 160] 10:49:22 ET | positions=0 | entries=1
+2026-07-09T14:49:23 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:49:23 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:49:53 | INFO     | session_runner | [cycle 161] 10:49:53 ET | positions=0 | entries=1
+2026-07-09T14:49:53 | INFO     | session_runner | [cycle 161] 10:49:53 ET | positions=0 | entries=1
+2026-07-09T14:49:54 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:49:54 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:50:24 | INFO     | session_runner | [cycle 162] 10:50:24 ET | positions=0 | entries=1
+2026-07-09T14:50:24 | INFO     | session_runner | [cycle 162] 10:50:24 ET | positions=0 | entries=1
+2026-07-09T14:50:24 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:50:24 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:50:54 | INFO     | session_runner | [cycle 163] 10:50:54 ET | positions=0 | entries=1
+2026-07-09T14:50:54 | INFO     | session_runner | [cycle 163] 10:50:54 ET | positions=0 | entries=1
+2026-07-09T14:50:55 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:50:55 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:51:25 | INFO     | session_runner | [cycle 164] 10:51:25 ET | positions=0 | entries=1
+2026-07-09T14:51:25 | INFO     | session_runner | [cycle 164] 10:51:25 ET | positions=0 | entries=1
+2026-07-09T14:51:26 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T14:51:26 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T14:51:27 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:51:27 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:51:57 | INFO     | session_runner | [cycle 165] 10:51:57 ET | positions=0 | entries=1
+2026-07-09T14:51:57 | INFO     | session_runner | [cycle 165] 10:51:57 ET | positions=0 | entries=1
+2026-07-09T14:51:57 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:51:57 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:52:27 | INFO     | session_runner | [cycle 166] 10:52:27 ET | positions=0 | entries=1
+2026-07-09T14:52:27 | INFO     | session_runner | [cycle 166] 10:52:27 ET | positions=0 | entries=1
+2026-07-09T14:52:28 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:52:28 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:52:58 | INFO     | session_runner | [cycle 167] 10:52:58 ET | positions=0 | entries=1
+2026-07-09T14:52:58 | INFO     | session_runner | [cycle 167] 10:52:58 ET | positions=0 | entries=1
+2026-07-09T14:52:59 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:52:59 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:53:29 | INFO     | session_runner | [cycle 168] 10:53:29 ET | positions=0 | entries=1
+2026-07-09T14:53:29 | INFO     | session_runner | [cycle 168] 10:53:29 ET | positions=0 | entries=1
+2026-07-09T14:53:30 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:53:30 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:54:00 | INFO     | session_runner | [cycle 169] 10:54:00 ET | positions=0 | entries=1
+2026-07-09T14:54:00 | INFO     | session_runner | [cycle 169] 10:54:00 ET | positions=0 | entries=1
+2026-07-09T14:54:01 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:54:01 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:54:31 | INFO     | session_runner | [cycle 170] 10:54:31 ET | positions=0 | entries=1
+2026-07-09T14:54:31 | INFO     | session_runner | [cycle 170] 10:54:31 ET | positions=0 | entries=1
+2026-07-09T14:54:32 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:54:32 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:55:02 | INFO     | session_runner | [cycle 171] 10:55:02 ET | positions=0 | entries=1
+2026-07-09T14:55:02 | INFO     | session_runner | [cycle 171] 10:55:02 ET | positions=0 | entries=1
+2026-07-09T14:55:02 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:55:02 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:55:32 | INFO     | session_runner | [cycle 172] 10:55:32 ET | positions=0 | entries=1
+2026-07-09T14:55:32 | INFO     | session_runner | [cycle 172] 10:55:32 ET | positions=0 | entries=1
+2026-07-09T14:55:33 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:55:33 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:56:03 | INFO     | session_runner | [cycle 173] 10:56:03 ET | positions=0 | entries=1
+2026-07-09T14:56:03 | INFO     | session_runner | [cycle 173] 10:56:03 ET | positions=0 | entries=1
+2026-07-09T14:56:04 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:56:04 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:56:34 | INFO     | session_runner | [cycle 174] 10:56:34 ET | positions=0 | entries=1
+2026-07-09T14:56:34 | INFO     | session_runner | [cycle 174] 10:56:34 ET | positions=0 | entries=1
+2026-07-09T14:56:34 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:56:34 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:57:05 | INFO     | session_runner | [cycle 175] 10:57:05 ET | positions=0 | entries=1
+2026-07-09T14:57:05 | INFO     | session_runner | [cycle 175] 10:57:05 ET | positions=0 | entries=1
+2026-07-09T14:57:05 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:57:05 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:57:35 | INFO     | session_runner | [cycle 176] 10:57:35 ET | positions=0 | entries=1
+2026-07-09T14:57:35 | INFO     | session_runner | [cycle 176] 10:57:35 ET | positions=0 | entries=1
+2026-07-09T14:57:36 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:57:36 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:58:06 | INFO     | session_runner | [cycle 177] 10:58:06 ET | positions=0 | entries=1
+2026-07-09T14:58:06 | INFO     | session_runner | [cycle 177] 10:58:06 ET | positions=0 | entries=1
+2026-07-09T14:58:06 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:58:06 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:58:36 | INFO     | session_runner | [cycle 178] 10:58:36 ET | positions=0 | entries=1
+2026-07-09T14:58:36 | INFO     | session_runner | [cycle 178] 10:58:36 ET | positions=0 | entries=1
+2026-07-09T14:58:37 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:58:37 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:59:07 | INFO     | session_runner | [cycle 179] 10:59:07 ET | positions=0 | entries=1
+2026-07-09T14:59:07 | INFO     | session_runner | [cycle 179] 10:59:07 ET | positions=0 | entries=1
+2026-07-09T14:59:07 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-09T14:59:07 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-09T14:59:07 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-09T14:59:07 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-09T14:59:07 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-09T14:59:07 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-09T14:59:07 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-09T14:59:07 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-09T14:59:12 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-09T14:59:12 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-09T14:59:17 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-09T14:59:17 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-09T14:59:18 | INFO     | session_runner | Scan: 2 passed, 36 rejected
+2026-07-09T14:59:18 | INFO     | session_runner | Scan: 2 passed, 36 rejected
+2026-07-09T14:59:18 | INFO     | session_runner |   RIVN    score=70.0  signal=LONG     reasons: atr=8.82% (wide-range), orb_breakout, trend_up
+2026-07-09T14:59:18 | INFO     | session_runner |   RIVN    score=70.0  signal=LONG     reasons: atr=8.82% (wide-range), orb_breakout, trend_up
+2026-07-09T14:59:18 | INFO     | session_runner |   MARA    score=70.0  signal=LONG     reasons: atr=9.58% (wide-range), orb_breakout, trend_up
+2026-07-09T14:59:18 | INFO     | session_runner |   MARA    score=70.0  signal=LONG     reasons: atr=9.58% (wide-range), orb_breakout, trend_up
+2026-07-09T14:59:18 | INFO     | session_runner |   IWM     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T14:59:18 | INFO     | session_runner |   IWM     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T14:59:18 | INFO     | session_runner |   GOOGL   score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-09T14:59:18 | INFO     | session_runner |   GOOGL   score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-09T14:59:18 | INFO     | session_runner |   SOFI    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T14:59:18 | INFO     | session_runner |   SOFI    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T14:59:19 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260710C00018000 | delta=0.435 | spread_pct=0.032 | OI=6731 | vol=7253
+2026-07-09T14:59:19 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260710C00018000 | delta=0.435 | spread_pct=0.032 | OI=6731 | vol=7253
+2026-07-09T14:59:19 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed RIVN | RIVN260710C00018000 | exp=2026-07-10 | spread=3.17% | OI=6731 | vol=7253
+2026-07-09T14:59:19 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed RIVN | RIVN260710C00018000 | exp=2026-07-10 | spread=3.17% | OI=6731 | vol=7253
+2026-07-09T14:59:20 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710C00014000 | delta=0.638 | spread_pct=0.018 | OI=26650 | vol=9461
+2026-07-09T14:59:20 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710C00014000 | delta=0.638 | spread_pct=0.018 | OI=26650 | vol=9461
+2026-07-09T14:59:20 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MARA | MARA260710C00014000 | exp=2026-07-10 | spread=1.77% | OI=26650 | vol=9461
+2026-07-09T14:59:20 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MARA | MARA260710C00014000 | exp=2026-07-10 | spread=1.77% | OI=26650 | vol=9461
+2026-07-09T14:59:20 | INFO     | session_runner | AlpacaConfirmer: 2 confirmed symbols: ['RIVN', 'MARA']
+2026-07-09T14:59:20 | INFO     | session_runner | AlpacaConfirmer: 2 confirmed symbols: ['RIVN', 'MARA']
+2026-07-09T14:59:20 | INFO     | session_runner | Re-scan updated active symbols: ['RIVN', 'MARA']
+2026-07-09T14:59:20 | INFO     | session_runner | Re-scan updated active symbols: ['RIVN', 'MARA']
+2026-07-09T14:59:20 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:59:20 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:59:50 | INFO     | session_runner | [cycle 180] 10:59:50 ET | positions=0 | entries=1
+2026-07-09T14:59:50 | INFO     | session_runner | [cycle 180] 10:59:50 ET | positions=0 | entries=1
+2026-07-09T14:59:51 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T14:59:51 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:00:21 | INFO     | session_runner | [cycle 181] 11:00:21 ET | positions=0 | entries=1
+2026-07-09T15:00:21 | INFO     | session_runner | [cycle 181] 11:00:21 ET | positions=0 | entries=1
+2026-07-09T15:00:21 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:00:21 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:00:51 | INFO     | session_runner | [cycle 182] 11:00:51 ET | positions=0 | entries=1
+2026-07-09T15:00:51 | INFO     | session_runner | [cycle 182] 11:00:51 ET | positions=0 | entries=1
+2026-07-09T15:00:52 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:00:52 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:01:22 | INFO     | session_runner | [cycle 183] 11:01:22 ET | positions=0 | entries=1
+2026-07-09T15:01:22 | INFO     | session_runner | [cycle 183] 11:01:22 ET | positions=0 | entries=1
+2026-07-09T15:01:23 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:01:23 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:01:53 | INFO     | session_runner | [cycle 184] 11:01:53 ET | positions=0 | entries=1
+2026-07-09T15:01:53 | INFO     | session_runner | [cycle 184] 11:01:53 ET | positions=0 | entries=1
+2026-07-09T15:01:54 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T15:01:54 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T15:01:54 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:01:54 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:02:24 | INFO     | session_runner | [cycle 185] 11:02:24 ET | positions=0 | entries=1
+2026-07-09T15:02:24 | INFO     | session_runner | [cycle 185] 11:02:24 ET | positions=0 | entries=1
+2026-07-09T15:02:25 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:02:25 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:02:55 | INFO     | session_runner | [cycle 186] 11:02:55 ET | positions=0 | entries=1
+2026-07-09T15:02:55 | INFO     | session_runner | [cycle 186] 11:02:55 ET | positions=0 | entries=1
+2026-07-09T15:02:56 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:02:56 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:03:26 | INFO     | session_runner | [cycle 187] 11:03:26 ET | positions=0 | entries=1
+2026-07-09T15:03:26 | INFO     | session_runner | [cycle 187] 11:03:26 ET | positions=0 | entries=1
+2026-07-09T15:03:27 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:03:27 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:03:57 | INFO     | session_runner | [cycle 188] 11:03:57 ET | positions=0 | entries=1
+2026-07-09T15:03:57 | INFO     | session_runner | [cycle 188] 11:03:57 ET | positions=0 | entries=1
+2026-07-09T15:03:58 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:03:58 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:04:28 | INFO     | session_runner | [cycle 189] 11:04:28 ET | positions=0 | entries=1
+2026-07-09T15:04:28 | INFO     | session_runner | [cycle 189] 11:04:28 ET | positions=0 | entries=1
+2026-07-09T15:04:28 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:04:28 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:04:58 | INFO     | session_runner | [cycle 190] 11:04:58 ET | positions=0 | entries=1
+2026-07-09T15:04:58 | INFO     | session_runner | [cycle 190] 11:04:58 ET | positions=0 | entries=1
+2026-07-09T15:04:59 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:04:59 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:05:29 | INFO     | session_runner | [cycle 191] 11:05:29 ET | positions=0 | entries=1
+2026-07-09T15:05:29 | INFO     | session_runner | [cycle 191] 11:05:29 ET | positions=0 | entries=1
+2026-07-09T15:05:30 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:05:30 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:06:00 | INFO     | session_runner | [cycle 192] 11:06:00 ET | positions=0 | entries=1
+2026-07-09T15:06:00 | INFO     | session_runner | [cycle 192] 11:06:00 ET | positions=0 | entries=1
+2026-07-09T15:06:00 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:06:00 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:06:30 | INFO     | session_runner | [cycle 193] 11:06:30 ET | positions=0 | entries=1
+2026-07-09T15:06:30 | INFO     | session_runner | [cycle 193] 11:06:30 ET | positions=0 | entries=1
+2026-07-09T15:06:31 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:06:31 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:07:01 | INFO     | session_runner | [cycle 194] 11:07:01 ET | positions=0 | entries=1
+2026-07-09T15:07:01 | INFO     | session_runner | [cycle 194] 11:07:01 ET | positions=0 | entries=1
+2026-07-09T15:07:02 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:07:02 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:07:32 | INFO     | session_runner | [cycle 195] 11:07:32 ET | positions=0 | entries=1
+2026-07-09T15:07:32 | INFO     | session_runner | [cycle 195] 11:07:32 ET | positions=0 | entries=1
+2026-07-09T15:07:33 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:07:33 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:08:03 | INFO     | session_runner | [cycle 196] 11:08:03 ET | positions=0 | entries=1
+2026-07-09T15:08:03 | INFO     | session_runner | [cycle 196] 11:08:03 ET | positions=0 | entries=1
+2026-07-09T15:08:04 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:08:04 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:08:34 | INFO     | session_runner | [cycle 197] 11:08:34 ET | positions=0 | entries=1
+2026-07-09T15:08:34 | INFO     | session_runner | [cycle 197] 11:08:34 ET | positions=0 | entries=1
+2026-07-09T15:08:35 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:08:35 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:09:05 | INFO     | session_runner | [cycle 198] 11:09:05 ET | positions=0 | entries=1
+2026-07-09T15:09:05 | INFO     | session_runner | [cycle 198] 11:09:05 ET | positions=0 | entries=1
+2026-07-09T15:09:06 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:09:06 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:09:36 | INFO     | session_runner | [cycle 199] 11:09:36 ET | positions=0 | entries=1
+2026-07-09T15:09:36 | INFO     | session_runner | [cycle 199] 11:09:36 ET | positions=0 | entries=1
+2026-07-09T15:09:36 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:09:36 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:10:06 | INFO     | session_runner | [cycle 200] 11:10:06 ET | positions=0 | entries=1
+2026-07-09T15:10:06 | INFO     | session_runner | [cycle 200] 11:10:06 ET | positions=0 | entries=1
+2026-07-09T15:10:07 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:10:07 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:10:37 | INFO     | session_runner | [cycle 201] 11:10:37 ET | positions=0 | entries=1
+2026-07-09T15:10:37 | INFO     | session_runner | [cycle 201] 11:10:37 ET | positions=0 | entries=1
+2026-07-09T15:10:38 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:10:38 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:11:08 | INFO     | session_runner | [cycle 202] 11:11:08 ET | positions=0 | entries=1
+2026-07-09T15:11:08 | INFO     | session_runner | [cycle 202] 11:11:08 ET | positions=0 | entries=1
+2026-07-09T15:11:09 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:11:09 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:11:39 | INFO     | session_runner | [cycle 203] 11:11:39 ET | positions=0 | entries=1
+2026-07-09T15:11:39 | INFO     | session_runner | [cycle 203] 11:11:39 ET | positions=0 | entries=1
+2026-07-09T15:11:40 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:11:40 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:12:10 | INFO     | session_runner | [cycle 204] 11:12:10 ET | positions=0 | entries=1
+2026-07-09T15:12:10 | INFO     | session_runner | [cycle 204] 11:12:10 ET | positions=0 | entries=1
+2026-07-09T15:12:10 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T15:12:10 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T15:12:11 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:12:11 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:12:41 | INFO     | session_runner | [cycle 205] 11:12:41 ET | positions=0 | entries=1
+2026-07-09T15:12:41 | INFO     | session_runner | [cycle 205] 11:12:41 ET | positions=0 | entries=1
+2026-07-09T15:12:42 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:12:42 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:13:12 | INFO     | session_runner | [cycle 206] 11:13:12 ET | positions=0 | entries=1
+2026-07-09T15:13:12 | INFO     | session_runner | [cycle 206] 11:13:12 ET | positions=0 | entries=1
+2026-07-09T15:13:13 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:13:13 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:13:43 | INFO     | session_runner | [cycle 207] 11:13:43 ET | positions=0 | entries=1
+2026-07-09T15:13:43 | INFO     | session_runner | [cycle 207] 11:13:43 ET | positions=0 | entries=1
+2026-07-09T15:13:44 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:13:44 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:14:14 | INFO     | session_runner | [cycle 208] 11:14:14 ET | positions=0 | entries=1
+2026-07-09T15:14:14 | INFO     | session_runner | [cycle 208] 11:14:14 ET | positions=0 | entries=1
+2026-07-09T15:14:15 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:14:15 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:14:45 | INFO     | session_runner | [cycle 209] 11:14:45 ET | positions=0 | entries=1
+2026-07-09T15:14:45 | INFO     | session_runner | [cycle 209] 11:14:45 ET | positions=0 | entries=1
+2026-07-09T15:14:46 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:14:46 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:15:16 | INFO     | session_runner | [cycle 210] 11:15:16 ET | positions=0 | entries=1
+2026-07-09T15:15:16 | INFO     | session_runner | [cycle 210] 11:15:16 ET | positions=0 | entries=1
+2026-07-09T15:15:17 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:15:17 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:15:47 | INFO     | session_runner | [cycle 211] 11:15:47 ET | positions=0 | entries=1
+2026-07-09T15:15:47 | INFO     | session_runner | [cycle 211] 11:15:47 ET | positions=0 | entries=1
+2026-07-09T15:15:47 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:15:47 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:16:17 | INFO     | session_runner | [cycle 212] 11:16:17 ET | positions=0 | entries=1
+2026-07-09T15:16:17 | INFO     | session_runner | [cycle 212] 11:16:17 ET | positions=0 | entries=1
+2026-07-09T15:16:18 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:16:18 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:16:48 | INFO     | session_runner | [cycle 213] 11:16:48 ET | positions=0 | entries=1
+2026-07-09T15:16:48 | INFO     | session_runner | [cycle 213] 11:16:48 ET | positions=0 | entries=1
+2026-07-09T15:16:49 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:16:49 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:17:19 | INFO     | session_runner | [cycle 214] 11:17:19 ET | positions=0 | entries=1
+2026-07-09T15:17:19 | INFO     | session_runner | [cycle 214] 11:17:19 ET | positions=0 | entries=1
+2026-07-09T15:17:19 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:17:19 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:17:49 | INFO     | session_runner | [cycle 215] 11:17:49 ET | positions=0 | entries=1
+2026-07-09T15:17:49 | INFO     | session_runner | [cycle 215] 11:17:49 ET | positions=0 | entries=1
+2026-07-09T15:17:50 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:17:50 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:18:20 | INFO     | session_runner | [cycle 216] 11:18:20 ET | positions=0 | entries=1
+2026-07-09T15:18:20 | INFO     | session_runner | [cycle 216] 11:18:20 ET | positions=0 | entries=1
+2026-07-09T15:18:21 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:18:21 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:18:51 | INFO     | session_runner | [cycle 217] 11:18:51 ET | positions=0 | entries=1
+2026-07-09T15:18:51 | INFO     | session_runner | [cycle 217] 11:18:51 ET | positions=0 | entries=1
+2026-07-09T15:18:52 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:18:52 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:19:22 | INFO     | session_runner | [cycle 218] 11:19:22 ET | positions=0 | entries=1
+2026-07-09T15:19:22 | INFO     | session_runner | [cycle 218] 11:19:22 ET | positions=0 | entries=1
+2026-07-09T15:19:22 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:19:22 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:19:52 | INFO     | session_runner | [cycle 219] 11:19:52 ET | positions=0 | entries=1
+2026-07-09T15:19:52 | INFO     | session_runner | [cycle 219] 11:19:52 ET | positions=0 | entries=1
+2026-07-09T15:19:54 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:19:54 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:20:24 | INFO     | session_runner | [cycle 220] 11:20:24 ET | positions=0 | entries=1
+2026-07-09T15:20:24 | INFO     | session_runner | [cycle 220] 11:20:24 ET | positions=0 | entries=1
+2026-07-09T15:20:25 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:20:25 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:20:55 | INFO     | session_runner | [cycle 221] 11:20:55 ET | positions=0 | entries=1
+2026-07-09T15:20:55 | INFO     | session_runner | [cycle 221] 11:20:55 ET | positions=0 | entries=1
+2026-07-09T15:20:55 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:20:55 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:21:25 | INFO     | session_runner | [cycle 222] 11:21:25 ET | positions=0 | entries=1
+2026-07-09T15:21:25 | INFO     | session_runner | [cycle 222] 11:21:25 ET | positions=0 | entries=1
+2026-07-09T15:21:26 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:21:26 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:21:56 | INFO     | session_runner | [cycle 223] 11:21:56 ET | positions=0 | entries=1
+2026-07-09T15:21:56 | INFO     | session_runner | [cycle 223] 11:21:56 ET | positions=0 | entries=1
+2026-07-09T15:21:57 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:21:57 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:22:27 | INFO     | session_runner | [cycle 224] 11:22:27 ET | positions=0 | entries=1
+2026-07-09T15:22:27 | INFO     | session_runner | [cycle 224] 11:22:27 ET | positions=0 | entries=1
+2026-07-09T15:22:27 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T15:22:27 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T15:22:28 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:22:28 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:22:58 | INFO     | session_runner | [cycle 225] 11:22:58 ET | positions=0 | entries=1
+2026-07-09T15:22:58 | INFO     | session_runner | [cycle 225] 11:22:58 ET | positions=0 | entries=1
+2026-07-09T15:22:59 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:22:59 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:23:29 | INFO     | session_runner | [cycle 226] 11:23:29 ET | positions=0 | entries=1
+2026-07-09T15:23:29 | INFO     | session_runner | [cycle 226] 11:23:29 ET | positions=0 | entries=1
+2026-07-09T15:23:29 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:23:29 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:23:59 | INFO     | session_runner | [cycle 227] 11:23:59 ET | positions=0 | entries=1
+2026-07-09T15:23:59 | INFO     | session_runner | [cycle 227] 11:23:59 ET | positions=0 | entries=1
+2026-07-09T15:24:00 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:24:00 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:24:30 | INFO     | session_runner | [cycle 228] 11:24:30 ET | positions=0 | entries=1
+2026-07-09T15:24:30 | INFO     | session_runner | [cycle 228] 11:24:30 ET | positions=0 | entries=1
+2026-07-09T15:24:31 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:24:31 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:25:01 | INFO     | session_runner | [cycle 229] 11:25:01 ET | positions=0 | entries=1
+2026-07-09T15:25:01 | INFO     | session_runner | [cycle 229] 11:25:01 ET | positions=0 | entries=1
+2026-07-09T15:25:01 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:25:01 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:25:31 | INFO     | session_runner | [cycle 230] 11:25:31 ET | positions=0 | entries=1
+2026-07-09T15:25:31 | INFO     | session_runner | [cycle 230] 11:25:31 ET | positions=0 | entries=1
+2026-07-09T15:25:32 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:25:32 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:26:02 | INFO     | session_runner | [cycle 231] 11:26:02 ET | positions=0 | entries=1
+2026-07-09T15:26:02 | INFO     | session_runner | [cycle 231] 11:26:02 ET | positions=0 | entries=1
+2026-07-09T15:26:03 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:26:03 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:26:33 | INFO     | session_runner | [cycle 232] 11:26:33 ET | positions=0 | entries=1
+2026-07-09T15:26:33 | INFO     | session_runner | [cycle 232] 11:26:33 ET | positions=0 | entries=1
+2026-07-09T15:26:34 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:26:34 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:27:04 | INFO     | session_runner | [cycle 233] 11:27:04 ET | positions=0 | entries=1
+2026-07-09T15:27:04 | INFO     | session_runner | [cycle 233] 11:27:04 ET | positions=0 | entries=1
+2026-07-09T15:27:04 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:27:04 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:27:35 | INFO     | session_runner | [cycle 234] 11:27:35 ET | positions=0 | entries=1
+2026-07-09T15:27:35 | INFO     | session_runner | [cycle 234] 11:27:35 ET | positions=0 | entries=1
+2026-07-09T15:27:35 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:27:35 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:28:05 | INFO     | session_runner | [cycle 235] 11:28:05 ET | positions=0 | entries=1
+2026-07-09T15:28:05 | INFO     | session_runner | [cycle 235] 11:28:05 ET | positions=0 | entries=1
+2026-07-09T15:28:06 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:28:06 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:28:36 | INFO     | session_runner | [cycle 236] 11:28:36 ET | positions=0 | entries=1
+2026-07-09T15:28:36 | INFO     | session_runner | [cycle 236] 11:28:36 ET | positions=0 | entries=1
+2026-07-09T15:28:37 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:28:37 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:29:07 | INFO     | session_runner | [cycle 237] 11:29:07 ET | positions=0 | entries=1
+2026-07-09T15:29:07 | INFO     | session_runner | [cycle 237] 11:29:07 ET | positions=0 | entries=1
+2026-07-09T15:29:07 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:29:07 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:29:37 | INFO     | session_runner | [cycle 238] 11:29:37 ET | positions=0 | entries=1
+2026-07-09T15:29:37 | INFO     | session_runner | [cycle 238] 11:29:37 ET | positions=0 | entries=1
+2026-07-09T15:29:37 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-09T15:29:37 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-09T15:29:37 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-09T15:29:37 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-09T15:29:37 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-09T15:29:37 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-09T15:29:37 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-09T15:29:37 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-09T15:29:40 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-09T15:29:40 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-09T15:29:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-09T15:29:46 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-09T15:29:47 | INFO     | session_runner | Scan: 3 passed, 35 rejected
+2026-07-09T15:29:47 | INFO     | session_runner | Scan: 3 passed, 35 rejected
+2026-07-09T15:29:47 | INFO     | session_runner |   MARA    score=75.0  signal=LONG     reasons: rvol=1.07x (normal), atr=9.91% (wide-range), orb_breakout
+2026-07-09T15:29:47 | INFO     | session_runner |   MARA    score=75.0  signal=LONG     reasons: rvol=1.07x (normal), atr=9.91% (wide-range), orb_breakout
+2026-07-09T15:29:47 | INFO     | session_runner |   RIVN    score=70.0  signal=LONG     reasons: atr=8.83% (wide-range), orb_breakout, trend_up
+2026-07-09T15:29:47 | INFO     | session_runner |   RIVN    score=70.0  signal=LONG     reasons: atr=8.83% (wide-range), orb_breakout, trend_up
+2026-07-09T15:29:47 | INFO     | session_runner |   META    score=62.0  signal=LONG     reasons: atr=4.02% (wide-range), orb_breakout, trend_sideways
+2026-07-09T15:29:47 | INFO     | session_runner |   META    score=62.0  signal=LONG     reasons: atr=4.02% (wide-range), orb_breakout, trend_sideways
+2026-07-09T15:29:47 | INFO     | session_runner |   IWM     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T15:29:47 | INFO     | session_runner |   IWM     score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-07-09T15:29:47 | INFO     | session_runner |   GOOGL   score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-09T15:29:47 | INFO     | session_runner |   GOOGL   score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-07-09T15:29:48 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260710C00017000 | delta=0.780 | spread_pct=0.055 | OI=8886 | vol=3306
+2026-07-09T15:29:48 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260710C00017000 | delta=0.780 | spread_pct=0.055 | OI=8886 | vol=3306
+2026-07-09T15:29:48 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed RIVN | RIVN260710C00017000 | exp=2026-07-10 | spread=5.46% | OI=8886 | vol=3306
+2026-07-09T15:29:48 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed RIVN | RIVN260710C00017000 | exp=2026-07-10 | spread=5.46% | OI=8886 | vol=3306
+2026-07-09T15:29:49 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected META260710C00610000 | delta=0.373 | spread_pct=0.028 | OI=2530 | vol=9410
+2026-07-09T15:29:49 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected META260710C00610000 | delta=0.373 | spread_pct=0.028 | OI=2530 | vol=9410
+2026-07-09T15:29:49 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed META | META260710C00610000 | exp=2026-07-10 | spread=2.80% | OI=2530 | vol=9410
+2026-07-09T15:29:49 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed META | META260710C00610000 | exp=2026-07-10 | spread=2.80% | OI=2530 | vol=9410
+2026-07-09T15:29:49 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710C00014000 | delta=0.466 | spread_pct=0.031 | OI=26650 | vol=12395
+2026-07-09T15:29:49 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710C00014000 | delta=0.466 | spread_pct=0.031 | OI=26650 | vol=12395
+2026-07-09T15:29:49 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MARA | MARA260710C00014000 | exp=2026-07-10 | spread=3.08% | OI=26650 | vol=12395
+2026-07-09T15:29:49 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MARA | MARA260710C00014000 | exp=2026-07-10 | spread=3.08% | OI=26650 | vol=12395
+2026-07-09T15:29:49 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['MARA', 'RIVN', 'META']
+2026-07-09T15:29:49 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['MARA', 'RIVN', 'META']
+2026-07-09T15:29:49 | INFO     | session_runner | Re-scan updated active symbols: ['MARA', 'RIVN', 'META']
+2026-07-09T15:29:49 | INFO     | session_runner | Re-scan updated active symbols: ['MARA', 'RIVN', 'META']
+2026-07-09T15:29:50 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:29:50 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:29:51 | INFO     | session_runner | [bridge:META] rsi_trend ready: sufficient bars
+2026-07-09T15:29:51 | INFO     | session_runner | [bridge:META] rsi_trend ready: sufficient bars
+2026-07-09T15:29:52 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected META260710C00610000 | delta=0.373 | spread_pct=0.040 | OI=2530 | vol=9410
+2026-07-09T15:29:52 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected META260710C00610000 | delta=0.373 | spread_pct=0.040 | OI=2530 | vol=9410
+2026-07-09T15:29:52 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN META260710C00610000 | APPROVED | qty=1 | risk=$435.00
+2026-07-09T15:29:52 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN META260710C00610000 | APPROVED | qty=1 | risk=$435.00
+2026-07-09T15:29:52 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'META260710C00610000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '4.35', 'order_class': 'simple'}
+2026-07-09T15:29:52 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'META260710C00610000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '4.35', 'order_class': 'simple'}
+2026-07-09T15:29:53 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=1 pending=1 exits=1
+2026-07-09T15:29:53 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=1 pending=1 exits=1
+2026-07-09T15:29:53 | INFO     | session_runner | Order placed: efc917c3 | META260710C00610000 | limit=4.35 | status=pending_new
+2026-07-09T15:29:53 | INFO     | session_runner | Order placed: efc917c3 | META260710C00610000 | limit=4.35 | status=pending_new
+2026-07-09T15:29:53 | INFO     | app.trading.trade_journal | Journal entry 199: long META260710C00610000 @ 4.3500
+2026-07-09T15:29:53 | INFO     | app.trading.trade_journal | Journal entry 199: long META260710C00610000 @ 4.3500
+2026-07-09T15:29:53 | INFO     | app.trading.fill_tracker | FillTracker registered efc917c3 | META260710C00610000 | limit=4.3500
+2026-07-09T15:29:53 | INFO     | app.trading.fill_tracker | FillTracker registered efc917c3 | META260710C00610000 | limit=4.3500
+2026-07-09T15:30:23 | INFO     | session_runner | [cycle 239] 11:30:23 ET | positions=0 | entries=1
+2026-07-09T15:30:23 | INFO     | session_runner | [cycle 239] 11:30:23 ET | positions=0 | entries=1
+2026-07-09T15:30:23 | INFO     | app.trading.fill_tracker | FillTracker: FILL efc917c3 @ 4.3500 (1/1 contracts)
+2026-07-09T15:30:23 | INFO     | app.trading.fill_tracker | FillTracker: FILL efc917c3 @ 4.3500 (1/1 contracts)
+2026-07-09T15:30:23 | INFO     | app.trading.trade_journal | Journal fill 199: filled=1 @ 4.3500 ttf=46s
+2026-07-09T15:30:23 | INFO     | app.trading.trade_journal | Journal fill 199: filled=1 @ 4.3500 ttf=46s
+2026-07-09T15:30:23 | INFO     | app.trading.position_manager | Position opened | META260710C00610000 | entry=4.3500 | qty=1
+2026-07-09T15:30:23 | INFO     | app.trading.position_manager | Position opened | META260710C00610000 | entry=4.3500 | qty=1
+2026-07-09T15:30:23 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=2 pending=0 exits=1
+2026-07-09T15:30:23 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=2 pending=0 exits=1
+2026-07-09T15:30:23 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-07-09T15:30:23 | INFO     | session_runner | FillTracker: 1 fill(s) processed this cycle
+2026-07-09T15:30:27 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:30:27 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:30:57 | INFO     | session_runner | [cycle 240] 11:30:57 ET | positions=1 | entries=2
+2026-07-09T15:30:57 | INFO     | session_runner | [cycle 240] 11:30:57 ET | positions=1 | entries=2
+2026-07-09T15:30:58 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:30:58 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:31:28 | INFO     | session_runner | [cycle 241] 11:31:28 ET | positions=1 | entries=2
+2026-07-09T15:31:28 | INFO     | session_runner | [cycle 241] 11:31:28 ET | positions=1 | entries=2
+2026-07-09T15:31:29 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:31:29 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:31:59 | INFO     | session_runner | [cycle 242] 11:31:59 ET | positions=1 | entries=2
+2026-07-09T15:31:59 | INFO     | session_runner | [cycle 242] 11:31:59 ET | positions=1 | entries=2
+2026-07-09T15:32:01 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:32:01 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:32:31 | INFO     | session_runner | [cycle 243] 11:32:31 ET | positions=1 | entries=2
+2026-07-09T15:32:31 | INFO     | session_runner | [cycle 243] 11:32:31 ET | positions=1 | entries=2
+2026-07-09T15:32:31 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T15:32:31 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T15:32:33 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:32:33 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:33:03 | INFO     | session_runner | [cycle 244] 11:33:03 ET | positions=1 | entries=2
+2026-07-09T15:33:03 | INFO     | session_runner | [cycle 244] 11:33:03 ET | positions=1 | entries=2
+2026-07-09T15:33:04 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:33:04 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:33:34 | INFO     | session_runner | [cycle 245] 11:33:34 ET | positions=1 | entries=2
+2026-07-09T15:33:34 | INFO     | session_runner | [cycle 245] 11:33:34 ET | positions=1 | entries=2
+2026-07-09T15:33:36 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:33:36 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:34:06 | INFO     | session_runner | [cycle 246] 11:34:06 ET | positions=1 | entries=2
+2026-07-09T15:34:06 | INFO     | session_runner | [cycle 246] 11:34:06 ET | positions=1 | entries=2
+2026-07-09T15:34:07 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:34:07 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:34:37 | INFO     | session_runner | [cycle 247] 11:34:37 ET | positions=1 | entries=2
+2026-07-09T15:34:37 | INFO     | session_runner | [cycle 247] 11:34:37 ET | positions=1 | entries=2
+2026-07-09T15:34:38 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:34:38 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:35:08 | INFO     | session_runner | [cycle 248] 11:35:08 ET | positions=1 | entries=2
+2026-07-09T15:35:08 | INFO     | session_runner | [cycle 248] 11:35:08 ET | positions=1 | entries=2
+2026-07-09T15:35:10 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:35:10 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:35:40 | INFO     | session_runner | [cycle 249] 11:35:40 ET | positions=1 | entries=2
+2026-07-09T15:35:40 | INFO     | session_runner | [cycle 249] 11:35:40 ET | positions=1 | entries=2
+2026-07-09T15:35:41 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:35:41 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:36:11 | INFO     | session_runner | [cycle 250] 11:36:11 ET | positions=1 | entries=2
+2026-07-09T15:36:11 | INFO     | session_runner | [cycle 250] 11:36:11 ET | positions=1 | entries=2
+2026-07-09T15:36:12 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:36:12 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:36:42 | INFO     | session_runner | [cycle 251] 11:36:42 ET | positions=1 | entries=2
+2026-07-09T15:36:42 | INFO     | session_runner | [cycle 251] 11:36:42 ET | positions=1 | entries=2
+2026-07-09T15:36:43 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:36:43 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:37:13 | INFO     | session_runner | [cycle 252] 11:37:13 ET | positions=1 | entries=2
+2026-07-09T15:37:13 | INFO     | session_runner | [cycle 252] 11:37:13 ET | positions=1 | entries=2
+2026-07-09T15:37:14 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:37:14 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:37:44 | INFO     | session_runner | [cycle 253] 11:37:44 ET | positions=1 | entries=2
+2026-07-09T15:37:44 | INFO     | session_runner | [cycle 253] 11:37:44 ET | positions=1 | entries=2
+2026-07-09T15:37:46 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:37:46 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:38:16 | INFO     | session_runner | [cycle 254] 11:38:16 ET | positions=1 | entries=2
+2026-07-09T15:38:16 | INFO     | session_runner | [cycle 254] 11:38:16 ET | positions=1 | entries=2
+2026-07-09T15:38:17 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:38:17 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:38:47 | INFO     | session_runner | [cycle 255] 11:38:47 ET | positions=1 | entries=2
+2026-07-09T15:38:47 | INFO     | session_runner | [cycle 255] 11:38:47 ET | positions=1 | entries=2
+2026-07-09T15:38:49 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:38:49 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:39:19 | INFO     | session_runner | [cycle 256] 11:39:19 ET | positions=1 | entries=2
+2026-07-09T15:39:19 | INFO     | session_runner | [cycle 256] 11:39:19 ET | positions=1 | entries=2
+2026-07-09T15:39:20 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:39:20 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:39:50 | INFO     | session_runner | [cycle 257] 11:39:50 ET | positions=1 | entries=2
+2026-07-09T15:39:50 | INFO     | session_runner | [cycle 257] 11:39:50 ET | positions=1 | entries=2
+2026-07-09T15:39:52 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:39:52 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:40:22 | INFO     | session_runner | [cycle 258] 11:40:22 ET | positions=1 | entries=2
+2026-07-09T15:40:22 | INFO     | session_runner | [cycle 258] 11:40:22 ET | positions=1 | entries=2
+2026-07-09T15:40:23 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:40:23 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:40:53 | INFO     | session_runner | [cycle 259] 11:40:53 ET | positions=1 | entries=2
+2026-07-09T15:40:53 | INFO     | session_runner | [cycle 259] 11:40:53 ET | positions=1 | entries=2
+2026-07-09T15:40:55 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:40:55 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:41:25 | INFO     | session_runner | [cycle 260] 11:41:25 ET | positions=1 | entries=2
+2026-07-09T15:41:25 | INFO     | session_runner | [cycle 260] 11:41:25 ET | positions=1 | entries=2
+2026-07-09T15:41:28 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:41:28 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:41:58 | INFO     | session_runner | [cycle 261] 11:41:58 ET | positions=1 | entries=2
+2026-07-09T15:41:58 | INFO     | session_runner | [cycle 261] 11:41:58 ET | positions=1 | entries=2
+2026-07-09T15:42:00 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:42:00 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:42:30 | INFO     | session_runner | [cycle 262] 11:42:30 ET | positions=1 | entries=2
+2026-07-09T15:42:30 | INFO     | session_runner | [cycle 262] 11:42:30 ET | positions=1 | entries=2
+2026-07-09T15:42:31 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:42:31 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:43:01 | INFO     | session_runner | [cycle 263] 11:43:01 ET | positions=1 | entries=2
+2026-07-09T15:43:01 | INFO     | session_runner | [cycle 263] 11:43:01 ET | positions=1 | entries=2
+2026-07-09T15:43:02 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T15:43:02 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T15:43:03 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:43:03 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:43:33 | INFO     | session_runner | [cycle 264] 11:43:33 ET | positions=1 | entries=2
+2026-07-09T15:43:33 | INFO     | session_runner | [cycle 264] 11:43:33 ET | positions=1 | entries=2
+2026-07-09T15:43:34 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:43:34 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:44:04 | INFO     | session_runner | [cycle 265] 11:44:04 ET | positions=1 | entries=2
+2026-07-09T15:44:04 | INFO     | session_runner | [cycle 265] 11:44:04 ET | positions=1 | entries=2
+2026-07-09T15:44:06 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:44:06 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:44:36 | INFO     | session_runner | [cycle 266] 11:44:36 ET | positions=1 | entries=2
+2026-07-09T15:44:36 | INFO     | session_runner | [cycle 266] 11:44:36 ET | positions=1 | entries=2
+2026-07-09T15:44:37 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:44:37 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:45:07 | INFO     | session_runner | [cycle 267] 11:45:07 ET | positions=1 | entries=2
+2026-07-09T15:45:07 | INFO     | session_runner | [cycle 267] 11:45:07 ET | positions=1 | entries=2
+2026-07-09T15:45:08 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:45:08 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:45:38 | INFO     | session_runner | [cycle 268] 11:45:38 ET | positions=1 | entries=2
+2026-07-09T15:45:38 | INFO     | session_runner | [cycle 268] 11:45:38 ET | positions=1 | entries=2
+2026-07-09T15:45:40 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:45:40 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:46:10 | INFO     | session_runner | [cycle 269] 11:46:10 ET | positions=1 | entries=2
+2026-07-09T15:46:10 | INFO     | session_runner | [cycle 269] 11:46:10 ET | positions=1 | entries=2
+2026-07-09T15:46:11 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:46:11 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:46:41 | INFO     | session_runner | [cycle 270] 11:46:41 ET | positions=1 | entries=2
+2026-07-09T15:46:41 | INFO     | session_runner | [cycle 270] 11:46:41 ET | positions=1 | entries=2
+2026-07-09T15:46:42 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:46:42 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:47:12 | INFO     | session_runner | [cycle 271] 11:47:12 ET | positions=1 | entries=2
+2026-07-09T15:47:12 | INFO     | session_runner | [cycle 271] 11:47:12 ET | positions=1 | entries=2
+2026-07-09T15:47:13 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:47:13 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:47:43 | INFO     | session_runner | [cycle 272] 11:47:43 ET | positions=1 | entries=2
+2026-07-09T15:47:43 | INFO     | session_runner | [cycle 272] 11:47:43 ET | positions=1 | entries=2
+2026-07-09T15:47:45 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:47:45 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:48:15 | INFO     | session_runner | [cycle 273] 11:48:15 ET | positions=1 | entries=2
+2026-07-09T15:48:15 | INFO     | session_runner | [cycle 273] 11:48:15 ET | positions=1 | entries=2
+2026-07-09T15:48:16 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:48:16 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:48:46 | INFO     | session_runner | [cycle 274] 11:48:46 ET | positions=1 | entries=2
+2026-07-09T15:48:46 | INFO     | session_runner | [cycle 274] 11:48:46 ET | positions=1 | entries=2
+2026-07-09T15:48:47 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:48:47 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:49:17 | INFO     | session_runner | [cycle 275] 11:49:17 ET | positions=1 | entries=2
+2026-07-09T15:49:17 | INFO     | session_runner | [cycle 275] 11:49:17 ET | positions=1 | entries=2
+2026-07-09T15:49:19 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:49:19 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:49:49 | INFO     | session_runner | [cycle 276] 11:49:49 ET | positions=1 | entries=2
+2026-07-09T15:49:49 | INFO     | session_runner | [cycle 276] 11:49:49 ET | positions=1 | entries=2
+2026-07-09T15:49:51 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:49:51 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:50:21 | INFO     | session_runner | [cycle 277] 11:50:21 ET | positions=1 | entries=2
+2026-07-09T15:50:21 | INFO     | session_runner | [cycle 277] 11:50:21 ET | positions=1 | entries=2
+2026-07-09T15:50:23 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:50:23 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:50:53 | INFO     | session_runner | [cycle 278] 11:50:53 ET | positions=1 | entries=2
+2026-07-09T15:50:53 | INFO     | session_runner | [cycle 278] 11:50:53 ET | positions=1 | entries=2
+2026-07-09T15:50:54 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:50:54 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:51:24 | INFO     | session_runner | [cycle 279] 11:51:24 ET | positions=1 | entries=2
+2026-07-09T15:51:24 | INFO     | session_runner | [cycle 279] 11:51:24 ET | positions=1 | entries=2
+2026-07-09T15:51:26 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:51:26 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:51:56 | INFO     | session_runner | [cycle 280] 11:51:56 ET | positions=1 | entries=2
+2026-07-09T15:51:56 | INFO     | session_runner | [cycle 280] 11:51:56 ET | positions=1 | entries=2
+2026-07-09T15:51:57 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:51:57 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:52:27 | INFO     | session_runner | [cycle 281] 11:52:27 ET | positions=1 | entries=2
+2026-07-09T15:52:27 | INFO     | session_runner | [cycle 281] 11:52:27 ET | positions=1 | entries=2
+2026-07-09T15:52:28 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:52:28 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:52:58 | INFO     | session_runner | [cycle 282] 11:52:58 ET | positions=1 | entries=2
+2026-07-09T15:52:58 | INFO     | session_runner | [cycle 282] 11:52:58 ET | positions=1 | entries=2
+2026-07-09T15:52:59 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:52:59 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:53:29 | INFO     | session_runner | [cycle 283] 11:53:29 ET | positions=1 | entries=2
+2026-07-09T15:53:29 | INFO     | session_runner | [cycle 283] 11:53:29 ET | positions=1 | entries=2
+2026-07-09T15:53:30 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T15:53:30 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T15:53:31 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:53:31 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:54:01 | INFO     | session_runner | [cycle 284] 11:54:01 ET | positions=1 | entries=2
+2026-07-09T15:54:01 | INFO     | session_runner | [cycle 284] 11:54:01 ET | positions=1 | entries=2
+2026-07-09T15:54:03 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:54:03 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:54:33 | INFO     | session_runner | [cycle 285] 11:54:33 ET | positions=1 | entries=2
+2026-07-09T15:54:33 | INFO     | session_runner | [cycle 285] 11:54:33 ET | positions=1 | entries=2
+2026-07-09T15:54:34 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:54:34 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:55:04 | INFO     | session_runner | [cycle 286] 11:55:04 ET | positions=1 | entries=2
+2026-07-09T15:55:04 | INFO     | session_runner | [cycle 286] 11:55:04 ET | positions=1 | entries=2
+2026-07-09T15:55:05 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:55:05 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:55:35 | INFO     | session_runner | [cycle 287] 11:55:35 ET | positions=1 | entries=2
+2026-07-09T15:55:35 | INFO     | session_runner | [cycle 287] 11:55:35 ET | positions=1 | entries=2
+2026-07-09T15:55:36 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:55:36 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:56:06 | INFO     | session_runner | [cycle 288] 11:56:06 ET | positions=1 | entries=2
+2026-07-09T15:56:06 | INFO     | session_runner | [cycle 288] 11:56:06 ET | positions=1 | entries=2
+2026-07-09T15:56:08 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:56:08 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:56:38 | INFO     | session_runner | [cycle 289] 11:56:38 ET | positions=1 | entries=2
+2026-07-09T15:56:38 | INFO     | session_runner | [cycle 289] 11:56:38 ET | positions=1 | entries=2
+2026-07-09T15:56:40 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:56:40 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:57:10 | INFO     | session_runner | [cycle 290] 11:57:10 ET | positions=1 | entries=2
+2026-07-09T15:57:10 | INFO     | session_runner | [cycle 290] 11:57:10 ET | positions=1 | entries=2
+2026-07-09T15:57:11 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:57:11 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:57:41 | INFO     | session_runner | [cycle 291] 11:57:41 ET | positions=1 | entries=2
+2026-07-09T15:57:41 | INFO     | session_runner | [cycle 291] 11:57:41 ET | positions=1 | entries=2
+2026-07-09T15:57:42 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:57:42 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:58:12 | INFO     | session_runner | [cycle 292] 11:58:12 ET | positions=1 | entries=2
+2026-07-09T15:58:12 | INFO     | session_runner | [cycle 292] 11:58:12 ET | positions=1 | entries=2
+2026-07-09T15:58:13 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:58:13 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:58:43 | INFO     | session_runner | [cycle 293] 11:58:43 ET | positions=1 | entries=2
+2026-07-09T15:58:43 | INFO     | session_runner | [cycle 293] 11:58:43 ET | positions=1 | entries=2
+2026-07-09T15:58:45 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:58:45 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:59:15 | INFO     | session_runner | [cycle 294] 11:59:15 ET | positions=1 | entries=2
+2026-07-09T15:59:15 | INFO     | session_runner | [cycle 294] 11:59:15 ET | positions=1 | entries=2
+2026-07-09T15:59:16 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:59:16 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:59:46 | INFO     | session_runner | [cycle 295] 11:59:46 ET | positions=1 | entries=2
+2026-07-09T15:59:46 | INFO     | session_runner | [cycle 295] 11:59:46 ET | positions=1 | entries=2
+2026-07-09T15:59:47 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-09T15:59:47 | INFO     | session_runner | Periodic universe re-scan …
+2026-07-09T15:59:47 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-09T15:59:47 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-07-09T15:59:47 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-09T15:59:47 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-07-09T15:59:47 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-09T15:59:47 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-07-09T15:59:49 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-09T15:59:49 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-07-09T15:59:54 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-09T15:59:54 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-07-09T15:59:55 | INFO     | session_runner | Scan: 6 passed, 32 rejected
+2026-07-09T15:59:55 | INFO     | session_runner | Scan: 6 passed, 32 rejected
+2026-07-09T15:59:55 | INFO     | session_runner |   RIVN    score=75.0  signal=LONG     reasons: rvol=1.08x (normal), atr=8.79% (wide-range), orb_breakout
+2026-07-09T15:59:55 | INFO     | session_runner |   RIVN    score=75.0  signal=LONG     reasons: rvol=1.08x (normal), atr=8.79% (wide-range), orb_breakout
+2026-07-09T15:59:55 | INFO     | session_runner |   MARA    score=75.0  signal=LONG     reasons: rvol=1.26x (normal), atr=9.94% (wide-range), orb_breakout
+2026-07-09T15:59:55 | INFO     | session_runner |   MARA    score=75.0  signal=LONG     reasons: rvol=1.26x (normal), atr=9.94% (wide-range), orb_breakout
+2026-07-09T15:59:55 | INFO     | session_runner |   META    score=62.0  signal=LONG     reasons: atr=4.07% (wide-range), orb_breakout, trend_sideways
+2026-07-09T15:59:55 | INFO     | session_runner |   META    score=62.0  signal=LONG     reasons: atr=4.07% (wide-range), orb_breakout, trend_sideways
+2026-07-09T15:59:55 | INFO     | session_runner |   HOOD    score=60.0  signal=LONG     reasons: atr=5.60% (wide-range), orb_breakout, trend_up
+2026-07-09T15:59:55 | INFO     | session_runner |   HOOD    score=60.0  signal=LONG     reasons: atr=5.60% (wide-range), orb_breakout, trend_up
+2026-07-09T15:59:55 | INFO     | session_runner |   AMD     score=50.0  signal=LONG     reasons: atr=7.06% (wide-range), trend_up, rsi=58 (healthy)
+2026-07-09T15:59:55 | INFO     | session_runner |   AMD     score=50.0  signal=LONG     reasons: atr=7.06% (wide-range), trend_up, rsi=58 (healthy)
+2026-07-09T15:59:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260710C00018000 | delta=0.436 | spread_pct=0.077 | OI=6731 | vol=8772
+2026-07-09T15:59:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260710C00018000 | delta=0.436 | spread_pct=0.077 | OI=6731 | vol=8772
+2026-07-09T15:59:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed RIVN | RIVN260710C00018000 | exp=2026-07-10 | spread=7.69% | OI=6731 | vol=8772
+2026-07-09T15:59:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed RIVN | RIVN260710C00018000 | exp=2026-07-10 | spread=7.69% | OI=6731 | vol=8772
+2026-07-09T15:59:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710C00014000 | delta=0.442 | spread_pct=0.033 | OI=26650 | vol=15373
+2026-07-09T15:59:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MARA260710C00014000 | delta=0.442 | spread_pct=0.033 | OI=26650 | vol=15373
+2026-07-09T15:59:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MARA | MARA260710C00014000 | exp=2026-07-10 | spread=3.28% | OI=26650 | vol=15373
+2026-07-09T15:59:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MARA | MARA260710C00014000 | exp=2026-07-10 | spread=3.28% | OI=26650 | vol=15373
+2026-07-09T15:59:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260710C00202500 | delta=0.442 | spread_pct=0.033 | OI=39549 | vol=148135
+2026-07-09T15:59:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected NVDA260710C00202500 | delta=0.442 | spread_pct=0.033 | OI=39549 | vol=148135
+2026-07-09T15:59:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed NVDA | NVDA260710C00202500 | exp=2026-07-10 | spread=3.32% | OI=39549 | vol=148135
+2026-07-09T15:59:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed NVDA | NVDA260710C00202500 | exp=2026-07-10 | spread=3.32% | OI=39549 | vol=148135
+2026-07-09T15:59:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AMD260710C00565000 | delta=0.381 | spread_pct=0.018 | OI=1670 | vol=1593
+2026-07-09T15:59:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AMD260710C00565000 | delta=0.381 | spread_pct=0.018 | OI=1670 | vol=1593
+2026-07-09T15:59:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AMD | AMD260710C00565000 | exp=2026-07-10 | spread=1.83% | OI=1670 | vol=1593
+2026-07-09T15:59:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AMD | AMD260710C00565000 | exp=2026-07-10 | spread=1.83% | OI=1670 | vol=1593
+2026-07-09T15:59:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00119000 | delta=0.372 | spread_pct=0.039 | OI=2758 | vol=1806
+2026-07-09T15:59:56 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected HOOD260710C00119000 | delta=0.372 | spread_pct=0.039 | OI=2758 | vol=1806
+2026-07-09T15:59:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed HOOD | HOOD260710C00119000 | exp=2026-07-10 | spread=3.86% | OI=2758 | vol=1806
+2026-07-09T15:59:56 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed HOOD | HOOD260710C00119000 | exp=2026-07-10 | spread=3.86% | OI=2758 | vol=1806
+2026-07-09T15:59:57 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected META260710C00612500 | delta=0.403 | spread_pct=0.058 | OI=559 | vol=3662
+2026-07-09T15:59:57 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected META260710C00612500 | delta=0.403 | spread_pct=0.058 | OI=559 | vol=3662
+2026-07-09T15:59:57 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed META | META260710C00612500 | exp=2026-07-10 | spread=5.81% | OI=559 | vol=3662
+2026-07-09T15:59:57 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed META | META260710C00612500 | exp=2026-07-10 | spread=5.81% | OI=559 | vol=3662
+2026-07-09T15:59:57 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['RIVN', 'MARA', 'META']
+2026-07-09T15:59:57 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['RIVN', 'MARA', 'META']
+2026-07-09T15:59:57 | INFO     | session_runner | Re-scan updated active symbols: ['RIVN', 'MARA', 'META']
+2026-07-09T15:59:57 | INFO     | session_runner | Re-scan updated active symbols: ['RIVN', 'MARA', 'META']
+2026-07-09T15:59:58 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T15:59:58 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:00:28 | INFO     | session_runner | [cycle 296] 12:00:28 ET | positions=1 | entries=2
+2026-07-09T16:00:28 | INFO     | session_runner | [cycle 296] 12:00:28 ET | positions=1 | entries=2
+2026-07-09T16:00:29 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:00:29 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:00:59 | INFO     | session_runner | [cycle 297] 12:00:59 ET | positions=1 | entries=2
+2026-07-09T16:00:59 | INFO     | session_runner | [cycle 297] 12:00:59 ET | positions=1 | entries=2
+2026-07-09T16:01:01 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:01:01 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:01:31 | INFO     | session_runner | [cycle 298] 12:01:31 ET | positions=1 | entries=2
+2026-07-09T16:01:31 | INFO     | session_runner | [cycle 298] 12:01:31 ET | positions=1 | entries=2
+2026-07-09T16:01:32 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:01:32 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:02:02 | INFO     | session_runner | [cycle 299] 12:02:02 ET | positions=1 | entries=2
+2026-07-09T16:02:02 | INFO     | session_runner | [cycle 299] 12:02:02 ET | positions=1 | entries=2
+2026-07-09T16:02:03 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:02:03 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:02:33 | INFO     | session_runner | [cycle 300] 12:02:33 ET | positions=1 | entries=2
+2026-07-09T16:02:33 | INFO     | session_runner | [cycle 300] 12:02:33 ET | positions=1 | entries=2
+2026-07-09T16:02:35 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:02:35 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:03:05 | INFO     | session_runner | [cycle 301] 12:03:05 ET | positions=1 | entries=2
+2026-07-09T16:03:05 | INFO     | session_runner | [cycle 301] 12:03:05 ET | positions=1 | entries=2
+2026-07-09T16:03:06 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:03:06 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:03:36 | INFO     | session_runner | [cycle 302] 12:03:36 ET | positions=1 | entries=2
+2026-07-09T16:03:36 | INFO     | session_runner | [cycle 302] 12:03:36 ET | positions=1 | entries=2
+2026-07-09T16:03:38 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T16:03:38 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T16:03:39 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:03:39 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:04:09 | INFO     | session_runner | [cycle 303] 12:04:09 ET | positions=1 | entries=2
+2026-07-09T16:04:09 | INFO     | session_runner | [cycle 303] 12:04:09 ET | positions=1 | entries=2
+2026-07-09T16:04:10 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:04:10 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:04:40 | INFO     | session_runner | [cycle 304] 12:04:40 ET | positions=1 | entries=2
+2026-07-09T16:04:40 | INFO     | session_runner | [cycle 304] 12:04:40 ET | positions=1 | entries=2
+2026-07-09T16:04:42 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:04:42 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:05:12 | INFO     | session_runner | [cycle 305] 12:05:12 ET | positions=1 | entries=2
+2026-07-09T16:05:12 | INFO     | session_runner | [cycle 305] 12:05:12 ET | positions=1 | entries=2
+2026-07-09T16:05:13 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:05:13 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:05:43 | INFO     | session_runner | [cycle 306] 12:05:43 ET | positions=1 | entries=2
+2026-07-09T16:05:43 | INFO     | session_runner | [cycle 306] 12:05:43 ET | positions=1 | entries=2
+2026-07-09T16:05:44 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:05:44 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:06:14 | INFO     | session_runner | [cycle 307] 12:06:14 ET | positions=1 | entries=2
+2026-07-09T16:06:14 | INFO     | session_runner | [cycle 307] 12:06:14 ET | positions=1 | entries=2
+2026-07-09T16:06:15 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:06:15 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:06:45 | INFO     | session_runner | [cycle 308] 12:06:45 ET | positions=1 | entries=2
+2026-07-09T16:06:45 | INFO     | session_runner | [cycle 308] 12:06:45 ET | positions=1 | entries=2
+2026-07-09T16:06:47 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:06:47 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:07:17 | INFO     | session_runner | [cycle 309] 12:07:17 ET | positions=1 | entries=2
+2026-07-09T16:07:17 | INFO     | session_runner | [cycle 309] 12:07:17 ET | positions=1 | entries=2
+2026-07-09T16:07:18 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:07:18 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:07:48 | INFO     | session_runner | [cycle 310] 12:07:48 ET | positions=1 | entries=2
+2026-07-09T16:07:48 | INFO     | session_runner | [cycle 310] 12:07:48 ET | positions=1 | entries=2
+2026-07-09T16:07:49 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:07:49 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:08:19 | INFO     | session_runner | [cycle 311] 12:08:19 ET | positions=1 | entries=2
+2026-07-09T16:08:19 | INFO     | session_runner | [cycle 311] 12:08:19 ET | positions=1 | entries=2
+2026-07-09T16:08:21 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:08:21 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:08:51 | INFO     | session_runner | [cycle 312] 12:08:51 ET | positions=1 | entries=2
+2026-07-09T16:08:51 | INFO     | session_runner | [cycle 312] 12:08:51 ET | positions=1 | entries=2
+2026-07-09T16:08:52 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:08:52 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:09:22 | INFO     | session_runner | [cycle 313] 12:09:22 ET | positions=1 | entries=2
+2026-07-09T16:09:22 | INFO     | session_runner | [cycle 313] 12:09:22 ET | positions=1 | entries=2
+2026-07-09T16:09:23 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:09:23 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:09:53 | INFO     | session_runner | [cycle 314] 12:09:53 ET | positions=1 | entries=2
+2026-07-09T16:09:53 | INFO     | session_runner | [cycle 314] 12:09:53 ET | positions=1 | entries=2
+2026-07-09T16:09:56 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:09:56 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:10:26 | INFO     | session_runner | [cycle 315] 12:10:26 ET | positions=1 | entries=2
+2026-07-09T16:10:26 | INFO     | session_runner | [cycle 315] 12:10:26 ET | positions=1 | entries=2
+2026-07-09T16:10:27 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:10:27 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:10:57 | INFO     | session_runner | [cycle 316] 12:10:57 ET | positions=1 | entries=2
+2026-07-09T16:10:57 | INFO     | session_runner | [cycle 316] 12:10:57 ET | positions=1 | entries=2
+2026-07-09T16:10:58 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:10:58 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:11:28 | INFO     | session_runner | [cycle 317] 12:11:28 ET | positions=1 | entries=2
+2026-07-09T16:11:28 | INFO     | session_runner | [cycle 317] 12:11:28 ET | positions=1 | entries=2
+2026-07-09T16:11:30 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:11:30 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:12:00 | INFO     | session_runner | [cycle 318] 12:12:00 ET | positions=1 | entries=2
+2026-07-09T16:12:00 | INFO     | session_runner | [cycle 318] 12:12:00 ET | positions=1 | entries=2
+2026-07-09T16:12:01 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:12:01 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:12:31 | INFO     | session_runner | [cycle 319] 12:12:31 ET | positions=1 | entries=2
+2026-07-09T16:12:31 | INFO     | session_runner | [cycle 319] 12:12:31 ET | positions=1 | entries=2
+2026-07-09T16:12:33 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:12:33 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:13:03 | INFO     | session_runner | [cycle 320] 12:13:03 ET | positions=1 | entries=2
+2026-07-09T16:13:03 | INFO     | session_runner | [cycle 320] 12:13:03 ET | positions=1 | entries=2
+2026-07-09T16:13:04 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:13:04 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:13:34 | INFO     | session_runner | [cycle 321] 12:13:34 ET | positions=1 | entries=2
+2026-07-09T16:13:34 | INFO     | session_runner | [cycle 321] 12:13:34 ET | positions=1 | entries=2
+2026-07-09T16:13:35 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:13:35 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:14:05 | INFO     | session_runner | [cycle 322] 12:14:05 ET | positions=1 | entries=2
+2026-07-09T16:14:05 | INFO     | session_runner | [cycle 322] 12:14:05 ET | positions=1 | entries=2
+2026-07-09T16:14:07 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T16:14:07 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=1 local_pos=1 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T16:14:08 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:14:08 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:14:38 | INFO     | session_runner | [cycle 323] 12:14:38 ET | positions=1 | entries=2
+2026-07-09T16:14:38 | INFO     | session_runner | [cycle 323] 12:14:38 ET | positions=1 | entries=2
+2026-07-09T16:14:39 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:14:39 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:15:09 | INFO     | session_runner | [cycle 324] 12:15:09 ET | positions=1 | entries=2
+2026-07-09T16:15:09 | INFO     | session_runner | [cycle 324] 12:15:09 ET | positions=1 | entries=2
+2026-07-09T16:15:10 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:15:10 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:15:40 | INFO     | session_runner | [cycle 325] 12:15:40 ET | positions=1 | entries=2
+2026-07-09T16:15:40 | INFO     | session_runner | [cycle 325] 12:15:40 ET | positions=1 | entries=2
+2026-07-09T16:15:41 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:15:41 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:16:11 | INFO     | session_runner | [cycle 326] 12:16:11 ET | positions=1 | entries=2
+2026-07-09T16:16:11 | INFO     | session_runner | [cycle 326] 12:16:11 ET | positions=1 | entries=2
+2026-07-09T16:16:13 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:16:13 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:16:43 | INFO     | session_runner | [cycle 327] 12:16:43 ET | positions=1 | entries=2
+2026-07-09T16:16:43 | INFO     | session_runner | [cycle 327] 12:16:43 ET | positions=1 | entries=2
+2026-07-09T16:16:44 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:16:44 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:17:14 | INFO     | session_runner | [cycle 328] 12:17:14 ET | positions=1 | entries=2
+2026-07-09T16:17:14 | INFO     | session_runner | [cycle 328] 12:17:14 ET | positions=1 | entries=2
+2026-07-09T16:17:15 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:17:15 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:17:45 | INFO     | session_runner | [cycle 329] 12:17:45 ET | positions=1 | entries=2
+2026-07-09T16:17:45 | INFO     | session_runner | [cycle 329] 12:17:45 ET | positions=1 | entries=2
+2026-07-09T16:17:47 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:17:47 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:18:17 | INFO     | session_runner | [cycle 330] 12:18:17 ET | positions=1 | entries=2
+2026-07-09T16:18:17 | INFO     | session_runner | [cycle 330] 12:18:17 ET | positions=1 | entries=2
+2026-07-09T16:18:18 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:18:18 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:18:48 | INFO     | session_runner | [cycle 331] 12:18:48 ET | positions=1 | entries=2
+2026-07-09T16:18:48 | INFO     | session_runner | [cycle 331] 12:18:48 ET | positions=1 | entries=2
+2026-07-09T16:18:49 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:18:49 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:19:19 | INFO     | session_runner | [cycle 332] 12:19:19 ET | positions=1 | entries=2
+2026-07-09T16:19:19 | INFO     | session_runner | [cycle 332] 12:19:19 ET | positions=1 | entries=2
+2026-07-09T16:19:20 | INFO     | session_runner | Position exit | META260710C00610000 | reason=take_profit | price=8.6900 | pnl=434.00
+2026-07-09T16:19:20 | INFO     | session_runner | Position exit | META260710C00610000 | reason=take_profit | price=8.6900 | pnl=434.00
+2026-07-09T16:19:20 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'META260710C00610000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '8.69', 'order_class': 'simple'}
+2026-07-09T16:19:20 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'META260710C00610000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '8.69', 'order_class': 'simple'}
+2026-07-09T16:19:20 | INFO     | session_runner | Exit order placed | META260710C00610000 | limit=8.6900 | order_id=e4cf51b1-6490-4566-b83d-6ef34d0bdcea
+2026-07-09T16:19:20 | INFO     | session_runner | Exit order placed | META260710C00610000 | limit=8.6900 | order_id=e4cf51b1-6490-4566-b83d-6ef34d0bdcea
+2026-07-09T16:19:20 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=2 exits=2 daily_pnl=434.00
+2026-07-09T16:19:20 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=2 exits=2 daily_pnl=434.00
+2026-07-09T16:19:20 | INFO     | app.trading.trade_journal | Journal exit 199: reason=take_profit pnl=434.00 hold=2936s
+2026-07-09T16:19:20 | INFO     | app.trading.trade_journal | Journal exit 199: reason=take_profit pnl=434.00 hold=2936s
+2026-07-09T16:19:20 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-07-09T16:19:20 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-07-09T16:19:21 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:19:21 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:19:51 | INFO     | session_runner | [cycle 333] 12:19:51 ET | positions=0 | entries=2
+2026-07-09T16:19:51 | INFO     | session_runner | [cycle 333] 12:19:51 ET | positions=0 | entries=2
+2026-07-09T16:19:51 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:19:51 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:20:21 | INFO     | session_runner | [cycle 334] 12:20:21 ET | positions=0 | entries=2
+2026-07-09T16:20:21 | INFO     | session_runner | [cycle 334] 12:20:21 ET | positions=0 | entries=2
+2026-07-09T16:20:22 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:20:22 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:20:52 | INFO     | session_runner | [cycle 335] 12:20:52 ET | positions=0 | entries=2
+2026-07-09T16:20:52 | INFO     | session_runner | [cycle 335] 12:20:52 ET | positions=0 | entries=2
+2026-07-09T16:20:53 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:20:53 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:21:23 | INFO     | session_runner | [cycle 336] 12:21:23 ET | positions=0 | entries=2
+2026-07-09T16:21:23 | INFO     | session_runner | [cycle 336] 12:21:23 ET | positions=0 | entries=2
+2026-07-09T16:21:23 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:21:23 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:21:53 | INFO     | session_runner | [cycle 337] 12:21:53 ET | positions=0 | entries=2
+2026-07-09T16:21:53 | INFO     | session_runner | [cycle 337] 12:21:53 ET | positions=0 | entries=2
+2026-07-09T16:21:54 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:21:54 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:22:24 | INFO     | session_runner | [cycle 338] 12:22:24 ET | positions=0 | entries=2
+2026-07-09T16:22:24 | INFO     | session_runner | [cycle 338] 12:22:24 ET | positions=0 | entries=2
+2026-07-09T16:22:25 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:22:25 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:22:55 | INFO     | session_runner | [cycle 339] 12:22:55 ET | positions=0 | entries=2
+2026-07-09T16:22:55 | INFO     | session_runner | [cycle 339] 12:22:55 ET | positions=0 | entries=2
+2026-07-09T16:22:55 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:22:55 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:23:25 | INFO     | session_runner | [cycle 340] 12:23:25 ET | positions=0 | entries=2
+2026-07-09T16:23:25 | INFO     | session_runner | [cycle 340] 12:23:25 ET | positions=0 | entries=2
+2026-07-09T16:23:26 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:23:26 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:23:56 | INFO     | session_runner | [cycle 341] 12:23:56 ET | positions=0 | entries=2
+2026-07-09T16:23:56 | INFO     | session_runner | [cycle 341] 12:23:56 ET | positions=0 | entries=2
+2026-07-09T16:23:57 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:23:57 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:24:27 | INFO     | session_runner | [cycle 342] 12:24:27 ET | positions=0 | entries=2
+2026-07-09T16:24:27 | INFO     | session_runner | [cycle 342] 12:24:27 ET | positions=0 | entries=2
+2026-07-09T16:24:28 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T16:24:28 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-07-09T16:24:28 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:24:28 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:24:58 | INFO     | session_runner | [cycle 343] 12:24:58 ET | positions=0 | entries=2
+2026-07-09T16:24:58 | INFO     | session_runner | [cycle 343] 12:24:58 ET | positions=0 | entries=2
+2026-07-09T16:24:59 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:24:59 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:25:29 | INFO     | session_runner | [cycle 344] 12:25:29 ET | positions=0 | entries=2
+2026-07-09T16:25:29 | INFO     | session_runner | [cycle 344] 12:25:29 ET | positions=0 | entries=2
+2026-07-09T16:25:29 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:25:29 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:25:59 | INFO     | session_runner | [cycle 345] 12:25:59 ET | positions=0 | entries=2
+2026-07-09T16:25:59 | INFO     | session_runner | [cycle 345] 12:25:59 ET | positions=0 | entries=2
+2026-07-09T16:26:00 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:26:00 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:26:30 | INFO     | session_runner | [cycle 346] 12:26:30 ET | positions=0 | entries=2
+2026-07-09T16:26:30 | INFO     | session_runner | [cycle 346] 12:26:30 ET | positions=0 | entries=2
+2026-07-09T16:26:31 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:26:31 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:27:01 | INFO     | session_runner | [cycle 347] 12:27:01 ET | positions=0 | entries=2
+2026-07-09T16:27:01 | INFO     | session_runner | [cycle 347] 12:27:01 ET | positions=0 | entries=2
+2026-07-09T16:27:01 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:27:01 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:27:32 | INFO     | session_runner | [cycle 348] 12:27:32 ET | positions=0 | entries=2
+2026-07-09T16:27:32 | INFO     | session_runner | [cycle 348] 12:27:32 ET | positions=0 | entries=2
+2026-07-09T16:27:33 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:27:33 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:28:03 | INFO     | session_runner | [cycle 349] 12:28:03 ET | positions=0 | entries=2
+2026-07-09T16:28:03 | INFO     | session_runner | [cycle 349] 12:28:03 ET | positions=0 | entries=2
+2026-07-09T16:28:03 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:28:03 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:28:33 | INFO     | session_runner | [cycle 350] 12:28:33 ET | positions=0 | entries=2
+2026-07-09T16:28:33 | INFO     | session_runner | [cycle 350] 12:28:33 ET | positions=0 | entries=2
+2026-07-09T16:28:34 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:28:34 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:29:04 | INFO     | session_runner | [cycle 351] 12:29:04 ET | positions=0 | entries=2
+2026-07-09T16:29:04 | INFO     | session_runner | [cycle 351] 12:29:04 ET | positions=0 | entries=2
+2026-07-09T16:29:05 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:29:05 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:29:35 | INFO     | session_runner | [cycle 352] 12:29:35 ET | positions=0 | entries=2
+2026-07-09T16:29:35 | INFO     | session_runner | [cycle 352] 12:29:35 ET | positions=0 | entries=2
+2026-07-09T16:29:35 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:29:35 | INFO     | session_runner | [bridge:MARA] rsi_trend ready: sufficient bars
+2026-07-09T16:30:06 | INFO     | session_runner | [cycle 353] 12:30:06 ET | positions=0 | entries=2
+2026-07-09T16:30:06 | INFO     | session_runner | [cycle 353] 12:30:06 ET | positions=0 | entries=2
+2026-07-09T16:30:06 | WARNING  | session_runner | EOD time reached — cancelling pending orders and liquidating all positions
+2026-07-09T16:30:06 | WARNING  | session_runner | EOD time reached — cancelling pending orders and liquidating all positions
+2026-07-09T16:30:06 | INFO     | session_runner | EOD complete — exiting session loop
+2026-07-09T16:30:06 | INFO     | session_runner | EOD complete — exiting session loop
+2026-07-09T16:30:06 | INFO     | session_runner | Shutdown: 0 position(s) open, 0 order(s) pending
+2026-07-09T16:30:06 | INFO     | session_runner | Shutdown: 0 position(s) open, 0 order(s) pending
+2026-07-09T16:30:06 | INFO     | session_runner | Health report: {"session_date": "2026-07-09", "generated_at": "2026-07-09T12:30:06.032610-04:00", "api_errors": 0, "reconciliation_warnings": [], "trades": {"total_closed": 2, "wins": 1, "losses": 1, "win_rate": 0.5, "still_open": 0, "rejected": 0, "cancelled": 0}, "realized_pnl": 434.0, "unrealized_pnl": 0, "avg_win": 434.0, "avg_loss": 0.0, "max_drawdown": 0.0, "orders": {"submitted": 2, "filled": 2, "partial_fills": 0, "cancelled": 0, "stale_cancels": 0, "rejected": 0, "status_breakdown": {"filled": 2}}, "by_strategy": {"orb": {"trades": 2, "wins": 1, "losses": 1, "pnl": 434.0, "win_rate": 0.5}}}
+2026-07-09T16:30:06 | INFO     | session_runner | Health report: {"session_date": "2026-07-09", "generated_at": "2026-07-09T12:30:06.032610-04:00", "api_errors": 0, "reconciliation_warnings": [], "trades": {"total_closed": 2, "wins": 1, "losses": 1, "win_rate": 0.5, "still_open": 0, "rejected": 0, "cancelled": 0}, "realized_pnl": 434.0, "unrealized_pnl": 0, "avg_win": 434.0, "avg_loss": 0.0, "max_drawdown": 0.0, "orders": {"submitted": 2, "filled": 2, "partial_fills": 0, "cancelled": 0, "stale_cancels": 0, "rejected": 0, "status_breakdown": {"filled": 2}}, "by_strategy": {"orb": {"trades": 2, "wins": 1, "losses": 1, "pnl": 434.0, "win_rate": 0.5}}}
+2026-07-09T16:30:06 | INFO     | session_runner | Health report written to logs/session_2026-07-09.json
+2026-07-09T16:30:06 | INFO     | session_runner | Health report written to logs/session_2026-07-09.json
+2026-07-09T16:30:07 | WARNING  | app.evaluation.orb_forward_performance | ORB forward perf: yfinance fetch for RIVN failed — Too Many Requests. Rate limited. Try after a while.
+2026-07-09T16:30:07 | WARNING  | app.evaluation.orb_forward_performance | ORB forward perf: yfinance fetch for RIVN failed — Too Many Requests. Rate limited. Try after a while.
+2026-07-09T16:30:07 | WARNING  | app.evaluation.orb_forward_performance | ORB forward perf: yfinance fetch for META failed — Too Many Requests. Rate limited. Try after a while.
+2026-07-09T16:30:07 | WARNING  | app.evaluation.orb_forward_performance | ORB forward perf: yfinance fetch for META failed — Too Many Requests. Rate limited. Try after a while.
+2026-07-09T16:30:07 | INFO     | app.evaluation.orb_forward_performance | ORB forward performance: updated 0/2 rows for 2026-07-09
+2026-07-09T16:30:07 | INFO     | app.evaluation.orb_forward_performance | ORB forward performance: updated 0/2 rows for 2026-07-09
+2026-07-09T16:30:07 | INFO     | app.evaluation.post_session | Post-session: ORB forward performance: 0 rows updated
+2026-07-09T16:30:07 | INFO     | app.evaluation.post_session | Post-session: ORB forward performance: 0 rows updated
+2026-07-09T16:30:07 | INFO     | app.evaluation.post_session | Post-session: evaluation report saved → evaluation/reports/2026-07-09.json
+2026-07-09T16:30:07 | INFO     | app.evaluation.post_session | Post-session: evaluation report saved → evaluation/reports/2026-07-09.json
+2026-07-09T16:30:08 | INFO     | app.evaluation.ledger | Evaluation ledger saved to evaluation/ledger.json (22 session(s))
+2026-07-09T16:30:08 | INFO     | app.evaluation.ledger | Evaluation ledger saved to evaluation/ledger.json (22 session(s))
+2026-07-09T16:30:08 | INFO     | app.evaluation.post_session | Post-session complete | date=2026-07-09 | cancelled=0 | report=evaluation/reports/2026-07-09.json | ledger=True
+2026-07-09T16:30:08 | INFO     | app.evaluation.post_session | Post-session complete | date=2026-07-09 | cancelled=0 | report=evaluation/reports/2026-07-09.json | ledger=True
+2026-07-09T16:30:08 | INFO     | session_runner | Post-session evaluation | report=evaluation/reports/2026-07-09.json | ledger_updated=True | errors=none
+2026-07-09T16:30:08 | INFO     | session_runner | Post-session evaluation | report=evaluation/reports/2026-07-09.json | ledger_updated=True | errors=none
+2026-07-09T16:30:08 | INFO     | session_runner | Session complete | cycles=353 | placed=2 | pnl=434.00
+2026-07-09T16:30:08 | INFO     | session_runner | Session complete | cycles=353 | placed=2 | pnl=434.00
+
+  Session complete — 353 cycles | 2 orders | P&L $434.00
+

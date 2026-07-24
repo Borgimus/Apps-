@@ -92,16 +92,17 @@ class IVCrushFilter:
                 sig.metadata["iv_crush_reason"] = f"earnings within {self._blackout_days} days"
                 continue
 
-            # Check IV rank
-            if ivr is not None and ivr > self._max_ivr and near_earnings:
+            # Check IV rank independently — elevated IV is risky even without
+            # imminent earnings (the near_earnings branch above already handles that case).
+            if ivr is not None and ivr > self._max_ivr:
                 logger.info(
-                    "IV crush filter: REJECTED %s — IV rank %.1f > max %.1f near earnings",
+                    "IV crush filter: REJECTED %s — IV rank %.1f > max %.1f",
                     symbol,
                     ivr,
                     self._max_ivr,
                 )
                 sig.metadata["iv_crush_filtered"] = True
-                sig.metadata["iv_crush_reason"] = f"IV rank {ivr:.1f} too high near earnings"
+                sig.metadata["iv_crush_reason"] = f"IV rank {ivr:.1f} too high"
                 continue
 
             clean.append(sig)

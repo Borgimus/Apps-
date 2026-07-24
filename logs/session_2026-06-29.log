@@ -1,0 +1,1153 @@
+2026-06-29T13:39:30 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-29T13:39:32 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-29T13:39:32 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-29T13:39:32 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-29T13:39:32 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-29T13:39:32 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-06-29  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-06-29T13:39:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-29T13:39:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-29T13:39:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Monday 2026-06-29 — trading day
+2026-06-29T13:39:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-29T13:39:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-29T13:39:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-29T13:39:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-29T13:39:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-29T13:39:33 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: No prior session log today — first run of the day
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Monday 2026-06-29 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-06-29T13:39:33 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Monday 2026-06-29 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 No prior session log today — first run of the day
+
+  Result: PASS
+2026-06-29T13:39:33 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-29T13:39:33 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-29 | starting_equity=98963.77
+2026-06-29T13:39:33 | INFO     | session_runner | Account: equity=98963.77 paper=True
+2026-06-29T13:39:33 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-29T13:39:33 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-29T13:39:33 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-29T13:39:33 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-29T13:39:33 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-29T13:39:35 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-29T13:39:39 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-29T13:39:40 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-29T13:39:40 | INFO     | session_runner |   ROKU    score=58.0  signal=LONG     REJECTED: low_volume_chop, insufficient_underlying_volume
+2026-06-29T13:39:40 | INFO     | session_runner |   COIN    score=50.0  signal=SHORT    REJECTED: low_volume_chop, insufficient_underlying_volume
+2026-06-29T13:39:40 | INFO     | session_runner |   DKNG    score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-29T13:39:40 | INFO     | session_runner |   CRWD    score=48.0  signal=LONG     REJECTED: low_volume_chop, insufficient_underlying_volume
+2026-06-29T13:39:40 | INFO     | session_runner |   DDOG    score=48.0  signal=LONG     REJECTED: low_volume_chop, insufficient_underlying_volume
+2026-06-29T13:39:40 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-29T13:39:40 | WARNING  | session_runner | STANDBY: scanner rejected all candidates, fallback blocked — no new entries this session
+2026-06-29T13:39:40 | INFO     | session_runner | [cycle 1] 09:39:40 ET | positions=0 | entries=0
+2026-06-29T13:39:41 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-29T13:40:11 | INFO     | session_runner | [cycle 2] 09:40:11 ET | positions=0 | entries=0
+2026-06-29T13:40:41 | INFO     | session_runner | [cycle 3] 09:40:41 ET | positions=0 | entries=0
+2026-06-29T13:41:11 | INFO     | session_runner | [cycle 4] 09:41:11 ET | positions=0 | entries=0
+2026-06-29T13:41:41 | INFO     | session_runner | [cycle 5] 09:41:41 ET | positions=0 | entries=0
+2026-06-29T13:42:11 | INFO     | session_runner | [cycle 6] 09:42:11 ET | positions=0 | entries=0
+2026-06-29T13:42:41 | INFO     | session_runner | [cycle 7] 09:42:41 ET | positions=0 | entries=0
+2026-06-29T13:43:11 | INFO     | session_runner | [cycle 8] 09:43:11 ET | positions=0 | entries=0
+2026-06-29T13:43:42 | INFO     | session_runner | [cycle 9] 09:43:42 ET | positions=0 | entries=0
+2026-06-29T13:44:12 | INFO     | session_runner | [cycle 10] 09:44:12 ET | positions=0 | entries=0
+2026-06-29T13:44:42 | INFO     | session_runner | [cycle 11] 09:44:42 ET | positions=0 | entries=0
+2026-06-29T13:44:42 | INFO     | session_runner | Periodic universe re-scan …
+2026-06-29T13:44:42 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-29T13:44:42 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-29T13:44:42 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-29T13:44:43 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-29T13:44:50 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-29T13:44:51 | INFO     | session_runner | Scan: 0 passed, 38 rejected
+2026-06-29T13:44:51 | INFO     | session_runner |   IWM     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-29T13:44:51 | INFO     | session_runner |   COIN    score=58.0  signal=SHORT    REJECTED: low_volume_chop, insufficient_underlying_volume
+2026-06-29T13:44:51 | INFO     | session_runner |   ROKU    score=58.0  signal=LONG     REJECTED: low_volume_chop, insufficient_underlying_volume
+2026-06-29T13:44:51 | INFO     | session_runner |   QQQ     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-29T13:44:51 | INFO     | session_runner |   XLK     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-29T13:44:51 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-29T13:44:51 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+   | session_runner | Scan: 0 passed, 38 rejected
+2026-06-29T13:44:51 | INFO     | session_runner |   IWM     score=58.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-29T13:44:51 | INFO     | session_runner |   COIN    score=58.0  signal=SHORT    REJECTED: low_volume_chop, insufficient_underlying_volume
+2026-06-29T13:44:51 | INFO     | session_runner |   ROKU    score=58.0  signal=LONG     REJECTED: low_volume_chop, insufficient_underlying_volume
+2026-06-29T13:44:51 | INFO     | session_runner |   QQQ     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-29T13:44:51 | INFO     | session_runner |   XLK     score=50.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-29T13:44:51 | WARNING  | session_runner | STANDBY: all_38_candidates_rejected_fallback_disabled
+2026-06-29T13:44:51 | WARNING  | session_runner | STANDBY: periodic re-scan rejected all candidates — clearing active symbols
+2026-06-29T14:37:36 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-29T14:37:36 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-29T14:37:53 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-29T14:37:53 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-29T14:37:53 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-29T14:37:53 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-29T14:37:53 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-29T14:37:53 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-29T14:37:53 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-29T14:37:53 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-29T14:37:53 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+2026-06-29T14:37:53 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-06-29  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Monday 2026-06-29 — trading day
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Monday 2026-06-29 — trading day
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: Last session log: 3182s ago
+2026-06-29T14:37:54 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: Last session log: 3182s ago
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Monday 2026-06-29 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 3182s ago
+
+  Result: PASS
+2026-06-29T14:37:54 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Monday 2026-06-29 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 3182s ago
+
+  Result: PASS
+2026-06-29T14:37:54 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Monday 2026-06-29 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 3182s ago
+
+  Result: PASS
+2026-06-29T14:37:54 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-29T14:37:54 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-29T14:37:54 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-29 | starting_equity=98963.77
+2026-06-29T14:37:54 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-29 | starting_equity=98963.77
+2026-06-29T14:37:54 | INFO     | session_runner | Account: equity=98963.77 paper=True
+2026-06-29T14:37:54 | INFO     | session_runner | Account: equity=98963.77 paper=True
+2026-06-29T14:37:54 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-29T14:37:54 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-29T14:37:54 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-29T14:37:54 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-29T14:37:54 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-29T14:37:54 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-29T14:37:54 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-29T14:37:54 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-29T14:37:54 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-29T14:37:54 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-29T14:37:55 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-29T14:37:55 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-29T14:38:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-29T14:38:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-29T14:38:02 | INFO     | session_runner | Scan: 1 passed, 37 rejected
+2026-06-29T14:38:02 | INFO     | session_runner | Scan: 1 passed, 37 rejected
+2026-06-29T14:38:02 | INFO     | session_runner |   RIOT    score=50.0  signal=LONG     reasons: atr=8.20% (wide-range), trend_up, rsi=55 (healthy)
+2026-06-29T14:38:02 | INFO     | session_runner |   RIOT    score=50.0  signal=LONG     reasons: atr=8.20% (wide-range), trend_up, rsi=55 (healthy)
+2026-06-29T14:38:02 | INFO     | session_runner |   XLE     score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-29T14:38:02 | INFO     | session_runner |   XLE     score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-29T14:38:02 | INFO     | session_runner |   AVGO    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-29T14:38:02 | INFO     | session_runner |   AVGO    score=70.0  signal=SHORT    REJECTED: low_volume_chop
+2026-06-29T14:38:02 | INFO     | session_runner |   RIVN    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-29T14:38:02 | INFO     | session_runner |   RIVN    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-29T14:38:02 | INFO     | session_runner |   LYFT    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-29T14:38:02 | INFO     | session_runner |   LYFT    score=70.0  signal=LONG     REJECTED: low_volume_chop
+2026-06-29T14:38:03 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for RIOT SignalDirection.LONG | total_candidates=50
+2026-06-29T14:38:03 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for RIOT SignalDirection.LONG | total_candidates=50
+2026-06-29T14:38:03 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for RIOT (signal=LONG)
+2026-06-29T14:38:03 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for RIOT (signal=LONG)
+2026-06-29T14:38:03 | INFO     | session_runner | AlpacaConfirmer: 0 confirmed symbols: []
+2026-06-29T14:38:03 | INFO     | session_runner | AlpacaConfirmer: 0 confirmed symbols: []
+2026-06-29T14:38:03 | WARNING  | session_runner | Scan returned no confirmed symbols — falling back to ['SPY']
+2026-06-29T14:38:03 | WARNING  | session_runner | Scan returned no confirmed symbols — falling back to ['SPY']
+2026-06-29T14:38:03 | INFO     | session_runner | [cycle 1] 10:38:03 ET | positions=0 | entries=0
+2026-06-29T14:38:03 | INFO     | session_runner | [cycle 1] 10:38:03 ET | positions=0 | entries=0
+2026-06-29T14:38:03 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-29T14:38:03 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-29T14:38:04 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:38:04 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:38:06 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:38:06 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:38:10 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:38:10 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:38:10 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:38:10 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:38:40 | INFO     | session_runner | [cycle 2] 10:38:40 ET | positions=0 | entries=0
+2026-06-29T14:38:40 | INFO     | session_runner | [cycle 2] 10:38:40 ET | positions=0 | entries=0
+2026-06-29T14:38:40 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:38:40 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:38:42 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:38:42 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:38:47 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:38:47 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:38:47 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:38:47 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:39:17 | INFO     | session_runner | [cycle 3] 10:39:17 ET | positions=0 | entries=0
+2026-06-29T14:39:17 | INFO     | session_runner | [cycle 3] 10:39:17 ET | positions=0 | entries=0
+2026-06-29T14:39:17 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:39:17 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:39:19 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:39:19 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:39:23 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:39:23 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:39:23 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:39:23 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:39:53 | INFO     | session_runner | [cycle 4] 10:39:53 ET | positions=0 | entries=0
+2026-06-29T14:39:53 | INFO     | session_runner | [cycle 4] 10:39:53 ET | positions=0 | entries=0
+2026-06-29T14:39:53 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:39:53 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:39:56 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:39:56 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:40:00 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:40:00 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:40:00 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:40:00 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:40:30 | INFO     | session_runner | [cycle 5] 10:40:30 ET | positions=0 | entries=0
+2026-06-29T14:40:30 | INFO     | session_runner | [cycle 5] 10:40:30 ET | positions=0 | entries=0
+2026-06-29T14:40:30 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:40:30 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:40:32 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:40:32 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:40:36 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:40:36 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:40:36 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:40:36 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:41:06 | INFO     | session_runner | [cycle 6] 10:41:06 ET | positions=0 | entries=0
+2026-06-29T14:41:06 | INFO     | session_runner | [cycle 6] 10:41:06 ET | positions=0 | entries=0
+2026-06-29T14:41:07 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:41:07 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:41:09 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:41:09 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:41:13 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:41:13 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:41:13 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:41:13 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:41:43 | INFO     | session_runner | [cycle 7] 10:41:43 ET | positions=0 | entries=0
+2026-06-29T14:41:43 | INFO     | session_runner | [cycle 7] 10:41:43 ET | positions=0 | entries=0
+2026-06-29T14:41:43 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:41:43 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:41:46 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:41:46 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:41:50 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:41:50 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:41:50 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:41:50 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:42:20 | INFO     | session_runner | [cycle 8] 10:42:20 ET | positions=0 | entries=0
+2026-06-29T14:42:20 | INFO     | session_runner | [cycle 8] 10:42:20 ET | positions=0 | entries=0
+2026-06-29T14:42:20 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:42:20 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:42:23 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:42:23 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:42:27 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:42:27 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:42:27 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:42:27 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:42:57 | INFO     | session_runner | [cycle 9] 10:42:57 ET | positions=0 | entries=0
+2026-06-29T14:42:57 | INFO     | session_runner | [cycle 9] 10:42:57 ET | positions=0 | entries=0
+2026-06-29T14:42:58 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:42:58 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:43:00 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:43:00 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:43:04 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:43:04 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:43:04 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:43:04 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:43:34 | INFO     | session_runner | [cycle 10] 10:43:34 ET | positions=0 | entries=0
+2026-06-29T14:43:34 | INFO     | session_runner | [cycle 10] 10:43:34 ET | positions=0 | entries=0
+2026-06-29T14:43:34 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:43:34 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:43:37 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:43:37 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:43:41 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:43:41 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:43:41 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:43:41 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:44:11 | INFO     | session_runner | [cycle 11] 10:44:11 ET | positions=0 | entries=0
+2026-06-29T14:44:11 | INFO     | session_runner | [cycle 11] 10:44:11 ET | positions=0 | entries=0
+2026-06-29T14:44:11 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:44:11 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:44:13 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:44:13 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:44:18 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:44:18 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:44:18 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:44:18 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:44:48 | INFO     | session_runner | [cycle 12] 10:44:48 ET | positions=0 | entries=0
+2026-06-29T14:44:48 | INFO     | session_runner | [cycle 12] 10:44:48 ET | positions=0 | entries=0
+2026-06-29T14:44:48 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:44:48 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:44:50 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:44:50 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:44:54 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:44:54 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:44:54 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:44:54 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:45:24 | INFO     | session_runner | [cycle 13] 10:45:24 ET | positions=0 | entries=0
+2026-06-29T14:45:24 | INFO     | session_runner | [cycle 13] 10:45:24 ET | positions=0 | entries=0
+2026-06-29T14:45:25 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:45:25 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:45:27 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:45:27 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:45:31 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:45:31 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:45:31 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:45:31 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:46:01 | INFO     | session_runner | [cycle 14] 10:46:01 ET | positions=0 | entries=0
+2026-06-29T14:46:01 | INFO     | session_runner | [cycle 14] 10:46:01 ET | positions=0 | entries=0
+2026-06-29T14:46:01 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:46:01 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:46:04 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:46:04 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:46:08 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:46:08 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:46:08 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:46:08 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:46:38 | INFO     | session_runner | [cycle 15] 10:46:38 ET | positions=0 | entries=0
+2026-06-29T14:46:38 | INFO     | session_runner | [cycle 15] 10:46:38 ET | positions=0 | entries=0
+2026-06-29T14:46:38 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:46:38 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:46:40 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:46:40 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:46:44 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:46:44 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:46:44 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:46:44 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:47:14 | INFO     | session_runner | [cycle 16] 10:47:14 ET | positions=0 | entries=0
+2026-06-29T14:47:14 | INFO     | session_runner | [cycle 16] 10:47:14 ET | positions=0 | entries=0
+2026-06-29T14:47:15 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:47:15 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:47:17 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:47:17 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:47:21 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:47:21 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:47:21 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:47:21 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:47:51 | INFO     | session_runner | [cycle 17] 10:47:51 ET | positions=0 | entries=0
+2026-06-29T14:47:51 | INFO     | session_runner | [cycle 17] 10:47:51 ET | positions=0 | entries=0
+2026-06-29T14:47:51 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:47:51 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:47:54 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:47:54 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:47:58 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:47:58 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:47:58 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:47:58 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:48:28 | INFO     | session_runner | [cycle 18] 10:48:28 ET | positions=0 | entries=0
+2026-06-29T14:48:28 | INFO     | session_runner | [cycle 18] 10:48:28 ET | positions=0 | entries=0
+2026-06-29T14:48:29 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-29T14:48:29 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-29T14:48:30 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:48:30 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:48:32 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:48:32 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:48:36 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:48:36 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:48:36 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:48:36 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:49:06 | INFO     | session_runner | [cycle 19] 10:49:06 ET | positions=0 | entries=0
+2026-06-29T14:49:06 | INFO     | session_runner | [cycle 19] 10:49:06 ET | positions=0 | entries=0
+2026-06-29T14:49:06 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:49:06 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:49:08 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:49:08 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:49:13 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:49:13 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:49:13 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:49:13 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:49:43 | INFO     | session_runner | [cycle 20] 10:49:43 ET | positions=0 | entries=0
+2026-06-29T14:49:43 | INFO     | session_runner | [cycle 20] 10:49:43 ET | positions=0 | entries=0
+2026-06-29T14:49:43 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:49:43 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:49:45 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:49:45 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:49:49 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:49:49 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:49:49 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:49:49 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:50:19 | INFO     | session_runner | [cycle 21] 10:50:19 ET | positions=0 | entries=0
+2026-06-29T14:50:19 | INFO     | session_runner | [cycle 21] 10:50:19 ET | positions=0 | entries=0
+2026-06-29T14:50:19 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:50:19 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:50:22 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:50:22 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:50:26 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:50:26 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:50:26 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:50:26 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:50:56 | INFO     | session_runner | [cycle 22] 10:50:56 ET | positions=0 | entries=0
+2026-06-29T14:50:56 | INFO     | session_runner | [cycle 22] 10:50:56 ET | positions=0 | entries=0
+2026-06-29T14:50:56 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:50:56 | WARNING  | session_runner | [bars(SPY)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T14:50:58 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:50:58 | WARNING  | session_runner | [bars(SPY)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T14:51:03 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:51:03 | ERROR    | session_runner | [bars(SPY)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:51:03 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T14:51:03 | ERROR    | session_runner | Cannot fetch bars for SPY: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:29:06 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-29T15:29:06 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-29T15:29:20 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-29T15:29:20 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-29T15:29:20 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-29T15:29:20 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-29T15:29:20 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-29T15:29:20 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-29T15:29:21 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-29T15:29:21 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-29T15:29:21 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+2026-06-29T15:29:21 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-06-29  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Monday 2026-06-29 — trading day
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Monday 2026-06-29 — trading day
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: Last session log: 2305s ago
+2026-06-29T15:29:21 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: Last session log: 2305s ago
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Monday 2026-06-29 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 2305s ago
+
+  Result: PASS
+2026-06-29T15:29:21 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Monday 2026-06-29 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 2305s ago
+
+  Result: PASS
+2026-06-29T15:29:21 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Monday 2026-06-29 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 2305s ago
+
+  Result: PASS
+2026-06-29T15:29:21 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-29T15:29:21 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-29T15:29:21 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-29 | starting_equity=98963.77
+2026-06-29T15:29:21 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-29 | starting_equity=98963.77
+2026-06-29T15:29:21 | INFO     | session_runner | Account: equity=98963.77 paper=True
+2026-06-29T15:29:21 | INFO     | session_runner | Account: equity=98963.77 paper=True
+2026-06-29T15:29:21 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-29T15:29:21 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-29T15:29:21 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-29T15:29:21 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-29T15:29:21 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-29T15:29:21 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-29T15:29:21 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-29T15:29:21 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-29T15:29:21 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-29T15:29:21 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-29T15:29:23 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-29T15:29:23 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-29T15:29:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-29T15:29:30 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-29T15:29:31 | INFO     | session_runner | Scan: 6 passed, 32 rejected
+2026-06-29T15:29:31 | INFO     | session_runner | Scan: 6 passed, 32 rejected
+2026-06-29T15:29:31 | INFO     | session_runner |   MSFT    score=70.0  signal=SHORT    reasons: atr=3.62% (wide-range), orb_breakdown, trend_down
+2026-06-29T15:29:31 | INFO     | session_runner |   MSFT    score=70.0  signal=SHORT    reasons: atr=3.62% (wide-range), orb_breakdown, trend_down
+2026-06-29T15:29:31 | INFO     | session_runner |   RIVN    score=60.0  signal=LONG     reasons: atr=5.97% (wide-range), orb_breakout, trend_up
+2026-06-29T15:29:31 | INFO     | session_runner |   RIVN    score=60.0  signal=LONG     reasons: atr=5.97% (wide-range), orb_breakout, trend_up
+2026-06-29T15:29:31 | INFO     | session_runner |   XLY     score=52.0  signal=LONG     reasons: atr=2.02% (wide-range), orb_breakout, trend_sideways
+2026-06-29T15:29:31 | INFO     | session_runner |   XLY     score=52.0  signal=LONG     reasons: atr=2.02% (wide-range), orb_breakout, trend_sideways
+2026-06-29T15:29:31 | INFO     | session_runner |   PLTR    score=50.0  signal=SHORT    reasons: atr=5.52% (wide-range), trend_down, rsi=38 (healthy)
+2026-06-29T15:29:31 | INFO     | session_runner |   PLTR    score=50.0  signal=SHORT    reasons: atr=5.52% (wide-range), trend_down, rsi=38 (healthy)
+2026-06-29T15:29:31 | INFO     | session_runner |   RIOT    score=50.0  signal=LONG     reasons: atr=8.29% (wide-range), trend_up, rsi=52 (healthy)
+2026-06-29T15:29:31 | INFO     | session_runner |   RIOT    score=50.0  signal=LONG     reasons: atr=8.29% (wide-range), trend_up, rsi=52 (healthy)
+2026-06-29T15:29:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260702C00017000 | delta=0.346 | spread_pct=0.036 | OI=2583 | vol=14348
+2026-06-29T15:29:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260702C00017000 | delta=0.346 | spread_pct=0.036 | OI=2583 | vol=14348
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed RIVN | RIVN260702C00017000 | exp=2026-07-02 | spread=3.64% | OI=2583 | vol=14348
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed RIVN | RIVN260702C00017000 | exp=2026-07-02 | spread=3.64% | OI=2583 | vol=14348
+2026-06-29T15:29:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSFT260629P00367500 | delta=N/A | spread_pct=0.044 | OI=278 | vol=3779
+2026-06-29T15:29:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSFT260629P00367500 | delta=N/A | spread_pct=0.044 | OI=278 | vol=3779
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSFT | MSFT260629P00367500 | exp=2026-06-29 | spread=4.44% | OI=278 | vol=3779
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSFT | MSFT260629P00367500 | exp=2026-06-29 | spread=4.44% | OI=278 | vol=3779
+2026-06-29T15:29:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected PLTR260702P00115000 | delta=-0.410 | spread_pct=0.019 | OI=2306 | vol=5421
+2026-06-29T15:29:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected PLTR260702P00115000 | delta=-0.410 | spread_pct=0.019 | OI=2306 | vol=5421
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed PLTR | PLTR260702P00115000 | exp=2026-07-02 | spread=1.94% | OI=2306 | vol=5421
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed PLTR | PLTR260702P00115000 | exp=2026-07-02 | spread=1.94% | OI=2306 | vol=5421
+2026-06-29T15:29:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.LONG | total_candidates=52
+2026-06-29T15:29:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.LONG | total_candidates=52
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=LONG)
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=LONG)
+2026-06-29T15:29:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AMZN260629P00237500 | delta=N/A | spread_pct=0.087 | OI=254 | vol=19707
+2026-06-29T15:29:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AMZN260629P00237500 | delta=N/A | spread_pct=0.087 | OI=254 | vol=19707
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AMZN | AMZN260629P00237500 | exp=2026-06-29 | spread=8.70% | OI=254 | vol=19707
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AMZN | AMZN260629P00237500 | exp=2026-06-29 | spread=8.70% | OI=254 | vol=19707
+2026-06-29T15:29:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for RIOT SignalDirection.LONG | total_candidates=50
+2026-06-29T15:29:32 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for RIOT SignalDirection.LONG | total_candidates=50
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: liquidity_rejected_cost_cap | symbol=RIOT | option_symbol=RIOT260702C00015000 | ask=13.09 | ask_x_100=1309 | max_contract_cost=990
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: liquidity_rejected_cost_cap | symbol=RIOT | option_symbol=RIOT260702C00015000 | ask=13.09 | ask_x_100=1309 | max_contract_cost=990
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for RIOT (signal=LONG)
+2026-06-29T15:29:32 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for RIOT (signal=LONG)
+2026-06-29T15:29:32 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['MSFT', 'RIVN', 'PLTR']
+2026-06-29T15:29:32 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['MSFT', 'RIVN', 'PLTR']
+2026-06-29T15:29:32 | INFO     | session_runner | Active symbols from scan: ['MSFT', 'RIVN', 'PLTR']
+2026-06-29T15:29:32 | INFO     | session_runner | Active symbols from scan: ['MSFT', 'RIVN', 'PLTR']
+2026-06-29T15:29:32 | INFO     | session_runner | [cycle 1] 11:29:32 ET | positions=0 | entries=0
+2026-06-29T15:29:32 | INFO     | session_runner | [cycle 1] 11:29:32 ET | positions=0 | entries=0
+2026-06-29T15:29:33 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-29T15:29:33 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-29T15:29:33 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:29:33 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:29:35 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:29:35 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:29:40 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:29:40 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:29:40 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:29:40 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:29:40 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:29:40 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:29:42 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:29:42 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:29:46 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:29:46 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:29:46 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:29:46 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:29:46 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:29:46 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:29:49 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:29:49 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:29:53 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:29:53 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:29:53 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:29:53 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:30:23 | INFO     | session_runner | [cycle 2] 11:30:23 ET | positions=0 | entries=0
+2026-06-29T15:30:23 | INFO     | session_runner | [cycle 2] 11:30:23 ET | positions=0 | entries=0
+2026-06-29T15:30:23 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:30:23 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:30:25 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:30:25 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:30:29 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:30:29 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:30:29 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:30:29 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:30:30 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:30:30 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:30:32 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:30:32 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:30:36 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:30:36 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:30:36 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:30:36 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:30:36 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:30:36 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:30:39 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:30:39 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:30:43 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:30:43 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:30:43 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:30:43 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:31:13 | INFO     | session_runner | [cycle 3] 11:31:13 ET | positions=0 | entries=0
+2026-06-29T15:31:13 | INFO     | session_runner | [cycle 3] 11:31:13 ET | positions=0 | entries=0
+2026-06-29T15:31:13 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:31:13 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:31:15 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:31:15 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:31:19 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:31:19 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:31:19 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:31:19 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:31:20 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:31:20 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:31:22 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:31:22 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:31:26 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:31:26 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:31:26 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:31:26 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:31:26 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:31:26 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:31:29 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:31:29 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:31:33 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:31:33 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:31:33 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:31:33 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:03 | INFO     | session_runner | [cycle 4] 11:32:03 ET | positions=0 | entries=0
+2026-06-29T15:32:03 | INFO     | session_runner | [cycle 4] 11:32:03 ET | positions=0 | entries=0
+2026-06-29T15:32:03 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:32:03 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:32:05 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:32:05 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:32:09 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:09 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:09 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:09 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:10 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:32:10 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:32:12 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:32:12 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:32:16 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:16 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:16 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:16 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:16 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:32:16 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:32:18 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:32:18 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:32:23 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:23 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:23 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:23 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:53 | INFO     | session_runner | [cycle 5] 11:32:53 ET | positions=0 | entries=0
+2026-06-29T15:32:53 | INFO     | session_runner | [cycle 5] 11:32:53 ET | positions=0 | entries=0
+2026-06-29T15:32:53 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:32:53 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:32:55 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:32:55 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:32:59 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:59 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:59 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:59 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:32:59 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:32:59 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:33:02 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:33:02 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:33:06 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:06 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:06 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:06 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:06 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:33:06 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:33:08 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:33:08 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:33:12 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:12 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:12 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:12 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:43 | INFO     | session_runner | [cycle 6] 11:33:43 ET | positions=0 | entries=0
+2026-06-29T15:33:43 | INFO     | session_runner | [cycle 6] 11:33:43 ET | positions=0 | entries=0
+2026-06-29T15:33:43 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:33:43 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:33:45 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:33:45 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:33:49 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:49 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:49 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:49 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:49 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:33:49 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:33:52 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:33:52 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:33:56 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:56 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:56 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:56 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:33:56 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:33:56 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:33:58 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:33:58 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:34:03 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:03 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:03 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:03 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:33 | INFO     | session_runner | [cycle 7] 11:34:33 ET | positions=0 | entries=0
+2026-06-29T15:34:33 | INFO     | session_runner | [cycle 7] 11:34:33 ET | positions=0 | entries=0
+2026-06-29T15:34:33 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:34:33 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:34:35 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:34:35 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:34:39 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:39 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:39 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:39 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:39 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:34:39 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:34:42 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:34:42 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:34:46 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:46 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:46 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:46 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:46 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:34:46 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:34:49 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:34:49 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:34:53 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:53 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:53 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:34:53 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:35:23 | INFO     | session_runner | [cycle 8] 11:35:23 ET | positions=0 | entries=0
+2026-06-29T15:35:23 | INFO     | session_runner | [cycle 8] 11:35:23 ET | positions=0 | entries=0
+2026-06-29T15:35:23 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:35:23 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:35:26 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:35:26 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:35:30 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:35:30 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:35:30 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:35:30 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:35:30 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:35:30 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:35:32 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:35:32 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:35:36 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:35:36 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:35:36 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:35:36 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:35:37 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:35:37 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:35:39 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:35:39 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:35:43 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:35:43 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:35:43 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:35:43 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:36:13 | INFO     | session_runner | [cycle 9] 11:36:13 ET | positions=0 | entries=0
+2026-06-29T15:36:13 | INFO     | session_runner | [cycle 9] 11:36:13 ET | positions=0 | entries=0
+2026-06-29T15:36:14 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:36:14 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:36:16 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:36:16 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:36:20 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:36:20 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:36:20 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:36:20 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:36:20 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:36:20 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:36:23 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:36:23 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:36:27 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:36:27 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:36:27 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:36:27 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:36:27 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:36:27 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:36:29 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:36:29 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:36:33 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:36:33 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:36:33 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:36:33 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:37:03 | INFO     | session_runner | [cycle 10] 11:37:03 ET | positions=0 | entries=0
+2026-06-29T15:37:03 | INFO     | session_runner | [cycle 10] 11:37:03 ET | positions=0 | entries=0
+2026-06-29T15:37:03 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:37:03 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:37:06 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:37:06 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:37:10 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:37:10 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:37:10 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:37:10 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:37:10 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:37:10 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:37:12 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:37:12 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:37:17 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:37:17 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:37:17 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:37:17 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:37:17 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:37:17 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:37:19 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:37:19 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:37:23 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:37:23 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:37:23 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:37:23 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:37:53 | INFO     | session_runner | [cycle 11] 11:37:53 ET | positions=0 | entries=0
+2026-06-29T15:37:53 | INFO     | session_runner | [cycle 11] 11:37:53 ET | positions=0 | entries=0
+2026-06-29T15:37:53 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:37:53 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:37:56 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:37:56 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:38:00 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:00 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:00 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:00 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:00 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:38:00 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:38:02 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:38:02 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:38:07 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:07 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:07 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:07 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:07 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:38:07 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:38:09 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:38:09 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:38:13 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:13 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:13 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:13 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:43 | INFO     | session_runner | [cycle 12] 11:38:43 ET | positions=0 | entries=0
+2026-06-29T15:38:43 | INFO     | session_runner | [cycle 12] 11:38:43 ET | positions=0 | entries=0
+2026-06-29T15:38:43 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:38:43 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:38:46 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:38:46 | WARNING  | session_runner | [bars(MSFT)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:38:50 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:50 | ERROR    | session_runner | [bars(MSFT)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:50 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:50 | ERROR    | session_runner | Cannot fetch bars for MSFT: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:50 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:38:50 | WARNING  | session_runner | [bars(RIVN)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:38:52 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:38:52 | WARNING  | session_runner | [bars(RIVN)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:38:56 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:56 | ERROR    | session_runner | [bars(RIVN)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:56 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:56 | ERROR    | session_runner | Cannot fetch bars for RIVN: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:38:57 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:38:57 | WARNING  | session_runner | [bars(PLTR)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:38:59 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:38:59 | WARNING  | session_runner | [bars(PLTR)] attempt 2 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 4s
+2026-06-29T15:39:03 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:39:03 | ERROR    | session_runner | [bars(PLTR)] all 3 attempts failed: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:39:03 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:39:03 | ERROR    | session_runner | Cannot fetch bars for PLTR: Too Many Requests. Rate limited. Try after a while.
+2026-06-29T15:39:33 | INFO     | session_runner | [cycle 13] 11:39:33 ET | positions=0 | entries=0
+2026-06-29T15:39:33 | INFO     | session_runner | [cycle 13] 11:39:33 ET | positions=0 | entries=0
+2026-06-29T15:39:34 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-29T15:39:34 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-29T15:39:34 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+2026-06-29T15:39:34 | WARNING  | session_runner | [bars(MSFT)] attempt 1 failed: Too Many Requests. Rate limited. Try after a while. — retrying in 2s
+=== session_runner start 11:39 ET ===
+2026-06-29T15:39:48 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-29T15:39:48 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+2026-06-29T15:39:50 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-29T15:39:50 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-06-29T15:39:50 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-29T15:39:50 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-06-29T15:39:50 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-29T15:39:50 | INFO     | app.utils.alerting | AlertService: No channels configured — alerts suppressed
+2026-06-29T15:39:50 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-29T15:39:50 | INFO     | session_runner | RSITrendStrategy config | rsi_period=14 | rsi_oversold=35.0 | rsi_overbought=65.0 | trend_ema_period=50 | min_bars_required=55 | bar_interval=5m | mode=standard
+2026-06-29T15:39:50 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+2026-06-29T15:39:50 | INFO     | session_runner | Session runner starting | mode=PAPER | symbols=['SPY'] | universe=manual | poll=30s
+
+════════════════════════════════════════════════════════════
+  Session Runner — 2026-06-29  [PAPER]
+  Market: 09:30 – 16:00 ET
+  EOD exit: 12:30 ET  |  Poll: every 30s
+════════════════════════════════════════════════════════════
+
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] paper_mode_confirmed: Live trading disabled — paper mode confirmed
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] kill_switch_inactive: Kill switch inactive
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Monday 2026-06-29 — trading day
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] market_day: Today is Monday 2026-06-29 — trading day
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] broker_reachable: Broker reachable — paper=True
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] db_writable: Database accessible and writable
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] logs_writable: Log directory writable: logs
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] daily_loss_reset: Daily PnL at zero — fresh session
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] no_stale_pending_orders: No stale pending orders from prior sessions
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: Last session log: 18s ago
+2026-06-29T15:39:51 | INFO     | app.evaluation.pre_session | pre_session [PASS] data_feed_fresh: Last session log: 18s ago
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Monday 2026-06-29 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 18s ago
+
+  Result: PASS
+2026-06-29T15:39:51 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Monday 2026-06-29 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 18s ago
+
+  Result: PASS
+2026-06-29T15:39:51 | INFO     | session_runner | Pre-session checklist results:
+Pre-session checklist:
+  ✓  [required]  paper_mode_confirmed            Live trading disabled — paper mode confirmed
+  ✓  [required]  kill_switch_inactive            Kill switch inactive
+  ✓  [advisory]  market_day                      Today is Monday 2026-06-29 — trading day
+  ✓  [required]  broker_reachable                Broker reachable — paper=True
+  ✓  [required]  db_writable                     Database accessible and writable
+  ✓  [required]  logs_writable                   Log directory writable: logs
+  ✓  [required]  daily_loss_reset                Daily PnL at zero — fresh session
+  ✓  [required]  no_stale_pending_orders         No stale pending orders from prior sessions
+  ✓  [advisory]  data_feed_fresh                 Last session log: 18s ago
+
+  Result: PASS
+2026-06-29T15:39:51 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-29T15:39:51 | INFO     | session_runner | Pre-session checks PASSED — proceeding
+2026-06-29T15:39:51 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-29 | starting_equity=98963.77
+2026-06-29T15:39:51 | INFO     | app.risk.risk_manager | RiskManager: new session 2026-06-29 | starting_equity=98963.77
+2026-06-29T15:39:51 | INFO     | session_runner | Account: equity=98963.77 paper=True
+2026-06-29T15:39:51 | INFO     | session_runner | Account: equity=98963.77 paper=True
+2026-06-29T15:39:51 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-29T15:39:51 | INFO     | app.trading.session_recovery | Recovery complete: 0 pending orders, 0 broker positions, 0 warnings, 0 errors
+2026-06-29T15:39:51 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-29T15:39:51 | INFO     | session_runner | Running pre-session universe scan (mode=manual) …
+2026-06-29T15:39:51 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-29T15:39:51 | INFO     | app.scanning.universe_loader | UniverseLoader: loaded 5 groups (13 flat symbols) from /home/user/Apps-/config/ticker_universe.yaml (blacklist=0)
+2026-06-29T15:39:51 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-29T15:39:51 | INFO     | app.scanning.universe_loader | UniverseLoader: 38 symbols from 4 group(s) (blacklist=0)
+2026-06-29T15:39:51 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-29T15:39:51 | INFO     | session_runner | Universe scan: 38 symbols from 4 group(s) | max_active=3
+2026-06-29T15:39:53 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-29T15:39:53 | WARNING  | app.scanning.yfinance_scanner | AlpacaScanner: no daily data for 1/38 symbols: ['SQ']
+2026-06-29T15:40:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-29T15:40:01 | WARNING  | app.scanning.yfinance_scanner | YFinanceScanner: failed for SQ: No daily data returned for SQ
+2026-06-29T15:40:03 | INFO     | session_runner | Scan: 7 passed, 31 rejected
+2026-06-29T15:40:03 | INFO     | session_runner | Scan: 7 passed, 31 rejected
+2026-06-29T15:40:03 | INFO     | session_runner |   MSFT    score=70.0  signal=SHORT    reasons: atr=3.63% (wide-range), orb_breakdown, trend_down
+2026-06-29T15:40:03 | INFO     | session_runner |   MSFT    score=70.0  signal=SHORT    reasons: atr=3.63% (wide-range), orb_breakdown, trend_down
+2026-06-29T15:40:03 | INFO     | session_runner |   XLY     score=62.0  signal=LONG     reasons: atr=2.02% (wide-range), orb_breakout, trend_sideways
+2026-06-29T15:40:03 | INFO     | session_runner |   XLY     score=62.0  signal=LONG     reasons: atr=2.02% (wide-range), orb_breakout, trend_sideways
+2026-06-29T15:40:03 | INFO     | session_runner |   RIVN    score=60.0  signal=LONG     reasons: atr=5.98% (wide-range), orb_breakout, trend_up
+2026-06-29T15:40:03 | INFO     | session_runner |   RIVN    score=60.0  signal=LONG     reasons: atr=5.98% (wide-range), orb_breakout, trend_up
+2026-06-29T15:40:03 | INFO     | session_runner |   IWM     score=55.0  signal=SHORT    reasons: atr=1.82% (wide-range), orb_breakdown, rsi=58 (healthy)
+2026-06-29T15:40:03 | INFO     | session_runner |   IWM     score=55.0  signal=SHORT    reasons: atr=1.82% (wide-range), orb_breakdown, rsi=58 (healthy)
+2026-06-29T15:40:03 | INFO     | session_runner |   AMZN    score=50.0  signal=SHORT    reasons: atr=3.79% (wide-range), trend_down, rsi=53 (healthy)
+2026-06-29T15:40:03 | INFO     | session_runner |   AMZN    score=50.0  signal=SHORT    reasons: atr=3.79% (wide-range), trend_down, rsi=53 (healthy)
+2026-06-29T15:40:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260702C00016000 | delta=0.645 | spread_pct=0.080 | OI=9566 | vol=5664
+2026-06-29T15:40:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260702C00016000 | delta=0.645 | spread_pct=0.080 | OI=9566 | vol=5664
+2026-06-29T15:40:05 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed RIVN | RIVN260702C00016000 | exp=2026-07-02 | spread=8.00% | OI=9566 | vol=5664
+2026-06-29T15:40:05 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed RIVN | RIVN260702C00016000 | exp=2026-07-02 | spread=8.00% | OI=9566 | vol=5664
+2026-06-29T15:40:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.LONG | total_candidates=52
+2026-06-29T15:40:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: no qualifying contracts for XLY SignalDirection.LONG | total_candidates=52
+2026-06-29T15:40:05 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=LONG)
+2026-06-29T15:40:05 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: no liquid contract for XLY (signal=LONG)
+2026-06-29T15:40:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AMZN260629P00240000 | delta=N/A | spread_pct=0.028 | OI=690 | vol=51060
+2026-06-29T15:40:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected AMZN260629P00240000 | delta=N/A | spread_pct=0.028 | OI=690 | vol=51060
+2026-06-29T15:40:05 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AMZN | AMZN260629P00240000 | exp=2026-06-29 | spread=2.82% | OI=690 | vol=51060
+2026-06-29T15:40:05 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed AMZN | AMZN260629P00240000 | exp=2026-06-29 | spread=2.82% | OI=690 | vol=51060
+2026-06-29T15:40:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected PLTR260702P00115000 | delta=-0.423 | spread_pct=0.014 | OI=2306 | vol=5604
+2026-06-29T15:40:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected PLTR260702P00115000 | delta=-0.423 | spread_pct=0.014 | OI=2306 | vol=5604
+2026-06-29T15:40:05 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed PLTR | PLTR260702P00115000 | exp=2026-07-02 | spread=1.40% | OI=2306 | vol=5604
+2026-06-29T15:40:05 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed PLTR | PLTR260702P00115000 | exp=2026-07-02 | spread=1.40% | OI=2306 | vol=5604
+2026-06-29T15:40:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260629P00295000 | delta=N/A | spread_pct=0.044 | OI=3099 | vol=58737
+2026-06-29T15:40:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260629P00295000 | delta=N/A | spread_pct=0.044 | OI=3099 | vol=58737
+2026-06-29T15:40:05 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260629P00295000 | exp=2026-06-29 | spread=4.44% | OI=3099 | vol=58737
+2026-06-29T15:40:05 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed IWM | IWM260629P00295000 | exp=2026-06-29 | spread=4.44% | OI=3099 | vol=58737
+2026-06-29T15:40:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSFT260629P00370000 | delta=N/A | spread_pct=0.030 | OI=724 | vol=11414
+2026-06-29T15:40:05 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSFT260629P00370000 | delta=N/A | spread_pct=0.030 | OI=724 | vol=11414
+2026-06-29T15:40:05 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSFT | MSFT260629P00370000 | exp=2026-06-29 | spread=2.99% | OI=724 | vol=11414
+2026-06-29T15:40:05 | INFO     | app.scanning.alpaca_confirmer | AlpacaConfirmer: confirmed MSFT | MSFT260629P00370000 | exp=2026-06-29 | spread=2.99% | OI=724 | vol=11414
+2026-06-29T15:40:05 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['MSFT', 'RIVN', 'IWM']
+2026-06-29T15:40:05 | INFO     | session_runner | AlpacaConfirmer: 3 confirmed symbols: ['MSFT', 'RIVN', 'IWM']
+2026-06-29T15:40:05 | INFO     | session_runner | Active symbols from scan: ['MSFT', 'RIVN', 'IWM']
+2026-06-29T15:40:05 | INFO     | session_runner | Active symbols from scan: ['MSFT', 'RIVN', 'IWM']
+2026-06-29T15:40:05 | INFO     | session_runner | [cycle 1] 11:40:05 ET | positions=0 | entries=0
+2026-06-29T15:40:05 | INFO     | session_runner | [cycle 1] 11:40:05 ET | positions=0 | entries=0
+2026-06-29T15:40:05 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-29T15:40:05 | INFO     | app.trading.reconciler | Reconciliation done: broker_pos=0 local_pos=0 broker_orders=0 local_pending=0 repaired=0 flagged=0
+2026-06-29T15:40:06 | INFO     | session_runner | [bridge:MSFT] rsi_trend ready: sufficient bars
+2026-06-29T15:40:06 | INFO     | session_runner | [bridge:MSFT] rsi_trend ready: sufficient bars
+2026-06-29T15:40:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSFT260629P00370000 | delta=N/A | spread_pct=0.044 | OI=724 | vol=11414
+2026-06-29T15:40:06 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected MSFT260629P00370000 | delta=N/A | spread_pct=0.044 | OI=724 | vol=11414
+2026-06-29T15:40:07 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN MSFT260629P00370000 | APPROVED | qty=1 | risk=$69.00
+2026-06-29T15:40:07 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN MSFT260629P00370000 | APPROVED | qty=1 | risk=$69.00
+2026-06-29T15:40:07 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'MSFT260629P00370000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.69', 'order_class': 'simple'}
+2026-06-29T15:40:07 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'MSFT260629P00370000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.69', 'order_class': 'simple'}
+2026-06-29T15:40:07 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=1 exits=0
+2026-06-29T15:40:07 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=1 exits=0
+2026-06-29T15:40:07 | INFO     | session_runner | Order placed: e3d5d770 | MSFT260629P00370000 | limit=0.69 | status=pending_new
+2026-06-29T15:40:07 | INFO     | session_runner | Order placed: e3d5d770 | MSFT260629P00370000 | limit=0.69 | status=pending_new
+2026-06-29T15:40:07 | INFO     | app.trading.trade_journal | Journal entry 195: short MSFT260629P00370000 @ 0.6900
+2026-06-29T15:40:07 | INFO     | app.trading.trade_journal | Journal entry 195: short MSFT260629P00370000 @ 0.6900
+2026-06-29T15:40:07 | INFO     | app.trading.fill_tracker | FillTracker registered e3d5d770 | MSFT260629P00370000 | limit=0.6900
+2026-06-29T15:40:07 | INFO     | app.trading.fill_tracker | FillTracker registered e3d5d770 | MSFT260629P00370000 | limit=0.6900
+2026-06-29T15:40:08 | INFO     | session_runner | [bridge:RIVN] rsi_trend ready: sufficient bars
+2026-06-29T15:40:08 | INFO     | session_runner | [bridge:RIVN] rsi_trend ready: sufficient bars
+2026-06-29T15:40:08 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260702C00017000 | delta=0.350 | spread_pct=0.067 | OI=2583 | vol=15190
+2026-06-29T15:40:08 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected RIVN260702C00017000 | delta=0.350 | spread_pct=0.067 | OI=2583 | vol=15190
+2026-06-29T15:40:09 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN RIVN260702C00017000 | APPROVED | qty=1 | risk=$31.00
+2026-06-29T15:40:09 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN RIVN260702C00017000 | APPROVED | qty=1 | risk=$31.00
+2026-06-29T15:40:09 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'RIVN260702C00017000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.31', 'order_class': 'simple'}
+2026-06-29T15:40:09 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'RIVN260702C00017000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.31', 'order_class': 'simple'}
+2026-06-29T15:40:09 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=2 exits=0
+2026-06-29T15:40:09 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=2 exits=0
+2026-06-29T15:40:09 | INFO     | session_runner | Order placed: fe7dca87 | RIVN260702C00017000 | limit=0.31 | status=pending_new
+2026-06-29T15:40:09 | INFO     | session_runner | Order placed: fe7dca87 | RIVN260702C00017000 | limit=0.31 | status=pending_new
+2026-06-29T15:40:09 | INFO     | app.trading.trade_journal | Journal entry 196: long RIVN260702C00017000 @ 0.3100
+2026-06-29T15:40:09 | INFO     | app.trading.trade_journal | Journal entry 196: long RIVN260702C00017000 @ 0.3100
+2026-06-29T15:40:09 | INFO     | app.trading.fill_tracker | FillTracker registered fe7dca87 | RIVN260702C00017000 | limit=0.3100
+2026-06-29T15:40:09 | INFO     | app.trading.fill_tracker | FillTracker registered fe7dca87 | RIVN260702C00017000 | limit=0.3100
+2026-06-29T15:40:09 | INFO     | session_runner | [bridge:IWM] rsi_trend ready: sufficient bars
+2026-06-29T15:40:09 | INFO     | session_runner | [bridge:IWM] rsi_trend ready: sufficient bars
+2026-06-29T15:40:10 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260629P00295000 | delta=N/A | spread_pct=0.054 | OI=3099 | vol=58737
+2026-06-29T15:40:10 | INFO     | app.strategies.liquidity_filter | LiquidityFilter: selected IWM260629P00295000 | delta=N/A | spread_pct=0.054 | OI=3099 | vol=58737
+2026-06-29T15:40:10 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN IWM260629P00295000 | APPROVED | qty=1 | risk=$19.00
+2026-06-29T15:40:10 | INFO     | app.risk.risk_manager | RiskManager: APPROVED OrderSide.BUY_TO_OPEN IWM260629P00295000 | APPROVED | qty=1 | risk=$19.00
+2026-06-29T15:40:10 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'IWM260629P00295000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.19', 'order_class': 'simple'}
+2026-06-29T15:40:10 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'IWM260629P00295000', 'qty': '1', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.19', 'order_class': 'simple'}
+2026-06-29T15:40:10 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=3 exits=0
+2026-06-29T15:40:10 | INFO     | app.risk.risk_manager | RiskManager: entry pending | entries=0 pending=3 exits=0
+2026-06-29T15:40:10 | INFO     | session_runner | Order placed: aa8202fe | IWM260629P00295000 | limit=0.19 | status=pending_new
+2026-06-29T15:40:10 | INFO     | session_runner | Order placed: aa8202fe | IWM260629P00295000 | limit=0.19 | status=pending_new
+2026-06-29T15:40:10 | INFO     | app.trading.trade_journal | Journal entry 197: short IWM260629P00295000 @ 0.1900
+2026-06-29T15:40:10 | INFO     | app.trading.trade_journal | Journal entry 197: short IWM260629P00295000 @ 0.1900
+2026-06-29T15:40:10 | INFO     | app.trading.fill_tracker | FillTracker registered aa8202fe | IWM260629P00295000 | limit=0.1900
+2026-06-29T15:40:10 | INFO     | app.trading.fill_tracker | FillTracker registered aa8202fe | IWM260629P00295000 | limit=0.1900
+2026-06-29T15:40:10 | INFO     | session_runner | Max symbols traded per day (3) reached
+2026-06-29T15:40:10 | INFO     | session_runner | Max symbols traded per day (3) reached
+2026-06-29T15:40:40 | INFO     | session_runner | [cycle 2] 11:40:40 ET | positions=0 | entries=0
+2026-06-29T15:40:40 | INFO     | session_runner | [cycle 2] 11:40:40 ET | positions=0 | entries=0
+2026-06-29T15:40:40 | INFO     | app.trading.fill_tracker | FillTracker: FILL e3d5d770 @ 0.6900 (1/1 contracts)
+2026-06-29T15:40:40 | INFO     | app.trading.fill_tracker | FillTracker: FILL e3d5d770 @ 0.6900 (1/1 contracts)
+2026-06-29T15:40:40 | INFO     | app.trading.trade_journal | Journal fill 195: filled=1 @ 0.6900 ttf=35s
+2026-06-29T15:40:40 | INFO     | app.trading.trade_journal | Journal fill 195: filled=1 @ 0.6900 ttf=35s
+2026-06-29T15:40:41 | INFO     | app.trading.position_manager | Position opened | MSFT260629P00370000 | entry=0.6900 | qty=1
+2026-06-29T15:40:41 | INFO     | app.trading.position_manager | Position opened | MSFT260629P00370000 | entry=0.6900 | qty=1
+2026-06-29T15:40:41 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=1 pending=2 exits=0
+2026-06-29T15:40:41 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=1 pending=2 exits=0
+2026-06-29T15:40:41 | INFO     | app.trading.fill_tracker | FillTracker: FILL fe7dca87 @ 0.2900 (1/1 contracts)
+2026-06-29T15:40:41 | INFO     | app.trading.fill_tracker | FillTracker: FILL fe7dca87 @ 0.2900 (1/1 contracts)
+2026-06-29T15:40:41 | INFO     | app.trading.trade_journal | Journal fill 196: filled=1 @ 0.2900 ttf=36s
+2026-06-29T15:40:41 | INFO     | app.trading.trade_journal | Journal fill 196: filled=1 @ 0.2900 ttf=36s
+2026-06-29T15:40:41 | INFO     | app.trading.position_manager | Position opened | RIVN260702C00017000 | entry=0.2900 | qty=1
+2026-06-29T15:40:41 | INFO     | app.trading.position_manager | Position opened | RIVN260702C00017000 | entry=0.2900 | qty=1
+2026-06-29T15:40:41 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=2 pending=1 exits=0
+2026-06-29T15:40:41 | INFO     | app.risk.risk_manager | RiskManager: entry filled | entries=2 pending=1 exits=0
+2026-06-29T15:40:41 | INFO     | session_runner | FillTracker: 2 fill(s) processed this cycle
+2026-06-29T15:40:41 | INFO     | session_runner | FillTracker: 2 fill(s) processed this cycle
+2026-06-29T15:41:12 | INFO     | session_runner | [cycle 3] 11:41:12 ET | positions=2 | entries=2
+2026-06-29T15:41:12 | INFO     | session_runner | [cycle 3] 11:41:12 ET | positions=2 | entries=2
+2026-06-29T15:41:43 | INFO     | session_runner | [cycle 4] 11:41:43 ET | positions=2 | entries=2
+2026-06-29T15:41:43 | INFO     | session_runner | [cycle 4] 11:41:43 ET | positions=2 | entries=2
+2026-06-29T15:42:14 | INFO     | session_runner | [cycle 5] 11:42:14 ET | positions=2 | entries=2
+2026-06-29T15:42:14 | INFO     | session_runner | [cycle 5] 11:42:14 ET | positions=2 | entries=2
+2026-06-29T15:42:14 | WARNING  | app.trading.fill_tracker | FillTracker: stale order aa8202fe (2 min) — cancelling
+2026-06-29T15:42:14 | WARNING  | app.trading.fill_tracker | FillTracker: stale order aa8202fe (2 min) — cancelling
+2026-06-29T15:42:14 | INFO     | app.brokers.alpaca_broker | Order cancelled | order_id=aa8202fe-a76c-4fa6-91a0-6327d71e2c89
+2026-06-29T15:42:14 | INFO     | app.brokers.alpaca_broker | Order cancelled | order_id=aa8202fe-a76c-4fa6-91a0-6327d71e2c89
+2026-06-29T15:42:14 | INFO     | app.risk.risk_manager | RiskManager: entry cancelled | entries=2 pending=0 exits=0
+2026-06-29T15:42:14 | INFO     | app.risk.risk_manager | RiskManager: entry cancelled | entries=2 pending=0 exits=0
+2026-06-29T15:42:14 | INFO     | app.trading.trade_journal | Journal cancellation 197: stale_cancelled
+2026-06-29T15:42:14 | INFO     | app.trading.trade_journal | Journal cancellation 197: stale_cancelled
+2026-06-29T15:42:45 | INFO     | session_runner | [cycle 6] 11:42:45 ET | positions=2 | entries=2
+2026-06-29T15:42:45 | INFO     | session_runner | [cycle 6] 11:42:45 ET | positions=2 | entries=2
+2026-06-29T15:43:15 | INFO     | session_runner | [cycle 7] 11:43:15 ET | positions=2 | entries=2
+2026-06-29T15:43:15 | INFO     | session_runner | [cycle 7] 11:43:15 ET | positions=2 | entries=2
+2026-06-29T15:43:46 | INFO     | session_runner | [cycle 8] 11:43:46 ET | positions=2 | entries=2
+2026-06-29T15:43:46 | INFO     | session_runner | [cycle 8] 11:43:46 ET | positions=2 | entries=2
+2026-06-29T15:43:46 | INFO     | session_runner | Position exit | MSFT260629P00370000 | reason=trailing_stop | price=0.7000 | pnl=1.00
+2026-06-29T15:43:46 | INFO     | session_runner | Position exit | MSFT260629P00370000 | reason=trailing_stop | price=0.7000 | pnl=1.00
+2026-06-29T15:43:47 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'MSFT260629P00370000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.7', 'order_class': 'simple'}
+2026-06-29T15:43:47 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'MSFT260629P00370000', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.7', 'order_class': 'simple'}
+2026-06-29T15:43:47 | INFO     | session_runner | Exit order placed | MSFT260629P00370000 | limit=0.7000 | order_id=e0403fa4-1772-4f35-aeed-39ce40751afd
+2026-06-29T15:43:47 | INFO     | session_runner | Exit order placed | MSFT260629P00370000 | limit=0.7000 | order_id=e0403fa4-1772-4f35-aeed-39ce40751afd
+2026-06-29T15:43:47 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=2 exits=1 daily_pnl=1.00
+2026-06-29T15:43:47 | INFO     | app.risk.risk_manager | RiskManager: exit recorded | entries=2 exits=1 daily_pnl=1.00
+2026-06-29T15:43:47 | INFO     | app.trading.trade_journal | Journal exit 195: reason=trailing_stop pnl=1.00 hold=186s
+2026-06-29T15:43:47 | INFO     | app.trading.trade_journal | Journal exit 195: reason=trailing_stop pnl=1.00 hold=186s
+2026-06-29T15:43:47 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-06-29T15:43:47 | INFO     | session_runner | Closed 1 position(s) this cycle
+2026-06-29T15:44:17 | INFO     | session_runner | [cycle 9] 11:44:17 ET | positions=1 | entries=2
+2026-06-29T15:44:17 | INFO     | session_runner | [cycle 9] 11:44:17 ET | positions=1 | entries=2
+2026-06-29T15:44:48 | INFO     | session_runner | [cycle 10] 11:44:48 ET | positions=1 | entries=2
+2026-06-29T15:44:48 | INFO     | session_runner | [cycle 10] 11:44:48 ET | positions=1 | entries=2
+2026-06-29T15:45:18 | INFO     | session_runner | [cycle 11] 11:45:18 ET | positions=1 | entries=2
+2026-06-29T15:45:18 | INFO     | session_runner | [cycle 11] 11:45:18 ET | positions=1 | entries=2
+2026-06-29T15:45:49 | INFO     | session_runner | [cycle 12] 11:45:49 ET | positions=1 | entries=2
+2026-06-29T15:45:49 | INFO     | session_runner | [cycle 12] 11:45:49 ET | positions=1 | entries=2
+2026-06-29T15:46:19 | INFO     | session_runner | [cycle 13] 11:46:19 ET | positions=1 | entries=2
+2026-06-29T15:46:19 | INFO     | session_runner | [cycle 13] 11:46:19 ET | positions=1 | entries=2
+2026-06-29T15:46:50 | INFO     | session_runner | [cycle 14] 11:46:50 ET | positions=1 | entries=2
+2026-06-29T15:46:50 | INFO     | session_runner | [cycle 14] 11:46:50 ET | positions=1 | entries=2
+2026-06-29T15:47:20 | INFO     | session_runner | [cycle 15] 11:47:20 ET | positions=1 | entries=2
+2026-06-29T15:47:20 | INFO     | session_runner | [cycle 15] 11:47:20 ET | positions=1 | entries=2
+2026-06-29T15:47:51 | INFO     | session_runner | [cycle 16] 11:47:51 ET | positions=1 | entries=2
+2026-06-29T15:47:51 | INFO     | session_runner | [cycle 16] 11:47:51 ET | positions=1 | entries=2

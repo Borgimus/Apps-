@@ -62,12 +62,20 @@ class PaperBroker(BrokerInterface):
     def set_data_source(self, data_source):
         self._data_source = data_source
 
+    def verify_paper_endpoint(self) -> tuple:
+        return True, "in-process paper broker — always paper"
+
     # ── Account ───────────────────────────────────────────────────────────────
 
     async def get_account(self) -> AccountInfo:
+        # Equity = cash + mark-to-cost of open positions (no live pricing in paper mode)
+        position_value = sum(
+            p.avg_cost * p.quantity * 100 for p in self._positions.values()
+        )
+        equity = self._cash + position_value
         return AccountInfo(
             account_id="paper-local",
-            equity=self._equity,
+            equity=equity,
             cash=self._cash,
             buying_power=self._cash,
             is_paper=True,
@@ -194,3 +202,8 @@ class PaperBroker(BrokerInterface):
         if status:
             orders = [o for o in orders if o.status == status]
         return orders[-limit:]
+
+    async def get_available_expirations(self, symbol: str) -> List[date]:
+        if self._data_source is None:
+            raise RuntimeError("PaperBroker requires a data_source for expirations.")
+        return await self._data_source.get_available_expirations(symbol)

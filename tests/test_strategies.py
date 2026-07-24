@@ -103,20 +103,26 @@ class TestOpeningRangeBreakout:
 class TestRSITrendStrategy:
 
     def _make_oversold_bars(self) -> pd.DataFrame:
-        """Bars that go oversold then bounce."""
+        """
+        Bars engineered to push RSI(14) clearly below the oversold threshold
+        and then recover above it, while staying above the trend EMA.
+
+        Structure:
+          bars  0-29 : gentle uptrend from 400 → 430 (EMA warm-up, bullish bias)
+          bars 30-44 : sharp crash from 430 → 370  (15 bars, ~14% drop → RSI well below 35)
+          bars 45-79 : strong recovery 370 → 440    (price reclaims and exceeds EMA)
+        """
         n = 80
         idx = pd.date_range("2024-01-02", periods=n, freq="B", tz="UTC")
-        # Trending up (price above EMA) with a temporary dip to oversold
-        prices = np.linspace(400, 460, n)
-        # Add a sharp dip and recovery in the middle
-        prices[35:45] = np.linspace(415, 395, 10)
-        prices[45:55] = np.linspace(395, 420, 10)
-        prices[55:] = np.linspace(420, 460, n - 55)
+        prices = np.empty(n)
+        prices[:30] = np.linspace(400, 430, 30)
+        prices[30:45] = np.linspace(430, 370, 15)   # severe drop
+        prices[45:] = np.linspace(370, 440, n - 45)  # full recovery above EMA
         df = pd.DataFrame(
             {
                 "open": prices - 0.5,
-                "high": prices + 1.0,
-                "low": prices - 1.0,
+                "high": prices + 1.5,
+                "low": prices - 1.5,
                 "close": prices,
                 "volume": [5_000_000] * n,
             },
@@ -125,15 +131,17 @@ class TestRSITrendStrategy:
         return df
 
     def test_oversold_bounce_generates_long(self):
-        strat = RSITrendStrategy(params={"rsi_period": 14, "rsi_oversold": 40, "trend_ema_period": 20})
+        # EMA(5) tracks the recovery quickly enough that price is above it
+        # when RSI crosses back above the oversold threshold — a realistic
+        # short-term trend filter for intraday / swing setups.
+        strat = RSITrendStrategy(params={"rsi_period": 14, "rsi_oversold": 40, "trend_ema_period": 5})
         bars = self._make_oversold_bars()
         signals = strat.generate_signals(bars, "SPY")
-        # Should generate at least one LONG when RSI crosses back above oversold
         long_signals = [s for s in signals if s.direction == SignalDirection.LONG]
         assert len(long_signals) >= 1
 
     def test_signals_contain_rsi_in_metadata(self):
-        strat = RSITrendStrategy(params={"rsi_period": 14, "rsi_oversold": 40, "trend_ema_period": 20})
+        strat = RSITrendStrategy(params={"rsi_period": 14, "rsi_oversold": 40, "trend_ema_period": 5})
         bars = self._make_oversold_bars()
         signals = strat.generate_signals(bars, "SPY")
         for s in signals:
@@ -195,21 +203,30 @@ class TestVWAPReclaimStrategy:
 class TestMACompressionStrategy:
 
     def _make_compressed_then_breakout_bars(self) -> pd.DataFrame:
+        """
+        40 bars of tight compression at 450, then a decisive breakout.
+
+        The compression candles have a tiny range (0.2) so avg_range ≈ 0.2.
+        The breakout candle has range = 2.0, which is 10× avg_range and easily
+        satisfies the 1.5× threshold.  The close jumps above both EMAs in one bar.
+        """
         n = 80
         idx = pd.date_range("2024-01-02", periods=n, freq="B", tz="UTC")
-        # Flat for 30 bars (compression), then breakout
-        prices = [450.0] * n
-        for i in range(30, 35):
-            prices[i] = 450.0 + (i - 30) * 0.1  # slight drift in compression
-        for i in range(35, n):
-            prices[i] = 450.0 + (i - 30) * 1.0  # strong breakout
+        prices = np.full(n, 450.0)
+        # Breakout starts at bar 40 — prices rise sharply
+        for i in range(40, n):
+            prices[i] = 450.0 + (i - 39) * 3.0   # +3 per bar, clear uptrend
+
+        # Compression candles: tiny range
+        high = np.where(np.arange(n) < 40, prices + 0.1, prices + 2.0)
+        low  = np.where(np.arange(n) < 40, prices - 0.1, prices - 0.0)
 
         df = pd.DataFrame(
             {
-                "open": [p - 0.1 for p in prices],
-                "high": [p + max(0.5, (i - 30) * 0.3) for i, p in enumerate(prices)],
-                "low": [p - 0.1 for p in prices],
-                "close": prices,
+                "open":   prices - 0.05,
+                "high":   high,
+                "low":    low,
+                "close":  prices,
                 "volume": [2_000_000] * n,
             },
             index=idx,

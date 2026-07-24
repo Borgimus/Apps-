@@ -1,0 +1,2625 @@
+"""
+Daily Session Runner — continuous intraday paper-trading loop.
+
+Runs from market open until market close, polling every POLL_INTERVAL seconds.
+Each poll cycle:
+  1. Fill tracker poll (update pending order statuses from broker)
+  2. Position monitor (fetch quotes, evaluate exit conditions)
+  3. Signal scan + order placement (if before EOD)
+  4. Broker reconciliation (every --reconcile-interval minutes)
+  5. Heartbeat log
+
+Safety guarantees:
+  • LIVE_TRADING_ENABLED=true aborts immediately.
+  • Kill switch file respected on every cycle.
+  • All positions force-closed at EOD_EXIT_TIME.
+  • SIGTERM / SIGINT trigger graceful shutdown:
+      – one final fill poll
+      – optional pending-order cancellation (--cancel-pending)
+      – position liquidation
+      – session health report written to logs/
+  • API failures are retried with exponential backoff; after MAX_RETRIES the
+    cycle is skipped — the runner never crashes.
+  • On restart, pending orders are reloaded from DB and broker positions
+    are reconciled so no duplicate orders are placed.
+
+Usage:
+  python scripts/session_runner.py                # runs today's session
+  python scripts/session_runner.py --dry-run      # no orders placed
+  python scripts/session_runner.py --symbol QQQ SPY
+  python scripts/session_runner.py --poll 60      # poll every 60 s
+  python scripts/session_runner.py --cancel-pending   # cancel open orders on shutdown
+  python scripts/session_runner.py --reconcile-interval 15  # recon every 15 min
+"""
+
+from __future__ import annotations
+
+import argparse
+import asyncio
+import logging
+import os
+import signal
+import sys
+import time
+import warnings
+from datetime import datetime, timedelta
+from decimal import Decimal
+from pathlib import Path
+from typing import Dict, List, Optional
+from zoneinfo import ZoneInfo
+
+warnings.filterwarnings("ignore")
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+ET = ZoneInfo("America/New_York")
+logger = logging.getLogger("session_runner")
+
+# ── Globals (set in main, read in signal handler) ────────────────────────────
+_shutdown_requested = False
+
+
+def _request_shutdown(signum, frame):
+    global _shutdown_requested
+    logger.warning("Shutdown signal received (%s) — finishing current cycle then exiting", signum)
+    _shutdown_requested = True
+
+
+# ── Retry helper ─────────────────────────────────────────────────────────────
+
+async def _retry(coro_fn, label: str = "", max_retries: int = 3):
+    delay = 2
+    last_exc = None
+    for attempt in range(1, max_retries + 1):
+        try:
+            return await coro_fn()
+        except Exception as exc:
+            last_exc = exc
+            if attempt < max_retries:
+                logger.warning("[%s] attempt %d failed: %s — retrying in %ds", label, attempt, exc, delay)
+                await asyncio.sleep(delay)
+                delay *= 2
+    logger.error("[%s] all %d attempts failed: %s", label, max_retries, last_exc)
+    raise last_exc
+
+
+# ── Exit state constants ──────────────────────────────────────────────────────
+
+_MANDATORY_EXIT_REASONS = frozenset({"stop_loss", "max_hold", "eod_exit", "daily_loss", "kill_switch"})
+
+# Set by run_session() so confirmed-close helpers can emit exit push events
+# with broker-confirmed fill prices (not cached estimates).
+_PUSH_NOTIFIER = None
+
+# Set by run_session(). Passive per-strategy shadow book: records every fully
+# qualified ORB/VWAP signal (executed or capacity-blocked) and simulates
+# outcomes for blocked ones. Observational only — never trades.
+_SHADOW_BOOK = None
+
+
+# ── Stale quote detection ─────────────────────────────────────────────────────
+
+def _is_stale(fetched_at: Optional[datetime], max_age_secs: int = 60) -> bool:
+    if fetched_at is None:
+        return True
+    age = (datetime.now(tz=ET) - fetched_at.astimezone(ET)).total_seconds()
+    return age > max_age_secs
+
+
+# ── Strategy readiness (clock-based, no bar fetch) ────────────────────────────
+
+def _compute_strategy_readiness(strategies: list, now_et: datetime) -> list:
+    """
+    Estimate strategy readiness from the clock position relative to market open.
+    Assumes 5-min bars (one bar per 5 minutes starting at 9:30 ET).
+    No bar data is fetched — pure clock math.
+    """
+    market_open = now_et.replace(hour=9, minute=30, second=0, microsecond=0)
+    bars_elapsed = 0
+    if now_et >= market_open:
+        mins_since_open = int((now_et - market_open).total_seconds() / 60)
+        bars_elapsed = mins_since_open // 5
+
+    result = []
+    for s in strategies:
+        min_b = s.min_bars_required
+        earliest_et = market_open + timedelta(minutes=min_b * 5)
+        ready = bars_elapsed >= min_b
+        result.append({
+            "strategy_id": s.strategy_id,
+            "name": s.name,
+            "min_bars_required": min_b,
+            "bars_elapsed_since_open": bars_elapsed,
+            "ready": ready,
+            "earliest_ready_time_et": earliest_et.strftime("%H:%M"),
+            "bars_short": max(0, min_b - bars_elapsed),
+        })
+    return result
+
+
+# ── DBPosition sync ──────────────────────────────────────────────────────────
+
+async def _sync_positions_to_db(db, pm) -> None:
+    """
+    Upsert all open PositionManager positions into the DBPosition table so the
+    dashboard API (a separate process in the supervisor model) can serve them
+    without access to the in-memory PositionManager.
+
+    Called once per poll cycle, after fill processing and position monitoring.
+    Stale rows (positions that are no longer open) are deleted.
+    """
+    from app.api.models import DBPosition
+    from sqlalchemy import delete, select
+
+    open_positions = pm.open_positions()
+    active_syms = {p.option_symbol for p in open_positions}
+
+    # Remove rows for positions that are no longer open
+    if active_syms:
+        await db.execute(
+            delete(DBPosition).where(DBPosition.option_symbol.not_in(list(active_syms)))
+        )
+    else:
+        await db.execute(delete(DBPosition))
+        await db.commit()
+        return
+
+    # Load existing rows once to avoid per-row SELECTs
+    existing_rows = (await db.execute(select(DBPosition))).scalars().all()
+    existing_map = {r.option_symbol: r for r in existing_rows}
+
+    for pos in open_positions:
+        unrealized = round((pos.current_price - pos.entry_price) * pos.quantity * 100, 2)
+        row = existing_map.get(pos.option_symbol)
+        if row is not None:
+            row.quantity = pos.quantity
+            row.avg_cost = pos.entry_price
+            row.current_price = pos.current_price
+            row.unrealized_pnl = unrealized
+            row.strategy_id = pos.strategy_id
+            row.exit_pending = pos.exit_pending
+            row.exit_triggered_reason = pos.exit_triggered_reason
+        else:
+            db.add(DBPosition(
+                symbol=pos.symbol,
+                option_symbol=pos.option_symbol,
+                quantity=pos.quantity,
+                avg_cost=pos.entry_price,
+                current_price=pos.current_price,
+                unrealized_pnl=unrealized,
+                strategy_id=pos.strategy_id,
+                opened_at=pos.entry_time,
+                exit_pending=pos.exit_pending,
+                exit_triggered_reason=pos.exit_triggered_reason,
+                journal_id=pos.journal_id,
+            ))
+
+    await db.commit()
+
+
+# ── EXIT_PENDING helpers ──────────────────────────────────────────────────────
+
+async def _place_exit_order(
+    pos,
+    broker,
+    pm,
+    now: datetime,
+    reason: str,
+    is_mandatory: bool,
+    current_bid: Optional[float] = None,
+    journal=None,
+) -> None:
+    """Fetch bid if needed, place a sell-to-close limit, and mark EXIT_PENDING."""
+    from app.brokers.broker_interface import (
+        OrderRequest as _OReq,
+        OrderSide as _OSide,
+        OrderType as _OType,
+    )
+    if current_bid is None:
+        try:
+            quote = await _retry(
+                lambda p=pos: broker.get_option_quote(p.option_symbol),
+                label=f"exit_quote({pos.option_symbol})",
+            )
+            current_bid = float(quote.bid) if float(quote.bid) > 0 else None
+        except Exception:
+            current_bid = None
+
+    exit_quote_bid = current_bid
+    _remaining = pos.quantity - pos.confirmed_fill_qty
+    if _remaining <= 0:
+        logger.warning(
+            "_place_exit_order: no remaining quantity for %s "
+            "(qty=%d confirmed=%d) — skipping placement",
+            pos.option_symbol, pos.quantity, pos.confirmed_fill_qty,
+        )
+        return
+    fallback = pos.current_price if pos.current_price > 0 else pos.entry_price
+    _lp = Decimal(str(round(
+        current_bid if (current_bid and current_bid > 0) else fallback * 0.98, 2
+    )))
+    _req = _OReq(
+        symbol=pos.symbol,
+        option_symbol=pos.option_symbol,
+        side=_OSide.SELL_TO_CLOSE,
+        quantity=_remaining,
+        order_type=_OType.LIMIT,
+        limit_price=_lp,
+        strategy_id=pos.strategy_id,
+        notes=f"exit:{reason}",
+    )
+    try:
+        order = await _retry(
+            lambda: broker.place_option_order(_req),
+            label=f"exit_order({pos.option_symbol})",
+        )
+        pm.mark_exit_pending(
+            pos.option_symbol,
+            order_id=order.order_id,
+            limit_price=float(_lp),
+            reason=reason,
+            is_mandatory=is_mandatory,
+            exit_quote_bid=exit_quote_bid,
+            now=now,
+        )
+        if journal is not None and pos.journal_id:
+            await journal.mark_exit_pending(pos.journal_id, order.order_id, float(_lp))
+            await journal.commit()
+        logger.info(
+            "Exit order placed | %s | limit=%.4f | order_id=%s | reason=%s",
+            pos.option_symbol, float(_lp), order.order_id[:8], reason,
+        )
+    except Exception as exc:
+        logger.error(
+            "Exit order placement failed for %s: %s — position remains open (retry next cycle)",
+            pos.option_symbol, exc,
+        )
+
+
+async def _poll_pending_exit(
+    pos,
+    broker,
+    pm,
+    journal,
+    risk,
+    now: datetime,
+    alert_service=None,
+) -> bool:
+    """
+    Service one EXIT_PENDING position: check broker fill, close on confirmation,
+    reprice on material bid move.  Returns True if position was fully closed.
+    """
+    from app.brokers.broker_interface import OrderStatus as _OStatus
+
+    _terminal = (_OStatus.CANCELLED, _OStatus.CANCELED, _OStatus.REJECTED, _OStatus.EXPIRED)
+
+    # ── Fetch order status ──────────────────────────────────────────────────
+    try:
+        order = await _retry(
+            lambda oid=pos.exit_order_id: broker.get_order_status(oid),
+            label=f"order_status({pos.exit_order_id[:8] if pos.exit_order_id else '?'})",
+        )
+    except Exception as exc:
+        logger.warning("Cannot fetch exit order status for %s: %s", pos.option_symbol, exc)
+        return False
+
+    status = order.status
+    broker_qty = order.filled_quantity
+    broker_price = float(order.filled_price) if order.filled_price else 0.0
+
+    # Accumulate any new partial fills before evaluating status
+    if broker_qty > pos.confirmed_fill_qty and broker_price > 0:
+        pm.record_partial_fill(pos.option_symbol, broker_qty - pos.confirmed_fill_qty, broker_price)
+        pos = pm.get_position(pos.option_symbol)
+        if pos is None:
+            return True
+
+    # ── Fully filled ────────────────────────────────────────────────────────
+    # The third clause handles the fill-cancel race: the broker cancelled the order
+    # but a fill had already arrived at the exchange, so confirmed_fill_qty equals
+    # the full position size even though status is CANCELLED.
+    fully_filled = (
+        status == _OStatus.FILLED
+        or (status == _OStatus.PARTIALLY_FILLED and broker_qty >= pos.quantity)
+        or pos.confirmed_fill_qty >= pos.quantity
+    )
+    if fully_filled:
+        avg_fill = (
+            pos.confirmed_fill_value / pos.confirmed_fill_qty
+            if pos.confirmed_fill_qty > 0
+            else broker_price
+        )
+        pnl = (avg_fill - pos.entry_price) * 100 * pos.quantity
+        hold_secs = (now - pos.entry_time).total_seconds()
+        pm.close_confirmed(pos.option_symbol, avg_fill, pnl)
+        risk.record_exit(Decimal(str(pnl)))
+        if _PUSH_NOTIFIER:
+            _PUSH_NOTIFIER.on_exit(
+                symbol=pos.symbol,
+                contract=pos.option_symbol,
+                exit_price=avg_fill,
+                pnl=pnl,
+                reason=pos.exit_triggered_reason or "unknown",
+                hold_secs=hold_secs,
+                now=now,
+            )
+        if pos.journal_id and journal:
+            _mfe = round((pos.peak_price - pos.entry_price) * 100 * pos.quantity, 2)
+            _mae = round((pos.trough_price - pos.entry_price) * 100 * pos.quantity, 2)
+            await journal.record_exit(
+                journal_id=pos.journal_id,
+                exit_time=order.filled_at or now,
+                exit_price=avg_fill,
+                exit_reason=pos.exit_triggered_reason,
+                realized_pnl=pnl,
+                hold_duration_secs=hold_secs,
+                filled_quantity=pos.quantity,
+                exit_bid=pos.exit_quote_bid,
+                peak_price=pos.peak_price,
+                trough_price=pos.trough_price,
+                mfe=_mfe,
+                mae=_mae,
+                exit_order_id=pos.exit_order_id,
+                exit_quote_bid=pos.exit_quote_bid,
+            )
+            await journal.log_event(
+                event="exit",
+                message=f"{pos.option_symbol} closed: {pos.exit_triggered_reason} pnl={pnl:.2f}",
+                level="info",
+                symbol=pos.symbol,
+                data={
+                    "reason": pos.exit_triggered_reason,
+                    "pnl": round(pnl, 2),
+                    "hold_secs": round(hold_secs),
+                    "fill_price": avg_fill,
+                    "exit_order_id": pos.exit_order_id,
+                },
+            )
+            await journal.commit()
+        if alert_service:
+            from app.utils.alerting import AlertEvent
+            _r = pos.exit_triggered_reason
+            _aevent = (
+                AlertEvent.STOP_LOSS if _r == "stop_loss" else
+                AlertEvent.TAKE_PROFIT if _r in ("take_profit", "trailing_stop") else
+                None
+            )
+            if _aevent:
+                await alert_service.send(
+                    _aevent,
+                    f"{pos.option_symbol} {_r} pnl={pnl:.2f}",
+                    data={"symbol": pos.symbol, "reason": _r, "pnl": round(pnl, 2)},
+                )
+        return True
+
+    # ── Terminal: cancelled / rejected / expired ────────────────────────────
+    if status in _terminal:
+        reason = pos.exit_triggered_reason
+        is_mandatory = pos.exit_is_mandatory
+        logger.warning(
+            "Exit order %s for %s terminal status: %s",
+            pos.exit_order_id[:8] if pos.exit_order_id else "?",
+            pos.option_symbol, status,
+        )
+        pm.clear_exit_pending(pos.option_symbol)
+        if is_mandatory:
+            await _place_exit_order(pos, broker, pm, now, reason, is_mandatory, journal=journal)
+        # Non-mandatory: Phase 2 will re-evaluate on next cycle
+        return False
+
+    # ── Still open: check for material bid move (bid < limit − $0.01) ───────
+    try:
+        quote = await _retry(
+            lambda p=pos: broker.get_option_quote(p.option_symbol),
+            label=f"exit_reprice_quote({pos.option_symbol})",
+        )
+        current_bid = float(quote.bid) if float(quote.bid) > 0 else 0.0
+    except Exception:
+        return False
+
+    if current_bid <= 0 or current_bid >= pos.exit_order_limit_price - 0.01:
+        return False  # order still competitive
+
+    logger.info(
+        "Material bid move | %s | order=%s | limit=%.4f → bid=%.4f",
+        pos.option_symbol, pos.exit_order_id[:8] if pos.exit_order_id else "?",
+        pos.exit_order_limit_price, current_bid,
+    )
+    try:
+        await broker.cancel_order(pos.exit_order_id)
+    except Exception as exc:
+        logger.warning("Cancel stale exit for %s failed: %s", pos.option_symbol, exc)
+        return False
+
+    # Confirm cancellation before re-placing
+    try:
+        cancelled = await _retry(
+            lambda oid=pos.exit_order_id: broker.get_order_status(oid),
+            label=f"cancel_confirm({pos.exit_order_id[:8] if pos.exit_order_id else '?'})",
+        )
+        if cancelled.status not in (_OStatus.CANCELLED, _OStatus.CANCELED):
+            logger.warning(
+                "Cancel unconfirmed for %s (status=%s) — leaving as-is",
+                pos.option_symbol, cancelled.status,
+            )
+            return False
+    except Exception as exc:
+        logger.warning("Cannot confirm cancel for %s: %s — leaving as-is", pos.option_symbol, exc)
+        return False
+
+    # Reconcile partial fills from the now-cancelled exit order before re-placing.
+    # A fill-cancel race leaves status=CANCELLED but filled_quantity > 0; submitting
+    # a replacement for the full original quantity would overshoot the position.
+    _cfq = cancelled.filled_quantity or 0
+    _cfp = float(cancelled.filled_price) if cancelled.filled_price else 0.0
+    if _cfq > pos.confirmed_fill_qty and _cfp > 0:
+        pm.record_partial_fill(pos.option_symbol, _cfq - pos.confirmed_fill_qty, _cfp)
+        pos = pm.get_position(pos.option_symbol)
+        if pos is None:
+            return True
+    if pos.confirmed_fill_qty >= pos.quantity:
+        logger.info(
+            "Fill-cancel race: %s confirmed_fill_qty=%d >= qty=%d "
+            "— deferring close to next poll cycle (no replacement placed)",
+            pos.option_symbol, pos.confirmed_fill_qty, pos.quantity,
+        )
+        return False  # EXIT_PENDING stays True; next poll sees fully_filled=True and closes
+
+    reason = pos.exit_triggered_reason
+    is_mandatory = pos.exit_is_mandatory
+    pm.clear_exit_pending(pos.option_symbol)
+
+    if is_mandatory:
+        await _place_exit_order(pos, broker, pm, now, reason, is_mandatory, current_bid=current_bid, journal=journal)
+    else:
+        # Re-evaluate condition at current price before re-placing
+        current_price = float(quote.mid) if float(quote.mid) > 0 else current_bid
+        pm.update_price(pos.option_symbol, current_price)
+        new_reason = pm.should_exit(pos.option_symbol, current_price, now)
+        if new_reason:
+            await _place_exit_order(
+                pos, broker, pm, now, new_reason,
+                new_reason in _MANDATORY_EXIT_REASONS,
+                current_bid=current_bid,
+                journal=journal,
+            )
+        else:
+            logger.info(
+                "Exit condition %s no longer holds for %s after bid move — position stays open",
+                reason, pos.option_symbol,
+            )
+    return False
+
+
+# ── Position monitor (update + exit) ─────────────────────────────────────────
+
+async def monitor_positions(
+    broker,
+    pm,
+    journal,
+    risk,
+    now: datetime,
+    dry_run: bool,
+    alert_service=None,
+    settings=None,
+) -> int:
+    """
+    Phase 1: service EXIT_PENDING positions — poll broker fill status, close on
+    confirmation, reprice on material bid move.
+    Phase 2: evaluate exit conditions for non-pending positions — place exit
+    orders but never close locally without broker confirmation.
+    Returns number of positions fully closed this cycle.
+    """
+    closed = 0
+
+    # ── Phase 1: service EXIT_PENDING positions ──────────────────────────────
+    for pos in list(pm.open_positions()):
+        if not pos.exit_pending or dry_run:
+            continue
+        was_closed = await _poll_pending_exit(pos, broker, pm, journal, risk, now, alert_service)
+        if was_closed:
+            closed += 1
+
+    # ── Phase 2: evaluate exit conditions for non-pending positions ──────────
+    for pos in list(pm.open_positions()):
+        if pos.exit_pending:
+            continue
+
+        _exit_bid: Optional[float] = None
+        _exit_ask: Optional[float] = None
+        _exit_mid: Optional[float] = None
+        try:
+            quote = await _retry(
+                lambda p=pos: broker.get_option_quote(p.option_symbol),
+                label=f"get_option_quote({pos.option_symbol})",
+            )
+            _exit_bid = float(quote.bid)
+            _exit_ask = float(quote.ask)
+            _exit_mid = float(quote.mid) if float(quote.mid) > 0 else None
+            # Validate quote age — warn if exchange timestamp is stale (>60 s).
+            _q_age = (now - quote.timestamp.replace(tzinfo=now.tzinfo) if quote.timestamp.tzinfo is None else now - quote.timestamp).total_seconds()
+            if _q_age > 60:
+                logger.warning(
+                    "Stale option quote: %s age=%.0fs", pos.option_symbol, _q_age
+                )
+            # Use bid for exit decisions on long options (reflects executable price).
+            # Mid is used only for logging/display so phantom trailing-stop peaks are avoided.
+            current_price = _exit_bid if _exit_bid and _exit_bid > 0 else (
+                _exit_mid or pos.entry_price
+            )
+        except Exception:
+            current_price = pos.entry_price
+
+        pm.update_price(pos.option_symbol, current_price)
+        reason = pm.should_exit(pos.option_symbol, current_price, now)
+
+        if not reason:
+            continue
+
+        _exit_price_est = _exit_bid if (_exit_bid and _exit_bid > 0) else current_price
+        logger.info(
+            "Exit triggered | %s | reason=%s | bid=%.4f | pnl_est=%.2f",
+            pos.option_symbol, reason, _exit_price_est,
+            (_exit_price_est - pos.entry_price) * 100 * pos.quantity,
+        )
+
+        # Spread warning — never blocks exit
+        if settings and _exit_bid and _exit_ask and _exit_ask > 0:
+            _mid = (_exit_bid + _exit_ask) / 2
+            if _mid > 0:
+                _spread_pct = (_exit_ask - _exit_bid) / _mid
+                _max_spread = getattr(settings.risk, "max_spread_pct", 0.10)
+                if _spread_pct > _max_spread:
+                    logger.warning(
+                        "Exit spread warning | %s | spread_pct=%.3f > max=%.3f | "
+                        "bid=%.4f ask=%.4f | reason=%s",
+                        pos.option_symbol, _spread_pct, _max_spread,
+                        _exit_bid, _exit_ask, reason,
+                    )
+                    if journal:
+                        await journal.log_event(
+                            event="exit_spread_warning",
+                            message=(
+                                f"{pos.option_symbol} wide spread on exit: "
+                                f"spread_pct={_spread_pct:.3f} > max={_max_spread:.3f}"
+                            ),
+                            level="warning",
+                            symbol=pos.symbol,
+                            data={
+                                "reason": reason,
+                                "spread_pct": round(_spread_pct, 4),
+                                "max_spread_pct": _max_spread,
+                                "bid": _exit_bid,
+                                "ask": _exit_ask,
+                            },
+                        )
+                        await journal.commit()
+
+        if dry_run:
+            _pnl_dry = (_exit_price_est - pos.entry_price) * 100 * pos.quantity
+            logger.info("DRY RUN: would close %s (%s)", pos.option_symbol, reason)
+            pm.close(pos.option_symbol, _exit_price_est, _pnl_dry)
+            closed += 1
+            continue
+
+        # Place exit order; position stays open until broker confirms fill
+        await _place_exit_order(
+            pos, broker, pm, now, reason,
+            reason in _MANDATORY_EXIT_REASONS,
+            current_bid=_exit_bid,
+            journal=journal,
+        )
+
+    return closed
+
+
+# ── EOD force-close all positions ────────────────────────────────────────────
+
+async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool, settings=None):
+    """
+    Force-close every open position at end-of-day.
+
+    Places exit orders and polls for up to 90 seconds for broker confirmation.
+    Positions are not removed from local state until fills are confirmed.
+    Any position still EXIT_PENDING after 90s remains open for post_session
+    orphan-close recovery.
+    """
+    positions = pm.open_positions()
+    if not positions:
+        return
+    logger.warning("EOD liquidation: %d position(s) to close", len(positions))
+
+    if dry_run:
+        for pos in list(positions):
+            pnl = (pos.current_price - pos.entry_price) * 100 * pos.quantity
+            pm.close_confirmed(pos.option_symbol, pos.current_price, pnl)
+            logger.info("DRY RUN: EOD closed %s pnl=%.2f", pos.option_symbol, pnl)
+        return
+
+    from app.brokers.broker_interface import (
+        OrderRequest as _OReq,
+        OrderSide as _OSide,
+        OrderType as _OType,
+        OrderStatus as _OStatus,
+    )
+    _terminal = (_OStatus.CANCELLED, _OStatus.CANCELED, _OStatus.REJECTED, _OStatus.EXPIRED)
+
+    # ── Phase 1: place EOD orders for positions not already EXIT_PENDING ─────
+    for pos in list(positions):
+        if pos.exit_pending:
+            # Already has an exit order — upgrade to mandatory EOD
+            pos.exit_is_mandatory = True
+            pos.exit_triggered_reason = "eod_exit"
+            logger.info(
+                "EOD: %s already EXIT_PENDING (order=%s) — upgraded to mandatory",
+                pos.option_symbol, pos.exit_order_id[:8] if pos.exit_order_id else "none",
+            )
+            continue
+
+        try:
+            quote = await _retry(
+                lambda p=pos: broker.get_option_quote(p.option_symbol),
+                label=f"eod_quote({pos.option_symbol})",
+            )
+            _bid = float(quote.bid) if float(quote.bid) > 0 else None
+            _ask = float(quote.ask) if float(quote.ask) > 0 else None
+        except Exception:
+            _bid = None
+            _ask = None
+
+        if settings and _bid and _ask and _ask > 0:
+            _mid = (_bid + _ask) / 2
+            if _mid > 0:
+                _sp = (_ask - _bid) / _mid
+                _max_sp = getattr(settings.risk, "max_spread_pct", 0.10)
+                if _sp > _max_sp:
+                    logger.warning(
+                        "EOD spread warning | %s | spread_pct=%.3f bid=%.4f ask=%.4f (proceeding)",
+                        pos.option_symbol, _sp, _bid, _ask,
+                    )
+                    if journal:
+                        await journal.log_event(
+                            event="exit_spread_warning",
+                            message=f"{pos.option_symbol} wide spread on EOD exit: spread_pct={_sp:.3f}",
+                            level="warning",
+                            symbol=pos.symbol,
+                            data={"reason": "eod_exit", "spread_pct": round(_sp, 4), "bid": _bid, "ask": _ask},
+                        )
+                        await journal.commit()
+
+        fallback = pos.current_price if pos.current_price > 0 else pos.entry_price
+        _lp = Decimal(str(round(_bid if (_bid and _bid > 0) else fallback * 0.98, 2)))
+        _req = _OReq(
+            symbol=pos.symbol,
+            option_symbol=pos.option_symbol,
+            side=_OSide.SELL_TO_CLOSE,
+            quantity=pos.quantity,
+            order_type=_OType.LIMIT,
+            limit_price=_lp,
+            strategy_id=pos.strategy_id,
+            notes="exit:eod_exit",
+        )
+        try:
+            order = await _retry(
+                lambda: broker.place_option_order(_req),
+                label=f"eod_exit_order({pos.option_symbol})",
+            )
+            pm.mark_exit_pending(pos.option_symbol, order.order_id, float(_lp), "eod_exit", True, _bid, now)
+            if journal and pos.journal_id:
+                await journal.mark_exit_pending(pos.journal_id, order.order_id, float(_lp))
+                await journal.commit()
+            logger.info(
+                "EOD exit order placed | %s | limit=%.4f | order_id=%s",
+                pos.option_symbol, float(_lp), order.order_id[:8],
+            )
+        except Exception as exc:
+            logger.error(
+                "EOD exit order failed for %s: %s — marking EXIT_PENDING for orphan recovery",
+                pos.option_symbol, exc,
+            )
+            pm.mark_exit_pending(pos.option_symbol, "", float(_lp), "eod_exit", True, _bid, now)
+
+    # ── Phase 2: 90-second polling loop ──────────────────────────────────────
+    _deadline = now + timedelta(seconds=90)
+    _poll_secs = 5
+
+    while datetime.now(tz=ET) < _deadline:
+        pending = [p for p in pm.open_positions() if p.exit_pending and p.exit_order_id]
+        if not pending:
+            break
+        await asyncio.sleep(_poll_secs)
+        poll_now = datetime.now(tz=ET)
+
+        for pos in list(pending):
+            try:
+                order = await _retry(
+                    lambda oid=pos.exit_order_id: broker.get_order_status(oid),
+                    label=f"eod_poll({pos.option_symbol})",
+                )
+            except Exception as exc:
+                logger.warning("EOD: cannot poll %s: %s", pos.option_symbol, exc)
+                continue
+
+            status = order.status
+            broker_qty = order.filled_quantity
+            broker_price = float(order.filled_price) if order.filled_price else 0.0
+
+            if broker_qty > pos.confirmed_fill_qty and broker_price > 0:
+                pm.record_partial_fill(pos.option_symbol, broker_qty - pos.confirmed_fill_qty, broker_price)
+                pos = pm.get_position(pos.option_symbol)
+                if pos is None:
+                    continue
+
+            fully_filled = (
+                status == _OStatus.FILLED
+                or (status == _OStatus.PARTIALLY_FILLED and broker_qty >= pos.quantity)
+                or pos.confirmed_fill_qty >= pos.quantity
+            )
+            if fully_filled:
+                avg_fill = (
+                    pos.confirmed_fill_value / pos.confirmed_fill_qty
+                    if pos.confirmed_fill_qty > 0 else broker_price
+                )
+                pnl = (avg_fill - pos.entry_price) * 100 * pos.quantity
+                hold_secs = (poll_now - pos.entry_time).total_seconds()
+                pm.close_confirmed(pos.option_symbol, avg_fill, pnl)
+                risk.record_exit(Decimal(str(pnl)))
+                if _PUSH_NOTIFIER:
+                    _PUSH_NOTIFIER.on_exit(
+                        symbol=pos.symbol,
+                        contract=pos.option_symbol,
+                        exit_price=avg_fill,
+                        pnl=pnl,
+                        reason="eod_exit",
+                        hold_secs=hold_secs,
+                        now=poll_now,
+                    )
+                if pos.journal_id and journal:
+                    _mfe = round((pos.peak_price - pos.entry_price) * 100 * pos.quantity, 2)
+                    _mae = round((pos.trough_price - pos.entry_price) * 100 * pos.quantity, 2)
+                    await journal.record_exit(
+                        journal_id=pos.journal_id,
+                        exit_time=order.filled_at or poll_now,
+                        exit_price=avg_fill,
+                        exit_reason="eod_exit",
+                        realized_pnl=pnl,
+                        hold_duration_secs=hold_secs,
+                        filled_quantity=pos.quantity,
+                        exit_bid=pos.exit_quote_bid,
+                        peak_price=pos.peak_price,
+                        trough_price=pos.trough_price,
+                        mfe=_mfe,
+                        mae=_mae,
+                        exit_order_id=pos.exit_order_id,
+                        exit_quote_bid=pos.exit_quote_bid,
+                    )
+                    await journal.commit()
+                logger.info("EOD confirmed | %s | fill=%.4f | pnl=%.2f", pos.option_symbol, avg_fill, pnl)
+                continue
+
+            if status in _terminal:
+                # Re-place immediately — EOD is always mandatory
+                pm.clear_exit_pending(pos.option_symbol)
+                try:
+                    _q = await _retry(lambda p=pos: broker.get_option_quote(p.option_symbol), label=f"eod_requeue_q({pos.option_symbol})")
+                    _new_bid = float(_q.bid) if float(_q.bid) > 0 else None
+                except Exception:
+                    _new_bid = None
+                _rem = max(0, pos.quantity - pos.confirmed_fill_qty)
+                if _rem == 0:
+                    continue
+                fallback2 = pos.current_price if pos.current_price > 0 else pos.entry_price
+                _new_lp = Decimal(str(round(_new_bid if (_new_bid and _new_bid > 0) else fallback2 * 0.98, 2)))
+                _rq = _OReq(
+                    symbol=pos.symbol, option_symbol=pos.option_symbol,
+                    side=_OSide.SELL_TO_CLOSE, quantity=_rem,
+                    order_type=_OType.LIMIT, limit_price=_new_lp,
+                    strategy_id=pos.strategy_id, notes="exit:eod_exit",
+                )
+                try:
+                    _new_ord = await _retry(lambda: broker.place_option_order(_rq), label=f"eod_requeue({pos.option_symbol})")
+                    pm.mark_exit_pending(pos.option_symbol, _new_ord.order_id, float(_new_lp), "eod_exit", True, _new_bid, poll_now)
+                    if journal and pos.journal_id:
+                        await journal.mark_exit_pending(pos.journal_id, _new_ord.order_id, float(_new_lp))
+                        await journal.commit()
+                    logger.info("EOD re-queued | %s | limit=%.4f | order_id=%s", pos.option_symbol, float(_new_lp), _new_ord.order_id[:8])
+                except Exception as exc:
+                    logger.error("EOD re-queue failed for %s: %s", pos.option_symbol, exc)
+                continue
+
+            # Still open: reprice if bid moved materially
+            try:
+                _q = await _retry(lambda p=pos: broker.get_option_quote(p.option_symbol), label=f"eod_reprice_q({pos.option_symbol})")
+                _cur_bid = float(_q.bid) if float(_q.bid) > 0 else None
+            except Exception:
+                _cur_bid = None
+
+            if _cur_bid and _cur_bid < pos.exit_order_limit_price - 0.01:
+                try:
+                    await broker.cancel_order(pos.exit_order_id)
+                    # Confirm cancel before re-placing to prevent fill-cancel race
+                    _cancel_conf = await broker.get_order_status(pos.exit_order_id)
+                    if _cancel_conf.status not in (_OStatus.CANCELLED, _OStatus.CANCELED):
+                        logger.warning(
+                            "EOD reprice: cancel unconfirmed for %s (status=%s) — skipping replacement",
+                            pos.option_symbol, _cancel_conf.status,
+                        )
+                        continue
+                    # Reconcile partial fills from the cancelled order
+                    _cfq = _cancel_conf.filled_quantity or 0
+                    _cfp = float(_cancel_conf.filled_price) if _cancel_conf.filled_price else 0.0
+                    if _cfq > pos.confirmed_fill_qty and _cfp > 0:
+                        pm.record_partial_fill(
+                            pos.option_symbol, _cfq - pos.confirmed_fill_qty, _cfp
+                        )
+                        pos = pm.get_position(pos.option_symbol)
+                        if pos is None:
+                            continue
+                    if pos.confirmed_fill_qty >= pos.quantity:
+                        logger.info(
+                            "EOD reprice: fill-cancel race for %s — no replacement needed",
+                            pos.option_symbol,
+                        )
+                        continue
+                    _rem = max(0, pos.quantity - pos.confirmed_fill_qty)
+                    if _rem == 0:
+                        continue
+                    _new_lp = Decimal(str(round(_cur_bid, 2)))
+                    _rp = _OReq(
+                        symbol=pos.symbol, option_symbol=pos.option_symbol,
+                        side=_OSide.SELL_TO_CLOSE, quantity=_rem,
+                        order_type=_OType.LIMIT, limit_price=_new_lp,
+                        strategy_id=pos.strategy_id, notes="exit:eod_exit",
+                    )
+                    _rp_ord = await _retry(lambda: broker.place_option_order(_rp), label=f"eod_reprice({pos.option_symbol})")
+                    pm.mark_exit_pending(pos.option_symbol, _rp_ord.order_id, float(_new_lp), "eod_exit", True, _cur_bid, poll_now)
+                    if journal and pos.journal_id:
+                        await journal.mark_exit_pending(pos.journal_id, _rp_ord.order_id, float(_new_lp))
+                        await journal.commit()
+                    logger.info("EOD repriced | %s | %.4f → %.4f | order_id=%s", pos.option_symbol, pos.exit_order_limit_price, float(_new_lp), _rp_ord.order_id[:8])
+                except Exception as exc:
+                    logger.warning("EOD reprice for %s failed: %s", pos.option_symbol, exc)
+
+    # ── Phase 3: log unresolved positions for post_session orphan recovery ────
+    unresolved = [p for p in pm.open_positions() if p.exit_pending]
+    if unresolved:
+        logger.warning(
+            "EOD: %d position(s) still EXIT_PENDING after 90s — post_session orphan recovery required",
+            len(unresolved),
+        )
+        for pos in unresolved:
+            logger.warning(
+                "EOD unresolved | %s | order_id=%s | qty=%d | confirmed_qty=%d | reason=%s",
+                pos.option_symbol, pos.exit_order_id or "none",
+                pos.quantity, pos.confirmed_fill_qty, pos.exit_triggered_reason,
+            )
+
+
+# ── No-signal diagnostics ────────────────────────────────────────────────────
+
+def _diagnose_no_signals(bars, symbol: str, strat_counts: dict, log) -> None:
+    """Log VWAP and RSI state when no actionable signals are produced."""
+    import numpy as np
+
+    close = bars["close"]
+    volume = bars.get("volume", None)
+
+    # VWAP
+    try:
+        if volume is not None and not volume.empty:
+            typical = (bars["high"] + bars["low"] + close) / 3
+            vwap = (typical * volume).cumsum() / volume.cumsum()
+            price_now = float(close.iloc[-1])
+            vwap_now = float(vwap.iloc[-1])
+            proximity_pct = abs(price_now - vwap_now) / max(vwap_now, 0.01) * 100
+            side = "above" if price_now > vwap_now else "below"
+            crosses = int(((close > vwap) != (close > vwap).shift(1)).sum())
+            log.info(
+                "[diag:%s] VWAP: price=%.2f vwap=%.2f (%.2f%% %s) crosses_today=%d raw_vwap_signals=%d",
+                symbol, price_now, vwap_now, proximity_pct, side, crosses,
+                strat_counts.get("VWAPReclaimStrategy", 0),
+            )
+    except Exception as exc:
+        log.debug("[diag:%s] VWAP diagnostic error: %s", symbol, exc)
+
+    # RSI + EMA
+    try:
+        if len(close) >= 14:
+            delta = close.diff()
+            gain = delta.clip(lower=0)
+            loss = (-delta).clip(lower=0)
+            avg_gain = gain.ewm(span=14, adjust=False).mean()
+            avg_loss = loss.ewm(span=14, adjust=False).mean()
+            rs = avg_gain / avg_loss.replace(0, float("nan"))
+            rsi = (100 - 100 / (1 + rs)).iloc[-1]
+            ema20 = close.ewm(span=20, adjust=False).mean().iloc[-1]
+            price_now = float(close.iloc[-1])
+            log.info(
+                "[diag:%s] RSI(14)=%.1f (oversold<35, overbought>70) EMA(20)=%.2f price=%.2f %s raw_rsi_signals=%d",
+                symbol, rsi, ema20, price_now,
+                "ABOVE_EMA" if price_now > ema20 else "BELOW_EMA",
+                strat_counts.get("RSITrendStrategy", 0),
+            )
+    except Exception as exc:
+        log.debug("[diag:%s] RSI diagnostic error: %s", symbol, exc)
+
+
+# ── Signal scan + order placement (one poll cycle) ───────────────────────────
+
+async def scan_and_place(
+    symbol: str,
+    broker,
+    data,
+    strategies,
+    iv_filter,
+    liq_filter,
+    risk,
+    pm,
+    journal,
+    settings,
+    now: datetime,
+    dry_run: bool,
+    fill_tracker=None,
+    store=None,
+    session_date: str = "",
+    alert_service=None,
+    scan_store: Optional[dict] = None,
+    entries_placed: Optional[dict] = None,
+) -> int:
+    """Return number of orders placed (or would-be placed in dry-run)."""
+    from app.brokers.broker_interface import OrderRequest, OrderSide, OrderType
+    from app.strategies.strategy_base import SignalDirection
+
+    # Fetch bars
+    try:
+        bars = await _retry(
+            lambda: data.get_intraday_bars(symbol, interval="5m", days_back=3),
+            label=f"bars({symbol})",
+        )
+    except Exception as exc:
+        logger.error("Cannot fetch bars for %s: %s", symbol, exc)
+        return 0
+
+    if bars.empty:
+        return 0
+
+    # Generate signals
+    all_signals = []
+    strat_counts: dict = {}
+    for strat in strategies:
+        sigs = strat.generate_signals(bars, symbol)
+        strat_counts[type(strat).__name__] = len(sigs)
+        all_signals.extend(sigs)
+
+    # IV filter — pass earnings calendar so the filter can actually gate near-earnings signals
+    _earnings_cal = getattr(settings, "_earnings_calendar_cache", None) or {}
+    filtered = iv_filter.apply(all_signals, earnings_calendar=_earnings_cal)
+    actionable = [s for s in filtered if s.is_actionable()]
+
+    if not actionable:
+        _diagnose_no_signals(bars, symbol, strat_counts, logger)
+
+    # Realistic fill test mode: SPY only
+    if getattr(settings, "realistic_fill_test_mode", False) and symbol != "SPY":
+        logger.info("REALISTIC_FILL_TEST_MODE: skipping non-SPY symbol %s", symbol)
+        return 0
+
+    # ── Permissive entry mode — quality scoring + deterministic ranking ────────
+    _permissive = getattr(settings, "paper_eval_permissive_entry_mode", False)
+    _bridge_entries: list = []
+    # Shadow-book instrumentation reads this on both permissive and standard
+    # paths, so it must exist before the conditional branch.
+    _sig_meta: dict = {}
+
+    if _permissive:
+        from app.strategies.signal_quality import compute_signal_quality_score
+
+        # Build scanner context lookup for this symbol (rvol, score, universe_group)
+        _scan_candidates: list[dict] = []
+        if scan_store:
+            _scan_candidates = scan_store.get("candidates") or []
+        _cand_ctx = next(
+            (c for c in _scan_candidates if c.get("symbol") == symbol), {}
+        )
+        _scanner_score = _cand_ctx.get("score")
+        _scanner_approved = not _cand_ctx.get("is_rejected", True) if _cand_ctx else None
+        _rvol = _cand_ctx.get("rvol")
+        _universe_group = _cand_ctx.get("universe_group")
+
+        # Per-direction confluence count (number of strategies agreeing on each direction)
+        _dir_counts: dict = {}
+        for _s in actionable:
+            _dir_counts[_s.direction] = _dir_counts.get(_s.direction, 0) + 1
+
+        # Compute quality scores and signal ages
+        _scored: list[tuple] = []
+        for _s in actionable:
+            _quality = compute_signal_quality_score(_s, bars)
+            _sig_ts = _s.timestamp
+            if hasattr(_sig_ts, "astimezone"):
+                from zoneinfo import ZoneInfo as _ZI
+                _sig_ts_utc = _sig_ts.astimezone(_ZI("UTC"))
+                _now_utc = now.astimezone(_ZI("UTC"))
+            else:
+                _sig_ts_utc = _sig_ts
+                _now_utc = now
+            _age_secs = abs((_now_utc - _sig_ts_utc).total_seconds())
+            _confluence = _dir_counts.get(_s.direction, 1)
+            _scored.append((_s, _quality, _age_secs, _confluence))
+
+        # Rank: scanner_score↓, quality↓, rvol↓, age↑, confluence↓
+        _rv = _rvol or 0.0
+        _ss = _scanner_score or 0.0
+        _scored.sort(
+            key=lambda x: (-_ss, -x[1], -_rv, x[2], -x[3])
+        )
+        actionable = [x[0] for x in _scored]
+        _sig_meta: dict = {id(x[0]): (x[1], x[2], x[3]) for x in _scored}
+
+        # RSI_trend: diagnostic only in permissive mode — log readiness, never trade
+        _rsi_diagnostic: list = []
+        _tradeable: list = []
+        for _s in actionable:
+            if _s.strategy_id == "rsi_trend":
+                _rsi_diagnostic.append(_s)
+            else:
+                _tradeable.append(_s)
+        actionable = _tradeable
+
+        # RSI_trend readiness logging (informational; never blocks entry)
+        for _strat in strategies:
+            if getattr(_strat, "strategy_id", "") == "rsi_trend":
+                _ri = _strat.get_readiness_info(bars)
+                if _ri["ready"]:
+                    logger.info(
+                        "[bridge:%s] rsi_trend ready: %s", symbol, _ri["reason"]
+                    )
+                else:
+                    logger.info(
+                        "[bridge:%s] rsi_trend not-ready (advisory only): %s",
+                        symbol, _ri["reason"],
+                    )
+                break
+
+        # ── ORB slot reservation (before orb_slot_reserve_until ET) ──────────
+        # If non-ORB entries used >= (max_trades_per_day - 1), reserve remaining
+        # slots for ORB only.  Non-ORB signals still get bridge stubs (decision=skipped,
+        # reason=orb_slot_reserved) so they appear in the diagnostic report.
+        _orb_slot_active = False
+        _orb_reserve_until_str = getattr(settings, "orb_slot_reserve_until", "11:30")
+        try:
+            _orb_h, _orb_m = map(int, _orb_reserve_until_str.split(":"))
+            _orb_reserve_dt = now.replace(hour=_orb_h, minute=_orb_m, second=0, microsecond=0)
+            if now < _orb_reserve_dt:
+                _non_orb = sum(v for k, v in (entries_placed or {}).items() if k != "orb")
+                _max_ent = settings.risk.max_trades_per_day
+                if _non_orb >= _max_ent - 1:
+                    _orb_slot_active = True
+                    logger.info(
+                        "ORB slot reserved (non_orb_entries=%d >= %d, time=%s < %s): "
+                        "non-ORB signals will be skipped",
+                        _non_orb, _max_ent - 1,
+                        now.strftime("%H:%M"), _orb_reserve_until_str,
+                    )
+        except Exception:
+            pass
+
+    # ── Create bridge stubs for RSI_trend diagnostic signals ─────────────────
+    if _permissive and _rsi_diagnostic:
+        from app.trading.bridge_diagnostics import BridgeEntry as _BE
+        for _rs in _rsi_diagnostic:
+            _qscore_r, _age_r, _conf_r = _sig_meta.get(id(_rs), (0.0, 0.0, 1))
+            _rb = _BE(
+                session_date=session_date,
+                timestamp=now,
+                symbol=symbol,
+                strategy_id=_rs.strategy_id,
+                signal_direction=_rs.direction.value,
+                signal_age_seconds=_age_r,
+                universe_group=_universe_group,
+                scanner_score=_scanner_score,
+                scanner_approved=_scanner_approved,
+                signal_quality_score=_qscore_r,
+                confluence_count=_conf_r,
+                rvol=_rvol,
+                final_decision="skipped",
+                exact_block_reason="rsi_trend_diagnostic_only",
+            )
+            _bridge_entries.append(_rb)
+
+    placed = 0
+    for sig in actionable:
+        # Only act on signals from the current session
+        sig_ts = sig.timestamp
+        if hasattr(sig_ts, "astimezone"):
+            sig_ts_et = sig_ts.astimezone(ET)
+        else:
+            sig_ts_et = sig_ts
+
+        # Skip signals that pre-date today's session (multi-day bar history)
+        if sig_ts_et.date() < now.date():
+            continue
+
+        # Signal age gate — reject signals older than the configured maximum.
+        _max_age_min = getattr(settings.position, "max_signal_age_minutes", 60)
+        if _max_age_min > 0:
+            from zoneinfo import ZoneInfo as _ZI2
+            _sig_utc = sig_ts.astimezone(_ZI2("UTC")) if hasattr(sig_ts, "astimezone") else sig_ts
+            _now_utc = now.astimezone(_ZI2("UTC")) if hasattr(now, "astimezone") else now
+            _age_min = (_now_utc - _sig_utc).total_seconds() / 60
+            if _age_min > _max_age_min:
+                logger.info(
+                    "Stale signal: %s/%s age=%.0f min > max %d min — skipped",
+                    symbol, sig.strategy_id, _age_min, _max_age_min,
+                )
+                continue
+
+        # Scanner direction gate — reject when scanner and strategy disagree on direction.
+        if scan_store:
+            _candidates = scan_store.get("candidates") or []
+            _cand = next((c for c in _candidates if c.get("symbol") == symbol), None)
+            if _cand:
+                _scanner_dir = (_cand.get("signal_type") or "").upper()
+                _signal_dir  = sig.direction.value.upper()
+                if _scanner_dir in ("LONG", "SHORT") and _scanner_dir != _signal_dir:
+                    logger.info(
+                        "Direction mismatch: scanner=%s strategy=%s for %s/%s — skipped",
+                        _scanner_dir, _signal_dir, symbol, sig.strategy_id,
+                    )
+                    continue
+
+        # ── Bridge entry scaffold (permissive mode) ───────────────────────────
+        _bridge: Optional[object] = None
+        _qscore, _age_s, _conf = _sig_meta.get(id(sig), (0.0, 0.0, 1))
+        if _permissive:
+            from app.trading.bridge_diagnostics import BridgeEntry as _BE
+            _bridge = _BE(
+                session_date=session_date,
+                timestamp=now,
+                symbol=symbol,
+                strategy_id=sig.strategy_id,
+                signal_direction=sig.direction.value,
+                signal_age_seconds=_age_s,
+                universe_group=_universe_group,
+                scanner_score=_scanner_score,
+                scanner_approved=_scanner_approved,
+                signal_quality_score=_qscore,
+                confluence_count=_conf,
+                rvol=_rvol,
+                rvol_threshold=None,
+                reconciliation_passed=True,
+                underlying_price_at_signal=float(sig.price) if sig.price else None,
+                orb_slot_reserved=_orb_slot_active,
+            )
+            _bridge_entries.append(_bridge)
+
+        async def _shadow_blocked(_reason, _osym=None, _lp=None, _ask=None):
+            # Shadow book: log a fully qualified signal that a capacity
+            # constraint blocked. When blocked pre-contract-selection, mirror
+            # the live selection path read-only to make the entry priceable.
+            if _SHADOW_BOOK is None:
+                return
+            try:
+                if _osym is None:
+                    from app.evaluation.shadow_book import select_shadow_contract
+                    _osym, _lp, _ask = await select_shadow_contract(
+                        broker, liq_filter, settings, symbol, sig, now,
+                    )
+                _SHADOW_BOOK.record_signal(
+                    now=now, strategy_id=sig.strategy_id, symbol=symbol,
+                    direction=sig.direction.value, executed=False,
+                    block_reason=_reason, option_symbol=_osym,
+                    limit_price=_lp, entry_ask=_ask, quality_score=_qscore,
+                )
+            except Exception as _sb_exc:
+                logger.debug("ShadowBook record failed: %s", _sb_exc)
+
+        # ORB slot reservation: skip non-ORB signals when slot is reserved
+        if _permissive and _orb_slot_active and sig.strategy_id != "orb":
+            logger.info(
+                "ORB slot reserved — skipping %s/%s signal",
+                symbol, sig.strategy_id,
+            )
+            if _bridge is not None:
+                _bridge.final_decision = "skipped"
+                _bridge.exact_block_reason = "orb_slot_reserved"
+            await _shadow_blocked("orb_slot_reserved")
+            continue
+
+        # Dedup — also block if there is a pending-but-unfilled order
+        if pm.has_position_for_symbol(symbol):
+            logger.debug("Dedup: position already open for %s", symbol)
+            if _bridge is not None:
+                _bridge.position_limit_passed = False
+                _bridge.final_decision = "skipped"
+                _bridge.exact_block_reason = "position_already_open"
+            await _shadow_blocked("position_already_open")
+            continue
+        if fill_tracker and fill_tracker.has_pending_for_symbol(symbol):
+            logger.debug("Dedup: pending order already registered for %s", symbol)
+            if _bridge is not None:
+                _bridge.position_limit_passed = False
+                _bridge.final_decision = "skipped"
+                _bridge.exact_block_reason = "pending_order_exists"
+            await _shadow_blocked("pending_order_exists")
+            continue
+
+        # Cooldown
+        if pm.is_in_cooldown(now):
+            logger.info("Cooldown active — skipping %s signal", symbol)
+            if _bridge is not None:
+                _bridge.final_decision = "skipped"
+                _bridge.exact_block_reason = "cooldown_after_loss"
+            await _shadow_blocked("cooldown_after_loss")
+            if journal:
+                await journal.record_rejection(
+                    strategy_id=sig.strategy_id,
+                    signal_direction=sig.direction.value,
+                    underlying_symbol=symbol,
+                    underlying_price=sig.price,
+                    option_symbol=None,
+                    rejection_reason="cooldown_after_loss",
+                    entry_time=now,
+                )
+                await journal.commit()
+            continue
+
+        # Expirations
+        try:
+            expirations = await _retry(
+                lambda: broker.get_available_expirations(symbol),
+                label=f"expirations({symbol})",
+            )
+        except Exception:
+            continue
+
+        today = now.date()
+        target_exp = None
+        for dte in settings.options.preferred_dte:
+            candidate = today + timedelta(days=dte)
+            if candidate in expirations:
+                target_exp = candidate
+                break
+        if target_exp is None and expirations:
+            target_exp = min(expirations, key=lambda d: abs((d - today).days))
+        if target_exp is None:
+            continue
+
+        # Option chain
+        try:
+            chain = await _retry(
+                lambda: broker.get_option_chain(symbol, target_exp),
+                label=f"chain({symbol})",
+            )
+        except Exception:
+            continue
+
+        # Stale quote check
+        if _is_stale(chain.fetched_at, max_age_secs=90):
+            logger.warning("Stale chain data for %s — skipping", symbol)
+            continue
+
+        # Liquidity filter
+        contract = liq_filter.select_contract(chain, sig)
+        if _bridge is not None and contract is not None:
+            _bridge.option_contract = contract.option_symbol
+            _bid = float(contract.bid)
+            _ask = float(contract.ask)
+            _bridge.bid = _bid
+            _bridge.ask = _ask
+            _opt_vol = getattr(contract, "volume", None)
+            _opt_oi = getattr(contract, "open_interest", None)
+            _bridge.spread_threshold = float(liq_filter._max_spread_pct)
+            _bridge.option_volume_threshold = liq_filter._min_vol
+            _bridge.open_interest_threshold = liq_filter._min_oi
+            _bridge.option_volume = int(_opt_vol) if _opt_vol is not None else None
+            _bridge.open_interest = int(_opt_oi) if _opt_oi is not None else None
+            _mid_price = (_bid + _ask) / 2 if (_bid + _ask) > 0 else None
+            if _mid_price:
+                _bridge.spread_pct = (_ask - _bid) / _mid_price
+            _bridge.spread_passed = (
+                _bridge.spread_pct is not None
+                and _bridge.spread_pct <= float(liq_filter._max_spread_pct)
+            )
+            _bridge.liquidity_passed = True
+        if contract is None:
+            _liq_block_reason = liq_filter.classify_no_contract_reason(chain, sig)
+            if _bridge is not None:
+                _bridge.liquidity_passed = False
+                _bridge.spread_passed = None
+                _bridge.final_decision = "blocked"
+                _bridge.exact_block_reason = _liq_block_reason
+            if journal:
+                await journal.record_rejection(
+                    strategy_id=sig.strategy_id,
+                    signal_direction=sig.direction.value,
+                    underlying_symbol=symbol,
+                    underlying_price=sig.price,
+                    option_symbol=None,
+                    rejection_reason=_liq_block_reason,
+                    entry_time=now,
+                )
+                await journal.commit()
+            continue
+
+        # Risk check
+        try:
+            acct = await _retry(broker.get_account, label="get_account")
+        except Exception:
+            continue
+
+        # ── Determine limit price based on configured pricing mode ────────────
+        from app.trading.pricing import compute_limit_price as _clp
+
+        _fill_test = getattr(settings, "realistic_fill_test_mode", False)
+
+        # Safety: realistic_fill_test_mode requires a paper account
+        if _fill_test and not acct.is_paper:
+            logger.critical("REALISTIC_FILL_TEST_MODE: non-paper account detected — aborting session")
+            import sys as _sys
+            _sys.exit(1)
+
+        # Determine effective mode (fill test overrides to marketable_limit)
+        _entry_mode = getattr(settings.options, "entry_limit_price_mode", "mid")
+        if _fill_test:
+            _entry_mode = "marketable_limit"
+
+        # Hard-stop if spread is too wide in fill test mode
+        if _fill_test:
+            _spread = float(contract.ask) - float(contract.bid)
+            _mid = float(contract.mid)
+            _max_spread = getattr(settings, "fill_test_max_spread_pct", 0.20)
+            if _mid > 0 and _spread / _mid > _max_spread:
+                logger.warning(
+                    "REALISTIC_FILL_TEST_MODE: spread %.1f%% > threshold %.1f%% for %s — skipping",
+                    _spread / _mid * 100, _max_spread * 100, contract.option_symbol,
+                )
+                continue
+
+        _raw_lp = _clp(
+            mode=_entry_mode,
+            bid=float(contract.bid),
+            ask=float(contract.ask),
+            offset_pct=getattr(settings.options, "entry_marketable_offset_pct", 0.01),
+        )
+        limit_price = Decimal(str(_raw_lp))
+
+        # Guard: duplicate option contract (underlying dedup happens upstream;
+        # this catches the exact same option_symbol being re-entered).
+        if pm.has_position(contract.option_symbol):
+            logger.info(
+                "Dedup: already hold %s — skipping duplicate entry",
+                contract.option_symbol,
+            )
+            continue
+
+        request = OrderRequest(
+            symbol=symbol,
+            option_symbol=contract.option_symbol,
+            side=OrderSide.BUY_TO_OPEN,
+            quantity=1,
+            order_type=OrderType.LIMIT,
+            limit_price=limit_price,
+            strategy_id=sig.strategy_id,
+            notes=sig.notes,
+        )
+        risk_result = risk.check_order(
+            request=request,
+            equity=acct.equity,
+            contract=contract,
+            now=now,
+        )
+        if _bridge is not None:
+            _bridge.risk_passed = risk_result.passed
+        if not risk_result.passed:
+            reason_str = "; ".join(risk_result.messages)
+            logger.info("Risk rejected %s: %s", symbol, reason_str)
+            if _bridge is not None:
+                _bridge.final_decision = "blocked"
+                _bridge.exact_block_reason = f"risk: {reason_str}"
+            _cap_reason = next(
+                (c.value for c in risk_result.failed_checks
+                 if c.value in ("max_trades_per_day", "recon_blocked")),
+                None,
+            )
+            await _shadow_blocked(
+                _cap_reason or f"risk:{reason_str[:80]}",
+                _osym=contract.option_symbol,
+                _lp=float(limit_price),
+                _ask=float(contract.ask),
+            )
+            if journal:
+                await journal.record_rejection(
+                    strategy_id=sig.strategy_id,
+                    signal_direction=sig.direction.value,
+                    underlying_symbol=symbol,
+                    underlying_price=sig.price,
+                    option_symbol=contract.option_symbol,
+                    rejection_reason=reason_str,
+                    entry_time=now,
+                )
+                await journal.commit()
+            continue
+
+        request.quantity = risk_result.approved_quantity
+        # Fill test enforces qty=1 regardless of risk manager approval
+        if _fill_test:
+            request.quantity = 1
+        # Hard cap at max_contracts_per_position (default 1)
+        _max_cpp = getattr(settings.universe, "max_contracts_per_position", 1)
+        if request.quantity > _max_cpp:
+            logger.info(
+                "Capping quantity %d→%d (max_contracts_per_position=%d)",
+                request.quantity, _max_cpp, _max_cpp,
+            )
+            request.quantity = _max_cpp
+
+        # Place order
+        if dry_run:
+            logger.info(
+                "DRY RUN: would place %s %s limit=%.2f",
+                sig.direction.value, contract.option_symbol, float(limit_price),
+            )
+            if _bridge is not None:
+                _bridge.final_decision = "traded"
+            placed += 1
+            continue
+
+        order = None
+        used_contract = contract
+        used_exp = target_exp
+        try:
+            order = await _retry(
+                lambda: broker.place_option_order(request),
+                label="place_option_order",
+            )
+        except Exception as exc:
+            err_str = str(exc)
+            # 422 = Alpaca rejected expired/non-tradeable contract; try next future expiry
+            if "422" in err_str and target_exp <= now.date():
+                logger.warning(
+                    "422 on today-expiry %s for %s — trying next future expiry",
+                    target_exp, contract.option_symbol,
+                )
+                try:
+                    future_exps = [e for e in expirations if e > now.date()]
+                    if not future_exps:
+                        logger.error("No future expirations available for %s", symbol)
+                    else:
+                        alt_exp = min(future_exps)
+                        alt_chain = await _retry(
+                            lambda: broker.get_option_chain(symbol, alt_exp),
+                            label=f"alt_chain({symbol})",
+                        )
+                        alt_contract = liq_filter.select_contract(alt_chain, sig)
+                        if alt_contract is None:
+                            logger.warning("Liquidity filter found no contract on alt expiry %s", alt_exp)
+                        else:
+                            alt_lp = Decimal(str(_clp(
+                                mode=_entry_mode,
+                                bid=float(alt_contract.bid),
+                                ask=float(alt_contract.ask),
+                                offset_pct=getattr(settings.options, "entry_marketable_offset_pct", 0.01),
+                            )))
+                            alt_request = OrderRequest(
+                                symbol=symbol,
+                                option_symbol=alt_contract.option_symbol,
+                                side=request.side,
+                                quantity=request.quantity,
+                                order_type=request.order_type,
+                                limit_price=alt_lp,
+                                strategy_id=sig.strategy_id,
+                                notes=f"{sig.notes} [next-expiry-fallback]",
+                            )
+                            order = await _retry(
+                                lambda: broker.place_option_order(alt_request),
+                                label="place_option_order_alt",
+                            )
+                            used_contract = alt_contract
+                            used_exp = alt_exp
+                            limit_price = alt_lp
+                            request = alt_request
+                            logger.info(
+                                "422 fallback order placed: %s | exp=%s | limit=%.2f",
+                                alt_contract.option_symbol, alt_exp, float(alt_lp),
+                            )
+                except Exception as fallback_exc:
+                    logger.error("422 fallback also failed for %s: %s", symbol, fallback_exc)
+            else:
+                logger.error("Order placement failed for %s: %s", symbol, exc)
+
+        if order is None:
+            continue
+
+        risk.record_entry_pending()
+        if entries_placed is not None:
+            entries_placed[sig.strategy_id] = entries_placed.get(sig.strategy_id, 0) + 1
+        logger.info(
+            "Order placed: %s | %s | limit=%.2f | status=%s",
+            order.order_id[:8], used_contract.option_symbol, float(limit_price), order.status.value,
+        )
+        if _SHADOW_BOOK is not None:
+            try:
+                _SHADOW_BOOK.record_signal(
+                    now=now, strategy_id=sig.strategy_id, symbol=symbol,
+                    direction=sig.direction.value, executed=True,
+                    option_symbol=used_contract.option_symbol,
+                    limit_price=float(limit_price), quality_score=_qscore,
+                )
+            except Exception as _sb_exc:
+                logger.debug("ShadowBook record failed: %s", _sb_exc)
+
+        if journal:
+            journal_id = await journal.record_entry(
+                entry_time=now,
+                strategy_id=sig.strategy_id,
+                signal_direction=sig.direction.value,
+                underlying_symbol=symbol,
+                underlying_price=sig.price,
+                option_symbol=used_contract.option_symbol,
+                expiration=str(used_exp),
+                strike=float(used_contract.strike),
+                option_type=used_contract.option_type,
+                delta=used_contract.delta,
+                iv=used_contract.implied_volatility,
+                bid=float(used_contract.bid),
+                ask=float(used_contract.ask),
+                spread_pct=used_contract.spread_pct,
+                limit_price=float(limit_price),
+                limit_price_mode=_entry_mode,
+                quantity=request.quantity,
+                order_id=order.order_id,
+                notes=f"status={order.status.value} mode={_entry_mode}",
+            )
+            await journal.log_event(
+                event="order",
+                message=f"Placed {sig.direction.value} {used_contract.option_symbol} limit={float(limit_price):.2f}",
+                level="info",
+                symbol=symbol,
+                data={"order_id": order.order_id, "strategy": sig.strategy_id},
+            )
+            await journal.commit()
+
+            if alert_service:
+                from app.utils.alerting import AlertEvent
+                await alert_service.send(
+                    AlertEvent.ORDER_SUBMITTED,
+                    f"{sig.direction.value} {used_contract.option_symbol} limit={float(limit_price):.2f}",
+                    data={
+                        "order_id": order.order_id,
+                        "symbol": symbol,
+                        "strategy": sig.strategy_id,
+                        "limit_price": float(limit_price),
+                        "quantity": request.quantity,
+                    },
+                )
+
+            if fill_tracker:
+                po = fill_tracker.register(
+                    order_id=order.order_id,
+                    journal_id=journal_id,
+                    option_symbol=used_contract.option_symbol,
+                    symbol=symbol,
+                    strategy_id=sig.strategy_id,
+                    direction=sig.direction.value,
+                    quantity=request.quantity,
+                    limit_price=float(limit_price),
+                    placed_at=now,
+                )
+                # Persist so the order survives a crash/restart
+                if store and session_date:
+                    await store.save(po, session_date)
+            else:
+                # No fill tracker: open position immediately (legacy / dry-run)
+                pm.open(
+                    option_symbol=used_contract.option_symbol,
+                    symbol=symbol,
+                    strategy_id=sig.strategy_id,
+                    direction=sig.direction.value,
+                    entry_time=now,
+                    entry_price=float(used_contract.ask),
+                    quantity=request.quantity,
+                    journal_id=journal_id,
+                )
+        if _bridge is not None:
+            _bridge.final_decision = "traded"
+        placed += 1
+
+    # ── Persist bridge diagnostics ────────────────────────────────────────────
+    if _permissive and _bridge_entries and journal:
+        try:
+            from app.trading.bridge_diagnostics import persist_bridge_entries as _pbe
+            await _pbe(_bridge_entries, journal._db)
+        except Exception as _exc:
+            logger.warning("Bridge diagnostics persist error: %s", _exc)
+
+    return placed
+
+
+# ── Universe scan helper ──────────────────────────────────────────────────────
+
+async def _run_universe_scan(
+    settings,
+    broker,
+    journal,
+    session_date: str,
+    scan_store: Optional[dict] = None,
+    max_contract_cost: Optional[float] = None,
+) -> Optional[List[str]]:
+    """
+    Run the scanning pipeline and return a ranked list of confirmed symbols.
+
+    Steps:
+      1. Load universe YAML → get candidate symbol list
+      2. YFinanceScanner → compute intraday metrics (research only)
+      3. CandidateScorer → rank and filter symbols
+      4. AlpacaConfirmer → verify option chain liquidity
+      5. Persist results to DBScanResult (if journal available)
+
+    Returns:
+      None          — STANDBY: all candidates rejected, CLI fallback blocked.
+      []            — fallback allowed (allow_cli_fallback_when_scanner_rejects=True
+                      and rvol gate passed) but no confirmed symbols.
+      [sym, ...]    — confirmed symbol names, best first.
+    """
+    import json as _json
+    from app.scanning import AlpacaConfirmer, CandidateScorer, UniverseLoader, YFinanceScanner
+    from app.api.models import DBScanResult
+
+    uni = settings.universe
+    max_scan  = uni.max_symbols_per_scan
+    max_sym   = uni.max_active_symbols
+    min_score = uni.min_scan_score
+
+    # Load universe
+    loader = UniverseLoader()
+    loader.load()
+    if loader.mode == "off":
+        logger.info("Universe mode=off — skipping scan, using arg symbols")
+        return []
+
+    # Determine enabled groups from settings
+    _groups_enabled_str = getattr(uni, "groups_enabled", "")
+    _enabled_groups_list = (
+        [g.strip() for g in _groups_enabled_str.split(",") if g.strip()]
+        if _groups_enabled_str else None
+    )
+    _max_per_group = getattr(uni, "max_per_group", 15)
+    _max_total = getattr(uni, "max_total_symbols", 40)
+
+    sym_groups = loader.get_symbols_with_groups(
+        enabled_groups=_enabled_groups_list,
+        max_per_group=_max_per_group,
+        max_total=_max_total,
+        max_symbols=max_scan,
+    )
+    all_syms = list(sym_groups.keys())
+    if not all_syms:
+        logger.warning("Universe empty — no symbols to scan")
+        return []
+
+    logger.info(
+        "Universe scan: %d symbols from %d group(s) | max_active=%d",
+        len(all_syms), len({v for v in sym_groups.values()}), max_sym,
+    )
+
+    # YFinance scan
+    scanner = YFinanceScanner()
+    metrics_list = await scanner.scan(all_syms)
+
+    # Attach universe_group to each metrics object so scorer can propagate it
+    for m in metrics_list:
+        m.universe_group = sym_groups.get(m.symbol)
+
+    # Score (with underlying liquidity guards from risk settings)
+    _min_price = getattr(settings.risk, "min_underlying_price", 0.0)
+    _min_avg_vol = getattr(settings.risk, "min_underlying_avg_volume", 0)
+    scorer = CandidateScorer(
+        min_scan_score=min_score,
+        min_underlying_price=_min_price,
+        min_underlying_avg_volume=_min_avg_vol,
+    )
+    candidates = scorer.score_all(metrics_list)
+
+    passed    = [c for c in candidates if not c.is_rejected]
+    rejected  = [c for c in candidates if c.is_rejected]
+    logger.info(
+        "Scan: %d passed, %d rejected",
+        len(passed), len(rejected),
+    )
+
+    for c in candidates[:5]:
+        logger.info(
+            "  %-6s  score=%.1f  signal=%-7s  %s",
+            c.symbol, c.score, c.signal_type,
+            ("REJECTED: " + ", ".join(c.rejected_reasons)) if c.is_rejected else ("reasons: " + ", ".join(c.reason_codes[:3])),
+        )
+
+    # ── Persist scan results to DB (always — even during STANDBY) ────────────
+    # Persisted before STANDBY/fallback returns so every scan cycle has a DB record.
+    if journal:
+        try:
+            for c in candidates:
+                row = DBScanResult(
+                    session_date=session_date,
+                    symbol=c.symbol,
+                    score=c.score,
+                    signal_type=c.signal_type,
+                    reason_codes=_json.dumps(c.reason_codes),
+                    rejected_reasons=_json.dumps(c.rejected_reasons),
+                    is_rejected=c.is_rejected,
+                    selected=False,  # updated below for confirmed symbols
+                    atr_pct=c.metrics.atr_pct,
+                    rvol=c.metrics.rvol,
+                    rsi=c.metrics.rsi,
+                    vwap=c.metrics.vwap,
+                    price=c.metrics.price,
+                    price_vs_vwap=c.metrics.price_vs_vwap,
+                    gap_pct=c.metrics.gap_pct,
+                    trend=c.metrics.trend,
+                    ma_compression=c.metrics.ma_compression,
+                    has_earnings=c.metrics.has_earnings_today,
+                    universe_group=c.universe_group,
+                )
+                journal._db.add(row)
+            await journal.commit()
+            logger.debug("Persisted %d scan result(s) to DB", len(candidates))
+        except Exception as exc:
+            logger.warning("Failed to persist scan results: %s", exc)
+
+    # ── STANDBY guard ─────────────────────────────────────────────────────────
+    # When every candidate is rejected, block CLI fallback unless explicitly
+    # allowed AND the rvol gate passes.
+    if len(passed) == 0 and len(candidates) > 0:
+        uni = settings.universe
+        allow_fallback = getattr(uni, "allow_cli_fallback_when_scanner_rejects", False)
+        fallback_min_rvol = getattr(uni, "fallback_min_rvol", 0.20)
+        max_rvol = max((c.metrics.rvol or 0.0) for c in candidates)
+
+        if not allow_fallback:
+            standby_reason = (
+                f"all_{len(candidates)}_candidates_rejected_fallback_disabled"
+            )
+        elif max_rvol < fallback_min_rvol:
+            standby_reason = (
+                f"all_candidates_rejected_max_rvol={max_rvol:.3f}_below_{fallback_min_rvol}"
+            )
+        else:
+            standby_reason = None  # fallback is permitted
+
+        _cand_payload = [
+            {
+                "symbol": c.symbol,
+                "score": c.score,
+                "signal_type": c.signal_type,
+                "is_rejected": c.is_rejected,
+                "reason_codes": c.reason_codes,
+                "rejected_reasons": c.rejected_reasons,
+                "rvol": getattr(c.metrics, "rvol", None),
+            }
+            for c in candidates
+        ]
+
+        if standby_reason is not None:
+            logger.warning("STANDBY: %s", standby_reason)
+            if journal:
+                await journal.log_event(
+                    event="standby",
+                    message=f"Scanner STANDBY: {standby_reason}",
+                    level="warning",
+                    data={
+                        "reason": standby_reason,
+                        "candidates_rejected": len(candidates),
+                        "max_rvol": round(max_rvol, 4),
+                    },
+                )
+                await journal.commit()
+            if scan_store is not None:
+                scan_store.clear()
+                scan_store.update({
+                    "session_date": session_date,
+                    "scanned_at": datetime.now(tz=ET).isoformat(),
+                    "standby": True,
+                    "standby_reason": standby_reason,
+                    "confirmed": [],
+                    "candidates": _cand_payload,
+                })
+            return None
+        else:
+            logger.info(
+                "STANDBY-FALLBACK: all candidates rejected but CLI fallback allowed "
+                "(max_rvol=%.3f >= %.3f)",
+                max_rvol, fallback_min_rvol,
+            )
+            if scan_store is not None:
+                scan_store.clear()
+                scan_store.update({
+                    "session_date": session_date,
+                    "scanned_at": datetime.now(tz=ET).isoformat(),
+                    "standby": False,
+                    "standby_reason": None,
+                    "confirmed": [],
+                    "candidates": _cand_payload,
+                })
+            return []
+
+    # Alpaca confirmation
+    confirmer = AlpacaConfirmer(broker, settings)
+    if max_contract_cost is not None:
+        confirmer.set_max_contract_cost(max_contract_cost)
+    confirmed = await confirmer.confirm_all(passed[:max_sym * 2])  # over-sample, then cap
+
+    confirmed_syms = [cc.symbol for cc in confirmed[:max_sym]]
+    logger.info("AlpacaConfirmer: %d confirmed symbols: %s", len(confirmed_syms), confirmed_syms)
+
+    # Mark confirmed symbols as selected in already-persisted DB rows
+    if journal and confirmed_syms:
+        try:
+            from sqlalchemy import update
+            from app.api.models import DBScanResult as _DBScanResult
+            await journal._db.execute(
+                update(_DBScanResult)
+                .where(_DBScanResult.session_date == session_date)
+                .where(_DBScanResult.symbol.in_(confirmed_syms))
+                .values(selected=True)
+            )
+            await journal.commit()
+        except Exception as exc:
+            logger.warning("Failed to update selected flags: %s", exc)
+
+    # Update in-memory scan store (for dashboard)
+    if scan_store is not None:
+        _active_grps = _enabled_groups_list or loader.enabled_groups_from_yaml
+        scan_store.clear()
+        scan_store["session_date"] = session_date
+        scan_store["scanned_at"] = datetime.now(tz=ET).isoformat()
+        scan_store["standby"] = False
+        scan_store["standby_reason"] = None
+        scan_store["confirmed"] = confirmed_syms
+        scan_store["enabled_groups"] = _active_grps
+        scan_store["candidates"] = [
+            {
+                "symbol": c.symbol,
+                "score": c.score,
+                "signal_type": c.signal_type,
+                "is_rejected": c.is_rejected,
+                "reason_codes": c.reason_codes,
+                "rejected_reasons": c.rejected_reasons,
+                "universe_group": c.universe_group,
+                "rvol": getattr(c.metrics, "rvol", None),
+            }
+            for c in candidates
+        ]
+
+    return confirmed_syms
+
+
+# ── Main session loop ─────────────────────────────────────────────────────────
+
+async def run_session(args: argparse.Namespace):
+    global _shutdown_requested
+
+    from app.api.models import AsyncSessionLocal, init_db
+    from app.brokers import get_broker
+    from app.config import get_settings
+    from app.data import YFinanceDataSource
+    from app.risk import RiskManager
+    from app.strategies import IVCrushFilter, LiquidityFilter, OpeningRangeBreakoutStrategy, RSITrendStrategy, VWAPReclaimStrategy
+    from app.trading import FillTracker, PositionManager, TradeJournal
+    from app.trading.health_report import HealthReporter
+    from app.trading.pending_order_store import PendingOrderStore
+    from app.trading.reconciler import Reconciler
+    from app.trading.session_recovery import SessionRecovery
+    from app.utils.alerting import AlertConfig, AlertEvent, AlertService
+    from app.utils.push_notifier import PushNotifier
+
+    settings = get_settings()
+
+    if settings.live_trading_enabled:
+        logger.critical("LIVE_TRADING_ENABLED=true — session runner is for paper trading only. Aborting.")
+        sys.exit(1)
+
+    # Set up signal handlers for graceful shutdown
+    signal.signal(signal.SIGTERM, _request_shutdown)
+    signal.signal(signal.SIGINT, _request_shutdown)
+
+    broker = get_broker(settings)
+    data = YFinanceDataSource()
+    risk = RiskManager(settings)
+    pm = PositionManager(settings)
+
+    alert_service = AlertService(AlertConfig.from_env())
+
+    await init_db()
+    db_session = AsyncSessionLocal()
+    journal = TradeJournal(db_session, is_paper=True) if not args.dry_run else None
+    store = PendingOrderStore(db_session) if not args.dry_run else None
+    _timeout_min = getattr(settings, "entry_order_timeout_secs", 120) / 60
+    fill_tracker = FillTracker(max_age_minutes=_timeout_min, store=store, alert_service=alert_service)
+
+    iv_filter = IVCrushFilter({
+        "earnings_blackout_days": settings.risk.earnings_blackout_days,
+        "allow_earnings_trades": settings.risk.allow_earnings_trades,
+    })
+    liq_filter = LiquidityFilter({
+        "min_open_interest": settings.risk.min_open_interest,
+        "min_volume": settings.risk.min_volume,
+        "max_spread_pct": settings.risk.max_spread_pct,
+        "delta_target_min": settings.options.delta_target_min,
+        "delta_target_max": settings.options.delta_target_max,
+    })
+    _rsi_cfg = settings.rsi_trend
+    _rsi_mode = _rsi_cfg.mode
+    if _rsi_mode == "fast_intraday_diagnostic":
+        if settings.live_trading_enabled:
+            logger.error(
+                "RSITrendStrategy: fast_intraday_diagnostic mode requires paper trading — "
+                "reverting to standard"
+            )
+            _rsi_mode = "standard"
+        else:
+            logger.warning(
+                "RSITrendStrategy: fast_intraday_diagnostic mode is EXPERIMENTAL (paper only)"
+            )
+
+    strategies = [
+        OpeningRangeBreakoutStrategy(params={"range_minutes": 15, "min_range_pts": 0.5, "volume_confirmation": True}),
+        VWAPReclaimStrategy(params={"proximity_pct": 0.002, "confirmation_bars": 2}),
+        RSITrendStrategy(params={
+            "rsi_period": _rsi_cfg.rsi_period,
+            "rsi_oversold": _rsi_cfg.rsi_oversold,
+            "rsi_overbought": _rsi_cfg.rsi_overbought,
+            "trend_ema_period": _rsi_cfg.trend_ema_period,
+            "bar_interval": _rsi_cfg.bar_interval,
+            "mode": _rsi_mode,
+        }),
+    ]
+    logger.info(
+        "RSITrendStrategy config | rsi_period=%d | rsi_oversold=%.1f | rsi_overbought=%.1f | "
+        "trend_ema_period=%d | min_bars_required=%d | bar_interval=%s | mode=%s",
+        _rsi_cfg.rsi_period, _rsi_cfg.rsi_oversold, _rsi_cfg.rsi_overbought,
+        _rsi_cfg.trend_ema_period, strategies[2].min_bars_required,
+        _rsi_cfg.bar_interval, _rsi_mode,
+    )
+
+    # ── Runtime stats (for health report) ────────────────────────────────────
+    api_errors: int = 0
+    recon_warnings: List[str] = []
+    today_str = datetime.now(tz=ET).strftime("%Y-%m-%d")
+
+    # ── Session window ────────────────────────────────────────────────────────
+    now = datetime.now(tz=ET)
+    open_h, open_m = map(int, settings.market_open.split(":"))
+    close_h, close_m = map(int, settings.market_close.split(":"))
+    mkt_open  = now.replace(hour=open_h,  minute=open_m,  second=0, microsecond=0)
+    mkt_close = now.replace(hour=close_h, minute=close_m, second=0, microsecond=0)
+
+    eod_h, eod_m = map(int, settings.position.eod_exit_time.split(":"))
+    eod_time = now.replace(hour=eod_h, minute=eod_m, second=0, microsecond=0)
+
+    _fill_test_mode = getattr(settings, "realistic_fill_test_mode", False)
+    _uni_mode_pre = getattr(settings.universe, "mode", "off")
+    mode = "DRY RUN" if args.dry_run else ("FILL-TEST" if _fill_test_mode else "PAPER")
+    logger.info(
+        "Session runner starting | mode=%s | symbols=%s | universe=%s | poll=%ds",
+        mode, args.symbols, _uni_mode_pre, args.poll,
+    )
+    if _fill_test_mode:
+        logger.info(
+            "REALISTIC_FILL_TEST_MODE: marketable_limit pricing | SPY only | qty=1 | "
+            "entry_timeout=%ds | max_spread=%.0f%%",
+            getattr(settings, "entry_order_timeout_secs", 120),
+            getattr(settings, "fill_test_max_spread_pct", 0.20) * 100,
+        )
+    print(f"\n{'═'*60}")
+    print(f"  Session Runner — {now.strftime('%Y-%m-%d')}  [{mode}]")
+    print(f"  Market: {mkt_open.strftime('%H:%M')} – {mkt_close.strftime('%H:%M')} ET")
+    print(f"  EOD exit: {eod_time.strftime('%H:%M')} ET  |  Poll: every {args.poll}s")
+    print(f"{'═'*60}\n")
+
+    # ── Pre-session checklist (evaluation mode) ───────────────────────────────
+    if settings.paper_evaluation_mode:
+        from app.evaluation.pre_session import (
+            all_required_pass,
+            format_check_table,
+            run_pre_session_checks,
+        )
+        checks = await run_pre_session_checks(
+            settings=settings,
+            broker=broker,
+            db_session=db_session,
+            risk_manager=risk,
+        )
+        table = format_check_table(checks)
+        print(table)
+        logger.info("Pre-session checklist results:\n%s", table)
+        if not all_required_pass(checks):
+            logger.critical("Pre-session checks FAILED — refusing to start session")
+            print("\n  Pre-session checks FAILED — session aborted.\n")
+            await broker.close()
+            await db_session.close()
+            sys.exit(2)
+        logger.info("Pre-session checks PASSED — proceeding")
+
+    # Fetch account and start risk session
+    try:
+        acct = await _retry(broker.get_account, label="get_account")
+        risk.start_session(acct.equity)
+        logger.info("Account: equity=%.2f paper=%s", float(acct.equity), acct.is_paper)
+
+        # Validate paper endpoint independently of LIVE_TRADING_ENABLED flag.
+        # URL hostname and API key prefix are checked against known paper patterns;
+        # a mismatch (e.g. live Alpaca key against paper URL, or live URL with flag=false)
+        # is treated as a critical misconfiguration and aborts the session.
+        _paper_ok, _paper_reason = broker.verify_paper_endpoint()
+        if not _paper_ok:
+            logger.critical(
+                "ABORT: broker failed paper endpoint validation: %s — "
+                "check ALPACA_BASE_URL (must be paper-api.alpaca.markets), "
+                "API key prefix (must be PK for Alpaca paper), "
+                "and LIVE_TRADING_ENABLED=false",
+                _paper_reason,
+            )
+            await broker.close()
+            await db_session.close()
+            sys.exit(1)
+        logger.info("Paper endpoint verified | %s", _paper_reason)
+
+        # Update liquidity filter cost cap now that equity is known (Bug fix: prevents
+        # deep-ITM contracts with delta=N/A being selected and rejected every cycle).
+        _max_contract_cost = float(acct.equity) * settings.risk.max_risk_per_trade
+        liq_filter.set_max_contract_cost(_max_contract_cost)
+        await alert_service.send(
+            AlertEvent.SESSION_STARTED,
+            f"Paper session started | equity={float(acct.equity):.2f} | symbols={args.symbols}",
+            data={"mode": mode, "symbols": args.symbols, "equity": float(acct.equity)},
+        )
+    except Exception as exc:
+        logger.error("Cannot fetch account at startup: %s — aborting", exc)
+        await broker.close()
+        await db_session.close()
+        sys.exit(1)
+
+    # ── Startup recovery ──────────────────────────────────────────────────────
+    if store:
+        try:
+            recovery_result = await SessionRecovery().recover(
+                broker, pm, fill_tracker, store, today_str, journal=journal, risk=risk
+            )
+            for w in recovery_result.warnings:
+                logger.warning("Recovery: %s", w)
+                recon_warnings.append(w)
+            for e in recovery_result.errors:
+                logger.error("Recovery: %s", e)
+                api_errors += 1
+            if recovery_result.pending_orders_loaded or recovery_result.broker_positions_loaded:
+                logger.info(
+                    "Recovery loaded %d pending order(s), %d broker position(s)",
+                    recovery_result.pending_orders_loaded,
+                    recovery_result.broker_positions_loaded,
+                )
+        except Exception as exc:
+            logger.error("Startup recovery failed: %s", exc)
+            api_errors += 1
+
+    reconciler = Reconciler()
+    last_reconciled_at: Optional[datetime] = None
+
+    # ── Universe scan (pre-session) ───────────────────────────────────────────
+    _scan_store: dict = {}
+    active_symbols: List[str] = []
+    _uni_mode = getattr(settings.universe, "mode", "off")
+
+    if _fill_test_mode:
+        logger.info("REALISTIC_FILL_TEST_MODE: universe scan disabled — using SPY only")
+        active_symbols = ["SPY"]
+    elif _uni_mode == "off":
+        active_symbols = list(args.symbols)
+    else:
+        logger.info("Running pre-session universe scan (mode=%s) …", _uni_mode)
+        try:
+            scanned = await _run_universe_scan(
+                settings=settings,
+                broker=broker,
+                journal=journal,
+                session_date=today_str,
+                scan_store=_scan_store,
+                max_contract_cost=_max_contract_cost,
+            )
+            if scanned is None:
+                logger.warning(
+                    "STANDBY: scanner rejected all candidates, fallback blocked — "
+                    "no new entries this session"
+                )
+            elif scanned:
+                active_symbols = scanned
+                logger.info("Active symbols from scan: %s", active_symbols)
+            else:
+                logger.warning(
+                    "Scan returned no confirmed symbols — falling back to %s", args.symbols
+                )
+                active_symbols = list(args.symbols)
+        except Exception as exc:
+            logger.error("Pre-session scan failed: %s — using arg symbols", exc)
+            active_symbols = list(args.symbols)
+
+    _max_active_pos = getattr(settings.universe, "max_active_positions", 1)
+    _max_sym_per_day = getattr(settings.universe, "max_symbols_traded_per_day", 1)
+    _last_scan_at: Optional[datetime] = datetime.now(tz=ET) if _uni_mode != "off" else None
+    _scan_interval_min = getattr(settings.universe, "scan_interval_minutes", 30)
+    symbols_traded_today: set = set()
+    _recon_has_mismatch: bool = False  # set True while reconciliation flags mismatches
+
+    # Publish initial active_symbols list to shared scan_store for dashboard
+    _scan_store["active_symbols"] = list(active_symbols)
+    _scan_store["strategy_configs"] = [
+        {
+            "strategy_id": s.strategy_id,
+            "name": s.name,
+            "min_bars_required": s.min_bars_required,
+        }
+        for s in strategies
+    ]
+    _scan_store["strategy_readiness"] = _compute_strategy_readiness(strategies, datetime.now(tz=ET))
+
+    global _PUSH_NOTIFIER, _SHADOW_BOOK
+    push_notifier = PushNotifier(log_dir="logs", notify_interval_cycles=6)
+    _PUSH_NOTIFIER = push_notifier
+    from app.evaluation.shadow_book import ShadowBook
+    shadow_book = ShadowBook(settings)
+    _SHADOW_BOOK = shadow_book
+    _eod_warned = False
+    # Positions already open at startup (session recovery) are not "new fills"
+    _notified_fill_syms = {p.option_symbol for p in pm.open_positions()}
+
+    cycle = 0
+    eod_liquidated = False
+    entry_orders_placed = 0      # entry orders only; exit orders are not counted here
+    kill_switch_alerted = False
+    _entries_placed: dict = {}   # {strategy_id: count} — entries only (not exits)
+
+    # ── Main polling loop ─────────────────────────────────────────────────────
+    while not _shutdown_requested:
+        now = datetime.now(tz=ET)
+        cycle += 1
+
+        # Kill switch — halts new entries only; exits, reconciliation, and EOD
+        # liquidation continue on every cycle so open positions are managed.
+        kill_switch_active = settings.is_kill_switch_active()
+        if kill_switch_active:
+            logger.warning("Kill switch active — new entries halted, exits continue")
+            if not kill_switch_alerted:
+                await alert_service.send(
+                    AlertEvent.KILL_SWITCH,
+                    "Kill switch activated — new entries halted, exits and EOD continue",
+                    data={"cycle": cycle},
+                )
+                kill_switch_alerted = True
+        else:
+            kill_switch_alerted = False
+
+        # Before market open: wait
+        if now < mkt_open:
+            wait = (mkt_open - now).total_seconds()
+            logger.info("Pre-market — waiting %.0fs until open", wait)
+            await asyncio.sleep(min(wait, args.poll))
+            continue
+
+        # After market close: exit loop
+        if now >= mkt_close:
+            logger.info("Market closed — ending session")
+            break
+
+        logger.info("[cycle %d] %s ET | positions=%d | entries=%d",
+                    cycle, now.strftime("%H:%M:%S"), len(pm.open_positions()), risk.entries_today)
+
+        # Heartbeat log
+        if journal:
+            await journal.log_event(
+                event="heartbeat",
+                message=f"cycle={cycle} positions={len(pm.open_positions())} entries={risk.entries_today}",
+                data={"cycle": cycle, "positions": len(pm.open_positions()), "pnl": float(risk.daily_pnl)},
+            )
+            await journal.commit()
+
+        # Push notifier: update live_status.json every cycle; emit heartbeat every 6 cycles
+        _open_pos = pm.open_positions()
+        _unreal = sum(
+            (p.current_price - p.entry_price) * 100 * p.quantity
+            for p in _open_pos
+        )
+        push_notifier.on_cycle(
+            cycle=cycle,
+            now=now,
+            positions=len(_open_pos),
+            entries_today=risk.entries_today,
+            daily_pnl=float(risk.daily_pnl),
+            unrealized_pnl=round(_unreal, 2),
+            active_symbols=list(_scan_store.get("active_symbols", [])),
+            pending_orders=fill_tracker.count(),
+            scanner_standby=bool(_scan_store.get("standby", False)),
+            session_date=now.strftime("%Y-%m-%d"),
+        )
+
+        # EOD warning push (once, 35 min before EOD)
+        _mins_to_eod = (eod_time - now).total_seconds() / 60
+        if 30 <= _mins_to_eod <= 36 and not _eod_warned:
+            push_notifier.on_eod_warning(_mins_to_eod, now)
+            _eod_warned = True
+
+        # Update clock-based strategy readiness for dashboard
+        _scan_store["strategy_readiness"] = _compute_strategy_readiness(strategies, now)
+
+        # EOD liquidation (before scanning for new entries)
+        if now >= eod_time and not eod_liquidated:
+            logger.warning("EOD time reached — cancelling pending orders and liquidating all positions")
+            # Cancel all pending orders so they don't fill after we've liquidated
+            if fill_tracker.count() > 0:
+                await fill_tracker.poll(broker, pm, journal, now, risk)
+            n_pos = len(pm.open_positions())
+            await eod_liquidate(broker, pm, journal, risk, now, args.dry_run, settings=settings)
+            eod_liquidated = True
+            await alert_service.send(
+                AlertEvent.EOD_LIQUIDATION,
+                f"EOD liquidation: closed {n_pos} position(s)",
+                data={"positions_closed": n_pos, "daily_pnl": float(risk.daily_pnl)},
+            )
+            # Wait up to 5 minutes for any pending EOD exit orders to fill,
+            # then exit the loop (Bug E fix — previously the loop ran indefinitely).
+            _eod_deadline = now + timedelta(minutes=5)
+            while fill_tracker.count() > 0 and datetime.now(tz=ET) < _eod_deadline:
+                await asyncio.sleep(args.poll)
+                _poll_now = datetime.now(tz=ET)
+                try:
+                    await fill_tracker.poll(broker, pm, journal, _poll_now, risk)
+                except Exception as _eod_poll_exc:
+                    logger.warning("EOD fill poll error: %s", _eod_poll_exc)
+            if fill_tracker.count() > 0:
+                logger.warning(
+                    "EOD: %d order(s) still pending after 5-min wait — exiting anyway",
+                    fill_tracker.count(),
+                )
+            logger.info("EOD complete — exiting session loop")
+            break
+
+        # Poll pending orders for fills / cancellations
+        if fill_tracker.count() > 0:
+            try:
+                fills = await fill_tracker.poll(broker, pm, journal, now, risk)
+                if fills:
+                    logger.info("FillTracker: %d fill(s) processed this cycle", fills)
+            except Exception as exc:
+                logger.error("FillTracker poll error: %s", exc)
+                api_errors += 1
+                await alert_service.send(
+                    AlertEvent.API_ERROR,
+                    f"FillTracker poll error: {exc}",
+                    data={"cycle": cycle, "total_errors": api_errors},
+                )
+
+        # Periodic broker reconciliation
+        recon_due = (
+            last_reconciled_at is None
+            or (now - last_reconciled_at).total_seconds() / 60 >= args.reconcile_interval
+        )
+        if recon_due:
+            try:
+                recon = await reconciler.reconcile(
+                    broker, pm, fill_tracker, now,
+                    journal=journal,
+                    risk=risk,
+                    session_date=today_str,
+                )
+                recon_warnings.extend(recon.flagged)
+                last_reconciled_at = now
+                if recon.flagged:
+                    _recon_has_mismatch = True
+                    logger.warning(
+                        "Reconciliation flagged %d mismatch(es) — new entries blocked "
+                        "until next clean reconcile: %s",
+                        len(recon.flagged), recon.flagged,
+                    )
+                else:
+                    _recon_has_mismatch = False
+            except Exception as exc:
+                logger.warning("Reconciliation error: %s", exc)
+                api_errors += 1
+
+        # Shadow book: mark-to-quote open shadow positions and apply exit rules
+        try:
+            await shadow_book.update(broker, now)
+        except Exception as _sb_exc:
+            logger.debug("ShadowBook update error: %s", _sb_exc)
+
+        # Push notifier: announce any newly-opened position, regardless of
+        # fill path (FillTracker fill or reconciler recovery restore)
+        for _np in pm.open_positions():
+            if _np.option_symbol not in _notified_fill_syms:
+                _notified_fill_syms.add(_np.option_symbol)
+                push_notifier.on_fill(
+                    symbol=_np.symbol,
+                    contract=_np.option_symbol,
+                    direction=_np.direction,
+                    fill_price=float(_np.entry_price),
+                    quantity=_np.quantity,
+                    strategy=_np.strategy_id,
+                    now=now,
+                )
+
+        # Monitor + close existing positions (exit push events are emitted at
+        # the broker-confirmed close sites, not here)
+        closed = await monitor_positions(broker, pm, journal, risk, now, args.dry_run, alert_service=alert_service, settings=settings)
+        if closed:
+            logger.info("Closed %d position(s) this cycle", closed)
+
+        # Sync open positions to DB so the API process can serve them
+        try:
+            await _sync_positions_to_db(db_session, pm)
+        except Exception as _sync_exc:
+            logger.debug("DBPosition sync failed (non-fatal): %s", _sync_exc)
+
+        # Periodic re-scan (skip in fill-test mode)
+        if (
+            _uni_mode != "off"
+            and not _fill_test_mode
+            and _last_scan_at is not None
+            and (now - _last_scan_at).total_seconds() / 60 >= _scan_interval_min
+            and now < eod_time
+        ):
+            logger.info("Periodic universe re-scan …")
+            try:
+                rescanned = await _run_universe_scan(
+                    settings=settings,
+                    broker=broker,
+                    journal=journal,
+                    session_date=today_str,
+                    scan_store=_scan_store,
+                    max_contract_cost=_max_contract_cost,
+                )
+                if rescanned is None:
+                    logger.warning(
+                        "STANDBY: periodic re-scan rejected all candidates — "
+                        "clearing active symbols"
+                    )
+                    active_symbols = []
+                elif rescanned:
+                    active_symbols = rescanned
+                    logger.info("Re-scan updated active symbols: %s", active_symbols)
+                else:
+                    logger.warning(
+                        "Re-scan returned no confirmed symbols — falling back to %s",
+                        args.symbols,
+                    )
+                    active_symbols = list(args.symbols)
+            except Exception as exc:
+                logger.warning("Periodic re-scan failed: %s", exc)
+            _scan_store["active_symbols"] = list(active_symbols)
+            _last_scan_at = now
+
+        # Only open new positions if not past EOD and kill switch is not active
+        if now < eod_time and not kill_switch_active:
+            # Guard: block all new entries when a reconciliation mismatch is unresolved
+            if _recon_has_mismatch:
+                logger.info(
+                    "Recon mismatch active — all new entries blocked until next clean reconcile"
+                )
+            for symbol in (active_symbols if not _recon_has_mismatch else []):
+                # Global max-positions gate
+                if len(pm.open_positions()) >= _max_active_pos:
+                    logger.debug(
+                        "Max active positions (%d) reached — skipping scan", _max_active_pos
+                    )
+                    break
+                # Per-day symbol limit
+                if symbol in symbols_traded_today:
+                    logger.debug("Already traded %s today — skipping", symbol)
+                    continue
+                placed = await scan_and_place(
+                    symbol=symbol,
+                    broker=broker,
+                    data=data,
+                    strategies=strategies,
+                    iv_filter=iv_filter,
+                    liq_filter=liq_filter,
+                    risk=risk,
+                    pm=pm,
+                    journal=journal,
+                    settings=settings,
+                    now=now,
+                    dry_run=args.dry_run,
+                    fill_tracker=fill_tracker,
+                    store=store,
+                    session_date=today_str,
+                    alert_service=alert_service,
+                    scan_store=_scan_store,
+                    entries_placed=_entries_placed,
+                )
+                if placed > 0:
+                    symbols_traded_today.add(symbol)
+                    if len(symbols_traded_today) >= _max_sym_per_day:
+                        logger.info(
+                            "Max symbols traded per day (%d) reached", _max_sym_per_day
+                        )
+                        break
+                entry_orders_placed += placed
+
+        if _shutdown_requested:
+            break
+
+        await asyncio.sleep(args.poll)
+
+    # ── Graceful shutdown ─────────────────────────────────────────────────────
+    now = datetime.now(tz=ET)
+    logger.info(
+        "Shutdown: %d position(s) open, %d order(s) pending",
+        len(pm.open_positions()), fill_tracker.count(),
+    )
+
+    # 1. One final fill poll so we don't lose fills that arrived at shutdown
+    if fill_tracker.count() > 0:
+        logger.info("Shutdown: final fill poll for %d pending order(s)", fill_tracker.count())
+        try:
+            await fill_tracker.poll(broker, pm, journal, now, risk)
+        except Exception as exc:
+            logger.warning("Shutdown: final fill poll failed: %s", exc)
+
+    # 2. Cancel open orders if requested
+    if getattr(args, "cancel_pending", False) and fill_tracker.count() > 0:
+        logger.warning(
+            "Shutdown: cancelling %d pending order(s)", fill_tracker.count()
+        )
+        for pending in list(fill_tracker.pending_orders()):
+            try:
+                await broker.cancel_order(pending.order_id)
+                logger.info("Shutdown: cancelled %s", pending.order_id[:8])
+            except Exception as exc:
+                logger.warning(
+                    "Shutdown: cancel failed for %s: %s", pending.order_id[:8], exc
+                )
+
+    # 3. Liquidate any remaining open positions
+    if pm.open_positions():
+        logger.warning(
+            "Shutdown: liquidating %d position(s)", len(pm.open_positions())
+        )
+        await eod_liquidate(broker, pm, journal, risk, now, args.dry_run, settings=settings)
+
+    # 4. Generate and persist health report
+    if journal and store:
+        try:
+            reporter = HealthReporter(db_session)
+            report = await reporter.generate(
+                session_date=today_str,
+                api_errors=api_errors,
+                reconciliation_warnings=recon_warnings,
+            )
+            import json as _json
+            report_line = _json.dumps(report, default=str)
+            logger.info("Health report: %s", report_line)
+
+            # Write to file
+            import os
+            os.makedirs("logs", exist_ok=True)
+            report_path = f"logs/session_{today_str}.json"
+            with open(report_path, "w") as fh:
+                _json.dump(report, fh, indent=2, default=str)
+            logger.info("Health report written to %s", report_path)
+
+            # Log to DB
+            await journal.log_event(
+                event="session_summary",
+                message=(
+                    f"Session complete: "
+                    f"{report['trades']['total_closed']} trades, "
+                    f"pnl={report['realized_pnl']}"
+                ),
+                data=report,
+            )
+            await journal.commit()
+
+            await alert_service.send(
+                AlertEvent.SESSION_SUMMARY,
+                (
+                    f"{report['trades']['total_closed']} trades | "
+                    f"pnl={report['realized_pnl']} | "
+                    f"win_rate={report['trades'].get('win_rate', 0):.0%}"
+                ),
+                data={
+                    "trades": report["trades"]["total_closed"],
+                    "realized_pnl": report["realized_pnl"],
+                    "win_rate": report["trades"].get("win_rate"),
+                    "max_drawdown": report.get("max_drawdown"),
+                },
+            )
+        except Exception as exc:
+            logger.error("Health report generation failed: %s", exc)
+
+    # ── Post-session evaluation (evaluation mode) ─────────────────────────────
+    if settings.paper_evaluation_mode:
+        try:
+            from app.evaluation.post_session import run_post_session
+            post_result = await run_post_session(
+                settings=settings,
+                broker=broker,
+                db_session=db_session,
+                fill_tracker=fill_tracker,
+                pm=pm,
+                journal=journal,
+                alert_service=alert_service,
+                session_date=today_str,
+            )
+            logger.info(
+                "Post-session evaluation | report=%s | ledger_updated=%s | errors=%s",
+                post_result.report_path_json,
+                post_result.ledger_updated,
+                post_result.errors or "none",
+            )
+        except Exception as exc:
+            logger.error("Post-session evaluation failed: %s", exc)
+
+    logger.info(
+        "Session complete | cycles=%d | entry_orders_placed=%d | pnl=%.2f",
+        cycle, entry_orders_placed, float(risk.daily_pnl),
+    )
+    print(f"\n  Session complete — {cycle} cycles | {entry_orders_placed} entry order(s) | P&L ${float(risk.daily_pnl):.2f}\n")
+    try:
+        _sb_open = shadow_book.close_all(datetime.now(tz=ET), reason="session_end")
+        if _sb_open:
+            logger.info("ShadowBook: force-closed %d shadow position(s) at session end", _sb_open)
+    except Exception as _sb_exc:
+        logger.debug("ShadowBook close_all error: %s", _sb_exc)
+    push_notifier.on_session_end(
+        daily_pnl=float(risk.daily_pnl),
+        now=datetime.now(tz=ET),
+    )
+
+    await alert_service.send(
+        AlertEvent.SESSION_STOPPED,
+        f"Session stopped | cycles={cycle} | entry_orders_placed={entry_orders_placed} | pnl={float(risk.daily_pnl):.2f}",
+        data={"cycles": cycle, "entry_orders_placed": entry_orders_placed, "pnl": float(risk.daily_pnl), "api_errors": api_errors},
+    )
+
+    await broker.close()
+    await db_session.close()
+
+
+# ── Entry point ───────────────────────────────────────────────────────────────
+
+def _parse_args() -> argparse.Namespace:
+    p = argparse.ArgumentParser(
+        description="Continuous intraday paper-trading session runner.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=__doc__,
+    )
+    p.add_argument("--dry-run", action="store_true", help="No orders placed")
+    p.add_argument("--symbol", "--symbols", nargs="+", dest="symbols", default=["SPY"], metavar="SYM")
+    p.add_argument("--poll", type=int, default=300, metavar="SECONDS",
+                   help="Polling interval in seconds (default: 300 = 5 min)")
+    p.add_argument("--log-level", default="INFO",
+                   choices=["DEBUG", "INFO", "WARNING", "ERROR"])
+    p.add_argument(
+        "--cancel-pending", action="store_true",
+        help="Cancel all pending orders on shutdown (default: leave open)",
+    )
+    p.add_argument(
+        "--reconcile-interval", type=int, default=30, metavar="MINUTES",
+        help="Broker reconciliation interval in minutes (default: 30)",
+    )
+    p.add_argument(
+        "--eval", action="store_true",
+        help="Enable paper evaluation mode (pre/post checklists, daily report, ledger)",
+    )
+    return p.parse_args()
+
+
+if __name__ == "__main__":
+    args = _parse_args()
+
+    # --eval flag sets the env var before settings are loaded
+    if args.eval:
+        os.environ.setdefault("PAPER_EVALUATION_MODE", "true")
+
+    # Set up rotating JSON-capable logs before anything else
+    from app.utils.logging_setup import configure_logging
+    configure_logging(level=args.log_level)
+
+    asyncio.run(run_session(args))

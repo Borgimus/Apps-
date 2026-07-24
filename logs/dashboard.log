@@ -1,0 +1,98 @@
+2026-07-22T09:31:01 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+Dashboard at http://127.0.0.1:8000 (no trading)
+INFO:     Started server process [3977]
+INFO:     Waiting for application startup.
+2026-07-22T09:31:04 | INFO     | app.api.dashboard_api | Dashboard API started | live_trading=False
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57588 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42330 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [3977]
+2026-07-22T10:26:15 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+Dashboard at http://127.0.0.1:8000 (no trading)
+INFO:     Started server process [4566]
+INFO:     Waiting for application startup.
+2026-07-22T10:26:16 | INFO     | app.api.dashboard_api | Dashboard API started | live_trading=False
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:58932 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47602 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [4566]
+2026-07-22T13:00:54 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+Dashboard at http://127.0.0.1:8000 (no trading)
+INFO:     Started server process [5149]
+INFO:     Waiting for application startup.
+2026-07-22T13:00:55 | INFO     | app.api.dashboard_api | Dashboard API started | live_trading=False
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:33546 - "GET /review HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /review HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /review?date=2026-06-04 HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /review?date=2026-06-25 HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /review?date=2026-07-08 HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /review?date=2026-07-09 HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/reviews/2026-07-09 HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /review?date=2026-07-22 HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [5149]
+2026-07-22T14:23:17 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7
+Dashboard at http://127.0.0.1:8000 (no trading)
+INFO:     Started server process [5621]
+INFO:     Waiting for application startup.
+2026-07-22T14:23:19 | INFO     | app.api.dashboard_api | Dashboard API started | live_trading=False
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:55074 - "GET /review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51778 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51780 - "GET /review HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43894 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46040 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:46054 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56850 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     100.124.165.93:0 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59492 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52016 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52018 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42778 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35200 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52792 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50948 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50960 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38042 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38052 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55684 - "GET /health HTTP/1.1" 200 OK

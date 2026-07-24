@@ -51,6 +51,8 @@ class RiskCheck(str, Enum):
     MAX_SPREAD_PCT = "max_spread_pct"
     EARNINGS_BLACKOUT = "earnings_blackout"
     LIVE_TRADING_GUARD = "live_trading_guard"
+    RECON_BLOCKED = "recon_blocked"
+    EOD_ENTRY_CUTOFF = "eod_entry_cutoff"
 
 
 @dataclass
@@ -75,15 +77,41 @@ class RiskCheckResult:
 class RiskManager:
     """
     Stateful risk manager.  Must be instantiated once per trading session
-    and re-used so that daily counters (trades, P&L) are maintained correctly.
+    and re-used so that daily counters (entries, P&L) are maintained correctly.
+
+    Entry counting semantics
+    ────────────────────────
+    max_trades_per_day is treated as max NEW ENTRIES per day.
+    Exits (trailing_stop, stop_loss, EOD) are never counted against this limit
+    and are never blocked by it.
+
+    The check uses:
+        entries_today + pending_entries >= max_trades_per_day
+
+    pending_entries prevents order spam: a slot is reserved the moment an entry
+    order is accepted by the broker and released only when the fill is confirmed
+    or the order is cancelled/rejected.
+
+    Lifecycle:
+        record_entry_pending()  — order accepted by broker
+        record_entry_filled()   — fill confirmed by FillTracker
+        record_entry_cancelled()— order cancelled or rejected (frees slot)
+        record_exit(pnl)        — position closed; for PnL tracking only
     """
 
     def __init__(self, settings: Settings | None = None):
         self._s = settings or get_settings()
-        self._trades_today: int = 0
+        self._entries_today: int = 0     # confirmed filled entries
+        self._pending_entries: int = 0   # placed but not yet filled/cancelled
+        self._exits_today: int = 0       # closed positions (reporting only)
         self._daily_pnl: Decimal = Decimal("0")
         self._session_date: Optional[date] = None
         self._starting_equity: Optional[Decimal] = None
+        # RECON_BLOCKED: set when broker order state is unknown at recovery time.
+        # Cleared by Reconciler after a successful broker.get_orders() round-trip.
+        # Blocks new entries only; exits are never routed through check_order().
+        self._recon_blocked: bool = False
+        self._recon_blocked_reason: str = ""
 
     # ── Session management ────────────────────────────────────────────────────
 
@@ -95,19 +123,130 @@ class RiskManager:
                 "RiskManager: new session %s | starting_equity=%.2f", today, equity
             )
             self._session_date = today
-            self._trades_today = 0
+            self._entries_today = 0
+            self._pending_entries = 0
+            self._exits_today = 0
             self._daily_pnl = Decimal("0")
             self._starting_equity = equity
 
-    def record_trade(self, pnl: Decimal = Decimal("0")):
-        """Call when an order is filled to track daily counters."""
-        self._trades_today += 1
+    # ── Entry / exit recording ────────────────────────────────────────────────
+
+    def record_entry_pending(self):
+        """Call when an entry order is accepted by the broker (before fill confirmation)."""
+        self._pending_entries += 1
+        logger.info(
+            "RiskManager: entry pending | entries=%d pending=%d exits=%d",
+            self._entries_today, self._pending_entries, self._exits_today,
+        )
+
+    def record_entry_filled(self):
+        """Call when a pending entry order is confirmed filled by the broker."""
+        self._pending_entries = max(0, self._pending_entries - 1)
+        self._entries_today += 1
+        logger.info(
+            "RiskManager: entry filled | entries=%d pending=%d exits=%d",
+            self._entries_today, self._pending_entries, self._exits_today,
+        )
+
+    def record_entry_cancelled(self):
+        """Call when a pending entry order is cancelled or rejected without filling."""
+        self._pending_entries = max(0, self._pending_entries - 1)
+        logger.info(
+            "RiskManager: entry cancelled | entries=%d pending=%d exits=%d",
+            self._entries_today, self._pending_entries, self._exits_today,
+        )
+
+    def record_exit(self, pnl: Decimal = Decimal("0")):
+        """
+        Call when a position is closed (trailing_stop, stop_loss, take_profit, EOD).
+        Never counts against the entry limit. Updates PnL for daily-loss tracking.
+        """
+        self._exits_today += 1
         self._daily_pnl += pnl
         logger.info(
-            "RiskManager: trade recorded | trades_today=%d | daily_pnl=%.2f",
-            self._trades_today,
-            self._daily_pnl,
+            "RiskManager: exit recorded | entries=%d exits=%d daily_pnl=%.2f",
+            self._entries_today, self._exits_today, float(self._daily_pnl),
         )
+
+    def record_trade(self, pnl: Decimal = Decimal("0")):
+        """
+        Deprecated. Use record_entry_pending() for new entries, record_exit(pnl) for closes.
+        Kept for backward compatibility: calls record_entry_pending() when pnl=0,
+        or record_exit(pnl) when pnl is non-zero (legacy exit callers).
+        """
+        if pnl != Decimal("0"):
+            self.record_exit(pnl)
+        else:
+            self.record_entry_pending()
+
+    def set_recon_blocked(self, reason: str = "") -> None:
+        """
+        Block new entries until broker order state has been confirmed.
+
+        Called by SessionRecovery when broker.get_orders() is unavailable or
+        when local/broker order state is inconsistent.  Exits are never routed
+        through check_order() so they are unaffected.
+        """
+        self._recon_blocked = True
+        self._recon_blocked_reason = reason or "broker order state unknown at recovery time"
+        logger.warning(
+            "RiskManager: RECON_BLOCKED — new entries halted | reason: %s",
+            self._recon_blocked_reason,
+        )
+
+    def clear_recon_blocked(self) -> None:
+        """
+        Clear the reconciliation block after a successful broker round-trip.
+
+        Called by Reconciler once both broker.get_orders() and
+        broker.get_positions() complete successfully.
+        """
+        if self._recon_blocked:
+            logger.info(
+                "RiskManager: RECON_BLOCKED cleared — broker state confirmed, entries unblocked",
+            )
+            self._recon_blocked = False
+            self._recon_blocked_reason = ""
+
+    @property
+    def recon_blocked(self) -> bool:
+        """True while new entries are blocked pending broker reconciliation."""
+        return self._recon_blocked
+
+    def restore_daily_counters(
+        self,
+        entries: int,
+        pnl: Decimal,
+        pending: int,
+        recon_blocked: bool = False,
+    ) -> None:
+        """
+        Restore daily counters from persistent state after a process restart.
+        Must be called after start_session() so _session_date is set.
+
+        entries      : filled-entry count from trade_journal.
+        pnl          : sum of realized_pnl for closed trades today.
+        pending      : broker-confirmed open order count.
+        recon_blocked: True when broker order state was unavailable or
+                       inconsistent; sets RECON_BLOCKED to prevent new entries
+                       until the Reconciler confirms broker state.
+        """
+        if self._session_date is None:
+            raise RuntimeError("restore_daily_counters called before start_session()")
+        prev_entries = self._entries_today
+        prev_pending = self._pending_entries
+        self._entries_today = max(self._entries_today, entries)
+        self._pending_entries = max(self._pending_entries, pending)
+        self._daily_pnl = pnl if isinstance(pnl, Decimal) else Decimal(str(pnl))
+        logger.info(
+            "RiskManager: counters restored from DB "
+            "| entries %d→%d | pending %d→%d | pnl %.2f",
+            prev_entries, self._entries_today,
+            prev_pending, self._pending_entries,
+            float(self._daily_pnl),
+        )
+        if recon_blocked:
+            self.set_recon_blocked("broker.get_orders() unavailable or inconsistent at recovery time")
 
     # ── Main check ────────────────────────────────────────────────────────────
 
@@ -133,10 +272,12 @@ class RiskManager:
         result = RiskCheckResult(passed=True, approved_quantity=request.quantity)
         now = now or datetime.now(tz=ET)
 
+        self._check_recon_blocked(result)
         self._check_kill_switch(result)
         self._check_live_trading_guard(result)
         self._check_market_order(result, request)
         self._check_session_buffer(result, now)
+        self._check_eod_entry_cutoff(result, now)
         self._check_max_trades_per_day(result)
         self._check_daily_loss(result, equity)
         self._check_risk_per_trade(result, request, equity, contract)
@@ -162,6 +303,15 @@ class RiskManager:
         return result
 
     # ── Individual checks ─────────────────────────────────────────────────────
+
+    def _check_recon_blocked(self, result: RiskCheckResult):
+        if self._recon_blocked:
+            result.add_failure(
+                RiskCheck.RECON_BLOCKED,
+                f"Entry blocked: broker order state unconfirmed "
+                f"({self._recon_blocked_reason}). "
+                f"Waiting for reconciler to confirm broker state.",
+            )
 
     def _check_kill_switch(self, result: RiskCheckResult):
         if self._s.is_kill_switch_active():
@@ -207,11 +357,25 @@ class RiskManager:
                 f"(after {no_trade_close.strftime('%H:%M')} ET)",
             )
 
+    def _check_eod_entry_cutoff(self, result: RiskCheckResult, now: datetime):
+        eod_h, eod_m = map(int, self._s.position.eod_exit_time.split(":"))
+        eod_dt = now.replace(hour=eod_h, minute=eod_m, second=0, microsecond=0)
+        minutes_to_eod = (eod_dt - now).total_seconds() / 60
+        min_required = self._s.position.min_entry_minutes_before_eod
+        if 0 < minutes_to_eod < min_required:
+            result.add_failure(
+                RiskCheck.EOD_ENTRY_CUTOFF,
+                f"Only {minutes_to_eod:.0f} min before EOD exit "
+                f"({self._s.position.eod_exit_time} ET) — "
+                f"minimum {min_required} min required for new entries",
+            )
+
     def _check_max_trades_per_day(self, result: RiskCheckResult):
-        if self._trades_today >= self._s.risk.max_trades_per_day:
+        capacity_used = self._entries_today + self._pending_entries
+        if capacity_used >= self._s.risk.max_trades_per_day:
             result.add_failure(
                 RiskCheck.MAX_TRADES_PER_DAY,
-                f"Max trades per day reached: {self._trades_today}/{self._s.risk.max_trades_per_day}",
+                f"Max entries per day reached: {capacity_used}/{self._s.risk.max_trades_per_day}",
             )
 
     def _check_daily_loss(self, result: RiskCheckResult, equity: Decimal):
@@ -298,8 +462,24 @@ class RiskManager:
     # ── Utility ───────────────────────────────────────────────────────────────
 
     @property
+    def entries_today(self) -> int:
+        """Number of entry orders confirmed filled today."""
+        return self._entries_today
+
+    @property
+    def pending_entries(self) -> int:
+        """Entry orders placed with the broker but not yet filled or cancelled."""
+        return self._pending_entries
+
+    @property
+    def exits_today(self) -> int:
+        """Number of positions closed today (for reporting; never blocks entries)."""
+        return self._exits_today
+
+    @property
     def trades_today(self) -> int:
-        return self._trades_today
+        """Backward-compat alias for entries_today (filled entries only)."""
+        return self._entries_today
 
     @property
     def daily_pnl(self) -> Decimal:

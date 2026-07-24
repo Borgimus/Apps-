@@ -1,0 +1,66 @@
+[2026-07-23T09:30:01-04:00] automatic start requested
+Market calendar and paper-account gate passed
+
+PRE-SESSION GATE FAILED — session is NOT eligible for Phase 3 cohort:
+  • working_tree_dirty=True — commit or stash all changes before running a session
+
+To proceed: fix all issues above, or declare a protocol amendment and update the baseline in evaluation/phase3_tracking.json.
+{
+  "commit_sha": "f99d2954ebf8e4f3c95ec824cab221a0bd9d80ef",
+  "working_tree_dirty": true,
+  "config_hash_sha256_16": "67954547a3a617d4",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "bd9d7d0a",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+[2026-07-23T12:35:01-04:00] automatic EOD close-out requested
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "f99d2954ebf8e4f3c95ec824cab221a0bd9d80ef",
+  "working_tree_dirty": true,
+  "config_hash_sha256_16": "67954547a3a617d4",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "bd9d7d0a",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "f99d2954ebf8e4f3c95ec824cab221a0bd9d80ef",
+  "working_tree_dirty": true,
+  "config_hash_sha256_16": "67954547a3a617d4",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "bd9d7d0a",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+[2026-07-23T12:35:04-04:00] broker EOD state clean: 0 positions, 0 open orders
+[claude/options-trading-research-system-TIU0p 256c129] Record Phase 3 session raw artifacts (2026-07-23)
+ 21 files changed, 98197 insertions(+), 64015 deletions(-)
+ create mode 100644 evaluation/market_data_comparisons.jsonl
+ create mode 100644 evaluation/reports/2026-07-23.json
+ create mode 100644 evaluation/reports/2026-07-23.md
+ create mode 100644 logs/automation_2026-07-23.log
+ create mode 100644 logs/manual_launch_2026-07-23.pid
+ create mode 100644 logs/session_2026-07-23.json
+ create mode 100644 logs/session_2026-07-23.log
+ create mode 100644 logs/shadow_report_2026-07-23.txt
+ create mode 100644 logs/trading.jsonl.1
+To https://github.com/Borgimus/Apps-.git
+   f99d295..256c129  claude/options-trading-research-system-TIU0p -> claude/options-trading-research-system-TIU0p
+[2026-07-23T12:35:10-04:00] artifacts committed and pushed
+[2026-07-23T12:35:10-04:00] automatic EOD close-out complete
+[2026-07-23T13:13:19-04:00] automatic start requested
+ABORT: no preflight arming marker

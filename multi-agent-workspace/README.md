@@ -78,6 +78,7 @@ See `docs/providers.md` for details on each adapter.
 | [docs/security.md](docs/security.md) | Threat model, protections, and honest limitations |
 | [docs/testing.md](docs/testing.md) | Test layout and how to run it |
 | [docs/deployment.md](docs/deployment.md) | Docker and production notes |
+| [docs/obsidian.md](docs/obsidian.md) | Migrating user data and project memory to an Obsidian vault |
 | [docs/limitations-roadmap.md](docs/limitations-roadmap.md) | Known gaps and next priorities |
 | [BUILD_REPORT.md](BUILD_REPORT.md) | What was built vs. deferred, verification results |
 

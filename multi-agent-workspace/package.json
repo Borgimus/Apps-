@@ -11,6 +11,7 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "setup": "prisma db push && tsx prisma/seed.ts",
+    "migrate:obsidian": "tsx scripts/migrate-to-obsidian.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

@@ -17,10 +17,11 @@ from __future__ import annotations
 
 import json
 import logging
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Iterable, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,113 @@ class PostSessionResult:
     ledger_updated: bool = False
     alert_sent: bool = False
     errors: List[str] = field(default_factory=list)
+
+
+_PARAMETER_CHANGE_RECOMMENDATION_MARKERS = (
+    "review signal filters",
+    "tightening entry criteria",
+    "adjusting profit/stop targets",
+    "adjusting min_scan_score",
+    "rvol threshold",
+)
+
+
+def _append_unique(items: List[str], value: str) -> None:
+    if value not in items:
+        items.append(value)
+
+
+def _apply_debrief_amendments(
+    report,
+    exit_reasons: Optional[Iterable[Optional[str]]] = None,
+) -> None:
+    """Apply read-only reporting corrections and evidence gates.
+
+    This deliberately does not change strategy logic, risk limits, execution,
+    or daily capacity. It only makes the debrief internally consistent and
+    prevents low-sample sessions from auto-recommending parameter changes.
+    """
+    if getattr(report, "notes", None) is None:
+        report.notes = []
+    if getattr(report, "recommendations", None) is None:
+        report.recommendations = []
+
+    bridge_count = int(getattr(report, "bridge_entries_count", 0) or 0)
+    signal_count = int(getattr(report, "total_signals", 0) or 0)
+    if signal_count == 0 and bridge_count > 0:
+        report.total_signals = bridge_count
+        _append_unique(
+            report.notes,
+            "Total signals sourced from signal-bridge evaluations "
+            f"({bridge_count}) because no DBSignal rows were recorded; "
+            "the bridge count includes repeated dedup/cooldown evaluations.",
+        )
+
+    fills = int(getattr(report, "trades_filled", 0) or 0)
+    if fills < 30:
+        kept: List[str] = []
+        removed: List[str] = []
+        for recommendation in report.recommendations:
+            lowered = recommendation.lower()
+            if any(marker in lowered for marker in _PARAMETER_CHANGE_RECOMMENDATION_MARKERS):
+                removed.append(recommendation)
+            else:
+                kept.append(recommendation)
+        if removed:
+            report.recommendations = kept
+            _append_unique(
+                report.recommendations,
+                "Hold strategy thresholds and daily entry capacity unchanged "
+                "until the documented clean-cohort sample gates are met.",
+            )
+            _append_unique(
+                report.notes,
+                "Parameter-change recommendations suppressed because this "
+                f"session had only {fills} fill(s); operational defects may "
+                "still be fixed immediately.",
+            )
+
+    normalized_reasons = []
+    for reason in exit_reasons or []:
+        normalized = str(reason or "").strip().lower() or "unclassified"
+        normalized_reasons.append(normalized)
+
+    if normalized_reasons:
+        counts = Counter(normalized_reasons)
+        summary = ", ".join(
+            f"{reason}={count}" for reason, count in sorted(counts.items())
+        )
+        _append_unique(
+            report.notes,
+            f"Exit reason breakdown (closed trades): {summary}.",
+        )
+        if counts.get("unclassified", 0):
+            _append_unique(
+                report.recommendations,
+                "Repair missing exit_reason values before using exit-type "
+                "percentages for evaluation.",
+            )
+
+
+async def _load_closed_exit_reasons(db_session, today: str) -> List[Optional[str]]:
+    if db_session is None:
+        return []
+    try:
+        from sqlalchemy import select
+        from app.api.models import DBTradeJournal
+
+        rows = (
+            await db_session.execute(
+                select(DBTradeJournal).where(
+                    DBTradeJournal.session_date == today,
+                    DBTradeJournal.status == "closed",
+                )
+            )
+        ).scalars().all()
+        return [getattr(row, "exit_reason", None) for row in rows]
+    except Exception as exc:
+        logger.warning("Post-session: could not load exit reasons for debrief: %s", exc)
+        return []
 
 
 async def run_post_session(
@@ -265,6 +373,8 @@ async def _build_and_save_report(db_session, settings, today: str, alert_service
                 logger.warning("Post-session: ORB forward performance failed: %s", exc)
 
         report = await build_daily_report(db_session, today, settings)
+        exit_reasons = await _load_closed_exit_reasons(db_session, today)
+        _apply_debrief_amendments(report, exit_reasons)
 
         # Determine output dir
         output_dir = Path(getattr(settings, "evaluation_output_dir", "./evaluation")) / "reports"

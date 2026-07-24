@@ -1,7 +1,7 @@
 {
   "version": "2",
   "created_at": "2026-05-11T12:07:54.394379",
-  "last_updated": "2026-07-23T16:30:08.435530",
+  "last_updated": "2026-07-24T16:30:19.761396",
   "phase3_start_date": "2026-07-12",
   "sessions": [
     {
@@ -2073,15 +2073,87 @@
       "breakevens": 10,
       "gross_wins": 0.0,
       "gross_losses": 3.0
+    },
+    {
+      "date": "2026-07-24",
+      "total_trades": 120,
+      "wins": 3,
+      "losses": 0,
+      "realized_pnl": 37.0,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 0.0,
+      "slippage_total": -0.040000000000000036,
+      "spread_cost_total": 1.5000000000000013,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 3,
+      "trades_filled": 3,
+      "trades_cancelled": 0,
+      "trades_rejected": 117,
+      "by_strategy": {
+        "orb": {
+          "trades": 2,
+          "wins": 2,
+          "losses": 0,
+          "pnl": 7.999999999999999
+        },
+        "vwap_reclaim": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 29.000000000000004
+        }
+      },
+      "by_entry_hour": {
+        "09:00": {
+          "trades": 3,
+          "wins": 3,
+          "losses": 0,
+          "pnl": 37.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 3,
+          "wins": 3,
+          "losses": 0,
+          "pnl": 37.0
+        }
+      },
+      "by_spread_bucket": {
+        "tight (<5%)": {
+          "trades": 2,
+          "wins": 2,
+          "losses": 0,
+          "pnl": 35.0
+        },
+        "moderate (5-10%)": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 2.0
+        }
+      },
+      "reject_reasons": {
+        "Max entries per day reached": 111,
+        "liquidity_filter_no_contract": 6
+      },
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 117,
+      "gross_wins": 37.0,
+      "gross_losses": 0.0
     }
   ],
   "cumulative": {
-    "trading_days": 31,
-    "total_trades": 243,
-    "total_pnl": -532.5,
-    "expectancy": -2.19,
-    "win_rate": 0.0576,
-    "profit_factor": 1.4,
+    "trading_days": 32,
+    "total_trades": 363,
+    "total_pnl": -495.5,
+    "expectancy": -1.37,
+    "win_rate": 0.0468,
+    "profit_factor": 1.61,
     "max_drawdown": 1034.5,
     "pnl_by_strategy": {
       "fill_lifecycle_test": {
@@ -2097,10 +2169,10 @@
         "pnl": 0.0
       },
       "orb": {
-        "trades": 16,
-        "wins": 6,
+        "trades": 18,
+        "wins": 8,
         "losses": 10,
-        "pnl": 268.0
+        "pnl": 276.0
       },
       "rsi_trend": {
         "trades": 1,
@@ -2109,10 +2181,10 @@
         "pnl": -109.5
       },
       "vwap_reclaim": {
-        "trades": 34,
-        "wins": 7,
+        "trades": 35,
+        "wins": 8,
         "losses": 26,
-        "pnl": -693.0
+        "pnl": -664.0
       }
     },
     "pnl_by_entry_hour": {
@@ -2123,10 +2195,10 @@
         "pnl": -480.0
       },
       "09:00": {
-        "trades": 2,
-        "wins": 1,
+        "trades": 5,
+        "wins": 4,
         "losses": 1,
-        "pnl": -84.5
+        "pnl": -47.5
       },
       "10:00": {
         "trades": 22,
@@ -2143,10 +2215,10 @@
     },
     "pnl_by_delta_bucket": {
       "unknown": {
-        "trades": 33,
-        "wins": 8,
+        "trades": 36,
+        "wins": 11,
         "losses": 24,
-        "pnl": -200.5
+        "pnl": -163.5
       },
       "low (<0.30)": {
         "trades": 4,
@@ -2169,16 +2241,16 @@
     },
     "pnl_by_spread_bucket": {
       "moderate (5-10%)": {
-        "trades": 27,
-        "wins": 6,
+        "trades": 28,
+        "wins": 7,
         "losses": 20,
-        "pnl": -894.5
+        "pnl": -892.5
       },
       "tight (<5%)": {
-        "trades": 26,
-        "wins": 8,
+        "trades": 28,
+        "wins": 10,
         "losses": 17,
-        "pnl": 362.0
+        "pnl": 397.0
       }
     },
     "reject_counts_by_reason": {
@@ -2186,7 +2258,7 @@
       "cooldown_after_loss": 456,
       "Max trades per day reached": 155,
       "Trade cost $1106.00 exceeds max risk $996.80 and cannot be reduc": 1,
-      "Max entries per day reached": 246,
+      "Max entries per day reached": 357,
       "Trade cost $7957.00 exceeds max risk $995.38 and cannot be reduc": 5,
       "Trade cost $7917.00 exceeds max risk $995.38 and cannot be reduc": 4,
       "Trade cost $7728.00 exceeds max risk $995.38 and cannot be reduc": 2,
@@ -2224,7 +2296,7 @@
       "Trade cost $7875.00 exceeds max risk $994.58 and cannot be reduc": 1,
       "Trade cost $7786.00 exceeds max risk $994.73 and cannot be reduc": 1,
       "Trade cost $7717.00 exceeds max risk $994.58 and cannot be reduc": 1,
-      "liquidity_filter_no_contract": 196,
+      "liquidity_filter_no_contract": 202,
       "rsi_trend_diagnostic_only": 232,
       "pending_order_exists": 1,
       "SMH_cost_cap_orb_strikes": 4,
@@ -2244,25 +2316,25 @@
     }
   },
   "phase3_cumulative": {
-    "trading_days": 8,
-    "total_trades": 210,
-    "total_pnl": 70.0,
-    "expectancy": 0.33,
-    "win_rate": 0.0286,
-    "profit_factor": 1.4,
+    "trading_days": 9,
+    "total_trades": 330,
+    "total_pnl": 107.0,
+    "expectancy": 0.32,
+    "win_rate": 0.0273,
+    "profit_factor": 1.61,
     "max_drawdown": 107.0,
     "pnl_by_strategy": {
       "vwap_reclaim": {
-        "trades": 8,
-        "wins": 3,
+        "trades": 9,
+        "wins": 4,
         "losses": 5,
-        "pnl": 122.0
+        "pnl": 151.0
       },
       "orb": {
-        "trades": 10,
-        "wins": 3,
+        "trades": 12,
+        "wins": 5,
         "losses": 7,
-        "pnl": -52.0
+        "pnl": -44.0
       }
     },
     "pnl_by_entry_hour": {
@@ -2285,10 +2357,10 @@
         "pnl": -31.0
       },
       "09:00": {
-        "trades": 1,
-        "wins": 1,
+        "trades": 4,
+        "wins": 4,
         "losses": 0,
-        "pnl": 25.0
+        "pnl": 62.0
       }
     },
     "pnl_by_delta_bucket": {
@@ -2311,28 +2383,28 @@
         "pnl": -101.0
       },
       "unknown": {
-        "trades": 10,
-        "wins": 4,
+        "trades": 13,
+        "wins": 7,
         "losses": 6,
-        "pnl": 105.0
+        "pnl": 142.0
       }
     },
     "pnl_by_spread_bucket": {
       "moderate (5-10%)": {
-        "trades": 5,
-        "wins": 0,
+        "trades": 6,
+        "wins": 1,
         "losses": 5,
-        "pnl": -29.0
+        "pnl": -27.0
       },
       "tight (<5%)": {
-        "trades": 13,
-        "wins": 6,
+        "trades": 15,
+        "wins": 8,
         "losses": 7,
-        "pnl": 99.0
+        "pnl": 134.0
       }
     },
     "reject_counts_by_reason": {
-      "liquidity_filter_no_contract": 4,
+      "liquidity_filter_no_contract": 10,
       "Only 24 min before EOD exit (12": 1,
       "Only 19 min before EOD exit (12": 1,
       "Only 14 min before EOD exit (12": 1,
@@ -2347,7 +2419,7 @@
       "Only 12 min before EOD exit (12": 1,
       "Only 7 min before EOD exit (12": 1,
       "Only 2 min before EOD exit (12": 1,
-      "Max entries per day reached": 62
+      "Max entries per day reached": 173
     }
   }
 }

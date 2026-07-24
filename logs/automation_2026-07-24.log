@@ -1,0 +1,85 @@
+[2026-07-24T09:30:01-04:00] automatic start requested
+Market calendar and paper-account gate passed
+
+All static+broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "6bc6fcd082050e12571a2aa54b7ee4d0f8839582",
+  "working_tree_dirty": false,
+  "source_changes": [],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-07-23.log",
+    "logs/dashboard.log",
+    "logs/trading.jsonl",
+    "logs/trading.jsonl.1"
+  ],
+  "config_hash_sha256_16": "67954547a3a617d4",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "bd9d7d0a",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+[2026-07-24T09:30:04-04:00] launching Phase 3 runner -> /root/trader/logs/session_2026-07-24.log
+[2026-07-24T12:30:20-04:00] runner exited rc=0
+[2026-07-24T12:35:01-04:00] automatic EOD close-out requested
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "6bc6fcd082050e12571a2aa54b7ee4d0f8839582",
+  "working_tree_dirty": true,
+  "source_changes": [
+    "evaluation/ledger.json",
+    "evaluation/shadow_book.jsonl"
+  ],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-07-23.log",
+    "logs/broker.log",
+    "logs/dashboard.log",
+    "logs/live_status.json",
+    "logs/push_events.jsonl",
+    "logs/shadow_book_state.json",
+    "logs/trading.jsonl",
+    "logs/trading.jsonl.1",
+    "logs/trading.log"
+  ],
+  "config_hash_sha256_16": "67954547a3a617d4",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "bd9d7d0a",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "6bc6fcd082050e12571a2aa54b7ee4d0f8839582",
+  "working_tree_dirty": true,
+  "source_changes": [
+    "evaluation/ledger.json",
+    "evaluation/shadow_book.jsonl"
+  ],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-07-23.log",
+    "logs/broker.log",
+    "logs/dashboard.log",
+    "logs/live_status.json",
+    "logs/push_events.jsonl",
+    "logs/shadow_book_state.json",
+    "logs/trading.jsonl",
+    "logs/trading.jsonl.1",
+    "logs/trading.log"
+  ],
+  "config_hash_sha256_16": "67954547a3a617d4",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "bd9d7d0a",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+[2026-07-24T12:35:03-04:00] broker EOD state clean: 0 positions, 0 open orders

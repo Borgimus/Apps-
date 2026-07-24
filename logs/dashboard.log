@@ -93,3 +93,6 @@ INFO:     127.0.0.1:35200 - "GET /health HTTP/1.1" 200 OK
 INFO:     127.0.0.1:52792 - "GET /health HTTP/1.1" 200 OK
 INFO:     127.0.0.1:50948 - "GET /health HTTP/1.1" 200 OK
 INFO:     127.0.0.1:50960 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38042 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:38052 - "GET /api/session/pulse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55684 - "GET /health HTTP/1.1" 200 OK

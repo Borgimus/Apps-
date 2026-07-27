@@ -1,0 +1,49 @@
+{
+  "session_date": "2026-07-27",
+  "generated_at": "2026-07-27T12:30:05.677404-04:00",
+  "api_errors": 0,
+  "reconciliation_warnings": [
+    "Mismatch: PM has QQQ260727P00677000 but broker has no such position \u2014 flagged for review"
+  ],
+  "trades": {
+    "total_closed": 3,
+    "wins": 1,
+    "losses": 2,
+    "win_rate": 0.3333,
+    "still_open": 0,
+    "rejected": 0,
+    "cancelled": 0
+  },
+  "realized_pnl": 3.0,
+  "unrealized_pnl": 0,
+  "avg_win": 4.0,
+  "avg_loss": -0.5,
+  "max_drawdown": 0.0,
+  "orders": {
+    "submitted": 3,
+    "filled": 3,
+    "partial_fills": 0,
+    "cancelled": 0,
+    "stale_cancels": 0,
+    "rejected": 0,
+    "status_breakdown": {
+      "filled": 3
+    }
+  },
+  "by_strategy": {
+    "vwap_reclaim": {
+      "trades": 2,
+      "wins": 0,
+      "losses": 2,
+      "pnl": -1.0,
+      "win_rate": 0.0
+    },
+    "orb": {
+      "trades": 1,
+      "wins": 1,
+      "losses": 0,
+      "pnl": 4.0,
+      "win_rate": 1.0
+    }
+  }
+}

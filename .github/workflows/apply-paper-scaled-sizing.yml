@@ -54,7 +54,20 @@ jobs:
         run: pytest -q tests/test_paper_scaled_sizing.py
 
       - name: Run regression suite
-        run: pytest -q tests --maxfail=1
+        id: regression
+        continue-on-error: true
+        run: pytest -q tests --maxfail=1 2>&1 | tee regression-output.txt
+
+      - name: Upload regression output
+        if: steps.regression.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-output
+          path: regression-output.txt
+
+      - name: Stop on regression failure
+        if: steps.regression.outcome == 'failure'
+        run: exit 1
 
       - name: Commit tested implementation
         run: |

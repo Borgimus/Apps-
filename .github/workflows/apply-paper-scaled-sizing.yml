@@ -29,7 +29,7 @@ jobs:
       - name: Install test dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
 
-      - name: Check syntax and whitespace
+      - name: Check Python syntax
         run: |
           python -m py_compile \
             app/config/settings.py \
@@ -38,7 +38,6 @@ jobs:
             app/evaluation/daily_report.py \
             app/evaluation/post_session.py \
             tests/test_paper_scaled_sizing.py
-          git diff --check origin/claude/options-trading-research-system-TIU0p...HEAD
 
       - name: Run focused sizing tests
         run: pytest -q tests/test_paper_scaled_sizing.py

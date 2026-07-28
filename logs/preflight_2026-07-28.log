@@ -1,0 +1,31 @@
+=== PREFLIGHT 2026-07-28T09:20:01-04:00 ===
+From https://github.com/Borgimus/Apps-
+ * branch            claude/options-trading-research-system-TIU0p -> FETCH_HEAD
+Running focused safety suite...
+.....................................                                    [100%]
+37 passed in 4.47s
+Running fingerprint and broker checks...
+
+All static+broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "efa1d2b4d9d8ca19a67427310f41d9fc5328d82f",
+  "working_tree_dirty": false,
+  "source_changes": [],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-07-27.log",
+    "logs/dashboard.log",
+    "logs/trading.jsonl",
+    "logs/trading.jsonl.1",
+    "logs/trading.jsonl.2",
+    "logs/trading.jsonl.3"
+  ],
+  "config_hash_sha256_16": "67954547a3a617d4",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "bd9d7d0a",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+PREFLIGHT PASS: session armed for 2026-07-28 at efa1d2b4d9d8ca19a67427310f41d9fc5328d82f

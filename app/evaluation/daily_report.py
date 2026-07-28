@@ -53,7 +53,12 @@ class DailyReport:
 
     # PnL
     realized_pnl: float = 0.0
+    one_contract_normalized_pnl: float = 0.0
     unrealized_pnl: float = 0.0
+    contracts_filled: int = 0
+    sizing_cohort: str = "one_contract"
+    premium_budget_dollars: Optional[float] = None
+    contract_cap: int = 1
 
     # Performance
     win_rate: Optional[float] = None
@@ -168,14 +173,32 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
     from app.api.models import DBSessionLog, DBSignal, DBTradeJournal
 
     from app.evaluation.ledger import PHASE3_START
+    _scaled = bool(settings and getattr(settings, "paper_scaled_sizing_enabled", False))
+    _budget = (
+        float(getattr(settings, "paper_scaled_premium_budget_dollars", 250.0))
+        if _scaled else None
+    )
+    _cap = (
+        int(getattr(settings.universe, "max_contracts_per_position", 1))
+        if settings else 1
+    )
+    _cohort = (
+        f"paper_scaled_budget_{_budget:g}_cap_{_cap}" if _scaled else "one_contract"
+    )
     _phase = "phase3" if session_date >= PHASE3_START else "pre_phase3"
-    _evidence_type = "clean_evaluation" if _phase == "phase3" else "engineering_evidence_only"
+    _evidence_type = (
+        "scaled_paper_evaluation" if _scaled
+        else ("clean_evaluation" if _phase == "phase3" else "engineering_evidence_only")
+    )
     report = DailyReport(
         date=session_date,
         session_start=None,
         session_end=None,
         phase=_phase,
         evidence_type=_evidence_type,
+        sizing_cohort=_cohort,
+        premium_budget_dollars=_budget,
+        contract_cap=_cap,
     )
 
     # ── Session start / end from session logs ─────────────────────────────────
@@ -244,7 +267,15 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
 
     # ── PnL ───────────────────────────────────────────────────────────────────
     pnls = [float(t.realized_pnl) for t in closed]
+    quantities = [
+        max(1, int(getattr(t, "filled_quantity", None) or getattr(t, "quantity", 1) or 1))
+        for t in closed
+    ]
     report.realized_pnl = sum(pnls)
+    report.contracts_filled = sum(quantities)
+    report.one_contract_normalized_pnl = sum(
+        pnl / qty for pnl, qty in zip(pnls, quantities)
+    )
     report.unrealized_pnl = sum(
         float(t.unrealized_pnl) for t in trades
         if t.status == "open" and t.unrealized_pnl is not None
@@ -593,6 +624,12 @@ def _generate_notes(r: DailyReport):
     total_closed = len([s for s in r.by_strategy for _ in range(s.wins + s.losses)])
     total_attempted = r.trades_submitted + r.trades_rejected
 
+    if r.sizing_cohort != "one_contract":
+        notes.append(
+            f"Separate paper-only scaled-sizing cohort: {r.sizing_cohort}; "
+            "do not merge with the frozen one-contract clean cohort"
+        )
+
     if total_attempted > 0:
         rej_pct = r.trades_rejected / total_attempted * 100
         if rej_pct > 50:
@@ -897,6 +934,14 @@ def to_markdown(report: DailyReport) -> str:
         else "> **Phase 3 clean evaluation** — all P1–P7 defect fixes applied. "
         "This session is eligible for the clean-cohort analysis after acceptance criteria are met."
     )
+    if r.sizing_cohort != "one_contract":
+        phase_banner += (
+            "\n\n> **Separate paper-only scaled-sizing cohort** — actual P&L reflects "
+            "multi-contract sizing. One-contract-normalized P&L is shown for comparison; "
+            "do not merge this session into the frozen one-contract clean cohort."
+        )
+
+    budget_str = f"${r.premium_budget_dollars:.2f}" if r.premium_budget_dollars is not None else "n/a"
 
     return f"""# Daily Evaluation Report — {r.date}
 
@@ -918,8 +963,13 @@ def to_markdown(report: DailyReport) -> str:
 
 | Metric | Value |
 |---|---|
-| Realized PnL | ${r.realized_pnl:.2f} |
+| Actual realized PnL | ${r.realized_pnl:.2f} |
+| One-contract-normalized PnL | ${r.one_contract_normalized_pnl:.2f} |
 | Unrealized PnL | ${r.unrealized_pnl:.2f} |
+| Contracts filled | {r.contracts_filled} |
+| Sizing cohort | {r.sizing_cohort} |
+| Premium budget | {budget_str} |
+| Contract cap | {r.contract_cap} |
 | Win rate | {win_rate_str} |
 | Avg win | {avg_win_str} |
 | Avg loss | {avg_loss_str} |
@@ -990,6 +1040,7 @@ async def send_summary_alert(report: DailyReport, alert_service) -> None:
                 f"Eval report {report.date} | "
                 f"trades={report.trades_filled} | "
                 f"pnl=${report.realized_pnl:.2f} | "
+                f"normalized=${report.one_contract_normalized_pnl:.2f} | "
                 f"win={win_rate_str} | "
                 f"dd=${report.max_drawdown:.2f}"
             ),
@@ -997,6 +1048,8 @@ async def send_summary_alert(report: DailyReport, alert_service) -> None:
                 "date": report.date,
                 "trades_filled": report.trades_filled,
                 "realized_pnl": report.realized_pnl,
+                "one_contract_normalized_pnl": report.one_contract_normalized_pnl,
+                "sizing_cohort": report.sizing_cohort,
                 "win_rate": report.win_rate,
                 "max_drawdown": report.max_drawdown,
                 "api_errors": report.api_errors,

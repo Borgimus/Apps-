@@ -1392,11 +1392,74 @@ async def scan_and_place(
             )
             continue
 
+        request_quantity = 1
+        if getattr(settings, "paper_scaled_sizing_enabled", False):
+            if not acct.is_paper:
+                logger.critical(
+                    "PAPER_SCALED_SIZING: broker reports a non-paper account — aborting session"
+                )
+                raise SystemExit(1)
+
+            from app.risk.paper_sizing import calculate_paper_scaled_quantity
+
+            premium_budget = getattr(
+                settings, "paper_scaled_premium_budget_dollars", 250.0
+            )
+            max_contracts = getattr(
+                settings.universe, "max_contracts_per_position", 1
+            )
+            request_quantity = calculate_paper_scaled_quantity(
+                option_ask=contract.ask,
+                premium_budget_dollars=premium_budget,
+                max_contracts=max_contracts,
+            )
+
+            if request_quantity < 1:
+                reason = "paper_scaled_budget_below_one_contract"
+                logger.info(
+                    "Paper scaled sizing blocked | %s | ask=%.4f | budget=$%.2f | cap=%d",
+                    contract.option_symbol,
+                    float(contract.ask),
+                    float(premium_budget),
+                    int(max_contracts),
+                )
+                if _bridge is not None:
+                    _bridge.final_decision = "blocked"
+                    _bridge.exact_block_reason = reason
+                await _shadow_blocked(
+                    reason,
+                    _osym=contract.option_symbol,
+                    _lp=float(limit_price),
+                    _ask=float(contract.ask),
+                )
+                if journal:
+                    await journal.record_rejection(
+                        strategy_id=sig.strategy_id,
+                        signal_direction=sig.direction.value,
+                        underlying_symbol=symbol,
+                        underlying_price=sig.price,
+                        option_symbol=contract.option_symbol,
+                        rejection_reason=reason,
+                        entry_time=now,
+                    )
+                    await journal.commit()
+                continue
+
+            logger.info(
+                "Paper scaled sizing | %s | ask=%.4f | budget=$%.2f | qty=%d | premium=$%.2f | cap=%d",
+                contract.option_symbol,
+                float(contract.ask),
+                float(premium_budget),
+                request_quantity,
+                float(contract.ask) * 100 * request_quantity,
+                int(max_contracts),
+            )
+
         request = OrderRequest(
             symbol=symbol,
             option_symbol=contract.option_symbol,
             side=OrderSide.BUY_TO_OPEN,
-            quantity=1,
+            quantity=request_quantity,
             order_type=OrderType.LIMIT,
             limit_price=limit_price,
             strategy_id=sig.strategy_id,

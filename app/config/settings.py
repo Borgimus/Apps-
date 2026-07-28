@@ -244,6 +244,11 @@ class Settings(BaseSettings):
     exit_order_timeout_secs: int = 120     # stale cancel threshold for exit orders
     fill_test_max_spread_pct: float = 0.20 # abort contract if spread/mid > this
 
+    # Paper-only scaled-sizing experiment. Disabled by default.
+    # Quantity is bounded by the ask-price premium budget and the universe cap.
+    paper_scaled_sizing_enabled: bool = False
+    paper_scaled_premium_budget_dollars: float = 250.0
+
     @model_validator(mode="after")
     def guard_eval_mode(self):
         if self.paper_evaluation_mode and self.live_trading_enabled:
@@ -259,6 +264,25 @@ class Settings(BaseSettings):
                 raise ValueError(
                     "paper_eval_permissive_entry_mode requires paper_evaluation_mode=true."
                 )
+        if self.paper_scaled_sizing_enabled:
+            if self.live_trading_enabled:
+                raise ValueError(
+                    "paper_scaled_sizing_enabled cannot be used with live_trading_enabled=true."
+                )
+            if not self.paper_evaluation_mode:
+                raise ValueError(
+                    "paper_scaled_sizing_enabled requires paper_evaluation_mode=true."
+                )
+            if self.realistic_fill_test_mode:
+                raise ValueError(
+                    "paper_scaled_sizing_enabled is incompatible with realistic_fill_test_mode."
+                )
+            if self.paper_scaled_premium_budget_dollars <= 0:
+                raise ValueError(
+                    "paper_scaled_premium_budget_dollars must be greater than zero."
+                )
+            if self.universe.max_contracts_per_position < 1:
+                raise ValueError("max_contracts_per_position must be at least one.")
         return self
 
     @field_validator("live_trading_enabled", mode="before")

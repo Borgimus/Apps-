@@ -297,6 +297,23 @@ async def _build_and_save_report(db_session, settings, today: str, alert_service
         return None
 
 
+def _ledger_file_for_settings(settings) -> str:
+    """Return a cohort-specific ledger path for scaled paper evaluation."""
+    ledger_file = getattr(settings, "evaluation_ledger_file", "./evaluation/ledger.json")
+    if not getattr(settings, "paper_scaled_sizing_enabled", False):
+        return ledger_file
+
+    ledger_path = Path(ledger_file)
+    budget = float(getattr(settings, "paper_scaled_premium_budget_dollars", 250.0))
+    cap = int(getattr(settings.universe, "max_contracts_per_position", 1))
+    budget_slug = f"{budget:g}".replace(".", "_")
+    return str(
+        ledger_path.with_name(
+            f"{ledger_path.stem}.paper_scaled_{budget_slug}_cap_{cap}{ledger_path.suffix}"
+        )
+    )
+
+
 async def _update_ledger(report, db_session, today: str, settings, result: PostSessionResult):
     try:
         from app.evaluation.ledger import EvaluationLedger
@@ -314,7 +331,9 @@ async def _update_ledger(report, db_session, today: str, settings, result: PostS
             except Exception as exc:
                 logger.warning("Post-session: could not load trade records for ledger: %s", exc)
 
-        ledger_file = getattr(settings, "evaluation_ledger_file", "./evaluation/ledger.json")
+        ledger_file = _ledger_file_for_settings(settings)
+        if getattr(settings, "paper_scaled_sizing_enabled", False):
+            logger.info("Post-session: using separate scaled-sizing ledger %s", ledger_file)
         ledger = EvaluationLedger.load(ledger_file)
         ledger.add_session(report, trade_records=list(trade_records))
         ledger.save()

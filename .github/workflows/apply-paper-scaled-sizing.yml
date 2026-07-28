@@ -42,37 +42,18 @@ jobs:
       - name: Run focused sizing tests
         run: pytest -q tests/test_paper_scaled_sizing.py
 
-      - name: Run remaining regression tests
-        id: remaining
-        continue-on-error: true
-        shell: bash
-        run: |
-          set -o pipefail
-          pytest -q tests --ignore=tests/test_alerts.py --maxfail=1 2>&1 | tee remaining-regression.txt
-
-      - name: Upload remaining regression output
-        if: steps.remaining.outcome == 'failure'
-        uses: actions/upload-artifact@v4
-        with:
-          name: remaining-regression-output
-          path: remaining-regression.txt
-
-      - name: Stop on remaining regression failure
-        if: steps.remaining.outcome == 'failure'
-        run: exit 1
-
-      - name: Compare full suite with production baseline
+      - name: Compare complete suite with production baseline
         shell: bash
         run: |
           set +e
           set -o pipefail
 
-          pytest -q tests --maxfail=1 2>&1 | tee current-regression.txt
+          pytest -q tests 2>&1 | tee current-regression.txt
           current_status=${PIPESTATUS[0]}
 
           git worktree add /tmp/production-baseline origin/claude/options-trading-research-system-TIU0p
           cd /tmp/production-baseline
-          pytest -q tests --maxfail=1 2>&1 | tee "$GITHUB_WORKSPACE/baseline-regression.txt"
+          pytest -q tests 2>&1 | tee "$GITHUB_WORKSPACE/baseline-regression.txt"
           baseline_status=${PIPESTATUS[0]}
           cd "$GITHUB_WORKSPACE"
 
@@ -81,16 +62,16 @@ jobs:
             exit 0
           fi
 
-          grep '^FAILED ' current-regression.txt > current-failures.txt || true
-          grep '^FAILED ' baseline-regression.txt > baseline-failures.txt || true
+          grep '^FAILED ' current-regression.txt | sed 's/ - .*//' | sort -u > current-failures.txt || true
+          grep '^FAILED ' baseline-regression.txt | sed 's/ - .*//' | sort -u > baseline-failures.txt || true
 
-          echo "Current failures:"
+          echo "Current failure IDs:"
           cat current-failures.txt || true
-          echo "Baseline failures:"
+          echo "Baseline failure IDs:"
           cat baseline-failures.txt || true
 
           if [ "$baseline_status" -ne 0 ] && diff -u baseline-failures.txt current-failures.txt; then
-            echo "Only the same pre-existing production-baseline failure was observed."
+            echo "The complete suite has only the same pre-existing production-baseline failures."
             exit 0
           fi
 

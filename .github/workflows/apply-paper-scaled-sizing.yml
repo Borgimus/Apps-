@@ -1,4 +1,4 @@
-name: Verify guarded paper scaled sizing
+name: Finalize guarded paper scaled sizing
 
 on:
   pull_request:
@@ -6,10 +6,11 @@ on:
       - claude/options-trading-research-system-TIU0p
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  verify:
+  finalize:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -29,7 +30,58 @@ jobs:
       - name: Install test dependencies
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
 
-      - name: Check Python syntax
+      - name: Require explicit true for scaled sizing
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new):
+              p = Path(path)
+              text = p.read_text()
+              count = text.count(old)
+              if count != 1:
+                  raise RuntimeError(f"{path}: expected one match, found {count}: {old!r}")
+              p.write_text(text.replace(old, new, 1))
+
+          replace_once(
+              "scripts/session_runner.py",
+              '        if getattr(settings, "paper_scaled_sizing_enabled", False):\n',
+              '        if getattr(settings, "paper_scaled_sizing_enabled", False) is True:\n',
+          )
+          replace_once(
+              "app/evaluation/daily_report.py",
+              '    _scaled = bool(settings and getattr(settings, "paper_scaled_sizing_enabled", False))\n',
+              '    _scaled = (\n'
+              '        settings is not None\n'
+              '        and getattr(settings, "paper_scaled_sizing_enabled", False) is True\n'
+              '    )\n',
+          )
+          replace_once(
+              "app/evaluation/post_session.py",
+              '    if not getattr(settings, "paper_scaled_sizing_enabled", False):\n',
+              '    if getattr(settings, "paper_scaled_sizing_enabled", False) is not True:\n',
+          )
+          replace_once(
+              "app/evaluation/post_session.py",
+              '        if getattr(settings, "paper_scaled_sizing_enabled", False):\n',
+              '        if getattr(settings, "paper_scaled_sizing_enabled", False) is True:\n',
+          )
+
+          tests = Path("tests/test_paper_scaled_sizing.py")
+          text = tests.read_text()
+          text = text.replace(
+              "from types import SimpleNamespace\n",
+              "from types import SimpleNamespace\nfrom unittest.mock import MagicMock\n",
+              1,
+          )
+          marker = "\n\ndef test_scaled_cohort_uses_separate_ledger_file():"
+          test = '''\n\ndef test_unconfigured_magicmock_does_not_enable_scaled_ledger():\n    settings = MagicMock()\n    settings.evaluation_ledger_file = "./evaluation/ledger.json"\n    assert _ledger_file_for_settings(settings) == "./evaluation/ledger.json"\n'''
+          if text.count(marker) != 1:
+              raise RuntimeError("Could not insert MagicMock fail-closed test")
+          tests.write_text(text.replace(marker, test + marker, 1))
+          PY
+
+      - name: Check syntax and focused behavior
         run: |
           python -m py_compile \
             app/config/settings.py \
@@ -38,13 +90,12 @@ jobs:
             app/evaluation/daily_report.py \
             app/evaluation/post_session.py \
             tests/test_paper_scaled_sizing.py
-
-      - name: Run focused sizing tests
-        run: pytest -q tests/test_paper_scaled_sizing.py
+          pytest -q tests/test_paper_scaled_sizing.py
+          pytest -q \
+            tests/test_evaluation.py::TestPostSession::test_ledger_updated_after_report \
+            tests/test_evaluation.py::TestLedgerAccumulation::test_two_sessions_accumulate
 
       - name: Compare complete suite with production baseline
-        id: compare
-        continue-on-error: true
         shell: bash
         run: |
           set +e
@@ -62,33 +113,36 @@ jobs:
           grep '^FAILED ' current-regression.txt | sed 's/ - .*//' | sort -u > current-failures.txt || true
           grep '^FAILED ' baseline-regression.txt | sed 's/ - .*//' | sort -u > baseline-failures.txt || true
 
-          printf 'current_status=%s\nbaseline_status=%s\n' "$current_status" "$baseline_status" > regression-status.txt
-
           if [ "$current_status" -eq 0 ]; then
             exit 0
           fi
 
-          if [ "$baseline_status" -ne 0 ] && diff -u baseline-failures.txt current-failures.txt > failure-diff.txt; then
-            echo "Only matching production-baseline failures were observed." >> regression-status.txt
+          if [ "$baseline_status" -ne 0 ] && diff -u baseline-failures.txt current-failures.txt; then
+            echo "Only matching production-baseline failures were observed."
             exit 0
           fi
 
-          diff -u baseline-failures.txt current-failures.txt > failure-diff.txt || true
+          echo "New regression failure set detected."
+          diff -u baseline-failures.txt current-failures.txt || true
           exit 1
 
-      - name: Upload regression comparison
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: complete-regression-comparison
-          path: |
-            current-regression.txt
-            baseline-regression.txt
-            current-failures.txt
-            baseline-failures.txt
-            failure-diff.txt
+      - name: Remove temporary automation artifacts
+        run: |
+          rm -f \
+            .github/workflows/apply-paper-scaled-sizing.yml \
+            regression-output.txt \
+            current-regression.txt \
+            baseline-regression.txt \
+            current-failures.txt \
+            baseline-failures.txt \
+            failure-diff.txt \
             regression-status.txt
+          git diff --check
 
-      - name: Stop on new regression failure
-        if: steps.compare.outcome == 'failure'
-        run: exit 1
+      - name: Commit tested implementation
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'Finalize guarded paper scaled sizing experiment'
+          git push origin HEAD:agent/paper-scaled-sizing-250-10

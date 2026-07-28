@@ -43,6 +43,8 @@ jobs:
         run: pytest -q tests/test_paper_scaled_sizing.py
 
       - name: Compare complete suite with production baseline
+        id: compare
+        continue-on-error: true
         shell: bash
         run: |
           set +e
@@ -57,23 +59,36 @@ jobs:
           baseline_status=${PIPESTATUS[0]}
           cd "$GITHUB_WORKSPACE"
 
-          if [ "$current_status" -eq 0 ]; then
-            echo "Current branch regression suite passed."
-            exit 0
-          fi
-
           grep '^FAILED ' current-regression.txt | sed 's/ - .*//' | sort -u > current-failures.txt || true
           grep '^FAILED ' baseline-regression.txt | sed 's/ - .*//' | sort -u > baseline-failures.txt || true
 
-          echo "Current failure IDs:"
-          cat current-failures.txt || true
-          echo "Baseline failure IDs:"
-          cat baseline-failures.txt || true
+          printf 'current_status=%s\nbaseline_status=%s\n' "$current_status" "$baseline_status" > regression-status.txt
 
-          if [ "$baseline_status" -ne 0 ] && diff -u baseline-failures.txt current-failures.txt; then
-            echo "The complete suite has only the same pre-existing production-baseline failures."
+          if [ "$current_status" -eq 0 ]; then
             exit 0
           fi
 
-          echo "The experiment branch introduced a new regression failure."
+          if [ "$baseline_status" -ne 0 ] && diff -u baseline-failures.txt current-failures.txt > failure-diff.txt; then
+            echo "Only matching production-baseline failures were observed." >> regression-status.txt
+            exit 0
+          fi
+
+          diff -u baseline-failures.txt current-failures.txt > failure-diff.txt || true
           exit 1
+
+      - name: Upload regression comparison
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: complete-regression-comparison
+          path: |
+            current-regression.txt
+            baseline-regression.txt
+            current-failures.txt
+            baseline-failures.txt
+            failure-diff.txt
+            regression-status.txt
+
+      - name: Stop on new regression failure
+        if: steps.compare.outcome == 'failure'
+        run: exit 1

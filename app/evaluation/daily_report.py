@@ -173,7 +173,10 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
     from app.api.models import DBSessionLog, DBSignal, DBTradeJournal
 
     from app.evaluation.ledger import PHASE3_START
-    _scaled = bool(settings and getattr(settings, "paper_scaled_sizing_enabled", False))
+    _scaled = (
+        settings is not None
+        and getattr(settings, "paper_scaled_sizing_enabled", False) is True
+    )
     _budget = (
         float(getattr(settings, "paper_scaled_premium_budget_dollars", 250.0))
         if _scaled else None

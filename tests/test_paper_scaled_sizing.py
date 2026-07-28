@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from unittest.mock import MagicMock
 
 import pytest
 from pydantic import ValidationError
@@ -73,6 +74,12 @@ def test_scaled_sizing_accepts_guarded_paper_mode():
         paper_scaled_premium_budget_dollars=250,
     )
     assert settings.paper_scaled_sizing_enabled is True
+
+
+def test_unconfigured_magicmock_does_not_enable_scaled_ledger():
+    settings = MagicMock()
+    settings.evaluation_ledger_file = "./evaluation/ledger.json"
+    assert _ledger_file_for_settings(settings) == "./evaluation/ledger.json"
 
 
 def test_scaled_cohort_uses_separate_ledger_file():

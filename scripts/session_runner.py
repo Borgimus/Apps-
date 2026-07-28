@@ -1393,7 +1393,7 @@ async def scan_and_place(
             continue
 
         request_quantity = 1
-        if getattr(settings, "paper_scaled_sizing_enabled", False):
+        if getattr(settings, "paper_scaled_sizing_enabled", False) is True:
             if not acct.is_paper:
                 logger.critical(
                     "PAPER_SCALED_SIZING: broker reports a non-paper account — aborting session"

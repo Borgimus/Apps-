@@ -300,7 +300,7 @@ async def _build_and_save_report(db_session, settings, today: str, alert_service
 def _ledger_file_for_settings(settings) -> str:
     """Return a cohort-specific ledger path for scaled paper evaluation."""
     ledger_file = getattr(settings, "evaluation_ledger_file", "./evaluation/ledger.json")
-    if not getattr(settings, "paper_scaled_sizing_enabled", False):
+    if getattr(settings, "paper_scaled_sizing_enabled", False) is not True:
         return ledger_file
 
     ledger_path = Path(ledger_file)
@@ -332,7 +332,7 @@ async def _update_ledger(report, db_session, today: str, settings, result: PostS
                 logger.warning("Post-session: could not load trade records for ledger: %s", exc)
 
         ledger_file = _ledger_file_for_settings(settings)
-        if getattr(settings, "paper_scaled_sizing_enabled", False):
+        if getattr(settings, "paper_scaled_sizing_enabled", False) is True:
             logger.info("Post-session: using separate scaled-sizing ledger %s", ledger_file)
         ledger = EvaluationLedger.load(ledger_file)
         ledger.add_session(report, trade_records=list(trade_records))

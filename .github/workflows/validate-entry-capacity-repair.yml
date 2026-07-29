@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - agent/paper-scaled-sizing-250-10
+  pull_request:
+    branches:
+      - claude/options-trading-research-system-TIU0p
 
 permissions:
   contents: read

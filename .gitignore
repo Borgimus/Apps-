@@ -68,6 +68,9 @@ env/
 # Logs (project-level)
 logs/
 
+# Generated cohort-specific evaluation ledgers (runtime state)
+evaluation/ledger.paper_scaled_*_cap_*.json
+
 # Test coverage
 .coverage
 htmlcov/

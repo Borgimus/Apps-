@@ -51,11 +51,31 @@ from zoneinfo import ZoneInfo
 warnings.filterwarnings("ignore")
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from app.risk.entry_capacity import reserved_entry_slots
+
 ET = ZoneInfo("America/New_York")
 logger = logging.getLogger("session_runner")
 
 # ── Globals (set in main, read in signal handler) ────────────────────────────
 _shutdown_requested = False
+
+
+def _entry_capacity_used(pm, fill_tracker, risk) -> int:
+    """Count unique open or pending option positions against the active cap.
+
+    A partially-filled order appears in both PositionManager and FillTracker,
+    so option symbols are de-duplicated. Any RiskManager pending count that is
+    not represented in FillTracker is conservatively treated as a separate
+    reserved slot.
+    """
+    open_symbols = [p.option_symbol for p in pm.open_positions()]
+    pending_orders = fill_tracker.pending_orders() if fill_tracker else []
+    pending_symbols = [p.option_symbol for p in pending_orders]
+    tracked_pending = len(pending_orders)
+    risk_pending = max(0, int(getattr(risk, "pending_entries", 0)))
+    for index in range(max(0, risk_pending - tracked_pending)):
+        pending_symbols.append(f"__untracked_pending_{index}")
+    return reserved_entry_slots(open_symbols, pending_symbols)
 
 
 def _request_shutdown(signum, frame):
@@ -1090,7 +1110,7 @@ async def scan_and_place(
             _orb_h, _orb_m = map(int, _orb_reserve_until_str.split(":"))
             _orb_reserve_dt = now.replace(hour=_orb_h, minute=_orb_m, second=0, microsecond=0)
             if now < _orb_reserve_dt:
-                _non_orb = sum(v for k, v in (entries_placed or {}).items() if k != "orb")
+                _non_orb = risk.non_orb_entry_commitments
                 _max_ent = settings.risk.max_trades_per_day
                 if _non_orb >= _max_ent - 1:
                     _orb_slot_active = True
@@ -1212,6 +1232,22 @@ async def scan_and_place(
                 )
             except Exception as _sb_exc:
                 logger.debug("ShadowBook record failed: %s", _sb_exc)
+
+        # Global entry-capacity guard. Pending entry orders reserve a slot
+        # immediately, so a second order cannot race the first fill confirmation.
+        _capacity_used = _entry_capacity_used(pm, fill_tracker, risk)
+        _capacity_limit = settings.universe.max_active_positions
+        if _capacity_used >= _capacity_limit:
+            logger.info(
+                "Max active entry capacity reached (%d/%d) — skipping %s/%s",
+                _capacity_used, _capacity_limit, symbol, sig.strategy_id,
+            )
+            if _bridge is not None:
+                _bridge.position_limit_passed = False
+                _bridge.final_decision = "skipped"
+                _bridge.exact_block_reason = "max_active_positions"
+            await _shadow_blocked("max_active_positions")
+            continue
 
         # ORB slot reservation: skip non-ORB signals when slot is reserved
         if _permissive and _orb_slot_active and sig.strategy_id != "orb":
@@ -1593,7 +1629,7 @@ async def scan_and_place(
         if order is None:
             continue
 
-        risk.record_entry_pending()
+        risk.record_entry_pending(sig.strategy_id)
         if entries_placed is not None:
             entries_placed[sig.strategy_id] = entries_placed.get(sig.strategy_id, 0) + 1
         logger.info(
@@ -2466,10 +2502,13 @@ async def run_session(args: argparse.Namespace):
                     "Recon mismatch active — all new entries blocked until next clean reconcile"
                 )
             for symbol in (active_symbols if not _recon_has_mismatch else []):
-                # Global max-positions gate
-                if len(pm.open_positions()) >= _max_active_pos:
+                # Global max-positions gate. Pending entries reserve capacity
+                # before fill confirmation; partial fills count once by symbol.
+                _capacity_used = _entry_capacity_used(pm, fill_tracker, risk)
+                if _capacity_used >= _max_active_pos:
                     logger.debug(
-                        "Max active positions (%d) reached — skipping scan", _max_active_pos
+                        "Max active entry capacity (%d/%d) reached — skipping scan",
+                        _capacity_used, _max_active_pos,
                     )
                     break
                 # Per-day symbol limit

@@ -29,6 +29,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from zoneinfo import ZoneInfo
 
 logger = logging.getLogger(__name__)
 
@@ -352,7 +353,6 @@ def _accumulate_hour(trade, by_hour: Dict) -> None:
     ts = entry_time
     if hasattr(ts, "astimezone"):
         if ts.tzinfo is None:
-            from zoneinfo import ZoneInfo
             ts = ts.replace(tzinfo=ZoneInfo("America/New_York"))
         ts = ts.astimezone(ZoneInfo("America/New_York"))
     hour_key = ts.strftime("%H:00")

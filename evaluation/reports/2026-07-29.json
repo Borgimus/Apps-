@@ -1,0 +1,214 @@
+{
+  "date": "2026-07-29",
+  "session_start": "2026-07-29 09:38:31 EDT",
+  "session_end": "2026-07-29 10:10:58 EDT",
+  "total_signals": 0,
+  "trades_submitted": 2,
+  "trades_filled": 1,
+  "trades_cancelled": 1,
+  "trades_rejected": 29,
+  "realized_pnl": -8.999999999999975,
+  "one_contract_normalized_pnl": -2.9999999999999916,
+  "unrealized_pnl": 0,
+  "contracts_filled": 3,
+  "sizing_cohort": "paper_scaled_budget_250_cap_10",
+  "premium_budget_dollars": 250.0,
+  "contract_cap": 10,
+  "win_rate": 0.0,
+  "avg_win": null,
+  "avg_loss": -8.999999999999975,
+  "max_drawdown": 8.999999999999975,
+  "largest_win": null,
+  "largest_loss": -8.999999999999975,
+  "slippage_total": 0.0,
+  "spread_cost_estimate": 1.5000000000000013,
+  "fill_rate": 0.5,
+  "cancel_rate": 0.5,
+  "missed_fills_count": 1,
+  "time_to_fill_avg_secs": 31.355982,
+  "avg_spread_at_entry": 0.01471304159679775,
+  "avg_spread_at_exit": null,
+  "stop_loss_hit_pct": 0.0,
+  "take_profit_hit_pct": 0.0,
+  "eod_exit_pct": 0.0,
+  "fill_rate_by_mode": {
+    "marketable_limit": 0.5
+  },
+  "cancel_rate_by_mode": {
+    "marketable_limit": 0.5
+  },
+  "avg_fill_latency_by_mode": {
+    "marketable_limit": 31.355982
+  },
+  "cancel_reason_breakdown": {
+    "stale_cancelled": 1
+  },
+  "scanned_symbols_count": 70,
+  "candidate_count_passed": 50,
+  "candidate_count_rejected": 20,
+  "selected_symbols": [
+    "IWM",
+    "XLE",
+    "AAPL",
+    "QQQ",
+    "AAPL",
+    "IWM",
+    "QQQ",
+    "AAPL",
+    "QQQ",
+    "IWM",
+    "AAPL",
+    "IWM",
+    "QQQ",
+    "IWM",
+    "QQQ",
+    "AAPL",
+    "QQQ",
+    "AAPL",
+    "IWM",
+    "IWM",
+    "AAPL",
+    "QQQ"
+  ],
+  "top_candidates": [
+    {
+      "symbol": "AAPL",
+      "score": 85.0,
+      "signal_type": "LONG"
+    },
+    {
+      "symbol": "AAPL",
+      "score": 85.0,
+      "signal_type": "LONG"
+    },
+    {
+      "symbol": "IWM",
+      "score": 80.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "IWM",
+      "score": 80.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "IWM",
+      "score": 80.0,
+      "signal_type": "SHORT"
+    }
+  ],
+  "candidates_by_group": {
+    "core_etfs": 63,
+    "mega_cap": 7
+  },
+  "rejected_by_group": {
+    "core_etfs": 20
+  },
+  "trades_by_group": {
+    "mega_cap": 1
+  },
+  "pnl_by_group": {
+    "mega_cap": -8.999999999999975
+  },
+  "liquidity_rejections": 14,
+  "pnl_by_symbol": {
+    "AAPL": -9.0
+  },
+  "win_rate_by_symbol": {
+    "AAPL": 0.0
+  },
+  "expectancy_by_symbol": {
+    "AAPL": -9.0
+  },
+  "api_errors": 0,
+  "kill_switch_events": 0,
+  "by_strategy": [
+    {
+      "strategy_id": "orb",
+      "signals": 0,
+      "submitted": 0,
+      "fills": 0,
+      "cancels": 0,
+      "rejects": 29,
+      "realized_pnl": 0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": null,
+      "avg_win": null,
+      "avg_loss": null
+    },
+    {
+      "strategy_id": "vwap_reclaim",
+      "signals": 0,
+      "submitted": 2,
+      "fills": 1,
+      "cancels": 1,
+      "rejects": 0,
+      "realized_pnl": -8.999999999999975,
+      "wins": 0,
+      "losses": 1,
+      "win_rate": 0.0,
+      "avg_win": null,
+      "avg_loss": -8.999999999999975
+    }
+  ],
+  "scanner_standby_activated": false,
+  "standby_reason": null,
+  "exit_spread_warning_count": 0,
+  "bridge_entries_count": 131,
+  "bridge_traded_count": 2,
+  "bridge_blocked_count": 0,
+  "bridge_skipped_count": 129,
+  "bridge_by_strategy": {
+    "rsi_trend": {
+      "traded": 0,
+      "blocked": 0,
+      "skipped": 71
+    },
+    "vwap_reclaim": {
+      "traded": 2,
+      "blocked": 0,
+      "skipped": 29
+    },
+    "orb": {
+      "traded": 0,
+      "blocked": 0,
+      "skipped": 29
+    }
+  },
+  "bridge_top_blocked_reasons": [],
+  "sample_size_warning": "Sample size too small for statistical conclusions (1 fill(s) this session). Win rate and PnL metrics require 30+ trades to be meaningful.",
+  "orb_signals_total": 29,
+  "orb_signals_traded": 0,
+  "orb_signals_blocked": 0,
+  "orb_signals_skipped": 29,
+  "orb_quality_distribution": {
+    "3": 29
+  },
+  "orb_slot_reserved_events": 29,
+  "orb_actual_pnl": null,
+  "orb_avg_quality": 3.0,
+  "orb_top_blocked_reasons": [
+    "cooldown_after_loss"
+  ],
+  "orb_avg_fwd_pct_5m": null,
+  "orb_avg_fwd_pct_15m": null,
+  "orb_avg_fwd_pct_30m": null,
+  "pnl_by_strategy": {
+    "vwap_reclaim": -8.999999999999975
+  },
+  "notes": [
+    "Separate paper-only scaled-sizing cohort: paper_scaled_budget_250_cap_10; do not merge with the frozen one-contract clean cohort",
+    "94% of signals were rejected (29/31)",
+    "Win rate 0% is below 40%",
+    "Net loss session: $-9.00",
+    "ORB strategy: 29 signal(s) evaluated but none traded \u2014 check block reasons above",
+    "Entry counter fix validated: entries increment on fill (not at order placement), exits tracked separately and do not consume entry capacity"
+  ],
+  "recommendations": [
+    "Review signal filters \u2014 high rejection rate may indicate overly strict criteria or poor market fit",
+    "Win rate below 40%; consider tightening entry criteria or adjusting profit/stop targets"
+  ],
+  "phase": "phase3",
+  "evidence_type": "scaled_paper_evaluation"
+}

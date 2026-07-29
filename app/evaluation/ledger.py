@@ -157,12 +157,25 @@ class EvaluationLedger:
 
         if trade_records:
             for t in trade_records:
+                # Rejections remain diagnostic attempts, never completed trades.
+                _accumulate_reject(t, reject_reasons)
+
+                # Only broker-closed journal rows belong in performance metrics.
+                # Rejected and cancelled attempts can carry a default 0.0 P&L;
+                # treating those rows as breakevens corrupts trade count,
+                # expectancy, win rate, and every cumulative dimension.
+                if getattr(t, "status", "") != "closed":
+                    continue
+                _realized_pnl = getattr(t, "realized_pnl", None)
+                if _realized_pnl is None:
+                    continue
+
                 _accumulate_hour(t, by_hour)
                 _accumulate_delta(t, by_delta)
                 _accumulate_spread(t, by_spread)
-                _accumulate_reject(t, reject_reasons)
-                # Accumulate per-trade P&L for trade-level profit factor
-                _pnl = float(getattr(t, "realized_pnl", None) or 0)
+
+                # Accumulate per-trade P&L for trade-level profit factor.
+                _pnl = float(_realized_pnl)
                 if _pnl > 0:
                     gross_wins += _pnl
                 elif _pnl < 0:

@@ -103,6 +103,8 @@ class RiskManager:
         self._s = settings or get_settings()
         self._entries_today: int = 0     # confirmed filled entries
         self._pending_entries: int = 0   # placed but not yet filled/cancelled
+        self._filled_entries_by_strategy: Dict[str, int] = {}
+        self._pending_entries_by_strategy: Dict[str, int] = {}
         self._exits_today: int = 0       # closed positions (reporting only)
         self._daily_pnl: Decimal = Decimal("0")
         self._session_date: Optional[date] = None
@@ -125,35 +127,65 @@ class RiskManager:
             self._session_date = today
             self._entries_today = 0
             self._pending_entries = 0
+            self._filled_entries_by_strategy = {}
+            self._pending_entries_by_strategy = {}
             self._exits_today = 0
             self._daily_pnl = Decimal("0")
             self._starting_equity = equity
 
     # ── Entry / exit recording ────────────────────────────────────────────────
 
-    def record_entry_pending(self):
-        """Call when an entry order is accepted by the broker (before fill confirmation)."""
+    @staticmethod
+    def _strategy_key(strategy_id: Optional[str]) -> str:
+        key = (strategy_id or "unknown").strip()
+        return key or "unknown"
+
+    @staticmethod
+    def _decrement_strategy_counter(counter: Dict[str, int], strategy_id: str) -> None:
+        """Decrement the matching bucket, falling back conservatively after recovery."""
+        candidates = [strategy_id, "unknown"]
+        candidates.extend(key for key in counter if key not in candidates)
+        for key in candidates:
+            if counter.get(key, 0) > 0:
+                counter[key] -= 1
+                if counter[key] == 0:
+                    counter.pop(key, None)
+                return
+
+    def record_entry_pending(self, strategy_id: Optional[str] = None):
+        """Reserve a daily entry and strategy slot when the broker accepts an order."""
+        key = self._strategy_key(strategy_id)
         self._pending_entries += 1
+        self._pending_entries_by_strategy[key] = (
+            self._pending_entries_by_strategy.get(key, 0) + 1
+        )
         logger.info(
-            "RiskManager: entry pending | entries=%d pending=%d exits=%d",
-            self._entries_today, self._pending_entries, self._exits_today,
+            "RiskManager: entry pending | strategy=%s entries=%d pending=%d exits=%d",
+            key, self._entries_today, self._pending_entries, self._exits_today,
         )
 
-    def record_entry_filled(self):
-        """Call when a pending entry order is confirmed filled by the broker."""
+    def record_entry_filled(self, strategy_id: Optional[str] = None):
+        """Convert a pending strategy reservation into a confirmed filled entry."""
+        key = self._strategy_key(strategy_id)
         self._pending_entries = max(0, self._pending_entries - 1)
+        self._decrement_strategy_counter(self._pending_entries_by_strategy, key)
         self._entries_today += 1
+        self._filled_entries_by_strategy[key] = (
+            self._filled_entries_by_strategy.get(key, 0) + 1
+        )
         logger.info(
-            "RiskManager: entry filled | entries=%d pending=%d exits=%d",
-            self._entries_today, self._pending_entries, self._exits_today,
+            "RiskManager: entry filled | strategy=%s entries=%d pending=%d exits=%d",
+            key, self._entries_today, self._pending_entries, self._exits_today,
         )
 
-    def record_entry_cancelled(self):
-        """Call when a pending entry order is cancelled or rejected without filling."""
+    def record_entry_cancelled(self, strategy_id: Optional[str] = None):
+        """Release a pending daily-entry and strategy reservation without a fill."""
+        key = self._strategy_key(strategy_id)
         self._pending_entries = max(0, self._pending_entries - 1)
+        self._decrement_strategy_counter(self._pending_entries_by_strategy, key)
         logger.info(
-            "RiskManager: entry cancelled | entries=%d pending=%d exits=%d",
-            self._entries_today, self._pending_entries, self._exits_today,
+            "RiskManager: entry cancelled | strategy=%s entries=%d pending=%d exits=%d",
+            key, self._entries_today, self._pending_entries, self._exits_today,
         )
 
     def record_exit(self, pnl: Decimal = Decimal("0")):
@@ -237,6 +269,14 @@ class RiskManager:
         prev_pending = self._pending_entries
         self._entries_today = max(self._entries_today, entries)
         self._pending_entries = max(self._pending_entries, pending)
+        # Session recovery may not have complete historical strategy metadata.
+        # Unknown is treated as non-ORB, which preserves the reservation fail-closed.
+        self._filled_entries_by_strategy = (
+            {"unknown": self._entries_today} if self._entries_today else {}
+        )
+        self._pending_entries_by_strategy = (
+            {"unknown": self._pending_entries} if self._pending_entries else {}
+        )
         self._daily_pnl = pnl if isinstance(pnl, Decimal) else Decimal(str(pnl))
         logger.info(
             "RiskManager: counters restored from DB "
@@ -460,6 +500,19 @@ class RiskManager:
                 break
 
     # ── Utility ───────────────────────────────────────────────────────────────
+
+    @property
+    def non_orb_entry_commitments(self) -> int:
+        """Filled plus pending non-ORB entries; cancellations release pending slots."""
+        filled = sum(
+            count for strategy, count in self._filled_entries_by_strategy.items()
+            if strategy != "orb"
+        )
+        pending = sum(
+            count for strategy, count in self._pending_entries_by_strategy.items()
+            if strategy != "orb"
+        )
+        return filled + pending
 
     @property
     def entries_today(self) -> int:

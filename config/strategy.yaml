@@ -1,0 +1,192 @@
+# =============================================================================
+# TC2000 + Alpaca Swing-Trading Strategy Configuration
+# =============================================================================
+# VERSIONED, deterministic strategy configuration. Every threshold below is a
+# HYPOTHESIS derived from an unverified social-media video, not a proven value.
+# Any change to an execution rule, risk limit, market-data feed, or exit policy
+# REQUIRES a version bump, tests, and a recorded reason in docs/CHANGELOG.
+#
+# Chart "angle" is scale-dependent and is intentionally NOT computed. It is
+# represented here by normalized slope thresholds (percent change of the moving
+# average over a lookback).
+# =============================================================================
+
+config_version: "1.0.0"
+strategy_id: "tc2000_alpaca_swing_v1"
+description: "Long-only US-stock swing strategy, PAPER ONLY. Provisional thresholds."
+
+# ---------------------------------------------------------------------------
+# Runtime mode. NO live trading is ever permitted by this system.
+# Progression: BACKTEST -> SHADOW -> PAPER_CONFIRM -> PAPER_AUTO
+# ---------------------------------------------------------------------------
+mode: "SHADOW"                 # BACKTEST | SHADOW | PAPER_CONFIRM | PAPER_AUTO
+allow_live: false              # HARD-CODED intent; broker adapter rejects non-paper regardless.
+
+# ---------------------------------------------------------------------------
+# Universe / eligibility filters (independently re-validated with market data).
+# ---------------------------------------------------------------------------
+universe:
+  min_price: 1.00              # Exclude stocks priced at or below $1 (strict >).
+  min_daily_move_pct: 5.0      # "moves faster than 5% per day" — see volatility.metric.
+  default_min_dollar_volume: 30_000_000   # Avg daily $ volume default floor.
+  small_account_min_dollar_volume: 5_000_000  # Configurable lower floor; NEVER below $5M.
+  active_min_dollar_volume: 30_000_000    # The floor actually in force (must be >= 5M).
+  dollar_volume_lookback_bars: 20
+
+# ---------------------------------------------------------------------------
+# Volatility metric interpretation of "moves faster than 5% per day".
+# The transcript is ambiguous; ADR% over 20 bars is the provisional DEFAULT.
+# A one-day >5% gain is explicitly NOT the default (would exclude quiet pullbacks).
+# ---------------------------------------------------------------------------
+volatility:
+  metric: "ADR_PCT"            # ADR_PCT | ATR_PCT  (ATR_PCT is a shadow experiment)
+  lookback_bars: 20
+  # ADR% = mean((high - low) / previous_close * 100, N)
+  # ATR% = ATR(N) / last_close * 100     (shadow comparison only)
+
+# ---------------------------------------------------------------------------
+# TC2000 strength scans. Three lookbacks; top 2% of the selected universe.
+# ---------------------------------------------------------------------------
+strength_scans:
+  top_percentile: 2.0          # Top 2% by lookback return.
+  scans:
+    one_month:   { lookback_bars: 20 }
+    three_month: { lookback_bars: 60 }
+    six_month:   { lookback_bars: 120 }
+
+# Candidate agreement mode. STRICT default = must appear in all three scans.
+# Other modes are computed and SHADOW-logged but never generate orders.
+candidate_mode: "intersection_3_of_3"   # intersection_3_of_3 | agreement_2_of_3 | union_ranked
+
+# ---------------------------------------------------------------------------
+# Indicators (computed on BOTH daily and hourly; daily governs the setup).
+# ---------------------------------------------------------------------------
+indicators:
+  sma_periods: [10, 20, 50, 200]
+  volume_ema_period: 22
+
+# ---------------------------------------------------------------------------
+# Trend qualification (normalized slopes; NEVER literal screen angle).
+# slope_pct = (ma[t] - ma[t - lookback]) / ma[t - lookback] * 100
+# ---------------------------------------------------------------------------
+trend:
+  slope_lookback_bars: 5
+  require_positive_slope: [10, 20, 50]     # SMAs whose slope must be > threshold.
+  min_slope_pct: 0.0                        # Provisional: strictly rising.
+  prefer_stack_10_20_50: true               # SMA10 > SMA20 > SMA50 (preferred, scored).
+  require_price_above_sma50: true
+  sma200_flat_to_rising: true               # SMA200 slope >= sma200_min_slope_pct.
+  sma200_min_slope_pct: -0.05               # "curling up"/flat tolerance.
+
+# ---------------------------------------------------------------------------
+# Pullback / contraction setup detection (deterministic; scored components).
+# ---------------------------------------------------------------------------
+contraction:
+  min_length_bars: 3
+  max_length_bars: 15
+  require_higher_pivot_lows: 2              # when enough bars exist
+  require_lower_pivot_highs: 2
+  pivot_strength: 2                         # bars on each side to define a pivot.
+  require_range_contraction: true          # range width contracts across consolidation.
+  proximity_to_ma:
+    reference_mas: [10, 20]                 # close/low within distance of SMA10 or SMA20.
+    max_distance_pct: 3.0                   # OR ATR-based, see max_distance_atr.
+    max_distance_atr: 1.0
+    atr_period: 20
+  volume:
+    require_below_volume_ema: true          # pre-breakout volume < 22-day volume EMA.
+    require_flat_to_declining: true         # volume trend across consolidation.
+  narrow_candle:
+    enabled: true
+    max_tr_fraction_of_atr: 0.6             # true range < fraction * ATR20 (optional/scored).
+    atr_period: 20
+
+# Setup score weights (prioritization only; REQUIRED components cannot be
+# overridden by AI or by the score). Required components are enforced in code.
+setup_score_weights:
+  proximity: 1.0
+  volume_contraction: 1.0
+  range_contraction: 1.0
+  higher_lows: 1.0
+  lower_highs: 1.0
+  narrow_candle: 0.5
+
+# ---------------------------------------------------------------------------
+# Breakout / entry.
+# ---------------------------------------------------------------------------
+breakout:
+  level_source: "range_high"               # v1: highest validated contraction range high.
+  require_regular_hours: true              # no extended-hours entry in v1.
+  max_gap_above_level_pct: 2.0             # reject if price gaps beyond this above level.
+  max_chase_distance_pct: 1.0              # cancel/deny if price runs beyond level by this.
+  entry_ttl_seconds: 3600                  # cancel unfilled entry after TTL.
+  volume:
+    require_elevated_breakout_volume: true
+    # Compare cumulative volume to time-of-day-normalized historical volume.
+    # A raw full-day volume comparison in the morning is INVALID and disallowed.
+    tod_normalized: true
+    min_relative_volume: 1.5               # cumulative vol / expected-by-now vol.
+  order:
+    type: "stop_limit"                     # marketable limit or stop-limit; never naked market.
+    slippage_ceiling_pct: 0.5              # limit offset above breakout level.
+  freshness:
+    max_import_age_hours: 20               # candidate import must be fresh.
+    max_bar_staleness_seconds: 120         # latest data timestamp staleness tolerance.
+
+# ---------------------------------------------------------------------------
+# Risk / position sizing.
+# ---------------------------------------------------------------------------
+risk:
+  risk_fraction: 0.01                      # 1% max per trade. Configurable DOWN only.
+  min_stop_distance_pct: 0.5               # reject stops that are too tight.
+  max_stop_distance_pct: 15.0              # reject stops wider than this.
+  max_position_notional: 25_000            # per-position notional cap.
+  max_portfolio_exposure: 100_000          # total exposure cap.
+  max_concurrent_positions: 5
+  whole_shares_only: true
+  # Initial stop reference at breakout trigger = regular-session low of the
+  # breakout day observed up to the trigger time ("low of day" interpretation).
+  initial_stop_reference: "session_low_to_trigger"
+
+# ---------------------------------------------------------------------------
+# 5R partial profit + breakeven rule.
+# ---------------------------------------------------------------------------
+partial_exit:
+  r_multiple_trigger: 5.0                  # first touch of entry + 5R.
+  fraction: 0.25                           # sell 25% (provisional; range 20–30%).
+  move_stop_to_breakeven: true             # remaining shares stop -> actual VWAP entry.
+  rounding: "floor"                        # never sell 0, never exceed open qty.
+  once_only: true                          # persisted one-time transition.
+
+pyramiding:
+  enabled: false                           # disabled in v1; add-ons SHADOW-logged only.
+
+# ---------------------------------------------------------------------------
+# Final exit — completed daily close below SMA10.
+# ---------------------------------------------------------------------------
+final_exit:
+  policy: "confirm_close_then_next_open"   # default; shadow: near_close_signal (no trade).
+  reference_ma: 10
+  # Do NOT treat intraday penetration below SMA10 as a daily-close exit.
+  log_overnight_gap_risk: true
+
+# ---------------------------------------------------------------------------
+# Market data / sessions.
+# ---------------------------------------------------------------------------
+market_data:
+  timezone: "America/New_York"
+  primary_feed: "iex"                      # record actual feed (iex | sip).
+  use_adjusted_for_research: true
+  preserve_unadjusted_for_orders: true
+  max_clock_drift_seconds: 2.0
+  require_regular_session: true
+
+# ---------------------------------------------------------------------------
+# AI review boundaries. AI is explanatory only; it can never alter risk/orders.
+# ---------------------------------------------------------------------------
+ai_review:
+  enabled: true
+  can_change_config: false                 # HARD false.
+  can_place_orders: false                  # HARD false.
+  store_prompt_and_output: true
+  record_cost_metadata: true

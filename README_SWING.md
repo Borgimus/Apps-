@@ -50,7 +50,7 @@ docs/                    requirements_audit · architecture · tc2000_setup · d
 
 ```bash
 pip install pytest pyyaml
-pytest -c pytest_swing.ini          # 89 passed
+pytest -c pytest_swing.ini          # 201 passed / 1 skipped (SQLAlchemy models test skips without the dep)
 ```
 
 The swing suite is dependency-light and network-free by design (broker/data are faked). An opt-in
@@ -63,9 +63,14 @@ acceptance criteria (see `docs/implementation_plan.md`) — which are **not** ev
 
 ## Status
 
-- **Phase 0 (design)** and **Phase 1 (deterministic testable core)**: complete, 89 tests green.
-- Phases 2–5 (market data/broker integration, persistence/dashboard/notifications, backtest/AI,
-  deployment/runbooks) are planned with acceptance gates in `docs/implementation_plan.md`.
+- **Phases 0–5 complete**, 201 tests green (202 with SQLAlchemy): deterministic core; market-data,
+  calendar, corporate actions; broker fault handling + reconciliation; persistence + audit
+  reconstruction; dashboard + notifications; event-driven backtester + advisory-only AI review;
+  runtime (JSON logging, readiness gate, fail-closed entry gate, graceful shutdown) + Docker/
+  compose/systemd, backup/restore, runbook, and the order-incapable Windows companion.
+- **Deferred to on-account steps** (cannot run offline): live Alpaca trade-update streaming, the
+  opt-in paper sandbox lifecycle test, and the PAPER_AUTO acceptance gates (20 shadow sessions,
+  10 manual paper trades, operator sign-off) in `docs/implementation_plan.md`.
 
 ## Documentation
 

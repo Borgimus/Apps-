@@ -39,6 +39,10 @@ suite hits Alpaca paper and never runs on PRs from forks.
 | Backtest metrics + stop-width breakdown | `test_backtest_metrics.py` | ✅ |
 | Walk-forward split + sensitivity | `test_walk_forward.py` | ✅ |
 | AI advisory boundary + metadata | `test_ai_review.py` | ✅ |
+| JSON logging + secret redaction | `test_runtime_logging.py` | ✅ |
+| Startup-reconciliation readiness + shutdown | `test_runtime_lifecycle.py` | ✅ |
+| Fail-closed entry gate + emergency stop | `test_runtime_controls.py` | ✅ |
+| Windows companion (no order authority) | `test_companion.py` | ✅ |
 | Paper-endpoint enforcement | `test_broker_paper.py` | ✅ |
 | Secret-leakage checks | `test_secret_leak.py` | ✅ |
 
@@ -62,6 +66,6 @@ pytest -c pytest_swing.ini                 # deterministic core (stdlib + pyyaml
 RUN_ALPACA_SANDBOX=1 pytest tests_swing/sandbox -q   # opt-in, real paper account (later phase)
 ```
 
-Current status: **180 passed / 1 skipped** lean (Phases 1–4); **181 passed** with SQLAlchemy present.
+Current status: **201 passed / 1 skipped** lean (Phases 1–5); **202 passed** with SQLAlchemy present.
 
 ## Acceptance gates per phase → see docs/implementation_plan.md.

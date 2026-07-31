@@ -1,0 +1,29 @@
+# systemd unit for the swing service on a persistent Linux host (alternative to Docker).
+# Install: copy to /etc/systemd/system/swing.service, put secrets in /etc/swing/swing.env
+# (chmod 600, never world-readable), then: systemctl daemon-reload && systemctl enable --now swing
+[Unit]
+Description=TC2000+Alpaca swing-trading service (PAPER ONLY)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=swing
+Group=swing
+WorkingDirectory=/opt/swing
+EnvironmentFile=/etc/swing/swing.env
+ExecStart=/opt/swing/venv/bin/python scripts/run_swing.py
+# Graceful shutdown: SIGTERM drains new entries but keeps managing existing positions/stops.
+KillSignal=SIGTERM
+TimeoutStopSec=30
+Restart=on-failure
+RestartSec=5
+# Hardening.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/opt/swing /var/log/swing
+
+[Install]
+WantedBy=multi-user.target

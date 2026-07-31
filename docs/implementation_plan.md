@@ -75,12 +75,25 @@ exists.** PAPER_AUTO is the terminal operating mode and is gated by explicit cri
 - **Gate:** engine reproducible from dataset fingerprints; AI boundary tests green. 180 passed /
   1 skipped lean (181 with SQLAlchemy present).
 
-## Phase 5 — Deployment & runbooks
-- Docker dev env; persistent Linux deploy (compose/systemd); health/readiness; JSON logs+rotation;
-  DB backup/restore; graceful shutdown preserving order management; startup reconciliation before ready.
-- Runbook: broker outage, data outage, missing stop, duplicate order, stale scan, corrupted DB.
-- Optional Windows companion (install/auth/retry/uninstall; cannot place orders).
-- **Gate:** startup reconciliation blocks readiness on mismatch; graceful shutdown verified.
+## Phase 5 — Deployment & runbooks ✅
+- Runtime (`src/runtime/`): JSON logging with rotation + secret redaction (`logging_setup.py`);
+  startup-reconciliation readiness gate + graceful shutdown that keeps managing positions
+  (`lifecycle.py`); fail-closed entry gate implementing the full control list + paper-only
+  emergency stop (`controls.py`); process assembly wiring paper-endpoint verification →
+  reconciliation → readiness (`app.py`). ✅
+- Entrypoint `scripts/run_swing.py`: logging → config validation (`allow_live` false) →
+  paper-endpoint verify → startup reconciliation → dashboard with `/health` + `/ready`; SIGTERM
+  drains new entries, keeps stops. ✅
+- Deployment artifacts: `deploy/Dockerfile` (3.12, non-root, healthcheck), `deploy/docker-compose.yml`
+  (Postgres + service, loopback-bound, 30s grace), `deploy/swing.service` systemd unit, `.dockerignore`,
+  `scripts/backup_db.sh` / `scripts/restore_db.sh`. ✅
+- Docs: `docs/deployment.md`, `docs/runbook.md` (broker outage, data outage, missing stop, duplicate
+  order, stale scan, corrupted DB + startup/shutdown/backups). ✅
+- Optional Windows companion: `companion/tc2000_watcher.py` (complete-batch detection + injected
+  sender; NO broker/execution imports, no order authority) + `docs/windows_companion.md`
+  (install/auth/retry/uninstall). ✅
+- **Gate:** startup reconciliation blocks readiness on mismatch and graceful shutdown preserves
+  order management — both verified by tests. 201 passed / 1 skipped lean (202 with SQLAlchemy).
 
 ## PAPER_AUTO acceptance criteria (all required, engineering-only — not proof of edge)
 1. TC2000 setup & import guide verified by the operator.

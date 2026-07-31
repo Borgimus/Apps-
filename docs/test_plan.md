@@ -29,6 +29,11 @@ suite hits Alpaca paper and never runs on PRs from forks.
 | Market-data staleness / missing bars | `test_market_data.py` | ✅ |
 | Corporate actions (split/halt/delist/stale) | `test_corporate_actions.py` | ✅ |
 | Clock-drift tolerance | `test_calendar.py` | ✅ |
+| Persistence + idempotency constraints | `test_storage.py` | ✅ |
+| Audit reconstruction from stored inputs | `test_audit_reconstruction.py` | ✅ |
+| Dashboard state + bearer auth + missing-stop block | `test_dashboard.py`, `test_server.py` | ✅ |
+| Notifications: catalog, redaction, fan-out | `test_notifications.py` | ✅ |
+| SQLAlchemy deployment models (dep-guarded) | `test_models_sqlalchemy.py` | ✅ |
 | Paper-endpoint enforcement | `test_broker_paper.py` | ✅ |
 | Secret-leakage checks | `test_secret_leak.py` | ✅ |
 
@@ -52,6 +57,6 @@ pytest -c pytest_swing.ini                 # deterministic core (stdlib + pyyaml
 RUN_ALPACA_SANDBOX=1 pytest tests_swing/sandbox -q   # opt-in, real paper account (later phase)
 ```
 
-Current status: **126 passed** (Phase 1 core + Phase 2 data/broker integration on fakes).
+Current status: **149 passed / 1 skipped** lean (Phases 1–3); **151 passed** with SQLAlchemy present.
 
 ## Acceptance gates per phase → see docs/implementation_plan.md.

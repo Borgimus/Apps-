@@ -36,12 +36,23 @@ exists.** PAPER_AUTO is the terminal operating mode and is gated by explicit cri
 - **Gate:** reconciliation & retry tests green (37 new tests, 126 total). Live trade-update
   streaming and the opt-in Alpaca paper sandbox lifecycle test remain for on-account verification.
 
-## Phase 3 — Persistence, dashboard, notifications
-- SQLAlchemy models + Alembic migrations (Postgres/SQLite); audit reconstruction test.
-- Authenticated dashboard (health, paper verification, session, batch freshness, candidates, setups,
-  positions/stops/R, equity/exposure/risk/drawdown, reconciliation, reports).
-- Provider-neutral notifications for all required events.
-- **Gate:** reports reconcile to broker snapshots; no secrets in logs.
+## Phase 3 — Persistence, dashboard, notifications ✅
+- Canonical DDL (`src/storage/schema.sql`) applied via stdlib `sqlite3` (dev/tests) + typed
+  `Repository`; SQLAlchemy ORM models + Alembic migration (`migrations/`) as the Postgres
+  deployment artifacts (validated in the `test-orm` CI job). ✅
+- Idempotency enforced at storage: unique `client_order_id` and unique transition
+  `idempotency_key` (duplicate transition insert is a safe no-op). ✅
+- Audit-reconstruction test: indicators recomputed from the stored snapshot equal the persisted
+  values byte-for-byte. ✅
+- Authenticated dashboard: `build_dashboard_state` returns all required sections (health, paper
+  verification, session, batch freshness, candidates, setups, positions/stops/R, equity/exposure/
+  committed-risk/P&L/drawdown, reconciliation, reports) + stdlib `http.server` with constant-time
+  bearer auth and public health/readiness endpoints. ✅
+- Provider-neutral notifications: full event catalog, secret redaction, in-memory/console/webhook
+  providers, fan-out dispatcher that isolates a failing provider. ✅
+- **Gate:** audit reconstruction green; dashboard reconciliation blocks new risk on missing stop;
+  no secrets in payloads/logs (redaction + secret-scan tests). 149 passed / 1 skipped lean
+  (151 with SQLAlchemy present).
 
 ## Phase 4 — Research/backtest & AI review
 - Event-driven, point-in-time backtester (slippage/spread/partials/unfilled stop-limits/gaps/

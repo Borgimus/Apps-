@@ -30,10 +30,23 @@ jobs:
           python-version: "3.12"
       - name: Install swing test deps (stdlib + pyyaml + pytest)
         run: python -m pip install --upgrade pip pytest pyyaml
-      - name: Run deterministic swing suite
+      - name: Run deterministic swing suite (lean; SQLAlchemy models test skips)
         run: pytest -c pytest_swing.ini
       - name: Secret scan (guard against committed .env / keys)
         run: pytest -c pytest_swing.ini tests_swing/test_secret_leak.py
+
+  test-orm:
+    # Validates the SQLAlchemy deployment models + migration against schema drift.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install with SQLAlchemy + Alembic
+        run: python -m pip install --upgrade pip pytest pyyaml sqlalchemy alembic
+      - name: Run suite including ORM model tests
+        run: pytest -c pytest_swing.ini
 
   lint:
     runs-on: ubuntu-latest

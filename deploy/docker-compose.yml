@@ -1,0 +1,49 @@
+# Persistent Linux deployment for the swing service (PAPER ONLY).
+# Secrets come from a local .env (never committed). GitHub Actions is NOT the intraday runtime;
+# this compose file runs on a persistent host/VPS.
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-swing}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-swing}
+    volumes:
+      - swing_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-swing}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  swing:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # PAPER endpoint is enforced in code; the live host is rejected at startup.
+      SWING_ALPACA_BASE_URL: https://paper-api.alpaca.markets
+      SWING_ALPACA_KEY_ID: ${SWING_ALPACA_KEY_ID:?set in .env}
+      SWING_ALPACA_SECRET_KEY: ${SWING_ALPACA_SECRET_KEY:?set in .env}
+      SWING_DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-swing}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-swing}
+      SWING_STRATEGY_CONFIG: /app/config/strategy.yaml
+      SWING_MODE: ${SWING_MODE:-SHADOW}
+      SWING_DASHBOARD_TOKEN: ${SWING_DASHBOARD_TOKEN:?set in .env}
+      SWING_API_HOST: 0.0.0.0
+      SWING_API_PORT: "8080"
+      SWING_LOG_FILE: /var/log/swing/swing.log
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - swing_logs:/var/log/swing
+    ports:
+      - "127.0.0.1:8080:8080"   # bind to loopback; front with a reverse proxy + TLS
+    stop_grace_period: 30s      # allow graceful drain (SIGTERM -> stop new entries, keep managing)
+    restart: unless-stopped
+
+volumes:
+  swing_pgdata:
+  swing_logs:

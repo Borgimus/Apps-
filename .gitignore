@@ -89,3 +89,13 @@ alembic/versions/*.pyc
 
 # Node (stray tool caches)
 node_modules/
+
+# ── TC2000 + Alpaca Swing System ─────────────────────────────────────────────
+# Raw account exports and daily candidate/scan files must never be committed.
+data/tc2000_raw/
+data/candidates/
+*.tc2000
+strength_1m_*.txt
+strength_3m_*.txt
+strength_6m_*.txt
+strength_*_*.csv

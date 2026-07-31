@@ -1,0 +1,35 @@
+# Keep secrets, runtime state, and heavy dev artifacts out of the image build context.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.jks
+*.keystore
+
+# Runtime data / raw exports — never bake into an image.
+data/tc2000_raw/
+data/candidates/
+strength_1m_*.txt
+strength_3m_*.txt
+strength_6m_*.txt
+strength_*_*.csv
+*.db
+*.sqlite
+*.sqlite3
+logs/
+*.log
+
+# VCS / CI / tests / docs not needed at runtime.
+.git/
+.github/
+tests/
+tests_swing/
+docs/
+multi-agent-workspace/
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/

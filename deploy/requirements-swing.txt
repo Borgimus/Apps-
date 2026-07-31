@@ -1,0 +1,9 @@
+# Runtime dependencies for the swing service (deployment).
+# The deterministic core is stdlib-only; these support Postgres persistence, the Alpaca
+# client, and YAML config. Pin/upgrade deliberately (document changes in docs/CHANGELOG).
+pyyaml>=6.0.1
+SQLAlchemy>=2.0.25
+alembic>=1.13.1
+psycopg[binary]>=3.1.0
+httpx>=0.26.0
+alpaca-py>=0.20.0

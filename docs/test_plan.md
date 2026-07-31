@@ -22,10 +22,13 @@ suite hits Alpaca paper and never runs on PRs from forks.
 | Gap-through-stop behavior | `test_final_exit.py` | ✅ |
 | Duplicate event delivery (idempotency) | `test_state_machine.py` | ✅ |
 | Crash/restart during order states | `test_state_machine.py` | ✅ |
-| Alpaca timeouts/429/5xx/disconnects | `test_broker_paper.py` (fake) | 🟡 partial |
-| Reconciliation mismatches | `test_reconciliation.py` | ⬜ later |
+| Alpaca timeouts/429/5xx/disconnects | `test_retry.py`, `test_broker_paper.py` (fake) | ✅ |
+| Reconciliation mismatches | `test_reconciliation.py` | ✅ |
 | Stale & incomplete TC2000 imports | `test_importer.py` | ✅ |
-| Market holidays & early closes | `test_calendar.py` | ⬜ later |
+| Market holidays & early closes | `test_calendar.py` | ✅ |
+| Market-data staleness / missing bars | `test_market_data.py` | ✅ |
+| Corporate actions (split/halt/delist/stale) | `test_corporate_actions.py` | ✅ |
+| Clock-drift tolerance | `test_calendar.py` | ✅ |
 | Paper-endpoint enforcement | `test_broker_paper.py` | ✅ |
 | Secret-leakage checks | `test_secret_leak.py` | ✅ |
 
@@ -49,6 +52,6 @@ pytest -c pytest_swing.ini                 # deterministic core (stdlib + pyyaml
 RUN_ALPACA_SANDBOX=1 pytest tests_swing/sandbox -q   # opt-in, real paper account (later phase)
 ```
 
-Current status: **89 passed** (Phase 1).
+Current status: **126 passed** (Phase 1 core + Phase 2 data/broker integration on fakes).
 
 ## Acceptance gates per phase → see docs/implementation_plan.md.

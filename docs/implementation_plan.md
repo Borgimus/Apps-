@@ -23,12 +23,18 @@ exists.** PAPER_AUTO is the terminal operating mode and is gated by explicit cri
 - Tests for all of the above; secret-leakage guard.
 - **Gate:** `pytest -c pytest_swing.ini` green; safety invariants covered by tests.
 
-## Phase 2 — Market data & broker integration (fakes → sandbox)
-- `data/market_data.py` (bars/quotes, feed metadata, staleness), corporate actions detection.
-- Exchange calendar (holidays/early closes/DST), clock-drift check.
-- Alpaca paper adapter wired to broker fake; timeouts/429/5xx/disconnect handling; reconciliation
-  (REST + trade-update stream); idempotent order lifecycle.
-- **Gate:** reconciliation & retry tests green; opt-in sandbox lifecycle test passes manually.
+## Phase 2 — Market data & broker integration (fakes → sandbox) ✅ (fakes)
+- `data/market_data.py` (bars/quotes, feed metadata IEX/SIP, staleness, min-bars, gaps, spread). ✅
+- `data/corporate_actions.py` (splits, symbol change, delisting, halt, stale). ✅
+- `data/calendar.py` exchange calendar (weekends, floating/observed holidays, early closes, DST via
+  zoneinfo, next-regular-open) + clock-drift check. ✅
+- `broker/retry.py` fault classification (timeout/429/5xx/disconnect), capped backoff, Retry-After
+  honoring, fail-closed exhaustion; wired into the paper adapter's `submit_order` reusing the same
+  idempotent client_order_id. ✅
+- `execution/reconciliation.py` broker-wins reconciliation: position/qty mismatch, unknown/missing
+  position, unknown open order, and **missing-stop** detection → blocks new risk. ✅
+- **Gate:** reconciliation & retry tests green (37 new tests, 126 total). Live trade-update
+  streaming and the opt-in Alpaca paper sandbox lifecycle test remain for on-account verification.
 
 ## Phase 3 — Persistence, dashboard, notifications
 - SQLAlchemy models + Alembic migrations (Postgres/SQLite); audit reconstruction test.

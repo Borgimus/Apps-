@@ -78,12 +78,22 @@ class AlpacaPaperBroker(BrokerInterface):
             for p in self._client.list_positions()
         ]
 
-    def submit_order(self, req: OrderRequest) -> OrderAck:
-        raw = self._client.submit_order(
-            symbol=req.symbol, side=req.side, qty=req.qty, type=req.order_type,
-            limit_price=req.limit_price, stop_price=req.stop_price,
-            client_order_id=req.client_order_id, time_in_force=req.time_in_force,
-        )
+    def submit_order(self, req: OrderRequest, *, retry=None, sleep=None) -> OrderAck:
+        """Submit an order. If a ``RetryPolicy`` is given, transient faults are retried with
+        backoff reusing the SAME idempotent client_order_id (retries cannot duplicate a position);
+        exhausted retries raise RetriesExhausted so the caller fails closed."""
+        def _do():
+            return self._client.submit_order(
+                symbol=req.symbol, side=req.side, qty=req.qty, type=req.order_type,
+                limit_price=req.limit_price, stop_price=req.stop_price,
+                client_order_id=req.client_order_id, time_in_force=req.time_in_force,
+            )
+
+        if retry is not None:
+            from .retry import call_with_retry
+            raw = call_with_retry(_do, retry, sleep=sleep or (lambda _s: None))
+        else:
+            raw = _do()
         return OrderAck(client_order_id=req.client_order_id,
                         broker_order_id=raw["id"], status=raw["status"])
 

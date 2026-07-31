@@ -34,6 +34,11 @@ suite hits Alpaca paper and never runs on PRs from forks.
 | Dashboard state + bearer auth + missing-stop block | `test_dashboard.py`, `test_server.py` | ✅ |
 | Notifications: catalog, redaction, fan-out | `test_notifications.py` | ✅ |
 | SQLAlchemy deployment models (dep-guarded) | `test_models_sqlalchemy.py` | ✅ |
+| Fill/cost model (slippage/gap/partial/fees) | `test_fills.py` | ✅ |
+| Backtest no-lookahead / gap / 5R-once / repro | `test_backtest_engine.py` | ✅ |
+| Backtest metrics + stop-width breakdown | `test_backtest_metrics.py` | ✅ |
+| Walk-forward split + sensitivity | `test_walk_forward.py` | ✅ |
+| AI advisory boundary + metadata | `test_ai_review.py` | ✅ |
 | Paper-endpoint enforcement | `test_broker_paper.py` | ✅ |
 | Secret-leakage checks | `test_secret_leak.py` | ✅ |
 
@@ -57,6 +62,6 @@ pytest -c pytest_swing.ini                 # deterministic core (stdlib + pyyaml
 RUN_ALPACA_SANDBOX=1 pytest tests_swing/sandbox -q   # opt-in, real paper account (later phase)
 ```
 
-Current status: **149 passed / 1 skipped** lean (Phases 1–3); **151 passed** with SQLAlchemy present.
+Current status: **180 passed / 1 skipped** lean (Phases 1–4); **181 passed** with SQLAlchemy present.
 
 ## Acceptance gates per phase → see docs/implementation_plan.md.

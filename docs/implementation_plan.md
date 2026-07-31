@@ -54,13 +54,26 @@ exists.** PAPER_AUTO is the terminal operating mode and is gated by explicit cri
   no secrets in payloads/logs (redaction + secret-scan tests). 149 passed / 1 skipped lean
   (151 with SQLAlchemy present).
 
-## Phase 4 — Research/backtest & AI review
-- Event-driven, point-in-time backtester (slippage/spread/partials/unfilled stop-limits/gaps/
-  corporate actions/fees). Walk-forward; regime/liquidity/agreement/stop-width/component reports;
-  sensitivity to every provisional definition.
-- AI review module (explanations/summaries/anomaly issue drafts) with model/prompt/cost metadata;
-  cannot alter risk/config/orders.
-- **Gate:** backtest reproducible from dataset fingerprints; AI boundary tests green.
+## Phase 4 — Research/backtest & AI review ✅
+- Event-driven, point-in-time engine (`src/backtest/engine.py`): closed-bar-only setups,
+  next-bar breakout on open/high, initial stop from the arming bar's low (lookahead-free proxy
+  for "session low up to trigger"), pessimistic within-bar stop-before-target ordering, 5R-once
+  partial + breakeven, confirm-close-then-next-open exit, dataset fingerprint for reproducibility. ✅
+- Fill/cost model (`fills.py`): entry slippage, unfilled stop-limit (high-below-level / gap-above-
+  limit), overnight gap-through stops, partial fills, commissions + SEC/TAF regulatory fees. ✅
+- Metrics (`metrics.py`): signals/trades, win rate, expectancy R & $, profit factor, median/avg
+  winner & loser, max drawdown, holding time, gap losses, turnover, costs. ✅
+- Walk-forward (`walk_forward.py`): non-overlapping dev/validation/final-OOS split, rolling
+  train/test windows, and grid **sensitivity that reports the distribution without picking a
+  max-return winner**. ✅
+- Breakdowns (`reports.py`): by stop-width bucket and by arbitrary decision-record tag
+  (regime/liquidity/agreement/component). ✅
+- AI review (`src/ai_review/`): advisory-only reviewer (explain/summarize/cluster/anomaly-issue/
+  eod-report) with model/prompt/token/cost metadata; boundary guard rejects any reviewer exposing
+  order/risk/config methods; `authoritative_decision` copies the deterministic outcome verbatim and
+  attaches the review as audit only; shadow rules never auto-promote. ✅
+- **Gate:** engine reproducible from dataset fingerprints; AI boundary tests green. 180 passed /
+  1 skipped lean (181 with SQLAlchemy present).
 
 ## Phase 5 — Deployment & runbooks
 - Docker dev env; persistent Linux deploy (compose/systemd); health/readiness; JSON logs+rotation;

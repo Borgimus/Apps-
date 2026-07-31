@@ -1,7 +1,7 @@
 {
   "version": "2",
   "created_at": "2026-07-30T16:30:28.105112",
-  "last_updated": "2026-07-30T16:30:28.105757",
+  "last_updated": "2026-07-31T16:30:08.390351",
   "phase3_start_date": "2026-07-12",
   "sessions": [
     {
@@ -96,42 +96,145 @@
       "breakevens": 0,
       "gross_wins": 0.0,
       "gross_losses": 236.0
+    },
+    {
+      "date": "2026-07-31",
+      "total_trades": 3,
+      "wins": 2,
+      "losses": 1,
+      "realized_pnl": 9.99999999999999,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 39.99999999999999,
+      "slippage_total": -0.06999999999999998,
+      "spread_cost_total": 12.50000000000001,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 3,
+      "trades_filled": 3,
+      "trades_cancelled": 0,
+      "trades_rejected": 141,
+      "by_strategy": {
+        "orb": {
+          "trades": 2,
+          "wins": 2,
+          "losses": 0,
+          "pnl": 49.999999999999986
+        },
+        "vwap_reclaim": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -39.99999999999999
+        }
+      },
+      "by_entry_hour": {
+        "09:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -40.0
+        },
+        "10:00": {
+          "trades": 2,
+          "wins": 2,
+          "losses": 0,
+          "pnl": 50.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 3,
+          "wins": 2,
+          "losses": 1,
+          "pnl": 10.0
+        }
+      },
+      "by_spread_bucket": {
+        "moderate (5-10%)": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "pnl": -30.0
+        },
+        "tight (<5%)": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 40.0
+        }
+      },
+      "reject_reasons": {
+        "cooldown_after_loss": 40,
+        "Max entries per day reached": 33,
+        "liquidity_cost_cap": 10,
+        "paper_scaled_budget_below_one_contract": 2,
+        "Only 27 min before EOD exit (12": 2,
+        "Only 26 min before EOD exit (12": 4,
+        "Only 25 min before EOD exit (12": 4,
+        "Only 24 min before EOD exit (12": 4,
+        "Only 23 min before EOD exit (12": 4,
+        "Only 22 min before EOD exit (12": 4,
+        "Only 21 min before EOD exit (12": 4,
+        "Only 20 min before EOD exit (12": 2,
+        "Only 19 min before EOD exit (12": 2,
+        "Only 18 min before EOD exit (12": 2,
+        "Only 17 min before EOD exit (12": 2,
+        "Only 16 min before EOD exit (12": 2,
+        "Only 15 min before EOD exit (12": 2,
+        "Only 14 min before EOD exit (12": 2,
+        "Only 13 min before EOD exit (12": 2,
+        "Only 12 min before EOD exit (12": 2,
+        "Only 6 min before EOD exit (12": 2,
+        "Only 5 min before EOD exit (12": 2,
+        "Only 4 min before EOD exit (12": 2,
+        "Only 3 min before EOD exit (12": 1,
+        "Only 2 min before EOD exit (12": 2,
+        "Only 1 min before EOD exit (12": 2,
+        "Only 0 min before EOD exit (12": 1
+      },
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 0,
+      "gross_wins": 50.0,
+      "gross_losses": 40.0
     }
   ],
   "cumulative": {
-    "trading_days": 1,
-    "total_trades": 3,
-    "total_pnl": -236.0,
-    "expectancy": -78.67,
-    "win_rate": 0.0,
-    "profit_factor": 0.0,
+    "trading_days": 2,
+    "total_trades": 6,
+    "total_pnl": -226.0,
+    "expectancy": -37.67,
+    "win_rate": 0.3333,
+    "profit_factor": 0.18,
     "max_drawdown": 236.0,
     "pnl_by_strategy": {
       "orb": {
-        "trades": 0,
-        "wins": 0,
+        "trades": 2,
+        "wins": 2,
         "losses": 0,
-        "pnl": 0.0
+        "pnl": 50.0
       },
       "vwap_reclaim": {
-        "trades": 3,
+        "trades": 4,
         "wins": 0,
-        "losses": 3,
-        "pnl": -236.0
+        "losses": 4,
+        "pnl": -276.0
       }
     },
     "pnl_by_entry_hour": {
       "09:00": {
-        "trades": 1,
+        "trades": 2,
         "wins": 0,
-        "losses": 1,
-        "pnl": -40.0
+        "losses": 2,
+        "pnl": -80.0
       },
       "10:00": {
-        "trades": 1,
-        "wins": 0,
+        "trades": 3,
+        "wins": 2,
         "losses": 1,
-        "pnl": -105.0
+        "pnl": -55.0
       },
       "11:00": {
         "trades": 1,
@@ -142,74 +245,96 @@
     },
     "pnl_by_delta_bucket": {
       "unknown": {
-        "trades": 3,
-        "wins": 0,
-        "losses": 3,
-        "pnl": -236.0
+        "trades": 6,
+        "wins": 2,
+        "losses": 4,
+        "pnl": -226.0
       }
     },
     "pnl_by_spread_bucket": {
       "moderate (5-10%)": {
-        "trades": 1,
-        "wins": 0,
-        "losses": 1,
-        "pnl": -40.0
+        "trades": 3,
+        "wins": 1,
+        "losses": 2,
+        "pnl": -70.0
       },
       "tight (<5%)": {
-        "trades": 2,
-        "wins": 0,
+        "trades": 3,
+        "wins": 1,
         "losses": 2,
-        "pnl": -196.0
+        "pnl": -156.0
       }
     },
     "reject_counts_by_reason": {
       "No trades in first 15 min after open (until 09": 8,
-      "cooldown_after_loss": 100,
-      "paper_scaled_budget_below_one_contract": 25,
-      "Only 12 min before EOD exit (12": 2,
+      "cooldown_after_loss": 140,
+      "paper_scaled_budget_below_one_contract": 27,
+      "Only 12 min before EOD exit (12": 4,
       "Only 10 min before EOD exit (12": 2,
       "liquidity_filter_no_contract": 2,
       "Only 9 min before EOD exit (12": 1,
       "Only 8 min before EOD exit (12": 1,
       "Only 7 min before EOD exit (12": 2,
-      "Only 6 min before EOD exit (12": 2,
-      "Only 5 min before EOD exit (12": 1
+      "Only 6 min before EOD exit (12": 4,
+      "Only 5 min before EOD exit (12": 3,
+      "Max entries per day reached": 33,
+      "liquidity_cost_cap": 10,
+      "Only 27 min before EOD exit (12": 2,
+      "Only 26 min before EOD exit (12": 4,
+      "Only 25 min before EOD exit (12": 4,
+      "Only 24 min before EOD exit (12": 4,
+      "Only 23 min before EOD exit (12": 4,
+      "Only 22 min before EOD exit (12": 4,
+      "Only 21 min before EOD exit (12": 4,
+      "Only 20 min before EOD exit (12": 2,
+      "Only 19 min before EOD exit (12": 2,
+      "Only 18 min before EOD exit (12": 2,
+      "Only 17 min before EOD exit (12": 2,
+      "Only 16 min before EOD exit (12": 2,
+      "Only 15 min before EOD exit (12": 2,
+      "Only 14 min before EOD exit (12": 2,
+      "Only 13 min before EOD exit (12": 2,
+      "Only 4 min before EOD exit (12": 2,
+      "Only 3 min before EOD exit (12": 1,
+      "Only 2 min before EOD exit (12": 2,
+      "Only 1 min before EOD exit (12": 2,
+      "Only 0 min before EOD exit (12": 1
     }
   },
   "phase3_cumulative": {
-    "trading_days": 1,
-    "total_trades": 3,
-    "total_pnl": -236.0,
-    "expectancy": -78.67,
-    "win_rate": 0.0,
-    "profit_factor": 0.0,
+    "trading_days": 2,
+    "total_trades": 6,
+    "total_pnl": -226.0,
+    "expectancy": -37.67,
+    "win_rate": 0.3333,
+    "profit_factor": 0.18,
     "max_drawdown": 236.0,
     "pnl_by_strategy": {
       "orb": {
-        "trades": 0,
-        "wins": 0,
+        "trades": 2,
+        "wins": 2,
         "losses": 0,
-        "pnl": 0.0
+        "pnl": 50.0
       },
       "vwap_reclaim": {
-        "trades": 3,
+        "trades": 4,
         "wins": 0,
-        "losses": 3,
-        "pnl": -236.0
+        "losses": 4,
+        "pnl": -276.0
       }
     },
     "pnl_by_entry_hour": {
       "09:00": {
-        "trades": 1,
+        "trades": 2,
         "wins": 0,
-        "losses": 1,
-        "pnl": -40.0
+        "losses": 2,
+        "pnl": -80.0
       },
       "10:00": {
-        "trades": 1,
-        "wins": 0,
+        "trades": 3,
+        "wins": 2,
         "losses": 1,
-        "pnl": -105.0
+        "pnl": -55.0
       },
       "11:00": {
         "trades": 1,
@@ -220,38 +345,60 @@
     },
     "pnl_by_delta_bucket": {
       "unknown": {
-        "trades": 3,
-        "wins": 0,
-        "losses": 3,
-        "pnl": -236.0
+        "trades": 6,
+        "wins": 2,
+        "losses": 4,
+        "pnl": -226.0
       }
     },
     "pnl_by_spread_bucket": {
       "moderate (5-10%)": {
-        "trades": 1,
-        "wins": 0,
-        "losses": 1,
-        "pnl": -40.0
+        "trades": 3,
+        "wins": 1,
+        "losses": 2,
+        "pnl": -70.0
       },
       "tight (<5%)": {
-        "trades": 2,
-        "wins": 0,
+        "trades": 3,
+        "wins": 1,
         "losses": 2,
-        "pnl": -196.0
+        "pnl": -156.0
       }
     },
     "reject_counts_by_reason": {
       "No trades in first 15 min after open (until 09": 8,
-      "cooldown_after_loss": 100,
-      "paper_scaled_budget_below_one_contract": 25,
-      "Only 12 min before EOD exit (12": 2,
+      "cooldown_after_loss": 140,
+      "paper_scaled_budget_below_one_contract": 27,
+      "Only 12 min before EOD exit (12": 4,
       "Only 10 min before EOD exit (12": 2,
       "liquidity_filter_no_contract": 2,
       "Only 9 min before EOD exit (12": 1,
       "Only 8 min before EOD exit (12": 1,
       "Only 7 min before EOD exit (12": 2,
-      "Only 6 min before EOD exit (12": 2,
-      "Only 5 min before EOD exit (12": 1
+      "Only 6 min before EOD exit (12": 4,
+      "Only 5 min before EOD exit (12": 3,
+      "Max entries per day reached": 33,
+      "liquidity_cost_cap": 10,
+      "Only 27 min before EOD exit (12": 2,
+      "Only 26 min before EOD exit (12": 4,
+      "Only 25 min before EOD exit (12": 4,
+      "Only 24 min before EOD exit (12": 4,
+      "Only 23 min before EOD exit (12": 4,
+      "Only 22 min before EOD exit (12": 4,
+      "Only 21 min before EOD exit (12": 4,
+      "Only 20 min before EOD exit (12": 2,
+      "Only 19 min before EOD exit (12": 2,
+      "Only 18 min before EOD exit (12": 2,
+      "Only 17 min before EOD exit (12": 2,
+      "Only 16 min before EOD exit (12": 2,
+      "Only 15 min before EOD exit (12": 2,
+      "Only 14 min before EOD exit (12": 2,
+      "Only 13 min before EOD exit (12": 2,
+      "Only 4 min before EOD exit (12": 2,
+      "Only 3 min before EOD exit (12": 1,
+      "Only 2 min before EOD exit (12": 2,
+      "Only 1 min before EOD exit (12": 2,
+      "Only 0 min before EOD exit (12": 1
     }
   }
 }

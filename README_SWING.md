@@ -49,7 +49,7 @@ docs/                    requirements_audit · architecture · tc2000_setup · d
 ## Run the tests
 
 ```bash
-pip install pytest pyyaml
+pip install pytest pyyaml tzdata   # tzdata needed on Windows (zoneinfo); harmless elsewhere
 pytest -c pytest_swing.ini          # 238 passed / 1 skipped (SQLAlchemy models test skips without the dep)
 ```
 

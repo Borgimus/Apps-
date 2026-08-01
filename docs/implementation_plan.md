@@ -95,6 +95,27 @@ exists.** PAPER_AUTO is the terminal operating mode and is gated by explicit cri
 - **Gate:** startup reconciliation blocks readiness on mismatch and graceful shutdown preserves
   order management — both verified by tests. 201 passed / 1 skipped lean (202 with SQLAlchemy).
 
+## Phase 6 — Live paper-trading loop ✅ (core; one increment remains)
+- `src/live/orchestrator.py`: the `tick()` cycle — reconcile → manage open positions → gated
+  entries — with strict mode gating (only PAPER_AUTO submits; SHADOW/PAPER_CONFIRM propose). ✅
+- `src/live/entry.py` / `src/live/manage.py`: deterministic live entry evaluation (session/fresh/
+  breakout/portfolio/sizing) and position management (5R-once + breakeven, daily-close precedence,
+  missing-stop alert) reusing the same tested rules as the backtester. ✅
+- `src/broker/alpaca_client.py` + `src/data/alpaca_data.py`: paper REST trading client and market-
+  data client (paper host enforced, credentials never logged, HTTP transport injected). ✅
+- `src/live/service.py`: `build_market_view`, `reconcile_live`, `load_setups_file`, `run_tick_loop`. ✅
+- `scripts/run_swing.py`: constructs the clients when creds present, reconciles at startup, and runs
+  the loop (opt-in `SWING_ENABLE_LOOP=1`, SHADOW default; PAPER_AUTO double-gated). ✅
+- `src/live/trade_state.py`: durable JSON trade-state store — reconstructs open positions across
+  restarts (trade_id / VWAP entry / initial_stop / resting stop / partial_done / high), records
+  entries/partials/exits on each PAPER_AUTO action, and makes the 5R partial idempotent across
+  restarts. Wired into `run_swing.py` (get_positions + reconciliation inputs). ✅
+- **Remaining increment:** fill tracking (trade-update stream / REST fill polling) to correct the
+  recorded expected entry to the actual VWAP and confirm the attached stop. See `docs/live_trading.md`.
+- **Gate:** loop reconciles broker truth, never submits in SHADOW, blocks entries on any fail-closed
+  condition, always manages existing positions, and cannot double-take the 5R partial across a
+  restart — verified by tests. 239 passed lean.
+
 ## PAPER_AUTO acceptance criteria (all required, engineering-only — not proof of edge)
 1. TC2000 setup & import guide verified by the operator.
 2. All automated tests pass.

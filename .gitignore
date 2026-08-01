@@ -99,3 +99,7 @@ strength_1m_*.txt
 strength_3m_*.txt
 strength_6m_*.txt
 strength_*_*.csv
+
+# Live loop runtime state (never commit)
+data/live_setups.json
+data/live_trade_state.json

@@ -64,6 +64,7 @@ class LoopDeps:
     flags: GateFlags = field(default_factory=GateFlags)
     retry: object | None = None
     sleep: object | None = None
+    store: object | None = None          # TradeStateStore (durable position lifecycle), optional
 
 
 @dataclass
@@ -112,6 +113,8 @@ class LiveOrchestrator:
         # 2) manage open positions (never blocked by the entry gate)
         for pos in positions:
             mv: MarketView = self.d.get_market(pos.symbol)
+            if self.d.store is not None:
+                self.d.store.update_high(pos.trade_id, mv.last_price)  # durable 5R-touch tracking
             res = manage_open_position(
                 pos, last_price=mv.last_price, session_completed=mv.session_completed,
                 daily_close=mv.daily_close, sma10_at_close=mv.sma10_at_close,
@@ -163,13 +166,21 @@ class LiveOrchestrator:
                 rpt.submitted.append(self._submit(partial))
                 self._notify(Event.PARTIAL_5R_SUBMITTED, Severity.INFO, "5R partial submitted",
                              f"{intent.sell_shares} sh", {"symbol": pos.symbol})
+                stop_coid = None
                 if intent.new_stop_price is not None:
                     new_stop = build_protective_stop(
                         trade_id=pos.trade_id, symbol=pos.symbol,
                         qty=pos.open_shares - intent.sell_shares, stop_price=intent.new_stop_price)
+                    stop_coid = new_stop.client_order_id
                     rpt.submitted.append(self._submit(new_stop))
                     self._notify(Event.STOP_MOVED_BREAKEVEN, Severity.INFO, "stop -> breakeven",
                                  f"{intent.new_stop_price}", {"symbol": pos.symbol})
+                if self.d.store is not None:
+                    # Persist the one-time 5R partial so a restart cannot take it twice.
+                    self.d.store.on_partial(
+                        pos.trade_id, sold_shares=intent.sell_shares,
+                        new_stop_price=intent.new_stop_price,
+                        partial_coid=partial.client_order_id, stop_coid=stop_coid)
             else:
                 rpt.proposals.append({"kind": "PARTIAL", "symbol": pos.symbol,
                                       "sell_shares": intent.sell_shares, "mode": self.d.mode})
@@ -182,6 +193,8 @@ class LiveOrchestrator:
                 rpt.submitted.append(self._submit(fx))
                 self._notify(Event.DAILY_CLOSE_EXIT_TRIGGERED, Severity.INFO, "daily-close exit",
                              f"{intent.sell_shares} sh", {"symbol": pos.symbol})
+                if self.d.store is not None:
+                    self.d.store.on_final_exit(pos.trade_id, exit_coid=fx.client_order_id)
             else:
                 rpt.proposals.append({"kind": "FINAL_EXIT", "symbol": pos.symbol,
                                       "sell_shares": intent.sell_shares, "mode": self.d.mode})
@@ -193,6 +206,13 @@ class LiveOrchestrator:
             self._notify(Event.ENTRY_SUBMITTED, Severity.INFO, "entry submitted",
                          f"{ed.shares} sh {ed.entry_order.symbol}",
                          {"symbol": ed.entry_order.symbol, "trade_id": ed.trade_id})
+            if self.d.store is not None:
+                # Record the trade (expected entry; reconciliation corrects to actual VWAP on fill).
+                self.d.store.record_entry(
+                    trade_id=ed.trade_id, symbol=ed.entry_order.symbol, shares=ed.shares,
+                    entry_price=ed.expected_entry, initial_stop=ed.initial_stop,
+                    entry_coid=ed.entry_order.client_order_id,
+                    stop_coid=ed.stop_order.client_order_id)
         else:
             rpt.proposals.append({"kind": "ENTRY", "symbol": ed.entry_order.symbol,
                                   "shares": ed.shares, "mode": self.d.mode})

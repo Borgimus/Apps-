@@ -50,7 +50,7 @@ docs/                    requirements_audit · architecture · tc2000_setup · d
 
 ```bash
 pip install pytest pyyaml
-pytest -c pytest_swing.ini          # 229 passed / 1 skipped (SQLAlchemy models test skips without the dep)
+pytest -c pytest_swing.ini          # 238 passed / 1 skipped (SQLAlchemy models test skips without the dep)
 ```
 
 The swing suite is dependency-light and network-free by design (broker/data are faked). An opt-in
@@ -63,15 +63,16 @@ acceptance criteria (see `docs/implementation_plan.md`) — which are **not** ev
 
 ## Status
 
-- **Phases 0–6 complete**, 229 tests green (230 with SQLAlchemy): deterministic core; market-data,
+- **Phases 0–6 complete**, 238 tests green (239 with SQLAlchemy): deterministic core; market-data,
   calendar, corporate actions; broker fault handling + reconciliation; persistence + audit
   reconstruction; dashboard + notifications; event-driven backtester + advisory-only AI review;
   runtime (JSON logging, readiness gate, fail-closed entry gate, graceful shutdown) + Docker/
   compose/systemd, backup/restore, runbook, order-incapable Windows companion; and the **live
   paper-trading loop** (mode-gated tick cycle, Alpaca paper REST + data clients, entry/manage
   decisions) — see `docs/live_trading.md`.
-- **Remaining increment:** a persisted trade-state store so the loop can *manage* live positions
-  across restarts (needed for full PAPER_AUTO); management logic is complete and unit-tested.
+- **Remaining increment:** fill tracking (trade-update stream / REST fill polling) to correct the
+  recorded expected entry to the actual VWAP; the durable trade-state store (restart-safe 5R-once,
+  position reconstruction) is built and tested.
 - **Deferred to on-account steps** (cannot run offline): live Alpaca trade-update streaming, the
   opt-in paper sandbox lifecycle test, and the PAPER_AUTO acceptance gates (20 shadow sessions,
   10 manual paper trades, operator sign-off) in `docs/implementation_plan.md`.

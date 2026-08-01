@@ -116,6 +116,7 @@ def _start_loop(cfg, svc, broker_client, key_id, secret, base_url, logger) -> No
         reconcile_live,
         run_tick_loop,
     )
+    from src.live.trade_state import TradeStateStore
 
     mode = cfg.mode
     if mode == "PAPER_AUTO" and os.environ.get("SWING_ACCEPT_PAPER_AUTO") != "1":
@@ -126,14 +127,19 @@ def _start_loop(cfg, svc, broker_client, key_id, secret, base_url, logger) -> No
     feed = os.environ.get("SWING_ALPACA_DATA_FEED", "iex")
     data_client = AlpacaDataClient(key_id, secret, feed=feed)
     setups_path = os.environ.get("SWING_SETUPS_FILE", "./data/live_setups.json")
+    store = TradeStateStore(os.environ.get("SWING_TRADE_STATE_FILE", "./data/live_trade_state.json"))
 
     from datetime import datetime, timezone
 
+    def _reconcile():
+        # Broker wins; expected positions + known order ids come from the durable trade store.
+        return reconcile_live(broker_client, expected_positions=store.expected_positions(),
+                              known_client_order_ids=store.known_client_order_ids())
+
     deps = LoopDeps(
         broker=broker,
-        reconcile=lambda: reconcile_live(broker_client, expected_positions=[],
-                                         known_client_order_ids=set()),
-        get_positions=lambda: [],   # managing live positions needs the trade-state store (next increment)
+        reconcile=_reconcile,
+        get_positions=lambda: store.reconstruct_positions(broker.list_positions()),
         get_candidates=lambda: load_setups_file(setups_path),
         get_market=lambda sym: build_market_view(data_client, sym, config=cfg.as_dict(),
                                                  now=datetime.now(timezone.utc)),
@@ -144,6 +150,7 @@ def _start_loop(cfg, svc, broker_client, key_id, secret, base_url, logger) -> No
         flags=GateFlags(paper_verified=svc.readiness.paper_endpoint_verified),
         retry=RetryPolicy(),
         sleep=lambda s: None,
+        store=store,
     )
     orch = LiveOrchestrator(deps)
     interval = float(os.environ.get("SWING_TICK_SECONDS", "30"))

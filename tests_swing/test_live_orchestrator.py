@@ -122,3 +122,34 @@ def test_insufficient_buying_power_blocks_entries():
     rpt = orch.tick()
     assert "insufficient_buying_power" in rpt.blockers
     assert broker.submitted == []
+
+
+def test_paper_auto_persists_entry_and_partial_to_store(tmp_path):
+    from src.execution.reconciliation import BrokerPosition
+    from src.live.trade_state import TradeStateStore
+
+    store = TradeStateStore(tmp_path / "state.json")
+    # 1) Entry tick: candidate triggers -> store records the trade.
+    orch, broker, notifier = build(mode="PAPER_AUTO", candidates=[a_candidate("AAA")])
+    orch.d.store = store
+    orch.tick()
+    t = store.get("AAA-2026-07-31")
+    assert t is not None and t.open_shares >= 1 and t.has_stop and not t.partial_done
+
+    # 2) Manage tick: the position now exists at the broker and price hits 5R -> partial recorded once.
+    pos = store.reconstruct_positions([BrokerPosition("AAA", t.open_shares, t.entry_price)])
+    orch2 = LiveOrchestrator(LoopDeps(
+        broker=FakeBroker(), reconcile=lambda: __import__(
+            "src.execution.reconciliation", fromlist=["ReconResult"]).ReconResult(),
+        get_positions=lambda: store.reconstruct_positions(
+            [BrokerPosition("AAA", store.get("AAA-2026-07-31").open_shares, t.entry_price)]),
+        get_candidates=lambda: [], get_market=lambda s: MarketView(
+            snapshot=fresh_snapshot(s), last_price=t.entry_price + 5 * (t.entry_price - t.initial_stop)),
+        notifier=FakeNotifier(), config=CFG, mode="PAPER_AUTO", now=NOW,
+        flags=GateFlags(), store=store))
+    orch2.tick()
+    assert store.get("AAA-2026-07-31").partial_done is True
+    before = store.get("AAA-2026-07-31").open_shares
+    # 3) A repeat manage tick must NOT take the 5R partial again.
+    orch2.tick()
+    assert store.get("AAA-2026-07-31").open_shares == before

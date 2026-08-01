@@ -48,6 +48,7 @@ suite hits Alpaca paper and never runs on PRs from forks.
 | Live orchestrator mode gating + fail-closed | `test_live_orchestrator.py` | ✅ |
 | Alpaca REST + data clients (request building) | `test_alpaca_clients.py` | ✅ |
 | Live service glue (market view/reconcile/loop/setups) | `test_live_service.py` | ✅ |
+| Durable trade-state store (reconstruct/5R-once/restart) | `test_trade_state.py` | ✅ |
 | Paper-endpoint enforcement | `test_broker_paper.py` | ✅ |
 | Secret-leakage checks | `test_secret_leak.py` | ✅ |
 
@@ -71,6 +72,6 @@ pytest -c pytest_swing.ini                 # deterministic core (stdlib + pyyaml
 RUN_ALPACA_SANDBOX=1 pytest tests_swing/sandbox -q   # opt-in, real paper account (later phase)
 ```
 
-Current status: **229 passed / 1 skipped** lean (Phases 1–6); **230 passed** with SQLAlchemy present.
+Current status: **238 passed / 1 skipped** lean (Phases 1–6); **239 passed** with SQLAlchemy present.
 
 ## Acceptance gates per phase → see docs/implementation_plan.md.

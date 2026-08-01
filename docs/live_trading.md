@@ -58,19 +58,30 @@ python scripts/run_swing.py
 ]
 ```
 
+## Durable trade-state store (`src/live/trade_state.py`)
+
+A JSON-backed store persists each open trade's lifecycle so the loop can **manage positions across
+restarts**: `trade_id`, actual VWAP entry, the original `initial_stop` (R reference), the current
+resting stop, `partial_done`, the running high since entry, and the client_order_ids this system
+originated. On each PAPER_AUTO action the orchestrator writes to the store — critically,
+`on_partial` is idempotent so a restart **cannot take the 5R partial twice**.
+
+`run_swing.py` now wires it in: `get_positions = store.reconstruct_positions(broker.list_positions())`
+(broker truth wins on quantity; a stored trade with no live position is never fabricated), and
+reconciliation draws `expected_positions` + `known_client_order_ids` from the store.
+
 ## What's wired vs. the next increment
 
 **Wired & tested (fakes):** the full tick cycle, entry/manage decisions, mode gating, fail-closed
 gate, the Alpaca REST + data clients (request building), market-view assembly, live reconciliation,
-and the interval runner. Startup uses real `reconcile_live` when credentials are present.
+the interval runner, and the durable trade-state store (entries/partials/exits persisted;
+5R-once survives restart).
 
-**Next increment (documented, not yet wired):** a persisted **trade-state store** so the loop can
-reconstruct each open position's `trade_id`, actual VWAP entry, `initial_stop`, and `partial_done`
-across restarts — required for the loop to *manage* live positions (not just propose/submit
-entries) and for full PAPER_AUTO. Until then `run_swing.py` runs the entry side of the loop and
-surfaces any live position via reconciliation as an unknown position that blocks new risk
-(fail-closed). The management logic itself is complete and unit-tested at the library level
-(`manage_open_position`, exercised in `test_live_manage.py` / `test_live_orchestrator.py`).
+**Next increment (documented):** **fill tracking** — the store records the *expected* entry at
+submit time; a trade-update stream (or REST fill polling) would correct it to the *actual* VWAP
+fill and confirm the attached stop before the position is treated as fully protected. Until then the
+loop sizes/records from the conservative expected fill and relies on per-tick REST reconciliation to
+surface drift (broker wins), which is fail-closed but coarser than streaming.
 
 ## Safety recap
 

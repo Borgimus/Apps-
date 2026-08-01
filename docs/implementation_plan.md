@@ -106,11 +106,15 @@ exists.** PAPER_AUTO is the terminal operating mode and is gated by explicit cri
 - `src/live/service.py`: `build_market_view`, `reconcile_live`, `load_setups_file`, `run_tick_loop`. ✅
 - `scripts/run_swing.py`: constructs the clients when creds present, reconciles at startup, and runs
   the loop (opt-in `SWING_ENABLE_LOOP=1`, SHADOW default; PAPER_AUTO double-gated). ✅
-- **Remaining increment:** a persisted trade-state store so the loop can *manage* live positions
-  across restarts (trade_id / VWAP entry / initial_stop / partial_done) — needed for full
-  PAPER_AUTO. Management logic itself is complete and unit-tested. See `docs/live_trading.md`.
+- `src/live/trade_state.py`: durable JSON trade-state store — reconstructs open positions across
+  restarts (trade_id / VWAP entry / initial_stop / resting stop / partial_done / high), records
+  entries/partials/exits on each PAPER_AUTO action, and makes the 5R partial idempotent across
+  restarts. Wired into `run_swing.py` (get_positions + reconciliation inputs). ✅
+- **Remaining increment:** fill tracking (trade-update stream / REST fill polling) to correct the
+  recorded expected entry to the actual VWAP and confirm the attached stop. See `docs/live_trading.md`.
 - **Gate:** loop reconciles broker truth, never submits in SHADOW, blocks entries on any fail-closed
-  condition, and always manages existing positions — verified by tests. 230 passed lean.
+  condition, always manages existing positions, and cannot double-take the 5R partial across a
+  restart — verified by tests. 239 passed lean.
 
 ## PAPER_AUTO acceptance criteria (all required, engineering-only — not proof of edge)
 1. TC2000 setup & import guide verified by the operator.

@@ -1,13 +1,13 @@
-[2026-08-03T09:30:01-04:00] automatic start requested
+[2026-08-04T09:30:01-04:00] automatic start requested
 Market calendar and paper-account gate passed
 
 All static+broker checks passed — session is eligible for Phase 3 cohort.
 {
-  "commit_sha": "21cd7a7f31bcb9bcd2b4878cc65307ea25d2bef6",
+  "commit_sha": "65b57f82891fcc0ed6b6492b0bd6261dde96b218",
   "working_tree_dirty": false,
   "source_changes": [],
   "ignored_runtime_changes": [
-    "logs/automation_2026-07-31.log"
+    "logs/automation_2026-08-03.log"
   ],
   "config_hash_sha256_16": "67954547a3a617d4",
   "requirements_lock_hash_sha256_16": "b91299a905e74506",
@@ -18,25 +18,31 @@ All static+broker checks passed — session is eligible for Phase 3 cohort.
     "broker_interface": "6a307cc7"
   }
 }
-[2026-08-03T09:30:04-04:00] launching Phase 3 runner -> /root/trader/logs/session_2026-08-03.log
-[2026-08-03T12:30:05-04:00] runner exited rc=0
-[2026-08-03T12:35:01-04:00] automatic EOD close-out requested
+[2026-08-04T09:30:03-04:00] launching Phase 3 runner -> /root/trader/logs/session_2026-08-04.log
+[2026-08-04T12:30:23-04:00] runner exited rc=0
+[2026-08-04T12:35:01-04:00] automatic EOD close-out requested
 
 All broker checks passed — session is eligible for Phase 3 cohort.
 {
-  "commit_sha": "21cd7a7f31bcb9bcd2b4878cc65307ea25d2bef6",
+  "commit_sha": "65b57f82891fcc0ed6b6492b0bd6261dde96b218",
   "working_tree_dirty": true,
   "source_changes": [
     "evaluation/ledger.paper_scaled_250_cap_10.json",
     "evaluation/shadow_book.jsonl"
   ],
   "ignored_runtime_changes": [
-    "logs/automation_2026-07-31.log",
+    "logs/automation_2026-08-03.log",
     "logs/broker.log",
     "logs/live_status.json",
     "logs/push_events.jsonl",
     "logs/shadow_book_state.json",
     "logs/trading.jsonl",
+    "logs/trading.jsonl.1",
+    "logs/trading.jsonl.2",
+    "logs/trading.jsonl.3",
+    "logs/trading.jsonl.4",
+    "logs/trading.jsonl.5",
+    "logs/trading.jsonl.6",
     "logs/trading.log"
   ],
   "config_hash_sha256_16": "67954547a3a617d4",
@@ -51,19 +57,25 @@ All broker checks passed — session is eligible for Phase 3 cohort.
 
 All broker checks passed — session is eligible for Phase 3 cohort.
 {
-  "commit_sha": "21cd7a7f31bcb9bcd2b4878cc65307ea25d2bef6",
+  "commit_sha": "65b57f82891fcc0ed6b6492b0bd6261dde96b218",
   "working_tree_dirty": true,
   "source_changes": [
     "evaluation/ledger.paper_scaled_250_cap_10.json",
     "evaluation/shadow_book.jsonl"
   ],
   "ignored_runtime_changes": [
-    "logs/automation_2026-07-31.log",
+    "logs/automation_2026-08-03.log",
     "logs/broker.log",
     "logs/live_status.json",
     "logs/push_events.jsonl",
     "logs/shadow_book_state.json",
     "logs/trading.jsonl",
+    "logs/trading.jsonl.1",
+    "logs/trading.jsonl.2",
+    "logs/trading.jsonl.3",
+    "logs/trading.jsonl.4",
+    "logs/trading.jsonl.5",
+    "logs/trading.jsonl.6",
     "logs/trading.log"
   ],
   "config_hash_sha256_16": "67954547a3a617d4",
@@ -75,18 +87,4 @@ All broker checks passed — session is eligible for Phase 3 cohort.
     "broker_interface": "6a307cc7"
   }
 }
-[2026-08-03T12:35:04-04:00] broker EOD state clean: 0 positions, 0 open orders
-[agent/paper-scaled-sizing-250-10 65b57f8] Record Phase 3 session raw artifacts (2026-08-03)
- 17 files changed, 42786 insertions(+), 97 deletions(-)
- create mode 100644 evaluation/reports/2026-08-03.json
- create mode 100644 evaluation/reports/2026-08-03.md
- create mode 100644 logs/automation_2026-08-03.log
- create mode 100644 logs/preflight_2026-08-03.log
- create mode 100644 logs/session_2026-08-03.exitcode
- create mode 100644 logs/session_2026-08-03.json
- create mode 100644 logs/session_2026-08-03.log
- create mode 100644 logs/shadow_report_2026-08-03.txt
-To https://github.com/Borgimus/Apps-.git
-   21cd7a7..65b57f8  agent/paper-scaled-sizing-250-10 -> agent/paper-scaled-sizing-250-10
-[2026-08-03T12:35:08-04:00] artifacts committed and pushed
-[2026-08-03T12:35:08-04:00] automatic EOD close-out complete
+[2026-08-04T12:35:03-04:00] broker EOD state clean: 0 positions, 0 open orders

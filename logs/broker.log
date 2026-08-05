@@ -78,3 +78,11 @@
 2026-08-04T10:39:42 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'AAPL260805C00307500', 'qty': '1', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '1.65', 'order_class': 'simple'}
 2026-08-04T11:05:11 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'QQQ260804C00720000', 'qty': '3', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.66', 'order_class': 'simple'}
 2026-08-04T11:34:32 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'QQQ260804C00720000', 'qty': '3', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.81', 'order_class': 'simple'}
+2026-08-05T09:30:07 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-08-05T09:30:07 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-08-05T09:48:01 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'IWM260805C00304000', 'qty': '7', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.33', 'order_class': 'simple'}
+2026-08-05T09:50:02 | INFO     | app.brokers.alpaca_broker | Order cancelled | order_id=62d32f3f-b7ab-4cba-a9d4-7f523a0b9c27
+2026-08-05T10:16:17 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SPY260805C00790000', 'qty': '10', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.12', 'order_class': 'simple'}
+2026-08-05T10:22:21 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'SPY260805C00790000', 'qty': '10', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.03', 'order_class': 'simple'}
+2026-08-05T10:37:55 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'XLE260807P00057500', 'qty': '4', 'side': 'buy', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.54', 'order_class': 'simple'}
+2026-08-05T12:30:27 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'XLE260807P00057500', 'qty': '4', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.46', 'order_class': 'simple'}

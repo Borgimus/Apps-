@@ -1,36 +1,36 @@
 {
-  "seq": 1167,
+  "seq": 1276,
   "open": [],
   "episodes": {
-    "vwap_reclaim|IWM|long": {
-      "opportunity_id": "20260805-IWM-vwap_reclaim-1117",
-      "last_seen": "2026-08-05T09:48:01.084290-04:00",
-      "observations": 1
+    "vwap_reclaim|AAPL|short": {
+      "opportunity_id": "20260806-AAPL-vwap_reclaim-1168",
+      "last_seen": "2026-08-06T11:04:33.666906-04:00",
+      "observations": 41
+    },
+    "vwap_reclaim|QQQ|long": {
+      "opportunity_id": "20260806-QQQ-vwap_reclaim-1169",
+      "last_seen": "2026-08-06T09:45:12.830070-04:00",
+      "observations": 8
     },
     "vwap_reclaim|SPY|long": {
-      "opportunity_id": "20260805-SPY-vwap_reclaim-1118",
-      "last_seen": "2026-08-05T10:16:13.053712-04:00",
+      "opportunity_id": "20260806-SPY-vwap_reclaim-1182",
+      "last_seen": "2026-08-06T09:53:29.436958-04:00",
       "observations": 1
     },
-    "orb|XLE|short": {
-      "opportunity_id": "20260805-XLE-orb-1119",
-      "last_seen": "2026-08-05T10:37:55.254860-04:00",
-      "observations": 10
+    "vwap_reclaim|IWM|long": {
+      "opportunity_id": "20260806-IWM-vwap_reclaim-1183",
+      "last_seen": "2026-08-06T10:17:47.784096-04:00",
+      "observations": 30
     },
-    "vwap_reclaim|XLE|short": {
-      "opportunity_id": "20260805-XLE-vwap_reclaim-1120",
-      "last_seen": "2026-08-05T10:37:55.254860-04:00",
-      "observations": 10
+    "orb|SMH|long": {
+      "opportunity_id": "20260806-SMH-orb-1192",
+      "last_seen": "2026-08-06T10:16:39.752046-04:00",
+      "observations": 20
     },
-    "vwap_reclaim|AAPL|long": {
-      "opportunity_id": "20260805-AAPL-vwap_reclaim-1121",
-      "last_seen": "2026-08-05T10:25:57.565905-04:00",
-      "observations": 7
-    },
-    "vwap_reclaim|QQQ|short": {
-      "opportunity_id": "20260805-QQQ-vwap_reclaim-1140",
-      "last_seen": "2026-08-05T10:37:23.896247-04:00",
-      "observations": 22
+    "orb|IWM|long": {
+      "opportunity_id": "20260806-IWM-orb-1217",
+      "last_seen": "2026-08-06T10:17:47.784096-04:00",
+      "observations": 9
     }
   }
 }

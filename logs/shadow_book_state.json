@@ -1,36 +1,51 @@
 {
-  "seq": 1276,
+  "seq": 1445,
   "open": [],
   "episodes": {
-    "vwap_reclaim|AAPL|short": {
-      "opportunity_id": "20260806-AAPL-vwap_reclaim-1168",
-      "last_seen": "2026-08-06T11:04:33.666906-04:00",
-      "observations": 41
-    },
-    "vwap_reclaim|QQQ|long": {
-      "opportunity_id": "20260806-QQQ-vwap_reclaim-1169",
-      "last_seen": "2026-08-06T09:45:12.830070-04:00",
-      "observations": 8
-    },
-    "vwap_reclaim|SPY|long": {
-      "opportunity_id": "20260806-SPY-vwap_reclaim-1182",
-      "last_seen": "2026-08-06T09:53:29.436958-04:00",
+    "vwap_reclaim|IWM|long": {
+      "opportunity_id": "20260807-IWM-vwap_reclaim-1277",
+      "last_seen": "2026-08-07T09:46:09.252418-04:00",
       "observations": 1
     },
-    "vwap_reclaim|IWM|long": {
-      "opportunity_id": "20260806-IWM-vwap_reclaim-1183",
-      "last_seen": "2026-08-06T10:17:47.784096-04:00",
-      "observations": 30
+    "vwap_reclaim|QQQ|short": {
+      "opportunity_id": "20260807-QQQ-vwap_reclaim-1278",
+      "last_seen": "2026-08-07T10:57:25.108233-04:00",
+      "observations": 47
     },
-    "orb|SMH|long": {
-      "opportunity_id": "20260806-SMH-orb-1192",
-      "last_seen": "2026-08-06T10:16:39.752046-04:00",
-      "observations": 20
+    "vwap_reclaim|SPY|short": {
+      "opportunity_id": "20260807-SPY-vwap_reclaim-1290",
+      "last_seen": "2026-08-07T10:21:04.004287-04:00",
+      "observations": 10
     },
-    "orb|IWM|long": {
-      "opportunity_id": "20260806-IWM-orb-1217",
-      "last_seen": "2026-08-06T10:17:47.784096-04:00",
-      "observations": 9
+    "orb|QQQ|short": {
+      "opportunity_id": "20260807-QQQ-orb-1306",
+      "last_seen": "2026-08-07T10:19:27.766830-04:00",
+      "observations": 1
+    },
+    "vwap_reclaim|SPY|long": {
+      "opportunity_id": "20260807-SPY-vwap_reclaim-1316",
+      "last_seen": "2026-08-07T10:28:47.652755-04:00",
+      "observations": 10
+    },
+    "vwap_reclaim|AAPL|long": {
+      "opportunity_id": "20260807-AAPL-vwap_reclaim-1318",
+      "last_seen": "2026-08-07T11:07:50.423373-04:00",
+      "observations": 47
+    },
+    "vwap_reclaim|XLF|long": {
+      "opportunity_id": "20260807-XLF-vwap_reclaim-1333",
+      "last_seen": "2026-08-07T10:44:56.991082-04:00",
+      "observations": 6
+    },
+    "vwap_reclaim|XLE|long": {
+      "opportunity_id": "20260807-XLE-vwap_reclaim-1399",
+      "last_seen": "2026-08-07T11:09:57.859551-04:00",
+      "observations": 4
+    },
+    "vwap_reclaim|QQQ|long": {
+      "opportunity_id": "20260807-QQQ-vwap_reclaim-1400",
+      "last_seen": "2026-08-07T11:30:19.948867-04:00",
+      "observations": 43
     }
   }
 }

@@ -94,6 +94,20 @@ def test_scaled_cohort_uses_separate_ledger_file():
     )
 
 
+def test_guardrail_amendment_uses_new_ledger_file():
+    settings = SimpleNamespace(
+        evaluation_ledger_file="./evaluation/ledger.json",
+        paper_scaled_sizing_enabled=True,
+        paper_scaled_premium_budget_dollars=250,
+        paper_scaled_guardrails_enabled=True,
+        paper_scaled_guardrail_cohort="guardrails_v2",
+        universe=SimpleNamespace(max_contracts_per_position=10),
+    )
+    assert _ledger_file_for_settings(settings).endswith(
+        "ledger.paper_scaled_250_cap_10.guardrails_v2.json"
+    )
+
+
 def test_one_contract_cohort_keeps_original_ledger_file():
     settings = SimpleNamespace(
         evaluation_ledger_file="./evaluation/ledger.json",

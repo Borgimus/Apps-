@@ -461,5 +461,27 @@
     "files_changed": ["app/trading/fill_tracker.py", "tests/test_fill_tracker.py", "tests/test_stale_cancel_replay.py"],
     "frozen_hash_files_changed": [],
     "reason": "Defect fix only: FillTracker confirms broker terminal state after every cancel attempt instead of trusting the async cancel-request response. No threshold, parameter, or strategy logic change. entry_order_timeout_secs unchanged at 5 min. None of the four frozen-hash files (config, requirements, ticker_universe, broker adapters) modified. Sessions 5+ run with Fix 12; cross-session comparison of fill_path dimension should note reconciler_recovery is expected to drop to ~0 from S5 onward."
+  },
+  "_scaled_guardrails_v2_amendment": {
+    "declared": "2026-08-07",
+    "session_boundary": "after seven paper_scaled_budget_250_cap_10 sessions",
+    "prior_cohort_disposition": "frozen unchanged; retain its ledger and raw artifacts as baseline evidence",
+    "new_cohort": "paper_scaled_budget_250_cap_10_guardrails_v2",
+    "reason": "The first scaled cohort exposed repeated same-direction losses across correlated broad-index ETFs and showed that an account-equity daily-loss percentage was not a meaningful limit for a $250 premium-budget experiment.",
+    "behavior_changes": [
+      "$250 experiment-specific realized-loss ceiling",
+      "maximum two losing exits per session",
+      "same-direction broad-index lock after one stop loss",
+      "minimum signal quality score 3 of 4",
+      "global scanner-score/rvol ranking before the single slot is consumed",
+      "SPY VWAP plus EMA20 market-regime confirmation",
+      "passive inverted-direction shadow comparison"
+    ],
+    "reporting_repairs": [
+      "bridge signals populate total_signals and per-strategy signal counts",
+      "session entry-order count reconciles to journal submissions",
+      "health-report max_drawdown is reported in dollars"
+    ],
+    "safety": "paper-only; existing live-trading guards, one-active-position cap, premium budget, contract cap, broker reconciliation, and kill switch remain in force"
   }
 }

@@ -31,7 +31,7 @@ ET = ZoneInfo("America/New_York")
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _run(coro):
-    return asyncio.get_event_loop().run_until_complete(coro)
+    return asyncio.run(coro)
 
 
 def _make_settings(
@@ -353,6 +353,41 @@ class TestDailyReportEmpty:
         await engine.dispose()
         assert isinstance(report.notes, list)
         assert len(report.notes) > 0
+
+    @pytest.mark.asyncio
+    async def test_bridge_rows_supply_signal_counts(self):
+        from app.api.models import DBSignalBridge
+        from app.evaluation.daily_report import build_daily_report
+
+        factory, engine = await _make_memory_session()
+        session_date = "2026-08-10"
+        async with factory() as session:
+            session.add_all([
+                DBSignalBridge(
+                    session_date=session_date,
+                    timestamp=datetime(2026, 8, 10, 10, 0),
+                    symbol="SPY",
+                    strategy_id="vwap_reclaim",
+                    signal_direction="long",
+                    final_decision="blocked",
+                    exact_block_reason="market_regime_mismatch",
+                ),
+                DBSignalBridge(
+                    session_date=session_date,
+                    timestamp=datetime(2026, 8, 10, 10, 5),
+                    symbol="QQQ",
+                    strategy_id="vwap_reclaim",
+                    signal_direction="short",
+                    final_decision="traded",
+                ),
+            ])
+            await session.commit()
+            report = await build_daily_report(session, session_date)
+        await engine.dispose()
+
+        assert report.total_signals == 2
+        stats = {item.strategy_id: item for item in report.by_strategy}
+        assert stats["vwap_reclaim"].signals == 2
 
 
 # ── daily_report: build with trades ──────────────────────────────────────────

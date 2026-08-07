@@ -55,15 +55,24 @@ def main() -> None:
         }
 
     by_strategy: dict = defaultdict(_bucket)
+    def _strategy_label(record: dict) -> str:
+        strategy = record["strategy_id"]
+        return (
+            f"{strategy}:inverted"
+            if record.get("variant") == "inverted"
+            else strategy
+        )
+
     # Opportunity-level rollup: first observation of each opportunity defines it;
     # an opportunity counts as executed if ANY of its observations executed.
     opp_seen: dict = {}
     for s in signals:
-        st = by_strategy[s["strategy_id"]]
+        label = _strategy_label(s)
+        st = by_strategy[label]
         st["raw"] += 1
         oid = s.get("opportunity_id") or s["signal_id"]
         if oid not in opp_seen:
-            opp_seen[oid] = {"strategy": s["strategy_id"], "executed": False,
+            opp_seen[oid] = {"strategy": label, "executed": False,
                              "block_reason": s.get("block_reason")}
             st["opportunities"] += 1
         if s["executed"]:
@@ -78,7 +87,7 @@ def main() -> None:
             st["block_reasons"][info.get("block_reason") or "unknown"] += 1
 
     for c in closes.values():
-        st = by_strategy[c["strategy_id"]]
+        st = by_strategy[_strategy_label(c)]
         if c.get("fill_validated"):
             st["validated_n"] += 1
             st["validated_pnl"] += c["shadow_pnl"]
@@ -106,7 +115,13 @@ def main() -> None:
             reasons = ", ".join(f"{r}={n}" for r, n in sorted(st["block_reasons"].items()))
             print(f"{name} blocked-opportunity reasons: {reasons}")
 
-    total_blocked = sum(st["blocked_opps"] for st in by_strategy.values())
+    # Inverted rows are counterfactual outcomes of the same opportunities.
+    # Exclude them from the baseline slot-competition denominator.
+    total_blocked = sum(
+        st["blocked_opps"]
+        for name, st in by_strategy.items()
+        if not name.endswith(":inverted")
+    )
     if total_blocked:
         vw = by_strategy.get("vwap_reclaim")
         if vw:
@@ -115,6 +130,18 @@ def main() -> None:
                   f"fill-validated: {vw['validated_n']} for {vw['validated_pnl']:+.2f} "
                   f"({vw['validated_wins']}W) | "
                   f"theoretical: {vw['theoretical_n']} for {vw['theoretical_pnl']:+.2f}")
+
+    inverse = [c for c in closes.values() if c.get("variant") == "inverted"]
+    if inverse:
+        validated = [c for c in inverse if c.get("fill_validated")]
+        theoretical = [c for c in inverse if not c.get("fill_validated")]
+        print(
+            "\nInverted-direction comparison: "
+            f"fill-validated {len(validated)} for "
+            f"{sum(c['shadow_pnl'] for c in validated):+.2f}; "
+            f"theoretical {len(theoretical)} for "
+            f"{sum(c['shadow_pnl'] for c in theoretical):+.2f}"
+        )
     print(f"\nBaseline gate: >=10 unique capacity-blocked opportunities and >=5 "
           f"sessions before evaluating cap changes (current blocked opps: {total_blocked})")
 

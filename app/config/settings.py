@@ -248,6 +248,19 @@ class Settings(BaseSettings):
     # Quantity is bounded by the ask-price premium budget and the universe cap.
     paper_scaled_sizing_enabled: bool = False
     paper_scaled_premium_budget_dollars: float = 250.0
+    # Guardrails introduced after the first seven scaled sessions. The cohort
+    # label keeps amended results separate from the original baseline ledger.
+    paper_scaled_guardrails_enabled: bool = True
+    paper_scaled_guardrail_cohort: str = "guardrails_v2"
+    paper_scaled_daily_loss_limit_dollars: float = 250.0
+    paper_scaled_max_losing_trades_per_day: int = 2
+    paper_scaled_min_signal_quality: float = 3.0
+    paper_scaled_market_regime_confirmation_enabled: bool = True
+    paper_scaled_global_ranking_enabled: bool = True
+    paper_scaled_inverted_shadow_enabled: bool = True
+    paper_scaled_correlated_groups: str = (
+        "broad_index:SPY,QQQ,IWM,DIA"
+    )
 
     @model_validator(mode="after")
     def guard_eval_mode(self):
@@ -283,6 +296,21 @@ class Settings(BaseSettings):
                 )
             if self.universe.max_contracts_per_position < 1:
                 raise ValueError("max_contracts_per_position must be at least one.")
+            if self.paper_scaled_guardrails_enabled:
+                if self.paper_scaled_daily_loss_limit_dollars <= 0:
+                    raise ValueError(
+                        "paper_scaled_daily_loss_limit_dollars must be greater than zero."
+                    )
+                if self.paper_scaled_max_losing_trades_per_day < 1:
+                    raise ValueError(
+                        "paper_scaled_max_losing_trades_per_day must be at least one."
+                    )
+                if not 0 <= self.paper_scaled_min_signal_quality <= 4:
+                    raise ValueError(
+                        "paper_scaled_min_signal_quality must be between zero and four."
+                    )
+                if not self.paper_scaled_guardrail_cohort.strip():
+                    raise ValueError("paper_scaled_guardrail_cohort cannot be blank.")
         return self
 
     @field_validator("live_trading_enabled", mode="before")

@@ -57,6 +57,23 @@ NOW = datetime(2026, 7, 20, 10, 30, tzinfo=ET)
 
 class TestRecording:
 
+    def test_inverted_signal_is_separate_and_simulated(self, tmp_path):
+        sb = _book(tmp_path)
+        sb.record_inverted_signal(
+            now=NOW,
+            strategy_id="vwap_reclaim",
+            symbol="SPY",
+            direction="short",
+            option_symbol="SPY260720P00600000",
+            limit_price=0.40,
+            entry_ask=0.40,
+            quality_score=4,
+        )
+        assert sb.open_count() == 1
+        event = _events(tmp_path)[0]
+        assert event["variant"] == "inverted"
+        assert event["block_reason"] == "inverted_direction_counterfactual"
+
     def test_blocked_capacity_signal_opens_shadow_position(self, tmp_path):
         sb = _book(tmp_path)
         sb.record_signal(

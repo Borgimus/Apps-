@@ -75,6 +75,12 @@ CAPACITY_REASONS = frozenset({
     "max_active_positions",
     "max_symbols_traded_day",
     "recon_blocked",
+    "experiment_daily_loss",
+    "experiment_loss_count",
+    "correlated_stop_lock",
+    "signal_quality_below_min",
+    "market_regime_mismatch",
+    "inverted_direction_counterfactual",
 })
 
 
@@ -95,6 +101,7 @@ class ShadowPosition:
     peak_price: float = 0.0
     trough_price: float = 0.0
     last_price: float = 0.0
+    variant: str = "baseline"
 
 
 class ShadowBook:
@@ -141,7 +148,8 @@ class ShadowBook:
         entry_ask: Optional[float] = None,
         journal_id: Optional[int] = None,
         quality_score: Optional[float] = None,
-    ) -> None:
+        variant: str = "baseline",
+    ) -> bool:
         """Log one fully qualified signal observation.
 
         Repeated observations of the same (strategy, symbol, direction) within
@@ -149,9 +157,12 @@ class ShadowBook:
         second shadow position. Blocked-for-capacity first observations open a
         shadow position when priceable."""
         self._seq += 1
-        signal_id = f"{now.strftime('%Y%m%d')}-{self._seq:03d}-{symbol}-{strategy_id}"
+        suffix = "-inverted" if variant == "inverted" else ""
+        signal_id = (
+            f"{now.strftime('%Y%m%d')}-{self._seq:03d}-{symbol}-{strategy_id}{suffix}"
+        )
 
-        ep_key = f"{strategy_id}|{symbol}|{direction}"
+        ep_key = f"{variant}|{strategy_id}|{symbol}|{direction}"
         ep = self._episodes.get(ep_key)
         new_opportunity = True
         if ep is not None:
@@ -185,21 +196,22 @@ class ShadowBook:
             "limit_price": limit_price,
             "journal_id": journal_id,
             "quality_score": quality_score,
+            "variant": variant,
         })
         self._save_state()
 
         if executed or not new_opportunity:
-            return
+            return new_opportunity
         if block_reason not in CAPACITY_REASONS:
-            return
+            return new_opportunity
         if not option_symbol or not limit_price or limit_price <= 0:
             logger.info(
                 "ShadowBook: %s blocked (%s) but not priceable — signal logged, no simulation",
                 signal_id, block_reason,
             )
-            return
+            return new_opportunity
         if any(sp.option_symbol == option_symbol for sp in self._open.values()):
-            return  # already simulating this contract
+            return new_opportunity  # already simulating this contract
 
         sp = ShadowPosition(
             signal_id=signal_id,
@@ -215,6 +227,7 @@ class ShadowBook:
             peak_price=float(limit_price),
             trough_price=float(limit_price),
             last_price=float(limit_price),
+            variant=variant,
         )
         # Marketable at signal time counts as validated (ask already at limit)
         if entry_ask is not None and entry_ask > 0 and entry_ask <= float(limit_price):
@@ -223,9 +236,37 @@ class ShadowBook:
         self._open[sp.signal_id] = sp
         self._save_state()
         logger.info(
-            "ShadowBook: simulating %s %s @ %.4f (blocked: %s%s)",
-            strategy_id, option_symbol, limit_price, block_reason,
+            "ShadowBook: simulating %s/%s %s @ %.4f (blocked: %s%s)",
+            strategy_id, variant, option_symbol, limit_price, block_reason,
             ", fill-validated at entry" if sp.fill_validated else "",
+        )
+        return new_opportunity
+
+    def record_inverted_signal(
+        self,
+        *,
+        now: datetime,
+        strategy_id: str,
+        symbol: str,
+        direction: str,
+        option_symbol: Optional[str],
+        limit_price: Optional[float],
+        entry_ask: Optional[float],
+        quality_score: Optional[float] = None,
+    ) -> None:
+        """Record a passive opposite-direction counterfactual."""
+        self.record_signal(
+            now=now,
+            strategy_id=strategy_id,
+            symbol=symbol,
+            direction=direction,
+            executed=False,
+            block_reason="inverted_direction_counterfactual",
+            option_symbol=option_symbol,
+            limit_price=limit_price,
+            entry_ask=entry_ask,
+            quality_score=quality_score,
+            variant="inverted",
         )
 
     # ── Simulation ────────────────────────────────────────────────────────────
@@ -324,6 +365,7 @@ class ShadowBook:
             "hold_seconds": int((now - entry_dt).total_seconds()),
             "peak_price": sp.peak_price,
             "trough_price": sp.trough_price,
+            "variant": sp.variant,
         })
         self._open.pop(sp.signal_id, None)
         logger.info(
@@ -372,7 +414,8 @@ class ShadowBook:
             logger.warning("ShadowBook: failed to load state: %s", exc)
 
 
-async def select_shadow_contract(broker, liq_filter, settings, symbol, sig, now
+async def select_shadow_contract(broker, liq_filter, settings, symbol, sig, now,
+                                 invert: bool = False
                                  ) -> Tuple[Optional[str], Optional[float], Optional[float]]:
     """Mirror the live contract-selection path (expirations → preferred-DTE
     chain → liquidity filter → limit price) for a signal that was blocked
@@ -395,7 +438,17 @@ async def select_shadow_contract(broker, liq_filter, settings, symbol, sig, now
             return None, None, None
 
         chain = await broker.get_option_chain(symbol, target_exp)
-        contract = liq_filter.select_contract(chain, sig)
+        selected_signal = sig
+        if invert:
+            from dataclasses import replace
+            from app.strategies.strategy_base import SignalDirection
+            opposite = (
+                SignalDirection.SHORT
+                if sig.direction == SignalDirection.LONG
+                else SignalDirection.LONG
+            )
+            selected_signal = replace(sig, direction=opposite)
+        contract = liq_filter.select_contract(chain, selected_signal)
         if contract is None:
             return None, None, None
 

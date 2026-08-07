@@ -78,6 +78,55 @@ def _entry_capacity_used(pm, fill_tracker, risk) -> int:
     return reserved_entry_slots(open_symbols, pending_symbols)
 
 
+def _rank_active_symbols(symbols: List[str], scan_store: Optional[dict]) -> List[str]:
+    """Rank the whole active universe before the single entry slot is used."""
+    candidates = (scan_store or {}).get("candidates") or []
+    best: Dict[str, tuple[float, float]] = {}
+    for candidate in candidates:
+        symbol = str(candidate.get("symbol") or "").upper()
+        if not symbol:
+            continue
+        score = float(candidate.get("score") or 0.0)
+        rvol = float(candidate.get("rvol") or 0.0)
+        if symbol not in best or (score, rvol) > best[symbol]:
+            best[symbol] = (score, rvol)
+    return sorted(
+        dict.fromkeys(symbols),
+        key=lambda symbol: (
+            -best.get(symbol.upper(), (0.0, 0.0))[0],
+            -best.get(symbol.upper(), (0.0, 0.0))[1],
+            symbol,
+        ),
+    )
+
+
+def _market_regime_from_bars(bars) -> str:
+    """Return long, short, or neutral from SPY price versus VWAP and EMA20."""
+    if bars is None or bars.empty or len(bars) < 5:
+        return "neutral"
+    frame = bars.copy()
+    frame.columns = frame.columns.str.lower()
+    required = {"high", "low", "close", "volume"}
+    if not required.issubset(frame.columns):
+        return "neutral"
+    latest_date = frame.index[-1].date()
+    session = frame[frame.index.date == latest_date]
+    if session.empty:
+        return "neutral"
+    typical = (session["high"] + session["low"] + session["close"]) / 3
+    cumulative_volume = session["volume"].cumsum()
+    if float(cumulative_volume.iloc[-1]) <= 0:
+        return "neutral"
+    vwap = (typical * session["volume"]).cumsum() / cumulative_volume
+    ema20 = session["close"].ewm(span=20, adjust=False).mean()
+    close = float(session["close"].iloc[-1])
+    if close > float(vwap.iloc[-1]) and close > float(ema20.iloc[-1]):
+        return "long"
+    if close < float(vwap.iloc[-1]) and close < float(ema20.iloc[-1]):
+        return "short"
+    return "neutral"
+
+
 def _request_shutdown(signum, frame):
     global _shutdown_requested
     logger.warning("Shutdown signal received (%s) — finishing current cycle then exiting", signum)
@@ -351,7 +400,12 @@ async def _poll_pending_exit(
         pnl = (avg_fill - pos.entry_price) * 100 * pos.quantity
         hold_secs = (now - pos.entry_time).total_seconds()
         pm.close_confirmed(pos.option_symbol, avg_fill, pnl)
-        risk.record_exit(Decimal(str(pnl)))
+        risk.record_exit(
+            Decimal(str(pnl)),
+            symbol=pos.symbol,
+            direction=pos.direction,
+            reason=pos.exit_triggered_reason,
+        )
         if _PUSH_NOTIFIER:
             _PUSH_NOTIFIER.on_exit(
                 symbol=pos.symbol,
@@ -782,7 +836,12 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
                 pnl = (avg_fill - pos.entry_price) * 100 * pos.quantity
                 hold_secs = (poll_now - pos.entry_time).total_seconds()
                 pm.close_confirmed(pos.option_symbol, avg_fill, pnl)
-                risk.record_exit(Decimal(str(pnl)))
+                risk.record_exit(
+                    Decimal(str(pnl)),
+                    symbol=pos.symbol,
+                    direction=pos.direction,
+                    reason="eod_exit",
+                )
                 if _PUSH_NOTIFIER:
                     _PUSH_NOTIFIER.on_exit(
                         symbol=pos.symbol,
@@ -984,6 +1043,7 @@ async def scan_and_place(
     alert_service=None,
     scan_store: Optional[dict] = None,
     entries_placed: Optional[dict] = None,
+    market_regime: str = "neutral",
 ) -> int:
     """Return number of orders placed (or would-be placed in dry-run)."""
     from app.brokers.broker_interface import OrderRequest, OrderSide, OrderType
@@ -1219,19 +1279,96 @@ async def scan_and_place(
             if _SHADOW_BOOK is None:
                 return
             try:
+                from app.evaluation.shadow_book import select_shadow_contract
                 if _osym is None:
-                    from app.evaluation.shadow_book import select_shadow_contract
                     _osym, _lp, _ask = await select_shadow_contract(
                         broker, liq_filter, settings, symbol, sig, now,
                     )
-                _SHADOW_BOOK.record_signal(
+                _new_shadow_opportunity = _SHADOW_BOOK.record_signal(
                     now=now, strategy_id=sig.strategy_id, symbol=symbol,
                     direction=sig.direction.value, executed=False,
                     block_reason=_reason, option_symbol=_osym,
                     limit_price=_lp, entry_ask=_ask, quality_score=_qscore,
                 )
+                if (
+                    _new_shadow_opportunity
+                    and _scaled_guards
+                    and getattr(settings, "paper_scaled_inverted_shadow_enabled", False)
+                ):
+                    from app.strategies.strategy_base import SignalDirection
+                    _inv_osym, _inv_lp, _inv_ask = await select_shadow_contract(
+                        broker,
+                        liq_filter,
+                        settings,
+                        symbol,
+                        sig,
+                        now,
+                        invert=True,
+                    )
+                    _inv_direction = (
+                        SignalDirection.SHORT.value
+                        if sig.direction == SignalDirection.LONG
+                        else SignalDirection.LONG.value
+                    )
+                    _SHADOW_BOOK.record_inverted_signal(
+                        now=now,
+                        strategy_id=sig.strategy_id,
+                        symbol=symbol,
+                        direction=_inv_direction,
+                        option_symbol=_inv_osym,
+                        limit_price=_inv_lp,
+                        entry_ask=_inv_ask,
+                        quality_score=_qscore,
+                    )
             except Exception as _sb_exc:
                 logger.debug("ShadowBook record failed: %s", _sb_exc)
+
+        # Amended scaled cohort: quality is now an entry gate, not merely an
+        # advisory field. A score below 3/4 is recorded for shadow analysis.
+        _scaled_guards = (
+            getattr(settings, "paper_scaled_sizing_enabled", False) is True
+            and getattr(settings, "paper_scaled_guardrails_enabled", False) is True
+        )
+        if _scaled_guards:
+            if not _permissive:
+                from app.strategies.signal_quality import compute_signal_quality_score
+                _qscore = compute_signal_quality_score(sig, bars)
+            _min_quality = float(getattr(
+                settings,
+                "paper_scaled_min_signal_quality",
+                3.0,
+            ))
+            if _qscore < _min_quality:
+                logger.info(
+                    "Signal quality blocked | %s/%s score=%.1f < %.1f",
+                    symbol,
+                    sig.strategy_id,
+                    _qscore,
+                    _min_quality,
+                )
+                if _bridge is not None:
+                    _bridge.final_decision = "blocked"
+                    _bridge.exact_block_reason = "signal_quality_below_min"
+                await _shadow_blocked("signal_quality_below_min")
+                continue
+
+            if getattr(
+                settings,
+                "paper_scaled_market_regime_confirmation_enabled",
+                True,
+            ) and market_regime != sig.direction.value:
+                logger.info(
+                    "Market regime blocked | %s/%s direction=%s regime=%s",
+                    symbol,
+                    sig.strategy_id,
+                    sig.direction.value,
+                    market_regime,
+                )
+                if _bridge is not None:
+                    _bridge.final_decision = "blocked"
+                    _bridge.exact_block_reason = "market_regime_mismatch"
+                await _shadow_blocked("market_regime_mismatch")
+                continue
 
         # Global entry-capacity guard. Pending entry orders reserve a slot
         # immediately, so a second order cannot race the first fill confirmation.
@@ -1506,6 +1643,7 @@ async def scan_and_place(
             equity=acct.equity,
             contract=contract,
             now=now,
+            signal_direction=sig.direction.value,
         )
         if _bridge is not None:
             _bridge.risk_passed = risk_result.passed
@@ -1517,7 +1655,13 @@ async def scan_and_place(
                 _bridge.exact_block_reason = f"risk: {reason_str}"
             _cap_reason = next(
                 (c.value for c in risk_result.failed_checks
-                 if c.value in ("max_trades_per_day", "recon_blocked")),
+                 if c.value in (
+                     "max_trades_per_day",
+                     "recon_blocked",
+                     "experiment_daily_loss",
+                     "experiment_loss_count",
+                     "correlated_stop_lock",
+                 )),
                 None,
             )
             await _shadow_blocked(
@@ -1638,12 +1782,45 @@ async def scan_and_place(
         )
         if _SHADOW_BOOK is not None:
             try:
-                _SHADOW_BOOK.record_signal(
+                _new_shadow_opportunity = _SHADOW_BOOK.record_signal(
                     now=now, strategy_id=sig.strategy_id, symbol=symbol,
                     direction=sig.direction.value, executed=True,
                     option_symbol=used_contract.option_symbol,
                     limit_price=float(limit_price), quality_score=_qscore,
                 )
+                if (
+                    _new_shadow_opportunity
+                    and _scaled_guards
+                    and getattr(settings, "paper_scaled_inverted_shadow_enabled", False)
+                ):
+                    from dataclasses import replace as _replace
+                    from app.strategies.strategy_base import SignalDirection as _SD
+                    _inverse_direction = (
+                        _SD.SHORT if sig.direction == _SD.LONG else _SD.LONG
+                    )
+                    _inverse_signal = _replace(sig, direction=_inverse_direction)
+                    _inverse_contract = liq_filter.select_contract(chain, _inverse_signal)
+                    if _inverse_contract is not None:
+                        _inverse_lp = _clp(
+                            mode=_entry_mode,
+                            bid=float(_inverse_contract.bid),
+                            ask=float(_inverse_contract.ask),
+                            offset_pct=getattr(
+                                settings.options,
+                                "entry_marketable_offset_pct",
+                                0.01,
+                            ),
+                        )
+                        _SHADOW_BOOK.record_inverted_signal(
+                            now=now,
+                            strategy_id=sig.strategy_id,
+                            symbol=symbol,
+                            direction=_inverse_direction.value,
+                            option_symbol=_inverse_contract.option_symbol,
+                            limit_price=float(_inverse_lp),
+                            entry_ask=float(_inverse_contract.ask),
+                            quality_score=_qscore,
+                        )
             except Exception as _sb_exc:
                 logger.debug("ShadowBook record failed: %s", _sb_exc)
 
@@ -2273,8 +2450,11 @@ async def run_session(args: argparse.Namespace):
     cycle = 0
     eod_liquidated = False
     entry_orders_placed = 0      # entry orders only; exit orders are not counted here
+    journal_submitted_orders = 0
     kill_switch_alerted = False
     _entries_placed: dict = {}   # {strategy_id: count} — entries only (not exits)
+    _market_regime = "neutral"
+    _market_regime_at: Optional[datetime] = None
 
     # ── Main polling loop ─────────────────────────────────────────────────────
     while not _shutdown_requested:
@@ -2496,12 +2676,49 @@ async def run_session(args: argparse.Namespace):
 
         # Only open new positions if not past EOD and kill switch is not active
         if now < eod_time and not kill_switch_active:
+            _scaled_guards = (
+                getattr(settings, "paper_scaled_sizing_enabled", False) is True
+                and getattr(settings, "paper_scaled_guardrails_enabled", False) is True
+            )
+            if (
+                _scaled_guards
+                and getattr(
+                    settings,
+                    "paper_scaled_market_regime_confirmation_enabled",
+                    True,
+                )
+                and (
+                    _market_regime_at is None
+                    or (now - _market_regime_at).total_seconds() >= 300
+                )
+            ):
+                try:
+                    _regime_bars = await _retry(
+                        lambda: data.get_intraday_bars(
+                            "SPY",
+                            interval="5m",
+                            days_back=3,
+                        ),
+                        label="market_regime_bars(SPY)",
+                    )
+                    _market_regime = _market_regime_from_bars(_regime_bars)
+                except Exception:
+                    _market_regime = "neutral"
+                _market_regime_at = now
+                logger.info("Broad-market regime | SPY=%s", _market_regime)
+
             # Guard: block all new entries when a reconciliation mismatch is unresolved
             if _recon_has_mismatch:
                 logger.info(
                     "Recon mismatch active — all new entries blocked until next clean reconcile"
                 )
-            for symbol in (active_symbols if not _recon_has_mismatch else []):
+            _cycle_symbols = active_symbols if not _recon_has_mismatch else []
+            if (
+                _scaled_guards
+                and getattr(settings, "paper_scaled_global_ranking_enabled", True)
+            ):
+                _cycle_symbols = _rank_active_symbols(_cycle_symbols, _scan_store)
+            for symbol in _cycle_symbols:
                 # Global max-positions gate. Pending entries reserve capacity
                 # before fill confirmation; partial fills count once by symbol.
                 _capacity_used = _entry_capacity_used(pm, fill_tracker, risk)
@@ -2534,6 +2751,7 @@ async def run_session(args: argparse.Namespace):
                     alert_service=alert_service,
                     scan_store=_scan_store,
                     entries_placed=_entries_placed,
+                    market_regime=_market_regime,
                 )
                 if placed > 0:
                     symbols_traded_today.add(symbol)
@@ -2597,6 +2815,9 @@ async def run_session(args: argparse.Namespace):
             import json as _json
             report_line = _json.dumps(report, default=str)
             logger.info("Health report: %s", report_line)
+            journal_submitted_orders = int(
+                (report.get("orders") or {}).get("submitted") or 0
+            )
 
             # Write to file
             import os
@@ -2658,11 +2879,12 @@ async def run_session(args: argparse.Namespace):
         except Exception as exc:
             logger.error("Post-session evaluation failed: %s", exc)
 
+    effective_entry_orders = max(entry_orders_placed, journal_submitted_orders)
     logger.info(
         "Session complete | cycles=%d | entry_orders_placed=%d | pnl=%.2f",
-        cycle, entry_orders_placed, float(risk.daily_pnl),
+        cycle, effective_entry_orders, float(risk.daily_pnl),
     )
-    print(f"\n  Session complete — {cycle} cycles | {entry_orders_placed} entry order(s) | P&L ${float(risk.daily_pnl):.2f}\n")
+    print(f"\n  Session complete — {cycle} cycles | {effective_entry_orders} entry order(s) | P&L ${float(risk.daily_pnl):.2f}\n")
     try:
         _sb_open = shadow_book.close_all(datetime.now(tz=ET), reason="session_end")
         if _sb_open:
@@ -2676,8 +2898,8 @@ async def run_session(args: argparse.Namespace):
 
     await alert_service.send(
         AlertEvent.SESSION_STOPPED,
-        f"Session stopped | cycles={cycle} | entry_orders_placed={entry_orders_placed} | pnl={float(risk.daily_pnl):.2f}",
-        data={"cycles": cycle, "entry_orders_placed": entry_orders_placed, "pnl": float(risk.daily_pnl), "api_errors": api_errors},
+        f"Session stopped | cycles={cycle} | entry_orders_placed={effective_entry_orders} | pnl={float(risk.daily_pnl):.2f}",
+        data={"cycles": cycle, "entry_orders_placed": effective_entry_orders, "pnl": float(risk.daily_pnl), "api_errors": api_errors},
     )
 
     await broker.close()

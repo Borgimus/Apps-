@@ -163,7 +163,7 @@ class HealthReporter:
             equity += p
             if equity > peak:
                 peak = equity
-            dd = (peak - equity) / peak if peak > 0 else 0.0
+            dd = peak - equity
             if dd > max_dd:
                 max_dd = dd
-        return round(max_dd, 4)
+        return round(max_dd, 2)

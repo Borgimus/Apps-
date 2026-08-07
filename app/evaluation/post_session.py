@@ -307,9 +307,18 @@ def _ledger_file_for_settings(settings) -> str:
     budget = float(getattr(settings, "paper_scaled_premium_budget_dollars", 250.0))
     cap = int(getattr(settings.universe, "max_contracts_per_position", 1))
     budget_slug = f"{budget:g}".replace(".", "_")
+    guardrail_suffix = ""
+    if getattr(settings, "paper_scaled_guardrails_enabled", False) is True:
+        cohort = str(getattr(
+            settings,
+            "paper_scaled_guardrail_cohort",
+            "guardrails_v2",
+        )).strip()
+        guardrail_suffix = f".{cohort}" if cohort else ".guardrails_v2"
     return str(
         ledger_path.with_name(
-            f"{ledger_path.stem}.paper_scaled_{budget_slug}_cap_{cap}{ledger_path.suffix}"
+            f"{ledger_path.stem}.paper_scaled_{budget_slug}_cap_{cap}"
+            f"{guardrail_suffix}{ledger_path.suffix}"
         )
     )
 

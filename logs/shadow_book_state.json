@@ -1,51 +1,76 @@
 {
-  "seq": 1445,
+  "seq": 1567,
   "open": [],
   "episodes": {
-    "vwap_reclaim|IWM|long": {
-      "opportunity_id": "20260807-IWM-vwap_reclaim-1277",
-      "last_seen": "2026-08-07T09:46:09.252418-04:00",
-      "observations": 1
-    },
-    "vwap_reclaim|QQQ|short": {
-      "opportunity_id": "20260807-QQQ-vwap_reclaim-1278",
-      "last_seen": "2026-08-07T10:57:25.108233-04:00",
-      "observations": 47
-    },
-    "vwap_reclaim|SPY|short": {
-      "opportunity_id": "20260807-SPY-vwap_reclaim-1290",
-      "last_seen": "2026-08-07T10:21:04.004287-04:00",
+    "baseline|vwap_reclaim|AAPL|short": {
+      "opportunity_id": "20260811-AAPL-vwap_reclaim-1446",
+      "last_seen": "2026-08-11T09:50:25.870173-04:00",
       "observations": 10
     },
-    "orb|QQQ|short": {
-      "opportunity_id": "20260807-QQQ-orb-1306",
-      "last_seen": "2026-08-07T10:19:27.766830-04:00",
+    "inverted|vwap_reclaim|AAPL|long": {
+      "opportunity_id": "20260811-AAPL-vwap_reclaim-1447",
+      "last_seen": "2026-08-11T09:45:39.095907-04:00",
       "observations": 1
     },
-    "vwap_reclaim|SPY|long": {
-      "opportunity_id": "20260807-SPY-vwap_reclaim-1316",
-      "last_seen": "2026-08-07T10:28:47.652755-04:00",
+    "baseline|vwap_reclaim|IWM|long": {
+      "opportunity_id": "20260811-IWM-vwap_reclaim-1540",
+      "last_seen": "2026-08-11T12:29:33.328352-04:00",
+      "observations": 16
+    },
+    "inverted|vwap_reclaim|IWM|short": {
+      "opportunity_id": "20260811-IWM-vwap_reclaim-1541",
+      "last_seen": "2026-08-11T12:16:25.640525-04:00",
+      "observations": 1
+    },
+    "baseline|orb|IWM|long": {
+      "opportunity_id": "20260811-IWM-orb-1466",
+      "last_seen": "2026-08-11T09:50:25.870173-04:00",
+      "observations": 1
+    },
+    "inverted|orb|IWM|short": {
+      "opportunity_id": "20260811-IWM-orb-1467",
+      "last_seen": "2026-08-11T09:50:25.870173-04:00",
+      "observations": 1
+    },
+    "baseline|orb|AAPL|short": {
+      "opportunity_id": "20260811-AAPL-orb-1468",
+      "last_seen": "2026-08-11T09:50:25.870173-04:00",
+      "observations": 1
+    },
+    "inverted|orb|AAPL|long": {
+      "opportunity_id": "20260811-AAPL-orb-1469",
+      "last_seen": "2026-08-11T09:50:25.870173-04:00",
+      "observations": 1
+    },
+    "baseline|vwap_reclaim|QQQ|short": {
+      "opportunity_id": "20260811-QQQ-vwap_reclaim-1471",
+      "last_seen": "2026-08-11T12:14:35.532480-04:00",
+      "observations": 59
+    },
+    "inverted|vwap_reclaim|QQQ|long": {
+      "opportunity_id": "20260811-QQQ-vwap_reclaim-1472",
+      "last_seen": "2026-08-11T11:43:59.396588-04:00",
+      "observations": 1
+    },
+    "baseline|vwap_reclaim|IWM|short": {
+      "opportunity_id": "20260811-IWM-vwap_reclaim-1473",
+      "last_seen": "2026-08-11T11:47:43.027320-04:00",
+      "observations": 8
+    },
+    "inverted|vwap_reclaim|IWM|long": {
+      "opportunity_id": "20260811-IWM-vwap_reclaim-1474",
+      "last_seen": "2026-08-11T11:43:59.396588-04:00",
+      "observations": 1
+    },
+    "baseline|vwap_reclaim|XLF|long": {
+      "opportunity_id": "20260811-XLF-vwap_reclaim-1548",
+      "last_seen": "2026-08-11T12:24:47.287736-04:00",
       "observations": 10
     },
-    "vwap_reclaim|AAPL|long": {
-      "opportunity_id": "20260807-AAPL-vwap_reclaim-1318",
-      "last_seen": "2026-08-07T11:07:50.423373-04:00",
-      "observations": 47
-    },
-    "vwap_reclaim|XLF|long": {
-      "opportunity_id": "20260807-XLF-vwap_reclaim-1333",
-      "last_seen": "2026-08-07T10:44:56.991082-04:00",
-      "observations": 6
-    },
-    "vwap_reclaim|XLE|long": {
-      "opportunity_id": "20260807-XLE-vwap_reclaim-1399",
-      "last_seen": "2026-08-07T11:09:57.859551-04:00",
-      "observations": 4
-    },
-    "vwap_reclaim|QQQ|long": {
-      "opportunity_id": "20260807-QQQ-vwap_reclaim-1400",
-      "last_seen": "2026-08-07T11:30:19.948867-04:00",
-      "observations": 43
+    "inverted|vwap_reclaim|XLF|short": {
+      "opportunity_id": "20260811-XLF-vwap_reclaim-1549",
+      "last_seen": "2026-08-11T12:20:03.380188-04:00",
+      "observations": 1
     }
   }
 }

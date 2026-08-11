@@ -1,0 +1,19 @@
+Shadow book report — 2026-08-11
+(shadow results are design/capacity evidence only; NOT part of the live-readiness paper sample)
+
+strategy         raw  opps  exec blocked validN  validPnL  theoN  theoPnL
+orb                2     2     1       1      0     +0.00      0    +0.00
+orb:inverted       2     2     0       2      1     -6.00      0    +0.00
+vwap_reclaim     112     6     0       6      6    -60.00      0    +0.00
+vwap_reclaim:inverted     6     6     0       6      5    -41.00      0    +0.00
+
+orb blocked-opportunity reasons: signal_quality_below_min=1
+orb:inverted blocked-opportunity reasons: inverted_direction_counterfactual=2
+vwap_reclaim blocked-opportunity reasons: signal_quality_below_min=6
+vwap_reclaim:inverted blocked-opportunity reasons: inverted_direction_counterfactual=6
+
+Slot-competition check: 6/7 blocked opportunities were vwap_reclaim | fill-validated: 6 for -60.00 (1W) | theoretical: 0 for +0.00
+
+Inverted-direction comparison: fill-validated 6 for -47.00; theoretical 0 for +0.00
+
+Baseline gate: >=10 unique capacity-blocked opportunities and >=5 sessions before evaluating cap changes (current blocked opps: 7)

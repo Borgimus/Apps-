@@ -68,6 +68,12 @@ class DailyReport:
     largest_win: Optional[float] = None
     largest_loss: Optional[float] = None
 
+    # Per-trade option-price excursion and failure-mode diagnostics. These are
+    # observational and never feed back into live entry, exit, or sizing gates.
+    trade_diagnostics: List[Dict[str, Any]] = field(default_factory=list)
+    excursion_summary: Dict[str, Any] = field(default_factory=dict)
+    dominant_failure_mode: Optional[str] = None
+
     # Cost analysis
     slippage_total: float = 0.0
     spread_cost_estimate: float = 0.0
@@ -320,6 +326,39 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
             if dd > max_dd:
                 max_dd = dd
         report.max_drawdown = max_dd
+
+    # ── Trade excursion / failure attribution ────────────────────────────────
+    # MFE and MAE are already persisted by the runner. Surface that telemetry
+    # here so a losing session can be separated into entry timing, contract
+    # selection, signal failure, and exit-giveback evidence.
+    from app.evaluation.trade_attribution import (
+        AttributionThresholds,
+        analyze_trade,
+        summarize_diagnostics,
+    )
+
+    attribution_thresholds = AttributionThresholds()
+    if settings is not None:
+        attribution_thresholds = AttributionThresholds(
+            max_spread_pct=float(
+                getattr(getattr(settings, "risk", None), "max_spread_pct", 0.10)
+            ),
+            delta_target_min=float(
+                getattr(getattr(settings, "options", None), "delta_target_min", 0.35)
+            ),
+            delta_target_max=float(
+                getattr(getattr(settings, "options", None), "delta_target_max", 0.45)
+            ),
+        )
+    diagnostics = [
+        analyze_trade(trade, attribution_thresholds)
+        for trade in sorted(closed, key=lambda t: t.exit_time or datetime.min)
+    ]
+    report.trade_diagnostics = [row.to_dict() for row in diagnostics]
+    report.excursion_summary = summarize_diagnostics(diagnostics)
+    report.dominant_failure_mode = report.excursion_summary.get(
+        "dominant_failure_mode"
+    )
 
     # ── Slippage & spread cost ────────────────────────────────────────────────
     report.slippage_total = sum(
@@ -702,6 +741,37 @@ def _generate_notes(r: DailyReport):
         notes.append(f"{r.exit_spread_warning_count} exit spread warning(s) — spread exceeded max_spread_pct at exit")
         recs.append("Wide exit spreads recorded; consider using marketable_limit exit mode or tighter spread gate")
 
+    if r.dominant_failure_mode == "exit_asymmetry":
+        notes.append(
+            "Excursion evidence is dominated by trades that developed meaningful "
+            "MFE and later closed at a loss"
+        )
+        recs.append(
+            "Test alternative profit-protection and trailing-exit variants in shadow mode"
+        )
+    elif r.dominant_failure_mode == "entry_timing":
+        notes.append(
+            "Excursion evidence is dominated by late fills that never developed meaningful MFE"
+        )
+        recs.append(
+            "Review signal-to-fill delay and compare signal-time quotes with actual fills"
+        )
+    elif r.dominant_failure_mode == "contract_selection":
+        notes.append(
+            "Excursion evidence is dominated by trades that never worked and carried "
+            "spread or delta selection flags"
+        )
+        recs.append(
+            "Review spread, delta, and DTE selection using shadow comparisons before changing gates"
+        )
+    elif r.dominant_failure_mode == "entry_signal_failure":
+        notes.append(
+            "Excursion evidence is dominated by entries that never developed meaningful MFE"
+        )
+        recs.append(
+            "Validate entry conditions and direction before tuning exits"
+        )
+
     slippage_per_fill = (r.slippage_total / r.trades_filled) if r.trades_filled > 0 else 0
     if abs(slippage_per_fill) > 0.10:
         notes.append(f"Average slippage: ${slippage_per_fill:.3f}/contract")
@@ -876,6 +946,67 @@ def _pnl_by_symbol_section(r: DailyReport) -> str:
     )
 
 
+def _excursion_section(r: DailyReport) -> str:
+    if not r.trade_diagnostics:
+        return ""
+
+    summary = r.excursion_summary or {}
+    analyzed = summary.get("trades_analyzed", len(r.trade_diagnostics))
+    covered = summary.get("trades_with_excursion_data", 0)
+    coverage = summary.get("coverage_pct")
+    avg_mfe = summary.get("average_mfe_dollars")
+    avg_mae = summary.get("average_mae_dollars")
+    giveback = summary.get("total_mfe_giveback_dollars", 0.0)
+    dominant = summary.get("dominant_failure_mode") or "none"
+    attribution_counts = summary.get("attribution_counts") or {}
+    attribution_count_text = ", ".join(
+        f"{name}={count}" for name, count in attribution_counts.items()
+    ) or "none"
+
+    rows = ""
+    for row in r.trade_diagnostics:
+        pnl = row.get("realized_pnl")
+        mfe = row.get("mfe_dollars")
+        mae = row.get("mae_dollars")
+        retention = row.get("profit_retention_ratio")
+        latency = row.get("fill_latency_seconds")
+        spread = row.get("entry_spread_pct")
+        delta = row.get("delta")
+        dte = row.get("dte")
+        flags = ", ".join(row.get("evidence_flags") or []) or "none"
+        rows += (
+            f"| {row.get('symbol', 'unknown')} | {row.get('strategy_id', 'unknown')} | "
+            f"{row.get('quantity', 1)} | "
+            f"{f'${pnl:+.2f}' if pnl is not None else 'n/a'} | "
+            f"{f'${mfe:+.2f}' if mfe is not None else 'n/a'} | "
+            f"{f'${mae:+.2f}' if mae is not None else 'n/a'} | "
+            f"{f'{retention:.1%}' if retention is not None else 'n/a'} | "
+            f"{f'{latency:.0f}s' if latency is not None else 'n/a'} | "
+            f"{f'{spread:.1%}' if spread is not None else 'n/a'} | "
+            f"{f'{delta:.2f}' if delta is not None else 'n/a'} | "
+            f"{dte if dte is not None else 'n/a'} | "
+            f"{row.get('primary_attribution', 'unknown')} | {flags} |\n"
+        )
+
+    return (
+        "\n## Trade Excursion and Failure Attribution\n\n"
+        "> MFE and MAE are sampled at the runner polling cadence, not from "
+        "exchange-tick data. Attribution is diagnostic evidence, not a trading gate.\n\n"
+        "| Metric | Value |\n|---|---|\n"
+        f"| Trades analyzed | {analyzed} |\n"
+        f"| Excursion coverage | {covered}/{analyzed} "
+        f"({f'{coverage:.1%}' if coverage is not None else 'n/a'}) |\n"
+        f"| Average MFE | {f'${avg_mfe:+.2f}' if avg_mfe is not None else 'n/a'} |\n"
+        f"| Average MAE | {f'${avg_mae:+.2f}' if avg_mae is not None else 'n/a'} |\n"
+        f"| Total MFE giveback | ${giveback:.2f} |\n"
+        f"| Dominant failure mode | {dominant} |\n"
+        f"| Attribution counts | {attribution_count_text} |\n\n"
+        "| Symbol | Strategy | Qty | PnL | MFE | MAE | MFE retained | Fill | Spread | Delta | DTE | Attribution | Flags |\n"
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|\n"
+        f"{rows}"
+    )
+
+
 def _orb_section(r: DailyReport) -> str:
     if r.orb_signals_total == 0:
         return ""
@@ -1031,7 +1162,7 @@ def to_markdown(report: DailyReport) -> str:
 | Take-profit exits | {f"{r.take_profit_hit_pct:.1%}" if r.take_profit_hit_pct is not None else "n/a"} |
 | EOD exits | {f"{r.eod_exit_pct:.1%}" if r.eod_exit_pct is not None else "n/a"} |
 
-{_fill_mode_table(r)}{_cancel_reason_table(r)}{_bridge_section(r)}{_orb_section(r)}
+{_fill_mode_table(r)}{_cancel_reason_table(r)}{_excursion_section(r)}{_bridge_section(r)}{_orb_section(r)}
 
 ## System Health
 

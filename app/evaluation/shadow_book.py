@@ -62,8 +62,10 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, time, timedelta
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple
+from zoneinfo import ZoneInfo
 
 logger = logging.getLogger(__name__)
+_ET = ZoneInfo("America/New_York")
 
 # Block reasons considered "capacity competition" — these get shadow-simulated.
 CAPACITY_REASONS = frozenset({
@@ -344,6 +346,13 @@ class ShadowBook:
 
     def _close(self, sp: ShadowPosition, exit_price: float, reason: str, now: datetime) -> None:
         pnl = round((exit_price - sp.entry_price) * 100, 2)
+        mfe = round((sp.peak_price - sp.entry_price) * 100, 2)
+        mae = round((sp.trough_price - sp.entry_price) * 100, 2)
+        entry_premium = sp.entry_price * 100
+        mfe_pct = round(mfe / entry_premium, 4) if entry_premium > 0 else None
+        mae_pct = round(mae / entry_premium, 4) if entry_premium > 0 else None
+        retention = round(pnl / mfe, 4) if mfe > 0 else None
+        giveback = round(mfe - pnl, 2)
         entry_dt = datetime.fromisoformat(sp.entry_time)
         self._emit({
             "event": "shadow_close",
@@ -358,6 +367,7 @@ class ShadowBook:
             "category": "fill_validated" if sp.fill_validated else "theoretical",
             "fill_validated": sp.fill_validated,
             "fill_validated_at": sp.fill_validated_at,
+            "entry_time": sp.entry_time,
             "entry_price": sp.entry_price,
             "exit_price": exit_price,
             "shadow_pnl": pnl,
@@ -365,6 +375,12 @@ class ShadowBook:
             "hold_seconds": int((now - entry_dt).total_seconds()),
             "peak_price": sp.peak_price,
             "trough_price": sp.trough_price,
+            "mfe": mfe,
+            "mae": mae,
+            "mfe_pct": mfe_pct,
+            "mae_pct": mae_pct,
+            "profit_retention_ratio": retention,
+            "mfe_giveback": giveback,
             "variant": sp.variant,
         })
         self._open.pop(sp.signal_id, None)
@@ -399,7 +415,7 @@ class ShadowBook:
                 return
             data = json.loads(self._state_path.read_text())
             self._seq = int(data.get("seq", 0))
-            today = datetime.now().strftime("%Y-%m-%d")
+            today = datetime.now(_ET).strftime("%Y-%m-%d")
             for row in data.get("open", []):
                 # Only restore same-day shadow positions
                 if str(row.get("entry_time", "")).startswith(today):

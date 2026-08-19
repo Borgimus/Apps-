@@ -19,8 +19,65 @@ from __future__ import annotations
 
 import argparse
 import json
-from collections import defaultdict
+import sys
+from collections import Counter, defaultdict
 from pathlib import Path
+from types import SimpleNamespace
+
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
+from app.evaluation.trade_attribution import analyze_trade, summarize_diagnostics
+
+
+def _diagnostic(close: dict):
+    """Adapt a shadow close event to the shared trade diagnostic schema."""
+    return analyze_trade(SimpleNamespace(
+        id=None,
+        strategy_id=close.get("strategy_id"),
+        underlying_symbol=close.get("symbol"),
+        option_symbol=close.get("option_symbol"),
+        signal_direction=close.get("direction"),
+        entry_time=close.get("entry_time"),
+        expiration=None,
+        fill_price=close.get("entry_price"),
+        exit_price=close.get("exit_price"),
+        quantity=1,
+        filled_quantity=1,
+        realized_pnl=close.get("shadow_pnl"),
+        mfe=close.get("mfe"),
+        mae=close.get("mae"),
+        peak_price=close.get("peak_price"),
+        trough_price=close.get("trough_price"),
+        spread_pct=None,
+        delta=None,
+        time_to_fill_secs=None,
+        exit_reason=close.get("exit_reason"),
+        contract_metadata_expected=False,
+    ))
+
+
+def _print_excursion_summary(label: str, rows: list) -> None:
+    summary = summarize_diagnostics(rows)
+    if not rows:
+        print(f"{label}: no closed priceable opportunities")
+        return
+    counts = Counter(row.primary_attribution for row in rows)
+    count_text = ", ".join(f"{name}={count}" for name, count in sorted(counts.items()))
+    avg_mfe = summary["average_mfe_dollars"]
+    avg_mae = summary["average_mae_dollars"]
+    coverage = summary["coverage_pct"]
+    avg_mfe_text = f"{avg_mfe:+.2f}" if avg_mfe is not None else "n/a"
+    avg_mae_text = f"{avg_mae:+.2f}" if avg_mae is not None else "n/a"
+    print(
+        f"{label}: coverage {summary['trades_with_excursion_data']}/"
+        f"{summary['trades_analyzed']} ({coverage:.0%}) | "
+        f"avg MFE {avg_mfe_text} | avg MAE {avg_mae_text} | "
+        f"MFE giveback {summary['total_mfe_giveback_dollars']:+.2f} | "
+        f"dominant {summary['dominant_failure_mode'] or 'none'}"
+    )
+    print(f"{label} attribution: {count_text}")
 
 
 def main() -> None:
@@ -142,6 +199,20 @@ def main() -> None:
             f"theoretical {len(theoretical)} for "
             f"{sum(c['shadow_pnl'] for c in theoretical):+.2f}"
         )
+
+    baseline_closes = [
+        c for c in closes.values() if c.get("variant") != "inverted"
+    ]
+    validated_diagnostics = [
+        _diagnostic(c) for c in baseline_closes if c.get("fill_validated")
+    ]
+    theoretical_diagnostics = [
+        _diagnostic(c) for c in baseline_closes if not c.get("fill_validated")
+    ]
+    print("\nExcursion and failure attribution")
+    print("(poll-sampled option-price extrema; attribution is diagnostic only)")
+    _print_excursion_summary("Fill-validated", validated_diagnostics)
+    _print_excursion_summary("Theoretical", theoretical_diagnostics)
     print(f"\nBaseline gate: >=10 unique capacity-blocked opportunities and >=5 "
           f"sessions before evaluating cap changes (current blocked opps: {total_blocked})")
 

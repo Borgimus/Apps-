@@ -143,6 +143,13 @@ class TestSimulation:
         assert close["exit_reason"] == "trailing_stop"
         assert close["shadow_pnl"] == pytest.approx((0.44 - 0.40) * 100)
         assert close["block_reason"] == "orb_slot_reserved"
+        assert close["mfe"] == pytest.approx(20.0)
+        assert close["mae"] == pytest.approx(0.0)
+        assert close["mfe_pct"] == pytest.approx(0.50)
+        assert close["mae_pct"] == pytest.approx(0.0)
+        assert close["profit_retention_ratio"] == pytest.approx(0.20)
+        assert close["mfe_giveback"] == pytest.approx(16.0)
+        assert close["entry_time"] == NOW.isoformat()
 
     @pytest.mark.asyncio
     async def test_take_profit_and_stop_loss(self, tmp_path):

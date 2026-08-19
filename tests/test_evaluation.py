@@ -567,6 +567,51 @@ class TestDailyReportWithTrades:
         all_text = " ".join(report.recommendations).lower()
         assert "reject" in all_text or "filter" in all_text or "criteria" in all_text
 
+    @pytest.mark.asyncio
+    async def test_excursion_diagnostics_expose_exit_asymmetry(self):
+        from app.api.models import DBTradeJournal
+        from app.evaluation.daily_report import build_daily_report, to_markdown
+
+        factory, engine = await _make_memory_session()
+        session_date = "2026-08-19"
+        async with factory() as session:
+            session.add(DBTradeJournal(
+                session_date=session_date,
+                strategy_id="vwap_reclaim",
+                signal_direction="LONG",
+                underlying_symbol="QQQ",
+                option_symbol="QQQ260819C00700000",
+                expiration=session_date,
+                status="closed",
+                fill_price=1.00,
+                exit_price=0.90,
+                realized_pnl=-20.0,
+                quantity=2,
+                filled_quantity=2,
+                entry_time=datetime(2026, 8, 19, 10, 0),
+                exit_time=datetime(2026, 8, 19, 10, 30),
+                peak_price=1.30,
+                trough_price=0.85,
+                mfe=60.0,
+                mae=-30.0,
+                delta=0.40,
+                spread_pct=0.05,
+                time_to_fill_secs=31.0,
+                exit_reason="trailing_stop",
+                is_paper=True,
+            ))
+            await session.commit()
+            report = await build_daily_report(session, session_date)
+        await engine.dispose()
+
+        assert report.dominant_failure_mode == "exit_asymmetry"
+        assert report.excursion_summary["trades_with_excursion_data"] == 1
+        assert report.trade_diagnostics[0]["mfe_dollars"] == pytest.approx(60.0)
+        assert report.trade_diagnostics[0]["mae_dollars"] == pytest.approx(-30.0)
+        assert report.trade_diagnostics[0]["primary_attribution"] == "exit_asymmetry"
+        assert "Trade Excursion and Failure Attribution" in to_markdown(report)
+        assert any("shadow mode" in item for item in report.recommendations)
+
 
 # ── daily_report: output formatters ──────────────────────────────────────────
 

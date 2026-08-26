@@ -1,6 +1,6 @@
 """Regression coverage for the amended scaled-sizing cohort."""
 
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 
@@ -10,6 +10,11 @@ from app.brokers.broker_interface import OrderRequest, OrderSide, OrderType
 from app.config import Settings
 from app.risk import RiskCheck, RiskManager
 from app.trading.health_report import HealthReporter
+from app.trading.entry_filters import (
+    completed_intraday_bars,
+    scaled_entry_block_reason,
+    select_allowed_expiration,
+)
 from scripts.session_runner import _market_regime_from_bars, _rank_active_symbols
 
 ET = ZoneInfo("America/New_York")
@@ -170,3 +175,48 @@ def test_market_regime_requires_vwap_and_ema_alignment():
 
 def test_health_drawdown_is_dollars_even_when_session_never_has_a_profit():
     assert HealthReporter._max_drawdown([-66.0, -98.0, -80.0]) == 244.0
+
+
+def test_scaled_cohort_blocks_qqq_and_keeps_current_strategies_shadow_only():
+    settings = _settings()
+    assert settings.paper_scaled_guardrail_cohort == "guardrails_v3_shadow_validation"
+    assert settings.paper_scaled_require_delta is True
+    assert (settings.paper_scaled_min_dte, settings.paper_scaled_max_dte) == (2, 5)
+    assert scaled_entry_block_reason(settings, "QQQ", "orb") == "symbol_disabled"
+    assert (
+        scaled_entry_block_reason(settings, "SPY", "vwap_reclaim")
+        == "strategy_shadow_only"
+    )
+    assert scaled_entry_block_reason(settings, "IWM", "orb") == "strategy_shadow_only"
+
+
+def test_non_scaled_mode_does_not_apply_shadow_only_veto():
+    settings = _settings(paper_scaled_sizing_enabled=False)
+    assert scaled_entry_block_reason(settings, "QQQ", "orb") is None
+
+
+def test_allowed_expiration_is_fail_closed_to_two_through_five_dte():
+    today = date(2026, 8, 26)
+    expirations = [
+        date(2026, 8, 26),
+        date(2026, 8, 27),
+        date(2026, 8, 28),
+        date(2026, 8, 31),
+        date(2026, 9, 4),
+    ]
+    selected = select_allowed_expiration(
+        expirations, today, [0, 1, 2], min_dte=2, max_dte=5
+    )
+    assert selected == date(2026, 8, 28)
+    assert select_allowed_expiration(
+        expirations[:2], today, [0, 1, 2], min_dte=2, max_dte=5
+    ) is None
+
+
+def test_incomplete_five_minute_bar_is_excluded():
+    idx = pd.date_range("2026-08-26 09:30", periods=3, freq="5min", tz=ET)
+    bars = pd.DataFrame({"close": [1, 2, 3]}, index=idx)
+    completed = completed_intraday_bars(
+        bars, datetime(2026, 8, 26, 9, 42, tzinfo=ET), interval_minutes=5
+    )
+    assert list(completed["close"]) == [1, 2]

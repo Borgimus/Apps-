@@ -483,5 +483,43 @@
       "health-report max_drawdown is reported in dollars"
     ],
     "safety": "paper-only; existing live-trading guards, one-active-position cap, premium budget, contract cap, broker reconciliation, and kill switch remain in force"
+  },
+  "_scaled_guardrails_v3_shadow_validation_amendment": {
+    "declared": "2026-08-26",
+    "session_boundary": "after review of the seven sessions ending 2026-08-26",
+    "prior_cohort_disposition": "frozen unchanged; retain all ledgers and raw artifacts as evidence",
+    "new_cohort": "paper_scaled_budget_250_cap_10_guardrails_v3_shadow_validation",
+    "evidence": {
+      "sessions": 7,
+      "broker_fills": 13,
+      "wins": 3,
+      "losses": 10,
+      "realized_pnl": -580.0,
+      "one_contract_normalized_pnl": -60.0,
+      "qqq": "0 wins in 6 trades, -$385",
+      "vwap_reclaim": "1 win in 8 trades, -$359",
+      "orb": "2 wins in 5 trades, -$221",
+      "contract_metadata": "9 of 10 attribution-enabled trades were 0DTE with missing delta and lost $394",
+      "shadow_baseline": "38 fill-validated outcomes, -$420"
+    },
+    "behavior_changes": [
+      "QQQ broker entries disabled",
+      "VWAP reclaim and ORB broker entries suspended; qualified signals remain in the shadow book",
+      "only completed 5-minute bars feed signal generation",
+      "ORB requires two consecutive closes beyond the opening range",
+      "scaled signals expire after 10 minutes",
+      "expiration selection is fail-closed to 2 through 5 DTE",
+      "contract delta is mandatory and must be inside the configured 0.35 through 0.45 target",
+      "breakeven-at-25-percent and half-off-at-25-percent-plus-breakeven exit policies run as shadow variants"
+    ],
+    "unchanged_controls": [
+      "paper-only restriction",
+      "one active position including pending entries",
+      "two losing exits per session cutoff",
+      "$250 experiment loss ceiling",
+      "same-direction correlated broad-index lock",
+      "broker reconciliation and kill switch"
+    ],
+    "re_enable_gate": "No broker strategy may be re-enabled from this cohort until it has 20 to 30 additional fill-validated outcomes under the revised contract and closed-bar rules, with positive expectancy and no operational safety failures. Inverted direction remains observational only."
   }
 }

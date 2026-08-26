@@ -114,11 +114,8 @@ def main() -> None:
     by_strategy: dict = defaultdict(_bucket)
     def _strategy_label(record: dict) -> str:
         strategy = record["strategy_id"]
-        return (
-            f"{strategy}:inverted"
-            if record.get("variant") == "inverted"
-            else strategy
-        )
+        variant = record.get("variant", "baseline")
+        return strategy if variant == "baseline" else f"{strategy}:{variant}"
 
     # Opportunity-level rollup: first observation of each opportunity defines it;
     # an opportunity counts as executed if ANY of its observations executed.
@@ -177,7 +174,7 @@ def main() -> None:
     total_blocked = sum(
         st["blocked_opps"]
         for name, st in by_strategy.items()
-        if not name.endswith(":inverted")
+        if ":" not in name
     )
     if total_blocked:
         vw = by_strategy.get("vwap_reclaim")
@@ -201,7 +198,7 @@ def main() -> None:
         )
 
     baseline_closes = [
-        c for c in closes.values() if c.get("variant") != "inverted"
+        c for c in closes.values() if c.get("variant", "baseline") == "baseline"
     ]
     validated_diagnostics = [
         _diagnostic(c) for c in baseline_closes if c.get("fill_validated")

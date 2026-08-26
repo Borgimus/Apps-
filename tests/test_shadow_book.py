@@ -25,6 +25,9 @@ def _settings():
     s.position.trailing_stop_pct = 0.25
     s.position.max_hold_minutes = 120
     s.position.eod_exit_time = "15:45"
+    s.paper_scaled_exit_variant_shadow_enabled = False
+    s.paper_scaled_exit_variant_trigger_pct = 0.25
+    s.paper_scaled_exit_variant_partial_fraction = 0.50
     return s
 
 
@@ -123,6 +126,47 @@ class TestRecording:
 
 
 class TestSimulation:
+
+    @pytest.mark.asyncio
+    async def test_exit_variants_compare_breakeven_and_partial_profit(self, tmp_path):
+        settings = _settings()
+        settings.paper_scaled_exit_variant_shadow_enabled = True
+        sb = ShadowBook(
+            settings,
+            events_path=tmp_path / "shadow_book.jsonl",
+            state_path=tmp_path / "shadow_state.json",
+        )
+        kwargs = dict(
+            now=NOW,
+            strategy_id="vwap_reclaim",
+            symbol="SPY",
+            direction="LONG",
+            option_symbol="SPY260720C00600000",
+            limit_price=0.40,
+            entry_ask=0.40,
+            quality_score=4,
+        )
+        sb.record_signal(
+            executed=False,
+            block_reason="strategy_shadow_only",
+            **kwargs,
+        )
+        sb.record_exit_variants(**kwargs)
+        assert sb.open_count() == 3
+
+        await sb.update(_quote_broker(bid=0.50, ask=0.54), NOW + timedelta(minutes=5))
+        await sb.update(_quote_broker(bid=0.40, ask=0.44), NOW + timedelta(minutes=10))
+
+        closes = {
+            event["variant"]: event
+            for event in _events(tmp_path)
+            if event["event"] == "shadow_close"
+        }
+        assert closes["breakeven_25"]["shadow_pnl"] == 0.0
+        assert closes["breakeven_25"]["exit_reason"] == "breakeven_stop"
+        assert closes["partial_25_breakeven"]["shadow_pnl"] == 5.0
+        assert closes["partial_25_breakeven"]["partial_taken"] is True
+        assert "baseline" not in closes
 
     @pytest.mark.asyncio
     async def test_trailing_stop_closes_shadow_position(self, tmp_path):

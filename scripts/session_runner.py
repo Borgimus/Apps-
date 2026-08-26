@@ -1049,6 +1049,11 @@ async def scan_and_place(
     from app.brokers.broker_interface import OrderRequest, OrderSide, OrderType
     from app.strategies.strategy_base import SignalDirection
 
+    _scaled_guards = (
+        getattr(settings, "paper_scaled_sizing_enabled", False) is True
+        and getattr(settings, "paper_scaled_guardrails_enabled", False) is True
+    )
+
     # Fetch bars
     try:
         bars = await _retry(
@@ -1061,6 +1066,14 @@ async def scan_and_place(
 
     if bars.empty:
         return 0
+
+    # Intraday providers timestamp bars at interval start. Exclude the current
+    # still-forming candle so confirmations use completed observations only.
+    if _scaled_guards:
+        from app.trading.entry_filters import completed_intraday_bars
+        bars = completed_intraday_bars(bars, now, interval_minutes=5)
+        if bars.empty:
+            return 0
 
     # Generate signals
     all_signals = []
@@ -1221,6 +1234,11 @@ async def scan_and_place(
 
         # Signal age gate — reject signals older than the configured maximum.
         _max_age_min = getattr(settings.position, "max_signal_age_minutes", 60)
+        if _scaled_guards:
+            _max_age_min = min(
+                _max_age_min,
+                int(getattr(settings, "paper_scaled_max_signal_age_minutes", 10)),
+            )
         if _max_age_min > 0:
             from zoneinfo import ZoneInfo as _ZI2
             _sig_utc = sig_ts.astimezone(_ZI2("UTC")) if hasattr(sig_ts, "astimezone") else sig_ts
@@ -1290,6 +1308,17 @@ async def scan_and_place(
                     block_reason=_reason, option_symbol=_osym,
                     limit_price=_lp, entry_ask=_ask, quality_score=_qscore,
                 )
+                if _new_shadow_opportunity:
+                    _SHADOW_BOOK.record_exit_variants(
+                        now=now,
+                        strategy_id=sig.strategy_id,
+                        symbol=symbol,
+                        direction=sig.direction.value,
+                        option_symbol=_osym,
+                        limit_price=_lp,
+                        entry_ask=_ask,
+                        quality_score=_qscore,
+                    )
                 if (
                     _new_shadow_opportunity
                     and _scaled_guards
@@ -1325,10 +1354,6 @@ async def scan_and_place(
 
         # Amended scaled cohort: quality is now an entry gate, not merely an
         # advisory field. A score below 3/4 is recorded for shadow analysis.
-        _scaled_guards = (
-            getattr(settings, "paper_scaled_sizing_enabled", False) is True
-            and getattr(settings, "paper_scaled_guardrails_enabled", False) is True
-        )
         if _scaled_guards:
             if not _permissive:
                 from app.strategies.signal_quality import compute_signal_quality_score
@@ -1368,6 +1393,23 @@ async def scan_and_place(
                     _bridge.final_decision = "blocked"
                     _bridge.exact_block_reason = "market_regime_mismatch"
                 await _shadow_blocked("market_regime_mismatch")
+                continue
+
+            from app.trading.entry_filters import scaled_entry_block_reason
+            _cohort_block = scaled_entry_block_reason(
+                settings, symbol, sig.strategy_id
+            )
+            if _cohort_block:
+                logger.info(
+                    "Scaled cohort broker entry blocked | %s/%s | %s",
+                    symbol,
+                    sig.strategy_id,
+                    _cohort_block,
+                )
+                if _bridge is not None:
+                    _bridge.final_decision = "blocked"
+                    _bridge.exact_block_reason = _cohort_block
+                await _shadow_blocked(_cohort_block)
                 continue
 
         # Global entry-capacity guard. Pending entry orders reserve a slot
@@ -1446,15 +1488,37 @@ async def scan_and_place(
             continue
 
         today = now.date()
-        target_exp = None
-        for dte in settings.options.preferred_dte:
-            candidate = today + timedelta(days=dte)
-            if candidate in expirations:
-                target_exp = candidate
-                break
-        if target_exp is None and expirations:
-            target_exp = min(expirations, key=lambda d: abs((d - today).days))
+        if _scaled_guards:
+            from app.trading.entry_filters import select_allowed_expiration
+            _min_dte = int(getattr(settings, "paper_scaled_min_dte", 2))
+            _max_dte = int(getattr(settings, "paper_scaled_max_dte", 5))
+            target_exp = select_allowed_expiration(
+                expirations,
+                today,
+                settings.options.preferred_dte,
+                _min_dte,
+                _max_dte,
+            )
+        else:
+            _min_dte, _max_dte = 0, 365
+            target_exp = None
+            for dte in settings.options.preferred_dte:
+                candidate = today + timedelta(days=dte)
+                if candidate in expirations:
+                    target_exp = candidate
+                    break
+            if target_exp is None and expirations:
+                target_exp = min(
+                    expirations,
+                    key=lambda expiry: abs((expiry - today).days),
+                )
         if target_exp is None:
+            logger.info(
+                "No expiration in allowed DTE range for %s | min=%d max=%d",
+                symbol,
+                _min_dte,
+                _max_dte,
+            )
             continue
 
         # Option chain
@@ -1821,6 +1885,17 @@ async def scan_and_place(
                             entry_ask=float(_inverse_contract.ask),
                             quality_score=_qscore,
                         )
+                if _new_shadow_opportunity:
+                    _SHADOW_BOOK.record_exit_variants(
+                        now=now,
+                        strategy_id=sig.strategy_id,
+                        symbol=symbol,
+                        direction=sig.direction.value,
+                        option_symbol=used_contract.option_symbol,
+                        limit_price=float(limit_price),
+                        entry_ask=float(used_contract.ask),
+                        quality_score=_qscore,
+                    )
             except Exception as _sb_exc:
                 logger.debug("ShadowBook record failed: %s", _sb_exc)
 
@@ -2216,12 +2291,22 @@ async def run_session(args: argparse.Namespace):
         "earnings_blackout_days": settings.risk.earnings_blackout_days,
         "allow_earnings_trades": settings.risk.allow_earnings_trades,
     })
+    _scaled_guards = (
+        getattr(settings, "paper_scaled_sizing_enabled", False) is True
+        and getattr(settings, "paper_scaled_guardrails_enabled", False) is True
+    )
     liq_filter = LiquidityFilter({
         "min_open_interest": settings.risk.min_open_interest,
         "min_volume": settings.risk.min_volume,
         "max_spread_pct": settings.risk.max_spread_pct,
         "delta_target_min": settings.options.delta_target_min,
         "delta_target_max": settings.options.delta_target_max,
+        "require_delta": _scaled_guards and getattr(
+            settings, "paper_scaled_require_delta", False
+        ) is True,
+        "strict_delta_range": _scaled_guards and getattr(
+            settings, "paper_scaled_require_delta", False
+        ) is True,
     })
     _rsi_cfg = settings.rsi_trend
     _rsi_mode = _rsi_cfg.mode
@@ -2238,7 +2323,12 @@ async def run_session(args: argparse.Namespace):
             )
 
     strategies = [
-        OpeningRangeBreakoutStrategy(params={"range_minutes": 15, "min_range_pts": 0.5, "volume_confirmation": True}),
+        OpeningRangeBreakoutStrategy(params={
+            "range_minutes": 15,
+            "min_range_pts": 0.5,
+            "volume_confirmation": True,
+            "confirmation_bars": 2 if _scaled_guards else 1,
+        }),
         VWAPReclaimStrategy(params={"proximity_pct": 0.002, "confirmation_bars": 2}),
         RSITrendStrategy(params={
             "rsi_period": _rsi_cfg.rsi_period,
@@ -2279,6 +2369,20 @@ async def run_session(args: argparse.Namespace):
         "Session runner starting | mode=%s | symbols=%s | universe=%s | poll=%ds",
         mode, args.symbols, _uni_mode_pre, args.poll,
     )
+    if _scaled_guards:
+        logger.warning(
+            "Scaled cohort %s | broker entries blocked symbols=%s strategies=%s | "
+            "DTE=%d-%d | delta_required=%s | signal_age=%dmin | "
+            "exit_variants=%s",
+            getattr(settings, "paper_scaled_guardrail_cohort", "unknown"),
+            getattr(settings, "paper_scaled_blocked_symbols", ""),
+            getattr(settings, "paper_scaled_shadow_only_strategies", ""),
+            int(getattr(settings, "paper_scaled_min_dte", 2)),
+            int(getattr(settings, "paper_scaled_max_dte", 5)),
+            getattr(settings, "paper_scaled_require_delta", False),
+            int(getattr(settings, "paper_scaled_max_signal_age_minutes", 10)),
+            getattr(settings, "paper_scaled_exit_variant_shadow_enabled", False),
+        )
     if _fill_test_mode:
         logger.info(
             "REALISTIC_FILL_TEST_MODE: marketable_limit pricing | SPY only | qty=1 | "

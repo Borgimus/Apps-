@@ -83,6 +83,9 @@ CAPACITY_REASONS = frozenset({
     "signal_quality_below_min",
     "market_regime_mismatch",
     "inverted_direction_counterfactual",
+    "symbol_disabled",
+    "strategy_shadow_only",
+    "exit_policy_counterfactual",
 })
 
 
@@ -104,6 +107,10 @@ class ShadowPosition:
     trough_price: float = 0.0
     last_price: float = 0.0
     variant: str = "baseline"
+    remaining_fraction: float = 1.0
+    realized_pnl: float = 0.0
+    breakeven_armed: bool = False
+    partial_taken: bool = False
 
 
 class ShadowBook:
@@ -128,6 +135,16 @@ class ShadowBook:
 
         self._episode_window = timedelta(minutes=episode_window_minutes)
         self._fill_window = timedelta(minutes=fill_window_minutes)
+        self._exit_variants_enabled = (
+            getattr(settings, "paper_scaled_exit_variant_shadow_enabled", False)
+            is True
+        )
+        self._variant_trigger_pct = float(getattr(
+            settings, "paper_scaled_exit_variant_trigger_pct", 0.25
+        ))
+        self._variant_partial_fraction = float(getattr(
+            settings, "paper_scaled_exit_variant_partial_fraction", 0.50
+        ))
 
         self._open: Dict[str, ShadowPosition] = {}
         # (strategy, symbol, direction) -> {"opportunity_id","last_seen","observations"}
@@ -159,7 +176,7 @@ class ShadowBook:
         second shadow position. Blocked-for-capacity first observations open a
         shadow position when priceable."""
         self._seq += 1
-        suffix = "-inverted" if variant == "inverted" else ""
+        suffix = "" if variant == "baseline" else f"-{variant.replace('_', '-')}"
         signal_id = (
             f"{now.strftime('%Y%m%d')}-{self._seq:03d}-{symbol}-{strategy_id}{suffix}"
         )
@@ -212,7 +229,10 @@ class ShadowBook:
                 signal_id, block_reason,
             )
             return new_opportunity
-        if any(sp.option_symbol == option_symbol for sp in self._open.values()):
+        if any(
+            sp.option_symbol == option_symbol and sp.variant == variant
+            for sp in self._open.values()
+        ):
             return new_opportunity  # already simulating this contract
 
         sp = ShadowPosition(
@@ -243,6 +263,36 @@ class ShadowBook:
             ", fill-validated at entry" if sp.fill_validated else "",
         )
         return new_opportunity
+
+    def record_exit_variants(
+        self,
+        *,
+        now: datetime,
+        strategy_id: str,
+        symbol: str,
+        direction: str,
+        option_symbol: Optional[str],
+        limit_price: Optional[float],
+        entry_ask: Optional[float],
+        quality_score: Optional[float] = None,
+    ) -> None:
+        """Open passive breakeven and partial-profit policy variants."""
+        if not self._exit_variants_enabled:
+            return
+        for variant in ("breakeven_25", "partial_25_breakeven"):
+            self.record_signal(
+                now=now,
+                strategy_id=strategy_id,
+                symbol=symbol,
+                direction=direction,
+                executed=False,
+                block_reason="exit_policy_counterfactual",
+                option_symbol=option_symbol,
+                limit_price=limit_price,
+                entry_ask=entry_ask,
+                quality_score=quality_score,
+                variant=variant,
+            )
 
     def record_inverted_signal(
         self,
@@ -306,6 +356,34 @@ class ShadowBook:
             sp.peak_price = max(sp.peak_price, price)
             sp.trough_price = min(sp.trough_price, price)
 
+            trigger = sp.entry_price * (1.0 + self._variant_trigger_pct)
+            if (
+                sp.variant == "breakeven_25"
+                and not sp.breakeven_armed
+                and price >= trigger
+            ):
+                sp.breakeven_armed = True
+                dirty = True
+            elif (
+                sp.variant == "partial_25_breakeven"
+                and not sp.partial_taken
+                and price >= trigger
+            ):
+                partial = self._variant_partial_fraction
+                sp.realized_pnl += (
+                    (price - sp.entry_price) * 100 * partial
+                )
+                sp.remaining_fraction = 1.0 - partial
+                sp.partial_taken = True
+                sp.breakeven_armed = True
+                dirty = True
+                logger.info(
+                    "ShadowBook: partial-profit variant took %.0f%% of %s @ %.4f",
+                    partial * 100,
+                    sp.option_symbol,
+                    price,
+                )
+
             reason = self._exit_reason(sp, price, now)
             if reason:
                 self._close(sp, price, reason, now)
@@ -331,6 +409,8 @@ class ShadowBook:
 
     def _exit_reason(self, sp: ShadowPosition, price: float, now: datetime) -> Optional[str]:
         entry = sp.entry_price
+        if sp.breakeven_armed and price <= entry:
+            return "breakeven_stop"
         if price <= entry * (1.0 - self._stop_loss_pct):
             return "stop_loss"
         if price >= entry * (1.0 + self._take_profit_pct):
@@ -345,7 +425,11 @@ class ShadowBook:
         return None
 
     def _close(self, sp: ShadowPosition, exit_price: float, reason: str, now: datetime) -> None:
-        pnl = round((exit_price - sp.entry_price) * 100, 2)
+        pnl = round(
+            sp.realized_pnl
+            + (exit_price - sp.entry_price) * 100 * sp.remaining_fraction,
+            2,
+        )
         mfe = round((sp.peak_price - sp.entry_price) * 100, 2)
         mae = round((sp.trough_price - sp.entry_price) * 100, 2)
         entry_premium = sp.entry_price * 100
@@ -382,6 +466,10 @@ class ShadowBook:
             "profit_retention_ratio": retention,
             "mfe_giveback": giveback,
             "variant": sp.variant,
+            "remaining_fraction": sp.remaining_fraction,
+            "partial_taken": sp.partial_taken,
+            "partial_realized_pnl": round(sp.realized_pnl, 2),
+            "breakeven_armed": sp.breakeven_armed,
         })
         self._open.pop(sp.signal_id, None)
         logger.info(
@@ -438,18 +526,24 @@ async def select_shadow_contract(broker, liq_filter, settings, symbol, sig, now,
     before contract selection. Returns (option_symbol, limit_price, ask) or
     (None, None, None). Read-only broker calls; never raises."""
     try:
+        from app.trading.entry_filters import select_allowed_expiration
         from app.trading.pricing import compute_limit_price
 
         expirations = await broker.get_available_expirations(symbol)
         today = now.date()
-        target_exp = None
-        for dte in settings.options.preferred_dte:
-            candidate = today + timedelta(days=dte)
-            if candidate in expirations:
-                target_exp = candidate
-                break
-        if target_exp is None and expirations:
-            target_exp = min(expirations, key=lambda d: abs((d - today).days))
+        scaled_guards = (
+            getattr(settings, "paper_scaled_sizing_enabled", False) is True
+            and getattr(settings, "paper_scaled_guardrails_enabled", False) is True
+        )
+        min_dte = int(getattr(settings, "paper_scaled_min_dte", 0)) if scaled_guards else 0
+        max_dte = int(getattr(settings, "paper_scaled_max_dte", 365)) if scaled_guards else 365
+        target_exp = select_allowed_expiration(
+            expirations,
+            today,
+            settings.options.preferred_dte,
+            min_dte,
+            max_dte,
+        )
         if target_exp is None:
             return None, None, None
 

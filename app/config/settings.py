@@ -251,13 +251,24 @@ class Settings(BaseSettings):
     # Guardrails introduced after the first seven scaled sessions. The cohort
     # label keeps amended results separate from the original baseline ledger.
     paper_scaled_guardrails_enabled: bool = True
-    paper_scaled_guardrail_cohort: str = "guardrails_v2"
+    paper_scaled_guardrail_cohort: str = "guardrails_v3_shadow_validation"
     paper_scaled_daily_loss_limit_dollars: float = 250.0
     paper_scaled_max_losing_trades_per_day: int = 2
     paper_scaled_min_signal_quality: float = 3.0
     paper_scaled_market_regime_confirmation_enabled: bool = True
     paper_scaled_global_ranking_enabled: bool = True
     paper_scaled_inverted_shadow_enabled: bool = True
+    # Seven-session response: suspend the losing production hypotheses while
+    # collecting stricter, fill-validated counterfactual evidence.
+    paper_scaled_blocked_symbols: str = "QQQ"
+    paper_scaled_shadow_only_strategies: str = "vwap_reclaim,orb"
+    paper_scaled_require_delta: bool = True
+    paper_scaled_min_dte: int = 2
+    paper_scaled_max_dte: int = 5
+    paper_scaled_max_signal_age_minutes: int = 10
+    paper_scaled_exit_variant_shadow_enabled: bool = True
+    paper_scaled_exit_variant_trigger_pct: float = 0.25
+    paper_scaled_exit_variant_partial_fraction: float = 0.50
     paper_scaled_correlated_groups: str = (
         "broad_index:SPY,QQQ,IWM,DIA"
     )
@@ -311,6 +322,24 @@ class Settings(BaseSettings):
                     )
                 if not self.paper_scaled_guardrail_cohort.strip():
                     raise ValueError("paper_scaled_guardrail_cohort cannot be blank.")
+                if self.paper_scaled_min_dte < 1:
+                    raise ValueError("paper_scaled_min_dte must be at least one.")
+                if self.paper_scaled_max_dte < self.paper_scaled_min_dte:
+                    raise ValueError(
+                        "paper_scaled_max_dte must be greater than or equal to paper_scaled_min_dte."
+                    )
+                if self.paper_scaled_max_signal_age_minutes < 1:
+                    raise ValueError(
+                        "paper_scaled_max_signal_age_minutes must be at least one."
+                    )
+                if not 0 < self.paper_scaled_exit_variant_trigger_pct < 1:
+                    raise ValueError(
+                        "paper_scaled_exit_variant_trigger_pct must be between zero and one."
+                    )
+                if not 0 < self.paper_scaled_exit_variant_partial_fraction < 1:
+                    raise ValueError(
+                        "paper_scaled_exit_variant_partial_fraction must be between zero and one."
+                    )
         return self
 
     @field_validator("live_trading_enabled", mode="before")

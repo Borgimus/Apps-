@@ -15,7 +15,7 @@ LIVE_TRADING_ENABLED=true is explicitly set and you accept the risk.
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import List, Optional
 from zoneinfo import ZoneInfo
@@ -54,12 +54,14 @@ class AlpacaBroker(BrokerInterface):
 
     # Market data always served from this host regardless of paper/live
     _DATA_URL = "https://data.alpaca.markets"
+    _OPTION_EXPIRATION_LOOKAHEAD_DAYS = 14
 
     def __init__(self, api_key: str, secret_key: str, base_url: str, is_paper: bool = True):
         self._api_key = api_key
         self._secret_key = secret_key
         self._base_url = base_url.rstrip("/")
         self._is_paper = is_paper
+        self._expiration_cache: dict[str, tuple[date, List[date]]] = {}
         _headers = {
             "APCA-API-KEY-ID": self._api_key,
             "APCA-API-SECRET-KEY": self._secret_key,
@@ -189,16 +191,12 @@ class AlpacaBroker(BrokerInterface):
     async def get_option_chain(self, symbol: str, expiration: date) -> OptionChain:
         # Contract metadata lives on the trading host; snapshots on data host
         exp_str = expiration.strftime("%Y-%m-%d")
-        resp = await self._client.get(
-            "/v2/options/contracts",
-            params={
+        contracts_raw = await self._get_option_contracts(
+            {
                 "underlying_symbols": symbol,
                 "expiration_date": exp_str,
-                "limit": 1000,
-            },
+            }
         )
-        resp.raise_for_status()
-        data = resp.json()
 
         # Fetch underlying price for context
         try:
@@ -206,8 +204,6 @@ class AlpacaBroker(BrokerInterface):
             underlying_price = underlying_quote.mid
         except Exception:
             underlying_price = Decimal("0")
-
-        contracts_raw = data.get("option_contracts", [])
 
         # Enrich with live quotes from the snapshot endpoint
         all_symbols = [c["symbol"] for c in contracts_raw]
@@ -402,15 +398,52 @@ class AlpacaBroker(BrokerInterface):
             return OS.PENDING
 
     async def get_available_expirations(self, symbol: str) -> List[date]:
-        resp = await self._client.get(
-            "/v2/options/contracts",
-            params={"underlying_symbols": symbol, "limit": 1000},
+        today = datetime.now(tz=ZoneInfo("America/New_York")).date()
+        cache = getattr(self, "_expiration_cache", {})
+        cached = cache.get(symbol)
+        if cached is not None and cached[0] == today:
+            return list(cached[1])
+
+        contracts = await self._get_option_contracts(
+            {
+                "underlying_symbols": symbol,
+                "expiration_date_gte": today.isoformat(),
+                "expiration_date_lte": (
+                    today + timedelta(days=self._OPTION_EXPIRATION_LOOKAHEAD_DAYS)
+                ).isoformat(),
+            }
         )
-        resp.raise_for_status()
-        exps = set()
-        for c in resp.json().get("option_contracts", []):
-            exps.add(date.fromisoformat(c["expiration_date"]))
-        return sorted(exps)
+        exps = {date.fromisoformat(c["expiration_date"]) for c in contracts}
+        result = sorted(exps)
+        cache[symbol] = (today, result)
+        self._expiration_cache = cache
+        return result
+
+    async def _get_option_contracts(self, params: dict) -> List[dict]:
+        """Retrieve every option-contract page for the requested filter."""
+        request_params = dict(params)
+        request_params["limit"] = 10_000
+        contracts: List[dict] = []
+        seen_tokens: set[str] = set()
+
+        while True:
+            resp = await self._client.get(
+                "/v2/options/contracts",
+                params=request_params,
+            )
+            resp.raise_for_status()
+            payload = resp.json()
+            contracts.extend(payload.get("option_contracts", []))
+
+            next_token = payload.get("next_page_token")
+            if not next_token:
+                break
+            if next_token in seen_tokens:
+                raise RuntimeError("Alpaca option-contract pagination token repeated")
+            seen_tokens.add(next_token)
+            request_params["page_token"] = next_token
+
+        return contracts
 
     async def is_market_session_today(self) -> bool:
         """Return True if today is a scheduled trading session per Alpaca's calendar."""

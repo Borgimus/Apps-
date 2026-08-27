@@ -1488,30 +1488,12 @@ async def scan_and_place(
             continue
 
         today = now.date()
-        if _scaled_guards:
-            from app.trading.entry_filters import select_allowed_expiration
-            _min_dte = int(getattr(settings, "paper_scaled_min_dte", 2))
-            _max_dte = int(getattr(settings, "paper_scaled_max_dte", 5))
-            target_exp = select_allowed_expiration(
-                expirations,
-                today,
-                settings.options.preferred_dte,
-                _min_dte,
-                _max_dte,
-            )
-        else:
-            _min_dte, _max_dte = 0, 365
-            target_exp = None
-            for dte in settings.options.preferred_dte:
-                candidate = today + timedelta(days=dte)
-                if candidate in expirations:
-                    target_exp = candidate
-                    break
-            if target_exp is None and expirations:
-                target_exp = min(
-                    expirations,
-                    key=lambda expiry: abs((expiry - today).days),
-                )
+        from app.trading.entry_filters import (
+            expiration_policy,
+            select_expiration_for_settings,
+        )
+        _min_dte, _max_dte = expiration_policy(settings)
+        target_exp = select_expiration_for_settings(expirations, today, settings)
         if target_exp is None:
             logger.info(
                 "No expiration in allowed DTE range for %s | min=%d max=%d",
@@ -2022,7 +2004,7 @@ async def _run_universe_scan(
     min_score = uni.min_scan_score
 
     # Load universe
-    loader = UniverseLoader()
+    loader = UniverseLoader(path=uni.file)
     loader.load()
     if loader.mode == "off":
         logger.info("Universe mode=off — skipping scan, using arg symbols")
@@ -2291,23 +2273,12 @@ async def run_session(args: argparse.Namespace):
         "earnings_blackout_days": settings.risk.earnings_blackout_days,
         "allow_earnings_trades": settings.risk.allow_earnings_trades,
     })
-    _scaled_guards = (
-        getattr(settings, "paper_scaled_sizing_enabled", False) is True
-        and getattr(settings, "paper_scaled_guardrails_enabled", False) is True
+    from app.trading.entry_filters import (
+        liquidity_filter_params,
+        scaled_guardrails_active,
     )
-    liq_filter = LiquidityFilter({
-        "min_open_interest": settings.risk.min_open_interest,
-        "min_volume": settings.risk.min_volume,
-        "max_spread_pct": settings.risk.max_spread_pct,
-        "delta_target_min": settings.options.delta_target_min,
-        "delta_target_max": settings.options.delta_target_max,
-        "require_delta": _scaled_guards and getattr(
-            settings, "paper_scaled_require_delta", False
-        ) is True,
-        "strict_delta_range": _scaled_guards and getattr(
-            settings, "paper_scaled_require_delta", False
-        ) is True,
-    })
+    _scaled_guards = scaled_guardrails_active(settings)
+    liq_filter = LiquidityFilter(liquidity_filter_params(settings))
     _rsi_cfg = settings.rsi_trend
     _rsi_mode = _rsi_cfg.mode
     if _rsi_mode == "fast_intraday_diagnostic":
@@ -2378,7 +2349,7 @@ async def run_session(args: argparse.Namespace):
             getattr(settings, "paper_scaled_blocked_symbols", ""),
             getattr(settings, "paper_scaled_shadow_only_strategies", ""),
             int(getattr(settings, "paper_scaled_min_dte", 2)),
-            int(getattr(settings, "paper_scaled_max_dte", 5)),
+            int(getattr(settings, "paper_scaled_max_dte", 8)),
             getattr(settings, "paper_scaled_require_delta", False),
             int(getattr(settings, "paper_scaled_max_signal_age_minutes", 10)),
             getattr(settings, "paper_scaled_exit_variant_shadow_enabled", False),

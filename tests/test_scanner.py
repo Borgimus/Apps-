@@ -592,9 +592,9 @@ class TestUniverseSettings:
     def test_universe_settings_defaults(self):
         from app.config.settings import UniverseSettings
         us = UniverseSettings()
-        assert us.mode in ("manual", "off")
-        assert us.max_symbols_per_scan >= 1
-        assert us.max_active_symbols >= 1
+        assert us.mode == "grouped"
+        assert us.max_symbols_per_scan == 40
+        assert us.max_active_symbols == 6
         assert us.max_symbols_traded_per_day >= 1
         assert us.max_active_positions >= 1
         assert us.min_scan_score >= 0

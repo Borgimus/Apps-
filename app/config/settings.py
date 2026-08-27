@@ -104,10 +104,10 @@ class PositionSettings(BaseSettings):
 class UniverseSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="UNIVERSE_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    mode: str = _yaml_get("universe", "mode", default="manual")
+    mode: str = _yaml_get("universe", "mode", default="grouped")
     file: str = _yaml_get("universe", "file", default="./config/ticker_universe.yaml")
-    max_symbols_per_scan: int = _yaml_get("universe", "max_symbols_per_scan", default=10)
-    max_active_symbols: int = _yaml_get("universe", "max_active_symbols", default=3)
+    max_symbols_per_scan: int = _yaml_get("universe", "max_symbols_per_scan", default=40)
+    max_active_symbols: int = _yaml_get("universe", "max_active_symbols", default=6)
     max_symbols_traded_per_day: int = _yaml_get("universe", "max_symbols_traded_per_day", default=1)
     max_active_positions: int = _yaml_get("universe", "max_active_positions", default=1)
     min_scan_score: float = _yaml_get("universe", "min_scan_score", default=40.0)
@@ -125,7 +125,7 @@ class UniverseSettings(BaseSettings):
     # Group-based universe settings
     groups_enabled: str = _yaml_get(
         "universe", "groups_enabled",
-        default="core_etfs,mega_cap,liquid_growth",
+        default="core_etfs,mega_cap,liquid_growth,high_beta_liquid",
     )
     include_experimental: bool = _yaml_get(
         "universe", "include_experimental", default=False
@@ -264,7 +264,9 @@ class Settings(BaseSettings):
     paper_scaled_shadow_only_strategies: str = "vwap_reclaim,orb"
     paper_scaled_require_delta: bool = True
     paper_scaled_min_dte: int = 2
-    paper_scaled_max_dte: int = 5
+    # Eight calendar days keeps weekly-only symbols eligible on Thursdays and
+    # Fridays while still excluding the failed 0DTE/1DTE contracts.
+    paper_scaled_max_dte: int = 8
     paper_scaled_max_signal_age_minutes: int = 10
     paper_scaled_exit_variant_shadow_enabled: bool = True
     paper_scaled_exit_variant_trigger_pct: float = 0.25
@@ -340,6 +342,34 @@ class Settings(BaseSettings):
                     raise ValueError(
                         "paper_scaled_exit_variant_partial_fraction must be between zero and one."
                     )
+                if self.paper_scaled_guardrail_cohort == "guardrails_v3_shadow_validation":
+                    required_groups = {
+                        "core_etfs",
+                        "mega_cap",
+                        "liquid_growth",
+                        "high_beta_liquid",
+                    }
+                    configured_groups = {
+                        group.strip()
+                        for group in self.universe.groups_enabled.split(",")
+                        if group.strip()
+                    }
+                    if self.universe.mode != "grouped":
+                        raise ValueError(
+                            "guardrails_v3_shadow_validation requires universe.mode=grouped."
+                        )
+                    if self.universe.max_symbols_per_scan < 38:
+                        raise ValueError(
+                            "guardrails_v3_shadow_validation requires at least 38 scanned symbols."
+                        )
+                    if self.universe.max_active_symbols < 6:
+                        raise ValueError(
+                            "guardrails_v3_shadow_validation requires at least 6 active shadow symbols."
+                        )
+                    if not required_groups.issubset(configured_groups):
+                        raise ValueError(
+                            "guardrails_v3_shadow_validation requires all four research groups."
+                        )
         return self
 
     @field_validator("live_trading_enabled", mode="before")

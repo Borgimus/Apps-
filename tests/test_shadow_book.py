@@ -9,11 +9,21 @@ from __future__ import annotations
 import json
 import pytest
 from datetime import datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 from zoneinfo import ZoneInfo
 
-from app.evaluation.shadow_book import ShadowBook, CAPACITY_REASONS
+from app.brokers.broker_interface import OptionChain, OptionContract
+from app.config import Settings
+from app.evaluation.shadow_book import (
+    CAPACITY_REASONS,
+    ShadowBook,
+    select_shadow_contract,
+)
+from app.strategies.liquidity_filter import LiquidityFilter
+from app.strategies.strategy_base import Signal, SignalDirection
+from app.trading.entry_filters import liquidity_filter_params
 
 ET = ZoneInfo("America/New_York")
 
@@ -59,6 +69,83 @@ NOW = datetime(2026, 7, 20, 10, 30, tzinfo=ET)
 
 
 class TestRecording:
+
+    @pytest.mark.asyncio
+    async def test_eligible_contract_opens_priceable_shadow_position(self, tmp_path):
+        settings = Settings(
+            live_trading_enabled=False,
+            broker="paper",
+            paper_evaluation_mode=True,
+            paper_scaled_sizing_enabled=True,
+            paper_scaled_guardrails_enabled=True,
+            paper_scaled_min_dte=2,
+            paper_scaled_max_dte=8,
+            kill_switch_file=str(tmp_path / "NO_KILL_SWITCH"),
+        )
+        expiration = NOW.date() + timedelta(days=4)
+        contract = OptionContract(
+            symbol="SPY",
+            option_symbol=f"SPY{expiration.strftime('%y%m%d')}C00600000",
+            expiration=expiration,
+            strike=Decimal("600"),
+            option_type="call",
+            bid=Decimal("0.40"),
+            ask=Decimal("0.42"),
+            last=Decimal("0.41"),
+            volume=500,
+            open_interest=1000,
+            implied_volatility=0.20,
+            delta=0.40,
+        )
+        chain = OptionChain(
+            symbol="SPY",
+            expiration=expiration,
+            underlying_price=Decimal("600"),
+            calls=[contract],
+            puts=[],
+            fetched_at=NOW,
+        )
+        broker = MagicMock()
+        broker.get_available_expirations = AsyncMock(return_value=[expiration])
+        broker.get_option_chain = AsyncMock(return_value=chain)
+        liq_filter = LiquidityFilter(liquidity_filter_params(settings))
+        signal = Signal(
+            strategy_id="orb",
+            symbol="SPY",
+            direction=SignalDirection.LONG,
+            timestamp=NOW,
+            price=600.0,
+        )
+
+        option_symbol, limit_price, entry_ask = await select_shadow_contract(
+            broker,
+            liq_filter,
+            settings,
+            "SPY",
+            signal,
+            NOW,
+        )
+
+        assert option_symbol == contract.option_symbol
+        assert limit_price is not None and limit_price > 0
+        book = ShadowBook(
+            settings,
+            events_path=tmp_path / "strict_shadow.jsonl",
+            state_path=tmp_path / "strict_shadow_state.json",
+        )
+        book.record_signal(
+            now=NOW,
+            strategy_id="orb",
+            symbol="SPY",
+            direction="long",
+            executed=False,
+            block_reason="strategy_shadow_only",
+            option_symbol=option_symbol,
+            limit_price=limit_price,
+            entry_ask=entry_ask,
+            quality_score=4,
+        )
+        assert book.open_count() == 1
 
     def test_inverted_signal_is_separate_and_simulated(self, tmp_path):
         sb = _book(tmp_path)

@@ -526,24 +526,12 @@ async def select_shadow_contract(broker, liq_filter, settings, symbol, sig, now,
     before contract selection. Returns (option_symbol, limit_price, ask) or
     (None, None, None). Read-only broker calls; never raises."""
     try:
-        from app.trading.entry_filters import select_allowed_expiration
+        from app.trading.entry_filters import select_expiration_for_settings
         from app.trading.pricing import compute_limit_price
 
         expirations = await broker.get_available_expirations(symbol)
         today = now.date()
-        scaled_guards = (
-            getattr(settings, "paper_scaled_sizing_enabled", False) is True
-            and getattr(settings, "paper_scaled_guardrails_enabled", False) is True
-        )
-        min_dte = int(getattr(settings, "paper_scaled_min_dte", 0)) if scaled_guards else 0
-        max_dte = int(getattr(settings, "paper_scaled_max_dte", 365)) if scaled_guards else 365
-        target_exp = select_allowed_expiration(
-            expirations,
-            today,
-            settings.options.preferred_dte,
-            min_dte,
-            max_dte,
-        )
+        target_exp = select_expiration_for_settings(expirations, today, settings)
         if target_exp is None:
             return None, None, None
 

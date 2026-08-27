@@ -109,8 +109,8 @@ blacklist: []
 
 scan_config:
   max_symbols_per_scan: 40
-  max_active_symbols: 3
+  max_active_symbols: 6
   max_symbols_traded_per_day: 3
-  max_active_positions: 2
+  max_active_positions: 1
   min_scan_score: 40.0
-  scan_interval_minutes: 30
+  scan_interval_minutes: 5

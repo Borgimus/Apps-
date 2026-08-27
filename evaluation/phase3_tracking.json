@@ -3,17 +3,17 @@
   "phase": 3,
   "phase3_start_date": "2026-07-12",
   "created": "2026-07-12",
-  "last_updated": "2026-07-20",
+  "last_updated": "2026-08-27",
   "phase3_session_1_fingerprint_note": "Verified clean: fingerprint --verify --check-broker passed before session, frozen hashes matched, working tree clean, 0 open orders, 0 open positions at start and shutdown.",
   "phase3_fingerprint": {
     "_note": "Frozen at Phase 3 readiness commit. SHA check uses CAPTURE_AFTER_PUSH sentinel: a committed file cannot contain the SHA of the commit that holds it (self-referential hash). Integrity is enforced by the four file hashes below plus clean working tree. Record the frozen commit SHA via: git tag phase3-baseline && git push origin phase3-baseline. Regenerate hashes with: python scripts/capture_session_fingerprint.py. A session whose runtime fingerprint diverges from this baseline is NOT eligible for the Phase 3 clean cohort without a declared protocol amendment.",
     "commit_sha": "CAPTURE_AFTER_PUSH",
     "working_tree_dirty": false,
-    "config_hash_sha256_16": "67954547a3a617d4",
+    "config_hash_sha256_16": "d9b983ac2c7d4383",
     "requirements_lock_hash_sha256_16": "b91299a905e74506",
-    "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+    "ticker_universe_hash_sha256_16": "112d178b8a6d7dbf",
     "broker_adapter_hashes_sha256_8": {
-      "alpaca_broker": "bd9d7d0a",
+      "alpaca_broker": "ea5f90ca",
       "paper_broker": "241f1432",
       "broker_interface": "6a307cc7"
     },
@@ -521,5 +521,40 @@
       "broker reconciliation and kill switch"
     ],
     "re_enable_gate": "No broker strategy may be re-enabled from this cohort until it has 20 to 30 additional fill-validated outcomes under the revised contract and closed-bar rules, with positive expectancy and no operational safety failures. Inverted direction remains observational only."
+  },
+  "_scaled_guardrails_v3_full_universe_shadow_protocol": {
+    "declared": "2026-08-27",
+    "session_boundary": "after the 2026-08-27 session produced zero priceable shadow outcomes",
+    "protocol_segment": "guardrails_v3_shadow_validation_full_universe_v1",
+    "prior_segment_disposition": "retain the 2026-08-27 narrow-universe session as diagnostic evidence; do not pool it with full-universe shadow outcomes",
+    "reason": "The first shadow-validation session scanned only ten unique symbols and the contract confirmer used a different expiration policy from the shadow selector. Eight blocked opportunities produced zero priceable outcomes, so the session could not test the suspended strategies.",
+    "controlled_changes": [
+      "scan all 38 configured research symbols across core_etfs, mega_cap, liquid_growth, and high_beta_liquid",
+      "retain up to six active shadow candidates per scan",
+      "use one shared strict contract policy across confirmation, shadow pricing, and the order path",
+      "require delta from 0.35 through 0.45 and expiration from 2 through 8 DTE",
+      "query Alpaca expirations within a bounded date window and consume every response page",
+      "cache expiration discovery by symbol and New York session date"
+    ],
+    "prior_fingerprint": {
+      "config_hash_sha256_16": "67954547a3a617d4",
+      "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+      "alpaca_broker_hash_sha256_8": "bd9d7d0a"
+    },
+    "fingerprint_update": {
+      "config_hash_sha256_16": "d9b983ac2c7d4383",
+      "ticker_universe_hash_sha256_16": "112d178b8a6d7dbf",
+      "alpaca_broker_hash_sha256_8": "ea5f90ca"
+    },
+    "unchanged_controls": [
+      "paper-only restriction",
+      "QQQ broker-entry block",
+      "VWAP reclaim and ORB broker-entry suspension",
+      "one active position including pending entries",
+      "two losing exits per session cutoff",
+      "$250 experiment loss ceiling",
+      "broker reconciliation and kill switch"
+    ],
+    "comparison_rule": "Only sessions after this boundary count toward the 20 to 30 full-universe fill-validated outcome requirement. Earlier guardrails_v3 observations remain separate diagnostic evidence."
   }
 }

@@ -180,3 +180,5 @@
 2026-08-26T10:09:40 | INFO     | app.brokers.alpaca_broker | Placing option order | payload={'symbol': 'QQQ260826C00718000', 'qty': '7', 'side': 'sell', 'type': 'limit', 'time_in_force': 'day', 'limit_price': '0.16', 'order_class': 'simple'}
 2026-08-27T09:30:10 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
 2026-08-27T09:30:10 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-08-31T09:30:07 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-08-31T09:30:07 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets

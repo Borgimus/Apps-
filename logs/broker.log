@@ -186,3 +186,5 @@
 2026-09-01T09:30:08 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
 2026-09-02T09:30:08 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
 2026-09-02T09:30:08 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets
+2026-09-03T09:30:07 | INFO     | app.brokers.factory | Creating broker adapter | broker=alpaca | live=False
+2026-09-03T09:30:07 | INFO     | app.brokers.alpaca_broker | AlpacaBroker initialised | paper=True | trade_url=https://paper-api.alpaca.markets | data_url=https://data.alpaca.markets

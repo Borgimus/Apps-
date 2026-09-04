@@ -188,6 +188,37 @@ class AlpacaBroker(BrokerInterface):
             timestamp=datetime.fromisoformat(q["t"].replace("Z", "+00:00")),
         )
 
+    async def get_stock_bars(
+        self,
+        symbol: str,
+        start: datetime,
+        end: datetime,
+        timeframe: str = "5Min",
+    ) -> list[tuple[datetime, float]]:
+        """Return paginated Alpaca equity bars for evaluation analytics."""
+        params = {
+            "symbols": symbol,
+            "timeframe": timeframe,
+            "start": start.isoformat(),
+            "end": end.isoformat(),
+            "adjustment": "raw",
+            "feed": "iex",
+            "limit": 10000,
+        }
+        bars: list[tuple[datetime, float]] = []
+        while True:
+            resp = await self._data_client.get("/v2/stocks/bars", params=params)
+            resp.raise_for_status()
+            payload = resp.json()
+            for bar in payload.get("bars", {}).get(symbol, []):
+                timestamp = datetime.fromisoformat(bar["t"].replace("Z", "+00:00"))
+                bars.append((timestamp, float(bar["c"])))
+            next_token = payload.get("next_page_token")
+            if not next_token:
+                break
+            params["page_token"] = next_token
+        return bars
+
     async def get_option_chain(self, symbol: str, expiration: date) -> OptionChain:
         # Contract metadata lives on the trading host; snapshots on data host
         exp_str = expiration.strftime("%Y-%m-%d")

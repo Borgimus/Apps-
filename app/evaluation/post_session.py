@@ -63,7 +63,9 @@ async def run_post_session(
     _check_open_positions(pm, result)
 
     # 4 + 5 + 6. Build report, save artifacts, send alert
-    report = await _build_and_save_report(db_session, settings, today, alert_service, result)
+    report = await _build_and_save_report(
+        db_session, settings, today, alert_service, result, broker=broker
+    )
 
     # 7. Update ledger
     if report is not None:
@@ -244,7 +246,14 @@ def _check_open_positions(pm, result: PostSessionResult):
         )
 
 
-async def _build_and_save_report(db_session, settings, today: str, alert_service, result: PostSessionResult):
+async def _build_and_save_report(
+    db_session,
+    settings,
+    today: str,
+    alert_service,
+    result: PostSessionResult,
+    broker=None,
+):
     if db_session is None:
         result.errors.append("No DB session — cannot build report")
         return None
@@ -259,7 +268,9 @@ async def _build_and_save_report(db_session, settings, today: str, alert_service
         if getattr(settings, "paper_eval_permissive_entry_mode", False):
             try:
                 from app.evaluation.orb_forward_performance import compute_orb_forward_performance
-                fwd_updated = await compute_orb_forward_performance(db_session, today)
+                fwd_updated = await compute_orb_forward_performance(
+                    db_session, today, broker=broker
+                )
                 logger.info("Post-session: ORB forward performance: %d rows updated", fwd_updated)
             except Exception as exc:
                 logger.warning("Post-session: ORB forward performance failed: %s", exc)

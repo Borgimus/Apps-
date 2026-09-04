@@ -256,6 +256,8 @@ def test_default_runtime_scans_all_38_research_symbols():
     assert settings.universe.max_symbols_per_scan == 40
     assert settings.universe.max_active_symbols == 6
     assert len(symbols) == 38
+    assert "XYZ" in symbols
+    assert "SQ" not in symbols
     assert set(symbols.values()) == {
         "core_etfs",
         "mega_cap",

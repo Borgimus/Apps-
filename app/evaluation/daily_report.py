@@ -128,6 +128,8 @@ class DailyReport:
     # Scanner standby
     scanner_standby_activated: bool = False
     standby_reason: Optional[str] = None
+    scanner_standby_event_count: int = 0
+    scanner_standby_recovered: bool = False
 
     # Exit spread warnings
     exit_spread_warning_count: int = 0
@@ -236,22 +238,32 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
         report.session_end = _fmt_ts(last_ts)
 
     # ── API errors, kill switch, standby, and spread warnings ────────────────
+    # Replay STANDBY events in timestamp order so a later successful scan can
+    # clear the end-of-session state. Older reports treated any opening-cycle
+    # rejection as if the scanner remained halted all day.
+    standby_active = False
     for log in logs:
         if log.level == "error":
             report.api_errors += 1
         evt = (log.event or "").lower()
         if "kill_switch" in evt or "kill switch" in evt:
             report.kill_switch_events += 1
-        if evt == "standby" and not report.scanner_standby_activated:
-            report.scanner_standby_activated = True
+        if evt == "standby":
+            report.scanner_standby_event_count += 1
+            standby_active = True
             try:
                 import json as _json
                 _data = _json.loads(log.data_json) if log.data_json else {}
                 report.standby_reason = _data.get("reason") or log.message
             except Exception:
                 report.standby_reason = log.message
+        elif evt == "standby_recovered":
+            standby_active = False
+            report.scanner_standby_recovered = True
+            report.standby_reason = None
         if evt == "exit_spread_warning":
             report.exit_spread_warning_count += 1
+    report.scanner_standby_activated = standby_active
 
     # ── Signal counts ─────────────────────────────────────────────────────────
     signal_rows = (
@@ -453,11 +465,22 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
             report.scanned_symbols_count = len(scan_rows)
             report.candidate_count_passed  = sum(1 for r in scan_rows if not r.is_rejected)
             report.candidate_count_rejected = sum(1 for r in scan_rows if r.is_rejected)
-            report.selected_symbols = [r.symbol for r in scan_rows if r.selected]
-            top = sorted(
+            report.selected_symbols = list(dict.fromkeys(
+                r.symbol for r in scan_rows if r.selected
+            ))
+            ranked = sorted(
                 [r for r in scan_rows if not r.is_rejected],
                 key=lambda r: r.score or 0, reverse=True,
-            )[:5]
+            )
+            top = []
+            top_symbols = set()
+            for row in ranked:
+                if row.symbol in top_symbols:
+                    continue
+                top_symbols.add(row.symbol)
+                top.append(row)
+                if len(top) == 5:
+                    break
             report.top_candidates = [
                 {"symbol": r.symbol, "score": r.score, "signal_type": r.signal_type}
                 for r in top
@@ -736,6 +759,11 @@ def _generate_notes(r: DailyReport):
         reason_str = f": {r.standby_reason}" if r.standby_reason else ""
         notes.append(f"Scanner entered STANDBY — no new entries{reason_str}")
         recs.append("Review universe scan settings; consider adjusting min_scan_score or rvol threshold")
+    elif r.scanner_standby_recovered:
+        notes.append(
+            f"Scanner recovered after {r.scanner_standby_event_count} "
+            "STANDBY event(s); later scans resumed candidate selection"
+        )
 
     if r.exit_spread_warning_count > 0:
         notes.append(f"{r.exit_spread_warning_count} exit spread warning(s) — spread exceeded max_spread_pct at exit")
@@ -843,10 +871,15 @@ def _scan_pipeline_section(r: DailyReport) -> str:
     if r.scanned_symbols_count == 0 and not r.scanner_standby_activated:
         return ""
     selected_str = ", ".join(r.selected_symbols) if r.selected_symbols else "none"
-    standby_row = (
-        f"| **STANDBY** | {r.standby_reason or 'activated'} |\n"
-        if r.scanner_standby_activated else ""
-    )
+    if r.scanner_standby_activated:
+        standby_row = f"| **STANDBY** | {r.standby_reason or 'activated'} |\n"
+    elif r.scanner_standby_recovered:
+        standby_row = (
+            f"| STANDBY recovery | recovered after "
+            f"{r.scanner_standby_event_count} event(s) |\n"
+        )
+    else:
+        standby_row = ""
     top_rows = ""
     for c in r.top_candidates:
         top_rows += f"| {c.get('symbol','')} | {c.get('score', 0):.1f} | {c.get('signal_type', '')} |\n"
@@ -1170,7 +1203,7 @@ def to_markdown(report: DailyReport) -> str:
 |---|---|
 | API errors | {r.api_errors} |
 | Kill switch events | {r.kill_switch_events} |
-| Scanner standby | {"YES — " + r.standby_reason if r.scanner_standby_activated and r.standby_reason else ("YES" if r.scanner_standby_activated else "no")} |
+| Scanner standby | {"YES — " + r.standby_reason if r.scanner_standby_activated and r.standby_reason else ("YES" if r.scanner_standby_activated else (f"recovered after {r.scanner_standby_event_count} event(s)" if r.scanner_standby_recovered else "no"))} |
 | Exit spread warnings | {r.exit_spread_warning_count} |
 
 {_scan_pipeline_section(r)}{_pnl_by_symbol_section(r)}

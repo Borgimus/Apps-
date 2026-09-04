@@ -1,8 +1,8 @@
 """
 ORB forward performance — post-session computation.
 
-For every ORB signal in signal_bridge (traded or not), fetches 5-min
-intraday bars for the underlying and computes the hypothetical price and
+For every ORB signal in signal_bridge (traded or not), fetches execution-grade
+5-minute Alpaca bars for the underlying and computes the hypothetical price and
 percent return at +5, +15, and +30 minutes from signal time.
 
 Called by post_session.run_post_session() after the session ends.
@@ -124,32 +124,28 @@ async def compute_orb_forward_performance(
 
 
 async def _fetch_bars(symbol: str, session_date: str, broker=None) -> list:
-    """Return list of (timestamp_utc, close) tuples for the session date."""
+    """Return Alpaca (timestamp_utc, close) tuples for the session date."""
+    if broker is None or not hasattr(broker, "get_stock_bars"):
+        logger.warning(
+            "ORB forward perf: Alpaca stock-bar source unavailable for %s", symbol
+        )
+        return []
+
+    session_start_et = datetime.strptime(session_date, "%Y-%m-%d").replace(
+        tzinfo=_ET
+    )
+    session_end_et = session_start_et + timedelta(days=1)
     try:
-        import yfinance as yf
-        import pandas as pd
-
-        ticker = yf.Ticker(symbol)
-        # Fetch 1 day of 5-min bars; yfinance returns in market timezone
-        hist = ticker.history(period="2d", interval="5m", auto_adjust=True)
-        if hist.empty:
-            return []
-
-        # Normalize index to UTC
-        if hist.index.tzinfo is None:
-            hist.index = hist.index.tz_localize("America/New_York").tz_convert("UTC")
-        else:
-            hist.index = hist.index.tz_convert("UTC")
-
-        # Filter to session_date in ET
-        session_dt_et = datetime.strptime(session_date, "%Y-%m-%d").replace(tzinfo=_ET)
-        session_dt_utc = session_dt_et.astimezone(_UTC)
-        next_dt_utc = session_dt_utc + timedelta(days=1)
-
-        filtered = hist[(hist.index >= session_dt_utc) & (hist.index < next_dt_utc)]
-        return list(zip(filtered.index.to_pydatetime(), filtered["Close"].tolist()))
+        return await broker.get_stock_bars(
+            symbol,
+            start=session_start_et.astimezone(_UTC),
+            end=session_end_et.astimezone(_UTC),
+            timeframe="5Min",
+        )
     except Exception as exc:
-        logger.warning("ORB forward perf: yfinance fetch for %s failed — %s", symbol, exc)
+        logger.warning(
+            "ORB forward perf: Alpaca bars fetch for %s failed — %s", symbol, exc
+        )
         return []
 
 

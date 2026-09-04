@@ -3,7 +3,7 @@
   "phase": 3,
   "phase3_start_date": "2026-07-12",
   "created": "2026-07-12",
-  "last_updated": "2026-08-27",
+  "last_updated": "2026-09-03",
   "phase3_session_1_fingerprint_note": "Verified clean: fingerprint --verify --check-broker passed before session, frozen hashes matched, working tree clean, 0 open orders, 0 open positions at start and shutdown.",
   "phase3_fingerprint": {
     "_note": "Frozen at Phase 3 readiness commit. SHA check uses CAPTURE_AFTER_PUSH sentinel: a committed file cannot contain the SHA of the commit that holds it (self-referential hash). Integrity is enforced by the four file hashes below plus clean working tree. Record the frozen commit SHA via: git tag phase3-baseline && git push origin phase3-baseline. Regenerate hashes with: python scripts/capture_session_fingerprint.py. A session whose runtime fingerprint diverges from this baseline is NOT eligible for the Phase 3 clean cohort without a declared protocol amendment.",
@@ -11,9 +11,9 @@
     "working_tree_dirty": false,
     "config_hash_sha256_16": "d9b983ac2c7d4383",
     "requirements_lock_hash_sha256_16": "b91299a905e74506",
-    "ticker_universe_hash_sha256_16": "112d178b8a6d7dbf",
+    "ticker_universe_hash_sha256_16": "92a841bb277eacb6",
     "broker_adapter_hashes_sha256_8": {
-      "alpaca_broker": "ea5f90ca",
+      "alpaca_broker": "682cfcd0",
       "paper_broker": "241f1432",
       "broker_interface": "6a307cc7"
     },
@@ -556,5 +556,37 @@
       "broker reconciliation and kill switch"
     ],
     "comparison_rule": "Only sessions after this boundary count toward the 20 to 30 full-universe fill-validated outcome requirement. Earlier guardrails_v3 observations remain separate diagnostic evidence."
+  },
+  "_guardrails_v3_session_observability_repair_amendment": {
+    "declared": "2026-09-03",
+    "session_boundary": "after the 2026-09-02 session",
+    "protocol_segment": "guardrails_v3_shadow_validation_full_universe_v2",
+    "reason": "The first three full-universe sessions repeatedly showed a stale SQ symbol, a recovered opening-cycle STANDBY reported as session-long, duplicated selected/top-candidate report rows, and Yahoo Finance rate limits that left ORB forward-performance fields empty.",
+    "controlled_changes": [
+      "replace the obsolete Block ticker SQ with its current ticker XYZ while retaining a 38-symbol universe",
+      "emit a recovery event when a later universe scan succeeds after STANDBY and report the final scanner state",
+      "deduplicate selected symbols and top candidates across repeated scan cycles",
+      "source ORB forward-performance bars from the authenticated Alpaca market-data connection instead of Yahoo Finance"
+    ],
+    "prior_fingerprint": {
+      "ticker_universe_hash_sha256_16": "112d178b8a6d7dbf",
+      "alpaca_broker_hash_sha256_8": "ea5f90ca"
+    },
+    "fingerprint_update": {
+      "ticker_universe_hash_sha256_16": "92a841bb277eacb6",
+      "alpaca_broker_hash_sha256_8": "682cfcd0"
+    },
+    "trading_behavior": "No entry, exit, sizing, strategy, contract-selection, or risk rule changes. The Alpaca broker addition is a read-only historical equity-bar method used after the session for evaluation reporting.",
+    "unchanged_controls": [
+      "paper-only restriction",
+      "QQQ broker-entry block",
+      "VWAP reclaim and ORB broker-entry suspension",
+      "strict delta and 2 through 8 DTE contract policy",
+      "one active position including pending entries",
+      "two losing exits per session cutoff",
+      "$250 experiment loss ceiling",
+      "broker reconciliation and kill switch"
+    ],
+    "comparison_rule": "Keep earlier full-universe shadow outcomes as strategy evidence, but annotate the SQ-to-XYZ universe substitution at this boundary. STANDBY status and top-candidate reporting before this boundary use the older event and duplication semantics."
   }
 }

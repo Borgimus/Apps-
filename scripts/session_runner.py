@@ -2199,7 +2199,13 @@ async def _run_universe_scan(
         except Exception as exc:
             logger.warning("Failed to update selected flags: %s", exc)
 
-    # Update in-memory scan store (for dashboard)
+    # Update in-memory scan store (for dashboard). A successful scan after a
+    # STANDBY cycle is a recovery, not a session-long halt. Preserve the prior
+    # state long enough to emit one recovery event before clearing it.
+    _was_standby = bool(scan_store and scan_store.get("standby"))
+    _prior_standby_reason = (
+        scan_store.get("standby_reason") if scan_store is not None else None
+    )
     if scan_store is not None:
         _active_grps = _enabled_groups_list or loader.enabled_groups_from_yaml
         scan_store.clear()
@@ -2222,6 +2228,25 @@ async def _run_universe_scan(
             }
             for c in candidates
         ]
+
+    if _was_standby:
+        logger.info(
+            "STANDBY RECOVERED: scanner produced %d passing candidate(s) and "
+            "%d confirmed symbol(s)",
+            len(passed), len(confirmed_syms),
+        )
+        if journal:
+            await journal.log_event(
+                event="standby_recovered",
+                message="Scanner recovered from STANDBY; candidate selection resumed",
+                level="info",
+                data={
+                    "prior_reason": _prior_standby_reason,
+                    "candidates_passed": len(passed),
+                    "symbols_confirmed": len(confirmed_syms),
+                },
+            )
+            await journal.commit()
 
     return confirmed_syms
 
@@ -2479,7 +2504,7 @@ async def run_session(args: argparse.Namespace):
             if scanned is None:
                 logger.warning(
                     "STANDBY: scanner rejected all candidates, fallback blocked — "
-                    "no new entries this session"
+                    "entries paused until a later scan recovers"
                 )
             elif scanned:
                 active_symbols = scanned

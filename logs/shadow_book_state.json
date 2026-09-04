@@ -1,125 +1,185 @@
 {
-  "seq": 4942,
+  "seq": 5027,
   "open": [],
   "episodes": {
-    "baseline|vwap_reclaim|SPY|long": {
-      "opportunity_id": "20260903-SPY-vwap_reclaim-4918",
-      "last_seen": "2026-09-03T11:14:59.245651-04:00",
-      "observations": 10
-    },
-    "breakeven_25|vwap_reclaim|SPY|long": {
-      "opportunity_id": "20260903-SPY-vwap_reclaim-4919",
-      "last_seen": "2026-09-03T11:10:05.778073-04:00",
-      "observations": 1
-    },
-    "partial_25_breakeven|vwap_reclaim|SPY|long": {
-      "opportunity_id": "20260903-SPY-vwap_reclaim-4920",
-      "last_seen": "2026-09-03T11:10:05.778073-04:00",
-      "observations": 1
-    },
-    "inverted|vwap_reclaim|SPY|short": {
-      "opportunity_id": "20260903-SPY-vwap_reclaim-4921",
-      "last_seen": "2026-09-03T11:10:05.778073-04:00",
-      "observations": 1
-    },
-    "baseline|vwap_reclaim|SOFI|short": {
-      "opportunity_id": "20260903-SOFI-vwap_reclaim-4873",
-      "last_seen": "2026-09-03T10:04:57.813883-04:00",
-      "observations": 6
-    },
-    "breakeven_25|vwap_reclaim|SOFI|short": {
-      "opportunity_id": "20260903-SOFI-vwap_reclaim-4874",
-      "last_seen": "2026-09-03T10:02:07.140345-04:00",
-      "observations": 1
-    },
-    "partial_25_breakeven|vwap_reclaim|SOFI|short": {
-      "opportunity_id": "20260903-SOFI-vwap_reclaim-4875",
-      "last_seen": "2026-09-03T10:02:07.140345-04:00",
-      "observations": 1
-    },
-    "inverted|vwap_reclaim|SOFI|long": {
-      "opportunity_id": "20260903-SOFI-vwap_reclaim-4876",
-      "last_seen": "2026-09-03T10:02:07.140345-04:00",
-      "observations": 1
-    },
-    "baseline|orb|PLTR|long": {
-      "opportunity_id": "20260903-PLTR-orb-4882",
-      "last_seen": "2026-09-03T10:09:49.928234-04:00",
+    "baseline|vwap_reclaim|NVDA|long": {
+      "opportunity_id": "20260904-NVDA-vwap_reclaim-4943",
+      "last_seen": "2026-09-04T09:44:42.181396-04:00",
       "observations": 9
     },
-    "breakeven_25|orb|PLTR|long": {
-      "opportunity_id": "20260903-PLTR-orb-4883",
-      "last_seen": "2026-09-03T10:05:29.830580-04:00",
+    "breakeven_25|vwap_reclaim|NVDA|long": {
+      "opportunity_id": "20260904-NVDA-vwap_reclaim-4944",
+      "last_seen": "2026-09-04T09:40:16.931419-04:00",
       "observations": 1
     },
-    "partial_25_breakeven|orb|PLTR|long": {
-      "opportunity_id": "20260903-PLTR-orb-4884",
-      "last_seen": "2026-09-03T10:05:29.830580-04:00",
+    "partial_25_breakeven|vwap_reclaim|NVDA|long": {
+      "opportunity_id": "20260904-NVDA-vwap_reclaim-4945",
+      "last_seen": "2026-09-04T09:40:16.931419-04:00",
       "observations": 1
     },
-    "inverted|orb|PLTR|short": {
-      "opportunity_id": "20260903-PLTR-orb-4885",
-      "last_seen": "2026-09-03T10:05:29.830580-04:00",
+    "inverted|vwap_reclaim|NVDA|short": {
+      "opportunity_id": "20260904-NVDA-vwap_reclaim-4946",
+      "last_seen": "2026-09-04T09:40:16.931419-04:00",
       "observations": 1
     },
-    "baseline|orb|AAPL|long": {
-      "opportunity_id": "20260903-AAPL-orb-4894",
-      "last_seen": "2026-09-03T10:38:56.468261-04:00",
+    "baseline|vwap_reclaim|AAPL|short": {
+      "opportunity_id": "20260904-AAPL-vwap_reclaim-4955",
+      "last_seen": "2026-09-04T09:45:47.492279-04:00",
+      "observations": 2
+    },
+    "breakeven_25|vwap_reclaim|AAPL|short": {
+      "opportunity_id": "20260904-AAPL-vwap_reclaim-4956",
+      "last_seen": "2026-09-04T09:45:14.111153-04:00",
+      "observations": 1
+    },
+    "partial_25_breakeven|vwap_reclaim|AAPL|short": {
+      "opportunity_id": "20260904-AAPL-vwap_reclaim-4957",
+      "last_seen": "2026-09-04T09:45:14.111153-04:00",
+      "observations": 1
+    },
+    "inverted|vwap_reclaim|AAPL|long": {
+      "opportunity_id": "20260904-AAPL-vwap_reclaim-4958",
+      "last_seen": "2026-09-04T09:45:14.111153-04:00",
+      "observations": 1
+    },
+    "baseline|orb|AMZN|short": {
+      "opportunity_id": "20260904-AMZN-orb-4960",
+      "last_seen": "2026-09-04T09:56:37.245143-04:00",
+      "observations": 3
+    },
+    "breakeven_25|orb|AMZN|short": {
+      "opportunity_id": "20260904-AMZN-orb-4961",
+      "last_seen": "2026-09-04T09:55:32.151759-04:00",
+      "observations": 1
+    },
+    "partial_25_breakeven|orb|AMZN|short": {
+      "opportunity_id": "20260904-AMZN-orb-4962",
+      "last_seen": "2026-09-04T09:55:32.151759-04:00",
+      "observations": 1
+    },
+    "inverted|orb|AMZN|long": {
+      "opportunity_id": "20260904-AMZN-orb-4963",
+      "last_seen": "2026-09-04T09:55:32.151759-04:00",
+      "observations": 1
+    },
+    "baseline|orb|AAPL|short": {
+      "opportunity_id": "20260904-AAPL-orb-4966",
+      "last_seen": "2026-09-04T10:04:51.876244-04:00",
+      "observations": 9
+    },
+    "breakeven_25|orb|AAPL|short": {
+      "opportunity_id": "20260904-AAPL-orb-4967",
+      "last_seen": "2026-09-04T10:00:23.486437-04:00",
+      "observations": 1
+    },
+    "partial_25_breakeven|orb|AAPL|short": {
+      "opportunity_id": "20260904-AAPL-orb-4968",
+      "last_seen": "2026-09-04T10:00:23.486437-04:00",
+      "observations": 1
+    },
+    "inverted|orb|AAPL|long": {
+      "opportunity_id": "20260904-AAPL-orb-4969",
+      "last_seen": "2026-09-04T10:00:23.486437-04:00",
+      "observations": 1
+    },
+    "baseline|vwap_reclaim|SOFI|long": {
+      "opportunity_id": "20260904-SOFI-vwap_reclaim-4970",
+      "last_seen": "2026-09-04T10:02:02.181845-04:00",
+      "observations": 4
+    },
+    "breakeven_25|vwap_reclaim|SOFI|long": {
+      "opportunity_id": "20260904-SOFI-vwap_reclaim-4971",
+      "last_seen": "2026-09-04T10:00:23.486437-04:00",
+      "observations": 1
+    },
+    "partial_25_breakeven|vwap_reclaim|SOFI|long": {
+      "opportunity_id": "20260904-SOFI-vwap_reclaim-4972",
+      "last_seen": "2026-09-04T10:00:23.486437-04:00",
+      "observations": 1
+    },
+    "inverted|vwap_reclaim|SOFI|short": {
+      "opportunity_id": "20260904-SOFI-vwap_reclaim-4973",
+      "last_seen": "2026-09-04T10:00:23.486437-04:00",
+      "observations": 1
+    },
+    "baseline|vwap_reclaim|IWM|long": {
+      "opportunity_id": "20260904-IWM-vwap_reclaim-4985",
+      "last_seen": "2026-09-04T10:19:37.508250-04:00",
+      "observations": 3
+    },
+    "breakeven_25|vwap_reclaim|IWM|long": {
+      "opportunity_id": "20260904-IWM-vwap_reclaim-4986",
+      "last_seen": "2026-09-04T10:18:28.604275-04:00",
+      "observations": 1
+    },
+    "partial_25_breakeven|vwap_reclaim|IWM|long": {
+      "opportunity_id": "20260904-IWM-vwap_reclaim-4987",
+      "last_seen": "2026-09-04T10:18:28.604275-04:00",
+      "observations": 1
+    },
+    "inverted|vwap_reclaim|IWM|short": {
+      "opportunity_id": "20260904-IWM-vwap_reclaim-4988",
+      "last_seen": "2026-09-04T10:18:28.604275-04:00",
+      "observations": 1
+    },
+    "baseline|orb|GOOGL|short": {
+      "opportunity_id": "20260904-GOOGL-orb-4991",
+      "last_seen": "2026-09-04T10:29:58.080537-04:00",
+      "observations": 10
+    },
+    "breakeven_25|orb|GOOGL|short": {
+      "opportunity_id": "20260904-GOOGL-orb-4992",
+      "last_seen": "2026-09-04T10:25:02.701026-04:00",
+      "observations": 1
+    },
+    "partial_25_breakeven|orb|GOOGL|short": {
+      "opportunity_id": "20260904-GOOGL-orb-4993",
+      "last_seen": "2026-09-04T10:25:02.701026-04:00",
+      "observations": 1
+    },
+    "inverted|orb|GOOGL|long": {
+      "opportunity_id": "20260904-GOOGL-orb-4994",
+      "last_seen": "2026-09-04T10:25:02.701026-04:00",
+      "observations": 1
+    },
+    "baseline|vwap_reclaim|GOOGL|short": {
+      "opportunity_id": "20260904-GOOGL-vwap_reclaim-4995",
+      "last_seen": "2026-09-04T10:29:58.080537-04:00",
+      "observations": 10
+    },
+    "breakeven_25|vwap_reclaim|GOOGL|short": {
+      "opportunity_id": "20260904-GOOGL-vwap_reclaim-4996",
+      "last_seen": "2026-09-04T10:25:02.701026-04:00",
+      "observations": 1
+    },
+    "partial_25_breakeven|vwap_reclaim|GOOGL|short": {
+      "opportunity_id": "20260904-GOOGL-vwap_reclaim-4997",
+      "last_seen": "2026-09-04T10:25:02.701026-04:00",
+      "observations": 1
+    },
+    "inverted|vwap_reclaim|GOOGL|long": {
+      "opportunity_id": "20260904-GOOGL-vwap_reclaim-4998",
+      "last_seen": "2026-09-04T10:25:02.701026-04:00",
+      "observations": 1
+    },
+    "baseline|orb|RIOT|long": {
+      "opportunity_id": "20260904-RIOT-orb-5017",
+      "last_seen": "2026-09-04T12:03:59.162071-04:00",
       "observations": 8
     },
-    "breakeven_25|orb|AAPL|long": {
-      "opportunity_id": "20260903-AAPL-orb-4895",
-      "last_seen": "2026-09-03T10:35:14.728245-04:00",
+    "breakeven_25|orb|RIOT|long": {
+      "opportunity_id": "20260904-RIOT-orb-5018",
+      "last_seen": "2026-09-04T12:00:10.052307-04:00",
       "observations": 1
     },
-    "partial_25_breakeven|orb|AAPL|long": {
-      "opportunity_id": "20260903-AAPL-orb-4896",
-      "last_seen": "2026-09-03T10:35:14.728245-04:00",
+    "partial_25_breakeven|orb|RIOT|long": {
+      "opportunity_id": "20260904-RIOT-orb-5019",
+      "last_seen": "2026-09-04T12:00:10.052307-04:00",
       "observations": 1
     },
-    "inverted|orb|AAPL|short": {
-      "opportunity_id": "20260903-AAPL-orb-4897",
-      "last_seen": "2026-09-03T10:35:14.728245-04:00",
-      "observations": 1
-    },
-    "baseline|orb|MSTR|long": {
-      "opportunity_id": "20260903-MSTR-orb-4905",
-      "last_seen": "2026-09-03T10:44:52.351869-04:00",
-      "observations": 10
-    },
-    "breakeven_25|orb|MSTR|long": {
-      "opportunity_id": "20260903-MSTR-orb-4906",
-      "last_seen": "2026-09-03T10:40:03.599773-04:00",
-      "observations": 1
-    },
-    "partial_25_breakeven|orb|MSTR|long": {
-      "opportunity_id": "20260903-MSTR-orb-4907",
-      "last_seen": "2026-09-03T10:40:03.599773-04:00",
-      "observations": 1
-    },
-    "inverted|orb|MSTR|short": {
-      "opportunity_id": "20260903-MSTR-orb-4908",
-      "last_seen": "2026-09-03T10:40:03.599773-04:00",
-      "observations": 1
-    },
-    "baseline|vwap_reclaim|MSFT|long": {
-      "opportunity_id": "20260903-MSFT-vwap_reclaim-4931",
-      "last_seen": "2026-09-03T11:19:57.028090-04:00",
-      "observations": 9
-    },
-    "breakeven_25|vwap_reclaim|MSFT|long": {
-      "opportunity_id": "20260903-MSFT-vwap_reclaim-4932",
-      "last_seen": "2026-09-03T11:15:31.793736-04:00",
-      "observations": 1
-    },
-    "partial_25_breakeven|vwap_reclaim|MSFT|long": {
-      "opportunity_id": "20260903-MSFT-vwap_reclaim-4933",
-      "last_seen": "2026-09-03T11:15:31.793736-04:00",
-      "observations": 1
-    },
-    "inverted|vwap_reclaim|MSFT|short": {
-      "opportunity_id": "20260903-MSFT-vwap_reclaim-4934",
-      "last_seen": "2026-09-03T11:15:31.793736-04:00",
+    "inverted|orb|RIOT|short": {
+      "opportunity_id": "20260904-RIOT-orb-5020",
+      "last_seen": "2026-09-04T12:00:10.052307-04:00",
       "observations": 1
     }
   }

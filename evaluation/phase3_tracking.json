@@ -3,7 +3,7 @@
   "phase": 3,
   "phase3_start_date": "2026-07-12",
   "created": "2026-07-12",
-  "last_updated": "2026-09-03",
+  "last_updated": "2026-09-07",
   "phase3_session_1_fingerprint_note": "Verified clean: fingerprint --verify --check-broker passed before session, frozen hashes matched, working tree clean, 0 open orders, 0 open positions at start and shutdown.",
   "phase3_fingerprint": {
     "_note": "Frozen at Phase 3 readiness commit. SHA check uses CAPTURE_AFTER_PUSH sentinel: a committed file cannot contain the SHA of the commit that holds it (self-referential hash). Integrity is enforced by the four file hashes below plus clean working tree. Record the frozen commit SHA via: git tag phase3-baseline && git push origin phase3-baseline. Regenerate hashes with: python scripts/capture_session_fingerprint.py. A session whose runtime fingerprint diverges from this baseline is NOT eligible for the Phase 3 clean cohort without a declared protocol amendment.",
@@ -13,9 +13,9 @@
     "requirements_lock_hash_sha256_16": "b91299a905e74506",
     "ticker_universe_hash_sha256_16": "92a841bb277eacb6",
     "broker_adapter_hashes_sha256_8": {
-      "alpaca_broker": "682cfcd0",
+      "alpaca_broker": "7023790c",
       "paper_broker": "241f1432",
-      "broker_interface": "6a307cc7"
+      "broker_interface": "54ebc37a"
     },
     "_broker_hash_amendment": {
       "declared": "2026-07-14",
@@ -23,6 +23,21 @@
       "updated_alpaca_broker_hash": "bd9d7d0a",
       "commit": "37f8f1a5c7e2e77cdefa3985db14e8691b52de1b",
       "reason": "11 defect fixes applied between Session 1 and Session 2 (commit 37f8f1a). alpaca_broker.py changed for Fix 10: option quote timestamp now parsed from exchange latestQuote.t instead of datetime.utcnow(). No threshold, parameter, or strategy logic changes. Other behavioral fixes (RVOL pace projection, EOD entry cutoff, signal age gate, scanner direction match, exit bid pricing, ORB unified definition, delta hard rejection, IV filter dead code, ledger breakeven/profit-factor/delta-bucket, replay fixed strike, VWAP lookahead, backtest EOD exit) are all defect corrections. Session 1 was valid under the then-current baseline. Sessions 2+ run under this updated baseline. Cross-session comparison should note the code boundary at S1/S2."
+    },
+    "_evaluation_repair_amendment": {
+      "declared": "2026-09-07",
+      "scope": "evaluation/repair_rollout_2026_09.md",
+      "prior_broker_adapter_hashes_sha256_8": {
+        "alpaca_broker": "682cfcd0",
+        "paper_broker": "241f1432",
+        "broker_interface": "6a307cc7"
+      },
+      "shadow_model_version": "2",
+      "ledger_version": "3",
+      "effective": "First paper session after reviewed deployment; no retroactive clean-session designation",
+      "reason": "Shared exit-rule parity, quote provenance, budget-at-limit sizing, whole-contract diagnostics, accounting completeness and CI coverage. Strategy suspensions and risk limits preserved.",
+      "portfolio_replay_validated": false,
+      "historical_broker_fills_reconciled": false
     },
     "paper_account_identifier": "alpaca-paper-4UBN",
     "db_schema_note": "DBTradeJournal schema v2 (phase/contamination_flags columns added); see app/trading/db_journal.py",

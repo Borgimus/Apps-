@@ -60,20 +60,23 @@ class HealthReporter:
         cancelled = await self._trades_by_status(session_date, "cancelled")
         still_open = await self._trades_by_status(session_date, "open")
 
-        pnls = [(t.realized_pnl or 0.0) for t in closed]
+        pnls = [t.realized_pnl for t in closed if t.realized_pnl is not None]
         wins = [p for p in pnls if p > 0]
-        losses = [p for p in pnls if p <= 0]
+        losses = [p for p in pnls if p < 0]
 
         report["trades"] = {
             "total_closed": len(closed),
             "wins": len(wins),
             "losses": len(losses),
-            "win_rate": round(len(wins) / len(closed), 4) if closed else 0.0,
+            "breakevens": sum(p == 0 for p in pnls),
+            "missing_pnl": len(closed) - len(pnls),
+            "win_rate": (round(len(wins) / len(closed), 4) if closed else 0.0) if len(pnls) == len(closed) else None,
             "still_open": len(still_open),
             "rejected": len(rejected),
             "cancelled": len(cancelled),
         }
         report["realized_pnl"] = round(sum(pnls), 2)
+        report["pnl_complete"] = len(pnls) == len(closed)
         report["unrealized_pnl"] = round(
             sum(t.unrealized_pnl or 0.0 for t in still_open), 2
         )
@@ -110,18 +113,23 @@ class HealthReporter:
         for t in closed:
             sid = t.strategy_id or "unknown"
             if sid not in by_strategy:
-                by_strategy[sid] = {"trades": 0, "wins": 0, "losses": 0, "pnl": 0.0}
-            pnl = t.realized_pnl or 0.0
+                by_strategy[sid] = {"trades": 0, "wins": 0, "losses": 0, "breakevens": 0, "missing_pnl": 0, "pnl": 0.0}
+            pnl = t.realized_pnl
             by_strategy[sid]["trades"] += 1
+            if pnl is None:
+                by_strategy[sid]["missing_pnl"] += 1
+                continue
             by_strategy[sid]["pnl"] = round(by_strategy[sid]["pnl"] + pnl, 2)
             if pnl > 0:
                 by_strategy[sid]["wins"] += 1
-            else:
+            elif pnl < 0:
                 by_strategy[sid]["losses"] += 1
+            else:
+                by_strategy[sid]["breakevens"] += 1
         for d in by_strategy.values():
             d["win_rate"] = (
                 round(d["wins"] / d["trades"], 4) if d["trades"] > 0 else 0.0
-            )
+            ) if not d["missing_pnl"] else None
         report["by_strategy"] = by_strategy
 
         return report
@@ -133,7 +141,7 @@ class HealthReporter:
             select(DBTradeJournal)
             .where(DBTradeJournal.session_date == session_date)
             .where(DBTradeJournal.status == status)
-            .order_by(DBTradeJournal.entry_time)
+            .order_by(DBTradeJournal.exit_time if status == "closed" else DBTradeJournal.entry_time)
         )
         return list(result.scalars().all())
 

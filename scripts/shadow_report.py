@@ -1,18 +1,9 @@
 #!/usr/bin/env python3
-"""
-Shadow book report: per-strategy signal counts and outcomes, executed vs
-capacity-blocked. Answers: is trade-slot competition starving a strategy
-of samples?
+"""Report one shadow-model version with diagnostic P&L and entry-filter coverage.
 
-Reports BOTH raw qualified-signal events and unique trade opportunities
-(episode-deduped), and splits shadow outcomes into fill-validated (primary
-counterfactual) vs theoretical (sensitivity analysis).
-
-Interpretation rule: shadow trades inform strategy design and capacity
-decisions only — they never count toward the live-readiness paper sample.
-
-Usage:
-    python scripts/shadow_report.py [--events evaluation/shadow_book.jsonl] [--date YYYY-MM-DD]
+Version 2 is the default. Legacy version 1 requires explicit selection and has
+known exit/fill defects. Unpriced outcomes are excluded from P&L. Neither this
+report nor its entry-filter subset establishes a feasible portfolio or readiness.
 """
 
 from __future__ import annotations
@@ -29,6 +20,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from app.evaluation.trade_attribution import analyze_trade, summarize_diagnostics
+from app.evaluation.shadow_book import SHADOW_MODEL_VERSION
 
 
 def _diagnostic(close: dict):
@@ -84,6 +76,8 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--events", default="evaluation/shadow_book.jsonl")
     ap.add_argument("--date", default=None, help="Restrict to one session date (YYYY-MM-DD)")
+    ap.add_argument("--model-version", default=SHADOW_MODEL_VERSION,
+                    help="Report exactly one simulator version; use 1 for legacy diagnostics")
     args = ap.parse_args()
 
     path = Path(args.events)
@@ -92,16 +86,25 @@ def main() -> None:
         return
 
     signals, closes = [], {}
+    excluded_models = unpriced = unfilled = 0
     for line in path.read_text().splitlines():
         if not line.strip():
             continue
         rec = json.loads(line)
         if args.date and not str(rec.get("ts", "")).startswith(args.date):
             continue
+        if str(rec.get("model_version", "1")) != args.model_version:
+            excluded_models += 1
+            continue
         if rec["event"] == "signal":
             signals.append(rec)
         elif rec["event"] == "shadow_close":
-            closes[rec["signal_id"]] = rec
+            if rec.get("shadow_pnl") is None:
+                unpriced += 1
+            else:
+                closes[rec["signal_id"]] = rec
+        elif rec["event"] == "shadow_unfilled":
+            unfilled += 1
 
     def _bucket():
         return {
@@ -153,6 +156,11 @@ def main() -> None:
 
     scope = args.date or "all sessions"
     print(f"Shadow book report — {scope}")
+    print(f"Model {args.model_version}; excluded other-version events: {excluded_models}; "
+          f"unfilled entries: {unfilled}; unpriced closes: {unpriced}")
+    if args.model_version == "1":
+        print("LEGACY MODEL: known exit, eligibility and fill-evidence defects. Historical diagnostics only.")
+    print("All P&L is one-contract normalized diagnostic P&L. Portfolio constraints have not been replayed.")
     print("(shadow results are design/capacity evidence only; NOT part of the "
           "live-readiness paper sample)\n")
     hdr = (f"{'strategy':<14} {'raw':>5} {'opps':>5} {'exec':>5} {'blocked':>7} "
@@ -179,7 +187,7 @@ def main() -> None:
     if total_blocked:
         vw = by_strategy.get("vwap_reclaim")
         if vw:
-            print(f"\nSlot-competition check: {vw['blocked_opps']}/{total_blocked} "
+            print(f"\nDiagnostic block summary: {vw['blocked_opps']}/{total_blocked} "
                   f"blocked opportunities were vwap_reclaim | "
                   f"fill-validated: {vw['validated_n']} for {vw['validated_pnl']:+.2f} "
                   f"({vw['validated_wins']}W) | "
@@ -210,8 +218,11 @@ def main() -> None:
     print("(poll-sampled option-price extrema; attribution is diagnostic only)")
     _print_excursion_summary("Fill-validated", validated_diagnostics)
     _print_excursion_summary("Theoretical", theoretical_diagnostics)
-    print(f"\nBaseline gate: >=10 unique capacity-blocked opportunities and >=5 "
-          f"sessions before evaluating cap changes (current blocked opps: {total_blocked})")
+    eligible = [c for c in baseline_closes if c.get("entry_filter_eligible") is True]
+    print(f"\nEntry-filter-qualified baseline closes: {len(eligible)}, "
+          f"normalized P&L {sum(c['shadow_pnl'] for c in eligible):+.2f}.")
+    print("No capacity-change or strategy-reactivation gate is satisfied by this diagnostic report. "
+          "Replay position limits, daily entries, cooldown, loss gates and reconciliation before a portfolio comparison.")
 
 
 if __name__ == "__main__":

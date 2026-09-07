@@ -610,8 +610,12 @@ async def monitor_positions(
             _exit_ask = float(quote.ask)
             _exit_mid = float(quote.mid) if float(quote.mid) > 0 else None
             # Validate quote age — warn if exchange timestamp is stale (>60 s).
-            _q_age = (now - quote.timestamp.replace(tzinfo=now.tzinfo) if quote.timestamp.tzinfo is None else now - quote.timestamp).total_seconds()
-            if _q_age > 60:
+            from app.trading.quote_evidence import parse_quote_timestamp
+            _quote_ts = parse_quote_timestamp(quote.timestamp)
+            _q_age = (now - _quote_ts).total_seconds() if _quote_ts else None
+            if _q_age is None:
+                logger.warning("Option quote timestamp unavailable: %s", pos.option_symbol)
+            elif _q_age > 60 or _q_age < 0:
                 logger.warning(
                     "Stale option quote: %s age=%.0fs", pos.option_symbol, _q_age
                 )
@@ -1297,16 +1301,21 @@ async def scan_and_place(
             if _SHADOW_BOOK is None:
                 return
             try:
-                from app.evaluation.shadow_book import select_shadow_contract
+                from app.evaluation.shadow_book import select_shadow_contract, contract_evidence
+                _contract_meta = {}
                 if _osym is None:
                     _osym, _lp, _ask = await select_shadow_contract(
                         broker, liq_filter, settings, symbol, sig, now,
+                        metadata=_contract_meta,
                     )
+                else:
+                    _contract_meta = contract_evidence(contract, now)
                 _new_shadow_opportunity = _SHADOW_BOOK.record_signal(
                     now=now, strategy_id=sig.strategy_id, symbol=symbol,
                     direction=sig.direction.value, executed=False,
                     block_reason=_reason, option_symbol=_osym,
                     limit_price=_lp, entry_ask=_ask, quality_score=_qscore,
+                    contract_metadata=_contract_meta, market_regime=market_regime,
                 )
                 if _new_shadow_opportunity:
                     _SHADOW_BOOK.record_exit_variants(
@@ -1318,6 +1327,7 @@ async def scan_and_place(
                         limit_price=_lp,
                         entry_ask=_ask,
                         quality_score=_qscore,
+                        contract_metadata=_contract_meta, market_regime=market_regime,
                     )
                 if (
                     _new_shadow_opportunity
@@ -1325,6 +1335,7 @@ async def scan_and_place(
                     and getattr(settings, "paper_scaled_inverted_shadow_enabled", False)
                 ):
                     from app.strategies.strategy_base import SignalDirection
+                    _inv_meta = {}
                     _inv_osym, _inv_lp, _inv_ask = await select_shadow_contract(
                         broker,
                         liq_filter,
@@ -1333,6 +1344,7 @@ async def scan_and_place(
                         sig,
                         now,
                         invert=True,
+                        metadata=_inv_meta,
                     )
                     _inv_direction = (
                         SignalDirection.SHORT.value
@@ -1348,6 +1360,7 @@ async def scan_and_place(
                         limit_price=_inv_lp,
                         entry_ask=_inv_ask,
                         quality_score=_qscore,
+                        contract_metadata=_inv_meta, market_regime=market_regime,
                     )
             except Exception as _sb_exc:
                 logger.debug("ShadowBook record failed: %s", _sb_exc)
@@ -1628,7 +1641,7 @@ async def scan_and_place(
                 settings.universe, "max_contracts_per_position", 1
             )
             request_quantity = calculate_paper_scaled_quantity(
-                option_ask=contract.ask,
+                option_ask=max(contract.ask, limit_price),
                 premium_budget_dollars=premium_budget,
                 max_contracts=max_contracts,
             )
@@ -1828,11 +1841,15 @@ async def scan_and_place(
         )
         if _SHADOW_BOOK is not None:
             try:
+                from app.evaluation.shadow_book import contract_evidence
+                _used_meta = contract_evidence(used_contract, now)
                 _new_shadow_opportunity = _SHADOW_BOOK.record_signal(
                     now=now, strategy_id=sig.strategy_id, symbol=symbol,
                     direction=sig.direction.value, executed=True,
                     option_symbol=used_contract.option_symbol,
                     limit_price=float(limit_price), quality_score=_qscore,
+                    entry_ask=float(used_contract.ask),
+                    contract_metadata=_used_meta, market_regime=market_regime,
                 )
                 if (
                     _new_shadow_opportunity
@@ -1866,6 +1883,8 @@ async def scan_and_place(
                             limit_price=float(_inverse_lp),
                             entry_ask=float(_inverse_contract.ask),
                             quality_score=_qscore,
+                            contract_metadata=contract_evidence(_inverse_contract, now),
+                            market_regime=market_regime,
                         )
                 if _new_shadow_opportunity:
                     _SHADOW_BOOK.record_exit_variants(
@@ -1877,6 +1896,7 @@ async def scan_and_place(
                         limit_price=float(limit_price),
                         entry_ask=float(used_contract.ask),
                         quality_score=_qscore,
+                        contract_metadata=_used_meta, market_regime=market_regime,
                     )
             except Exception as _sb_exc:
                 logger.debug("ShadowBook record failed: %s", _sb_exc)

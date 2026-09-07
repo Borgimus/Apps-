@@ -194,6 +194,9 @@ class Settings(BaseSettings):
     # None preserves provider auto-selection, which is unverified for fill evidence.
     alpaca_options_feed: Optional[Literal["opra", "indicative"]] = None
 
+    options_data_provider: Literal["alpaca", "tradier"] = "alpaca"
+    tradier_market_data_token: Optional[str] = Field(default=None, repr=False)
+
     tradier_access_token: Optional[str] = None
     tradier_base_url: str = "https://sandbox.tradier.com/v1"
 

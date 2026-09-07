@@ -471,7 +471,7 @@ class ShadowBook:
         )
 
     def _close(self, sp: ShadowPosition, exit_price: float, reason: str, now: datetime) -> None:
-        priced = sp.fill_validated and sp.last_quote_feed == "opra" and quote_is_fresh(sp.last_quote_timestamp, now)
+        priced = sp.fill_validated and sp.last_quote_feed in ("opra", "tradier_opra") and quote_is_fresh(sp.last_quote_timestamp, now)
         raw_pnl = sp.realized_pnl + (exit_price - sp.entry_price) * 100 * sp.remaining_fraction
         pnl = round(raw_pnl, 2)
         mfe = round((sp.peak_price - sp.entry_price) * 100, 2)

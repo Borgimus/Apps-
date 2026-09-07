@@ -23,4 +23,4 @@ def valid_quote(bid: float, ask: float) -> bool:
 
 def fill_evidence_valid(*, bid, ask, timestamp, feed, now) -> bool:
     # Indicative prices and automatic, unreported feed selection cannot prove a fill.
-    return valid_quote(bid, ask) and feed == "opra" and quote_is_fresh(timestamp, now)
+    return valid_quote(bid, ask) and feed in ("opra", "tradier_opra") and quote_is_fresh(timestamp, now)

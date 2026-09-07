@@ -32,6 +32,7 @@ def get_broker(settings=None) -> BrokerInterface:
             secret_key=settings.alpaca_secret_key,
             base_url=settings.alpaca_base_url,
             is_paper=not is_live,
+            options_feed=settings.alpaca_options_feed,
         )
 
     if broker_name == "tradier":

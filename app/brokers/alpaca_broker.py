@@ -21,6 +21,7 @@ from typing import List, Optional
 from zoneinfo import ZoneInfo
 
 import httpx
+from app.trading.quote_evidence import parse_quote_timestamp
 
 from .broker_interface import (
     AccountInfo,
@@ -56,7 +57,11 @@ class AlpacaBroker(BrokerInterface):
     _DATA_URL = "https://data.alpaca.markets"
     _OPTION_EXPIRATION_LOOKAHEAD_DAYS = 14
 
-    def __init__(self, api_key: str, secret_key: str, base_url: str, is_paper: bool = True):
+    def __init__(self, api_key: str, secret_key: str, base_url: str, is_paper: bool = True,
+                 options_feed: Optional[str] = None):
+        if options_feed not in (None, "opra", "indicative"):
+            raise ValueError("options_feed must be opra, indicative, or None")
+        self._options_feed = options_feed
         self._api_key = api_key
         self._secret_key = secret_key
         self._base_url = base_url.rstrip("/")
@@ -266,6 +271,8 @@ class AlpacaBroker(BrokerInterface):
                 gamma=greeks.get("gamma") or c.get("gamma"),
                 theta=greeks.get("theta") or c.get("theta"),
                 vega=greeks.get("vega") or c.get("vega"),
+                quote_timestamp=parse_quote_timestamp(latest_quote.get("t")),
+                quote_feed=self._options_feed,
             )
             if c["type"] == "call":
                 chain.calls.append(contract)
@@ -277,25 +284,13 @@ class AlpacaBroker(BrokerInterface):
         # Option snapshots (bid/ask/greeks) live on the data host under v1beta1
         resp = await self._data_client.get(
             "/v1beta1/options/snapshots",
-            params={"symbols": option_symbol},
+            params=self._snapshot_params(option_symbol),
         )
         resp.raise_for_status()
         snap = resp.json().get("snapshots", {}).get(option_symbol, {})
         greeks = snap.get("greeks", {})
         latest = snap.get("latestQuote", {})
-        # Use the exchange quote timestamp from the API response so callers can
-        # detect stale quotes. Fallback to now() only when the field is absent.
-        _qt = latest.get("t")
-        try:
-            from datetime import timezone as _tz
-            quote_ts = (
-                datetime.fromisoformat(_qt.replace("Z", "+00:00"))
-                if _qt
-                else datetime.now(_tz.utc)
-            )
-        except (ValueError, AttributeError):
-            from datetime import timezone as _tz
-            quote_ts = datetime.now(_tz.utc)
+        quote_ts = parse_quote_timestamp(latest.get("t"))
         return OptionQuote(
             option_symbol=option_symbol,
             bid=Decimal(str(latest.get("bp") or 0)),
@@ -306,7 +301,14 @@ class AlpacaBroker(BrokerInterface):
             implied_volatility=float(snap.get("impliedVolatility") or 0),
             delta=greeks.get("delta"),
             timestamp=quote_ts,
+            feed=self._options_feed,
         )
+
+    def _snapshot_params(self, symbols: str) -> dict:
+        params = {"symbols": symbols}
+        if self._options_feed is not None:
+            params["feed"] = self._options_feed
+        return params
 
     async def _fetch_snapshots(self, symbols: List[str]) -> dict:
         """Batch-fetch option snapshots, chunking to stay under URL length limits."""
@@ -316,7 +318,7 @@ class AlpacaBroker(BrokerInterface):
             chunk = symbols[i : i + chunk_size]
             resp = await self._data_client.get(
                 "/v1beta1/options/snapshots",
-                params={"symbols": ",".join(chunk)},
+                params=self._snapshot_params(",".join(chunk)),
             )
             if resp.status_code == 200:
                 snapshots.update(resp.json().get("snapshots", {}))

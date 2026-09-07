@@ -24,10 +24,10 @@ def calculate_paper_scaled_quantity(
         ask = Decimal(str(option_ask))
         budget = Decimal(str(premium_budget_dollars))
         cap = int(max_contracts)
-    except (InvalidOperation, TypeError, ValueError):
+    except (InvalidOperation, TypeError, ValueError, OverflowError):
         return 0
 
-    if ask <= 0 or budget <= 0 or cap <= 0:
+    if not ask.is_finite() or not budget.is_finite() or ask <= 0 or budget <= 0 or cap <= 0:
         return 0
 
     contract_cost = ask * Decimal("100")

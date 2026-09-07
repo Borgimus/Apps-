@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: ["main", "claude/**"]
+    branches: ["main", "claude/**", "agent/**"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "agent/**"]
 
 jobs:
   # ── Required gate ─────────────────────────────────────────────────────────
@@ -30,19 +30,13 @@ jobs:
           find app scripts -name "*.py" | xargs python -m py_compile
 
       - name: Run required test suite
-        # These 377 tests cover all production code paths with working test fixtures.
-        # The quarantine job (below) runs the remaining 9 files separately.
+        # Order lifecycle, exit pricing, accounting and shadow parity are required.
         run: |
           python -m pytest tests/ -q \
             --ignore=tests/test_alerts.py \
             --ignore=tests/test_bug_d_e_fixes.py \
-            --ignore=tests/test_evaluation.py \
-            --ignore=tests/test_exit_pricing.py \
-            --ignore=tests/test_fill_tracker.py \
             --ignore=tests/test_permissive_mode.py \
             --ignore=tests/test_scanner.py \
-            --ignore=tests/test_stale_cancel_replay.py \
-            --ignore=tests/test_standby_and_exit_spread.py \
             --tb=short \
             -p no:warnings
 
@@ -76,23 +70,12 @@ jobs:
         # Defect notes (one per file):
         #   test_alerts.py              — AlertService mock interface changed post-P6; needs fixture update
         #   test_bug_d_e_fixes.py       — async session fixture drifted from DBTradeJournal schema v2
-        #   test_evaluation.py          — Ledger schema v2 adds phase/contamination_flags; field mismatch in old assertions
-        #   test_exit_pricing.py        — marketable_limit mode assertion uses stale expected values
-        #   test_fill_tracker.py        — FillTracker journal mock missing record_transition stub
         #   test_permissive_mode.py     — BridgeEntry schema changed; test fixtures not updated
         #   test_scanner.py             — YFinanceScanner mock returns changed format; metrics field name drift
-        #   test_stale_cancel_replay.py — broker_interface mock missing HELD status member after OrderStatus refactor
-        #   test_standby_and_exit_spread.py — Settings mock missing risk.max_spread_pct attribute post-P6 settings migration
         run: |
           python -m pytest \
             tests/test_alerts.py \
             tests/test_bug_d_e_fixes.py \
-            tests/test_evaluation.py \
-            tests/test_exit_pricing.py \
-            tests/test_fill_tracker.py \
             tests/test_permissive_mode.py \
             tests/test_scanner.py \
-            tests/test_stale_cancel_replay.py \
-            tests/test_standby_and_exit_spread.py \
-            --tb=short -q \
-          ; exit 0
+            --tb=short -q

@@ -744,7 +744,8 @@ class TestEvaluationLedger:
         ledger.add_session(self._make_report("2024-03-18", 100.0))
         ledger.add_session(self._make_report("2024-03-19", -40.0))
         c = ledger.compute_cumulative()
-        assert c["expectancy"] == pytest.approx(60.0 / 4, abs=0.01)
+        assert c["expectancy"] is None
+        assert c["trade_metrics_complete"] is False
 
     def test_cumulative_profit_factor(self):
         from app.evaluation.ledger import EvaluationLedger
@@ -755,7 +756,7 @@ class TestEvaluationLedger:
         ledger.add_session(self._make_report("2024-03-18", 150.0))
         ledger.add_session(self._make_report("2024-03-19", -50.0))
         c = ledger.compute_cumulative()
-        assert c["profit_factor"] == pytest.approx(3.0, abs=0.01)
+        assert c["profit_factor"] is None  # Session totals cannot establish trade PF
 
     def test_cumulative_max_drawdown(self):
         from app.evaluation.ledger import EvaluationLedger
@@ -772,7 +773,8 @@ class TestEvaluationLedger:
         ledger = EvaluationLedger()
         ledger.add_session(self._make_report("2024-03-18", 100.0, wins=3, losses=1))
         c = ledger.compute_cumulative()
-        assert c["win_rate"] == pytest.approx(3 / 4, abs=0.01)
+        assert c["win_rate"] is None
+        assert c["reported_total_trades"] == 4
 
     def test_cumulative_empty_returns_zero_structure(self):
         from app.evaluation.ledger import EvaluationLedger

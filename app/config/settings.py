@@ -15,10 +15,10 @@ import os
 import warnings
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 import yaml
-from pydantic import field_validator, model_validator  # noqa: F401 (model_validator used below)
+from pydantic import Field, field_validator, model_validator  # noqa: F401 (model_validator used below)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -86,6 +86,7 @@ class PositionSettings(BaseSettings):
     stop_loss_pct: float = _yaml_get("position", "stop_loss_pct", default=0.50)
     take_profit_pct: float = _yaml_get("position", "take_profit_pct", default=1.00)
     trailing_stop_pct: float = _yaml_get("position", "trailing_stop_pct", default=0.25)
+    trailing_activation_pct: float = Field(default=0.25, ge=0)
     max_hold_minutes: int = _yaml_get("position", "max_hold_minutes", default=120)
     eod_exit_time: str = _yaml_get("position", "eod_exit_time", default="15:45")
     cooldown_after_loss_minutes: int = _yaml_get("position", "cooldown_after_loss_minutes", default=15)
@@ -190,6 +191,8 @@ class Settings(BaseSettings):
     alpaca_api_key: Optional[str] = None
     alpaca_secret_key: Optional[str] = None
     alpaca_base_url: str = "https://paper-api.alpaca.markets"
+    # None preserves provider auto-selection, which is unverified for fill evidence.
+    alpaca_options_feed: Optional[Literal["opra", "indicative"]] = None
 
     tradier_access_token: Optional[str] = None
     tradier_base_url: str = "https://sandbox.tradier.com/v1"

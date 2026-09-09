@@ -35,6 +35,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import asyncio
 import logging
 import os
@@ -1311,7 +1312,7 @@ async def scan_and_place(
                 else:
                     _contract_meta = contract_evidence(contract, now)
                 _new_shadow_opportunity = _SHADOW_BOOK.record_signal(
-                    now=now, strategy_id=sig.strategy_id, symbol=symbol,
+                    now=None, strategy_id=sig.strategy_id, symbol=symbol,
                     direction=sig.direction.value, executed=False,
                     block_reason=_reason, option_symbol=_osym,
                     limit_price=_lp, entry_ask=_ask, quality_score=_qscore,
@@ -1319,7 +1320,7 @@ async def scan_and_place(
                 )
                 if _new_shadow_opportunity:
                     _SHADOW_BOOK.record_exit_variants(
-                        now=now,
+                        now=None,
                         strategy_id=sig.strategy_id,
                         symbol=symbol,
                         direction=sig.direction.value,
@@ -1352,7 +1353,7 @@ async def scan_and_place(
                         else SignalDirection.LONG.value
                     )
                     _SHADOW_BOOK.record_inverted_signal(
-                        now=now,
+                        now=None,
                         strategy_id=sig.strategy_id,
                         symbol=symbol,
                         direction=_inv_direction,
@@ -1844,7 +1845,7 @@ async def scan_and_place(
                 from app.evaluation.shadow_book import contract_evidence
                 _used_meta = contract_evidence(used_contract, now)
                 _new_shadow_opportunity = _SHADOW_BOOK.record_signal(
-                    now=now, strategy_id=sig.strategy_id, symbol=symbol,
+                    now=None, strategy_id=sig.strategy_id, symbol=symbol,
                     direction=sig.direction.value, executed=True,
                     option_symbol=used_contract.option_symbol,
                     limit_price=float(limit_price), quality_score=_qscore,
@@ -1875,7 +1876,7 @@ async def scan_and_place(
                             ),
                         )
                         _SHADOW_BOOK.record_inverted_signal(
-                            now=now,
+                            now=None,
                             strategy_id=sig.strategy_id,
                             symbol=symbol,
                             direction=_inverse_direction.value,
@@ -1888,7 +1889,7 @@ async def scan_and_place(
                         )
                 if _new_shadow_opportunity:
                     _SHADOW_BOOK.record_exit_variants(
-                        now=now,
+                        now=None,
                         strategy_id=sig.strategy_id,
                         symbol=symbol,
                         direction=sig.direction.value,
@@ -2501,6 +2502,17 @@ async def run_session(args: argparse.Namespace):
     last_reconciled_at: Optional[datetime] = None
 
     # ── Universe scan (pre-session) ───────────────────────────────────────────
+    from app.evaluation.session_context import capture_session_context
+    session_context = capture_session_context(
+        settings, datetime.now(tz=ET), [s.strategy_id for s in strategies],
+    )
+    logger.info("Session context: %s", json.dumps(session_context, sort_keys=True))
+    if journal:
+        await journal.log_event(
+            event="session_context", message="Session data provider and evaluation cohort",
+            data=session_context,
+        )
+        await journal.commit()
     _scan_store: dict = {}
     active_symbols: List[str] = []
     _uni_mode = getattr(settings.universe, "mode", "off")
@@ -2561,7 +2573,7 @@ async def run_session(args: argparse.Namespace):
     push_notifier = PushNotifier(log_dir="logs", notify_interval_cycles=6)
     _PUSH_NOTIFIER = push_notifier
     from app.evaluation.shadow_book import ShadowBook
-    shadow_book = ShadowBook(settings)
+    shadow_book = ShadowBook(settings, session_context=session_context)
     _SHADOW_BOOK = shadow_book
     _eod_warned = False
     # Positions already open at startup (session recovery) are not "new fills"
@@ -2725,7 +2737,7 @@ async def run_session(args: argparse.Namespace):
 
         # Shadow book: mark-to-quote open shadow positions and apply exit rules
         try:
-            await shadow_book.update(broker, now)
+            await shadow_book.update(broker)
         except Exception as _sb_exc:
             logger.debug("ShadowBook update error: %s", _sb_exc)
 

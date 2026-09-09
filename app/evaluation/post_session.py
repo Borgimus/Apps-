@@ -308,13 +308,22 @@ async def _build_and_save_report(
         return None
 
 
-def _ledger_file_for_settings(settings) -> str:
+def _ledger_file_for_settings(settings, report=None) -> str:
     """Return a cohort-specific ledger path for scaled paper evaluation."""
     ledger_file = getattr(settings, "evaluation_ledger_file", "./evaluation/ledger.json")
-    if getattr(settings, "paper_scaled_sizing_enabled", False) is not True:
-        return ledger_file
-
     ledger_path = Path(ledger_file)
+    # Use captured session provenance, never a later settings value, to keep
+    # provider cohorts separate. Legacy reports retain their existing ledger.
+    if report is not None and report.session_context:
+        import re
+        def slug(value):
+            return re.sub(r"[^A-Za-z0-9_-]", "_", value)[:80]
+        ledger_path = ledger_path.with_name(
+            f"{ledger_path.stem}.options_{slug(report.options_data_provider)}"
+            f".{slug(report.evaluation_cohort)}{ledger_path.suffix}"
+        )
+    if getattr(settings, "paper_scaled_sizing_enabled", False) is not True:
+        return str(ledger_path) if report is not None and report.session_context else ledger_file
     budget = float(getattr(settings, "paper_scaled_premium_budget_dollars", 250.0))
     cap = int(getattr(settings.universe, "max_contracts_per_position", 1))
     budget_slug = f"{budget:g}".replace(".", "_")
@@ -351,7 +360,7 @@ async def _update_ledger(report, db_session, today: str, settings, result: PostS
             except Exception as exc:
                 logger.warning("Post-session: could not load trade records for ledger: %s", exc)
 
-        ledger_file = _ledger_file_for_settings(settings)
+        ledger_file = _ledger_file_for_settings(settings, report)
         if getattr(settings, "paper_scaled_sizing_enabled", False) is True:
             logger.info("Post-session: using separate scaled-sizing ledger %s", ledger_file)
         ledger = EvaluationLedger.load(ledger_file)

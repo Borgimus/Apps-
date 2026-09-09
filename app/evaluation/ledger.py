@@ -78,6 +78,12 @@ class LedgerEntry:
     gross_losses: float = 0.0  # sum of abs(P&L) for individual losing trades
     trade_metrics_complete: Optional[bool] = None  # None means legacy, unverified coverage
     trade_metric_errors: List[str] = field(default_factory=list)
+    options_data_provider: str = "unrecorded"
+    options_data_adapter_hash: Optional[str] = None
+    evaluation_cohort: str = "unrecorded"
+    shadow_model_version: Optional[str] = None
+    start_delay_seconds: Optional[float] = None
+    session_labels: List[str] = field(default_factory=list)
 
 
 # ── Ledger class ──────────────────────────────────────────────────────────────
@@ -249,6 +255,13 @@ class EvaluationLedger:
             gross_losses=round(gross_losses, 2),
             trade_metrics_complete=complete,
             trade_metric_errors=metric_errors,
+            options_data_provider=r.options_data_provider,
+            options_data_adapter_hash=r.options_data_adapter_hash,
+            evaluation_cohort=r.evaluation_cohort,
+            shadow_model_version=r.shadow_model_version,
+            start_delay_seconds=r.start_delay_seconds,
+            session_labels=list(r.session_labels),
+            contamination_flags=list(r.session_labels),
         )
 
         # Replace if same date already present

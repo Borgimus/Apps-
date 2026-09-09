@@ -1,6 +1,6 @@
 """Passive diagnostic shadow book, separate from broker execution.
 
-Model 2 uses the shared PositionManager exit policy, including trailing-stop
+Model 3 uses the shared PositionManager exit policy, including trailing-stop
 activation. Entry simulation requires a positive, uncrossed OPRA quote no more
 than 60 seconds old. Orders expire at the configured broker entry timeout.
 Holding duration and price excursions begin at validated fill time. Stale exit
@@ -31,7 +31,7 @@ import math
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, time, timedelta
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple
 from zoneinfo import ZoneInfo
 from app.trading.exit_rules import exit_reason, trailing_activation_setting
 from app.trading.quote_evidence import fill_evidence_valid, parse_quote_timestamp, quote_is_fresh
@@ -39,7 +39,7 @@ from app.evaluation.shadow_eligibility import assess_entry_filters
 
 logger = logging.getLogger(__name__)
 _ET = ZoneInfo("America/New_York")
-SHADOW_MODEL_VERSION = "2"
+SHADOW_MODEL_VERSION = "3"
 
 # Block reasons considered "capacity competition" — these get shadow-simulated.
 CAPACITY_REASONS = frozenset({
@@ -103,8 +103,12 @@ class ShadowBook:
     def __init__(self, settings, events_path="evaluation/shadow_book.jsonl",
                  state_path="logs/shadow_book_state.json",
                  episode_window_minutes: int = 60,
-                 fill_window_minutes: Optional[float] = None):
+                 fill_window_minutes: Optional[float] = None,
+                 clock: Optional[Callable[[], datetime]] = None,
+                 session_context: Optional[Dict[str, Any]] = None):
         self._settings = settings
+        self._clock = clock or (lambda: datetime.now(_ET))
+        self._session_context = session_context or {}
         self._events_path = Path(events_path)
         self._state_path = Path(state_path)
         self._events_path.parent.mkdir(parents=True, exist_ok=True)
@@ -147,7 +151,7 @@ class ShadowBook:
 
     def record_signal(
         self,
-        now: datetime,
+        now: Optional[datetime],
         strategy_id: str,
         symbol: str,
         direction: str,
@@ -165,6 +169,9 @@ class ShadowBook:
         """Log a diagnostic signal. Return true for a new opportunity or a
         simulation that has just become priceable, so variant recording can retry.
         Event new_opportunity remains the unique-opportunity counting flag."""
+        # Runtime callers pass None after selecting the contract. Explicit times
+        # are reserved for deterministic replay/tests; quote timestamps stay intact.
+        now = self._clock() if now is None else now
         self._seq += 1
         suffix = "" if variant == "baseline" else f"-{variant.replace('_', '-')}"
         signal_id = f"v{SHADOW_MODEL_VERSION}-{now.strftime('%Y%m%d')}-{self._seq:03d}-{symbol}-{strategy_id}{suffix}"
@@ -348,15 +355,17 @@ class ShadowBook:
 
     # ── Simulation ────────────────────────────────────────────────────────────
 
-    async def update(self, broker, now: datetime) -> int:
+    async def update(self, broker, now: Optional[datetime] = None) -> int:
         """Mark open shadow positions to quote, run fill validation, and close
-        any that hit an exit rule. Returns closes this cycle. Never raises."""
+        any that hit an exit rule. Runtime samples the clock after each await.
+        Explicit now freezes time for deterministic replay/tests."""
         closed = 0
         dirty = False
         for sid, sp in list(self._open.items()):
-            if not sp.fill_validated and now > datetime.fromisoformat(sp.fill_deadline):
+            observed_at = self._clock() if now is None else now
+            if not sp.fill_validated and observed_at > datetime.fromisoformat(sp.fill_deadline):
                 self._emit({"event": "shadow_unfilled", "signal_id": sid,
-                            "opportunity_id": sp.opportunity_id, "ts": now.isoformat(),
+                            "opportunity_id": sp.opportunity_id, "ts": observed_at.isoformat(),
                             "variant": sp.variant, "reason": "entry_timeout",
                             "shadow_pnl": None, "fill_validated": False})
                 self._open.pop(sid)
@@ -364,11 +373,21 @@ class ShadowBook:
                 continue
             try:
                 quote = await broker.get_option_quote(sp.option_symbol)
+                observed_at = self._clock() if now is None else now
+                # A request started in time may finish after the entry deadline.
+                if not sp.fill_validated and observed_at > datetime.fromisoformat(sp.fill_deadline):
+                    self._emit({"event": "shadow_unfilled", "signal_id": sid,
+                                "opportunity_id": sp.opportunity_id, "ts": observed_at.isoformat(),
+                                "variant": sp.variant, "reason": "entry_timeout",
+                                "shadow_pnl": None, "fill_validated": False})
+                    self._open.pop(sid)
+                    dirty = True
+                    continue
                 bid = float(quote.bid)
                 ask = float(quote.ask)
                 if not fill_evidence_valid(
                     bid=bid, ask=ask, timestamp=quote.timestamp,
-                    feed=getattr(quote, "feed", None), now=now,
+                    feed=getattr(quote, "feed", None), now=observed_at,
                 ):
                     continue
                 price = bid
@@ -379,10 +398,10 @@ class ShadowBook:
             # Fill validation: buy-limit is demonstrably reachable when the
             # ask touches the limit inside the order's live window.
             if (not sp.fill_validated
-                    and now <= datetime.fromisoformat(sp.fill_deadline)
+                    and observed_at <= datetime.fromisoformat(sp.fill_deadline)
                     and ask > 0 and ask <= sp.entry_price):
                 sp.fill_validated = True
-                sp.fill_validated_at = now.isoformat()
+                sp.fill_validated_at = observed_at.isoformat()
                 # Price excursions and holding duration start at simulated fill.
                 sp.peak_price = sp.trough_price = sp.last_price = sp.entry_price
                 dirty = True
@@ -434,9 +453,9 @@ class ShadowBook:
                     price,
                 )
 
-            reason = self._exit_reason(sp, price, now)
+            reason = self._exit_reason(sp, price, observed_at)
             if reason:
-                self._close(sp, price, reason, now)
+                self._close(sp, price, reason, observed_at)
                 closed += 1
                 dirty = True
         if dirty:
@@ -534,6 +553,8 @@ class ShadowBook:
 
     def _emit(self, record: Dict[str, Any]) -> None:
         record["model_version"] = SHADOW_MODEL_VERSION
+        for key in ("options_data_provider", "options_data_adapter_hash", "evaluation_cohort"):
+            record[key] = self._session_context.get(key, "unrecorded")
         record["counts_toward_readiness"] = False
         record["exit_policy"] = {
             "stop_loss_pct": self._stop_loss_pct,
@@ -571,13 +592,21 @@ class ShadowBook:
             self._seq = int(data.get("seq", 0))
             if data.get("model_version") != SHADOW_MODEL_VERSION:
                 # Preserve old simulator state without resuming it under changed rules.
-                backup = self._state_path.with_name(self._state_path.name + ".legacy-v1")
+                old_version = str(data.get("model_version", "1"))
+                if not old_version.isdigit():
+                    old_version = "unknown"
+                backup = self._state_path.with_name(self._state_path.name + f".legacy-v{old_version}")
+                # Preserve distinct snapshots even if an earlier archive exists.
+                if backup.exists() and backup.read_bytes() != self._state_path.read_bytes():
+                    import hashlib
+                    digest = hashlib.sha256(self._state_path.read_bytes()).hexdigest()[:12]
+                    backup = backup.with_name(f"{backup.name}.{digest}")
                 if not backup.exists():
                     backup.write_text(self._state_path.read_text())
                 self._emit({"event": "state_invalidated", "reason": "shadow_model_changed",
                             "discarded_open_count": len(data.get("open", []))})
                 return
-            today = datetime.now(_ET).strftime("%Y-%m-%d")
+            today = self._clock().astimezone(_ET).strftime("%Y-%m-%d")
             for row in data.get("open", []):
                 # Only restore same-day shadow positions
                 if str(row.get("entry_time", "")).startswith(today):

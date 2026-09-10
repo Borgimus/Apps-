@@ -1,0 +1,816 @@
+{
+  "date": "2026-09-10",
+  "session_start": "2026-09-10 09:30:12 EDT",
+  "session_end": "2026-09-10 12:30:15 EDT",
+  "total_signals": 11,
+  "signal_count_basis": "distinct_entry_signals",
+  "entry_signal_observations": 87,
+  "diagnostic_signal_observations": 1452,
+  "trades_submitted": 0,
+  "trades_filled": 0,
+  "trades_cancelled": 0,
+  "trades_rejected": 0,
+  "realized_pnl": 0,
+  "one_contract_normalized_pnl": 0,
+  "unrealized_pnl": 0,
+  "contracts_filled": 0,
+  "sizing_cohort": "paper_scaled_budget_250_cap_10_guardrails_v3_shadow_validation",
+  "evaluation_cohort": "guardrails_v3_tradier_options_2026_09_08",
+  "options_data_provider": "tradier",
+  "options_data_adapter_hash": "567d1f77",
+  "shadow_model_version": "4",
+  "start_delay_seconds": 11.983,
+  "session_labels": [],
+  "broker_entry_strategies": [],
+  "session_context": {
+    "schema_version": 1,
+    "options_data_provider": "tradier",
+    "options_data_adapter_hash": "567d1f77",
+    "evaluation_cohort": "guardrails_v3_tradier_options_2026_09_08",
+    "shadow_model_version": "4",
+    "runner_started_at": "2026-09-10T09:30:11.983145-04:00",
+    "scheduled_start_at": "2026-09-10T09:30:00-04:00",
+    "start_delay_seconds": 11.983,
+    "session_labels": [],
+    "broker_entry_strategies": [],
+    "diagnostic_only_strategies": [
+      "rsi_trend"
+    ],
+    "shadow_only_strategies": [
+      "orb",
+      "vwap_reclaim"
+    ],
+    "replay_policy": {
+      "schema_version": 1,
+      "scaled_sizing": true,
+      "guardrails": true,
+      "entry_filters": {
+        "min_quality": 3.0,
+        "confirm_market_regime": true,
+        "blocked_symbols": "QQQ",
+        "require_delta": true,
+        "min_dte": 2,
+        "max_dte": 8,
+        "max_signal_age_minutes": 10,
+        "min_open_interest": 100,
+        "min_volume": 50,
+        "max_spread_pct": 0.1,
+        "delta_min": 0.35,
+        "delta_max": 0.45,
+        "preferred_dte": [
+          0,
+          1,
+          2
+        ],
+        "entry_price_mode": "marketable_limit",
+        "entry_marketable_offset_pct": 0.01,
+        "global_ranking": true
+      },
+      "premium_budget": 250.0,
+      "contract_cap": 10,
+      "max_active_positions": 1,
+      "max_entries": 3,
+      "max_symbols": 3,
+      "one_entry_per_symbol_per_day": true,
+      "max_risk_per_trade": 0.01,
+      "max_daily_loss_fraction": 0.02,
+      "daily_loss_dollars": 250.0,
+      "max_losing_trades": 2,
+      "cooldown_minutes": 15.0,
+      "correlated_groups": "broad_index:SPY,QQQ,IWM,DIA",
+      "market_open": "09:30",
+      "market_close": "16:00",
+      "open_buffer_minutes": 15,
+      "close_buffer_minutes": 15,
+      "eod_exit_time": "12:30",
+      "min_entry_minutes_before_eod": 30,
+      "orb_reservation": true,
+      "orb_reserve_until": "11:30",
+      "stop_loss_pct": 0.5,
+      "take_profit_pct": 1.0,
+      "trailing_stop_pct": 0.25,
+      "trailing_activation_pct": 0.25,
+      "max_hold_minutes": 120,
+      "entry_timeout_seconds": 120.0,
+      "variant_trigger_pct": 0.25,
+      "exit_variants_enabled": true,
+      "partial_fraction": 0.5
+    },
+    "replay_policy_hash": "7ffc555cb32513d5",
+    "observation_review_targets": {
+      "scheduled_sessions": 5,
+      "eligible_opportunities": 10
+    },
+    "starting_equity": 98461.4
+  },
+  "shadow_evaluation": {
+    "model_version": "4",
+    "date": "2026-09-10",
+    "counts_toward_readiness": false,
+    "first_eligible_tracking": "available",
+    "eligible_opportunities": 1,
+    "eligible_independent": {
+      "baseline": {
+        "closed": 1,
+        "priced": 1,
+        "unpriced": 0,
+        "sized_priced": 1,
+        "sized_pnl": -36.0,
+        "one_contract_pnl": -36.0
+      },
+      "breakeven_25": {
+        "closed": 1,
+        "priced": 1,
+        "unpriced": 0,
+        "sized_priced": 1,
+        "sized_pnl": -36.0,
+        "one_contract_pnl": -36.0
+      },
+      "partial_25_breakeven": {
+        "closed": 0,
+        "priced": 0,
+        "unpriced": 0,
+        "sized_priced": 0,
+        "sized_pnl": null,
+        "one_contract_pnl": null
+      }
+    },
+    "matched_exits": {
+      "breakeven_25": {
+        "matched_pairs": 1,
+        "pairs": [
+          {
+            "pair_id": "v4-20260910-5259-IWM-vwap_reclaim:eligible",
+            "baseline_pnl": -36.0,
+            "variant_pnl": -36.0,
+            "difference": 0.0
+          }
+        ],
+        "unmatched_or_unpriced": 0,
+        "baseline_pnl": -36.0,
+        "variant_pnl": -36.0,
+        "difference": 0.0
+      },
+      "partial_25_breakeven": {
+        "matched_pairs": 0,
+        "pairs": [],
+        "unmatched_or_unpriced": 1,
+        "baseline_pnl": null,
+        "variant_pnl": null,
+        "difference": null
+      }
+    },
+    "current_permissions_replay": {
+      "variant": "baseline",
+      "status": "complete",
+      "decisions": [
+        {
+          "pair_id": "v4-20260910-5259-IWM-vwap_reclaim:eligible",
+          "ts": "2026-09-10T10:30:31.278563-04:00",
+          "action": "rejected",
+          "reasons": [
+            "strategy_suspended"
+          ],
+          "quantity": 1
+        }
+      ],
+      "trades": [],
+      "scenario": "current_strategy_permissions",
+      "initial_portfolio": "empty",
+      "counts_toward_readiness": false,
+      "pnl_basis": "sized_dollars_before_fees_and_slippage",
+      "policy_hash": "7ffc555cb32513d5",
+      "policy": {
+        "schema_version": 1,
+        "scaled_sizing": true,
+        "guardrails": true,
+        "entry_filters": {
+          "min_quality": 3.0,
+          "confirm_market_regime": true,
+          "blocked_symbols": "QQQ",
+          "require_delta": true,
+          "min_dte": 2,
+          "max_dte": 8,
+          "max_signal_age_minutes": 10,
+          "min_open_interest": 100,
+          "min_volume": 50,
+          "max_spread_pct": 0.1,
+          "delta_min": 0.35,
+          "delta_max": 0.45,
+          "preferred_dte": [
+            0,
+            1,
+            2
+          ],
+          "entry_price_mode": "marketable_limit",
+          "entry_marketable_offset_pct": 0.01,
+          "global_ranking": true
+        },
+        "premium_budget": 250.0,
+        "contract_cap": 10,
+        "max_active_positions": 1,
+        "max_entries": 3,
+        "max_symbols": 3,
+        "one_entry_per_symbol_per_day": true,
+        "max_risk_per_trade": 0.01,
+        "max_daily_loss_fraction": 0.02,
+        "daily_loss_dollars": 250.0,
+        "max_losing_trades": 2,
+        "cooldown_minutes": 15.0,
+        "correlated_groups": "broad_index:SPY,QQQ,IWM,DIA",
+        "market_open": "09:30",
+        "market_close": "16:00",
+        "open_buffer_minutes": 15,
+        "close_buffer_minutes": 15,
+        "eod_exit_time": "12:30",
+        "min_entry_minutes_before_eod": 30,
+        "orb_reservation": true,
+        "orb_reserve_until": "11:30",
+        "stop_loss_pct": 0.5,
+        "take_profit_pct": 1.0,
+        "trailing_stop_pct": 0.25,
+        "trailing_activation_pct": 0.25,
+        "max_hold_minutes": 120,
+        "entry_timeout_seconds": 120.0,
+        "variant_trigger_pct": 0.25,
+        "exit_variants_enabled": true,
+        "partial_fraction": 0.5
+      },
+      "admitted": 0,
+      "filled": 0,
+      "closed": 0,
+      "unresolved": 0,
+      "realized_pnl": 0.0,
+      "max_realized_drawdown": 0.0,
+      "losing_trades": 0,
+      "portfolio_pnl": 0.0
+    },
+    "research_portfolios": {
+      "baseline": {
+        "variant": "baseline",
+        "status": "complete",
+        "decisions": [
+          {
+            "pair_id": "v4-20260910-5259-IWM-vwap_reclaim:eligible",
+            "ts": "2026-09-10T10:30:31.278563-04:00",
+            "action": "admitted",
+            "reasons": [],
+            "quantity": 1
+          }
+        ],
+        "trades": [
+          {
+            "pair_id": "v4-20260910-5259-IWM-vwap_reclaim:eligible",
+            "symbol": "IWM",
+            "strategy_id": "vwap_reclaim",
+            "option_symbol": "IWM260914C00290000",
+            "entry_time": "2026-09-10T10:30:31.278563-04:00",
+            "fill_time": "2026-09-10T10:30:31.278563-04:00",
+            "exit_time": "2026-09-10T12:30:15.519687-04:00",
+            "entry_price": 1.81,
+            "exit_price": 1.45,
+            "quantity": 1,
+            "pnl": -36.0,
+            "exit_reason": "session_end"
+          }
+        ],
+        "scenario": "hypothetical_strategy_reactivation",
+        "initial_portfolio": "empty",
+        "counts_toward_readiness": false,
+        "pnl_basis": "sized_dollars_before_fees_and_slippage",
+        "policy_hash": "7ffc555cb32513d5",
+        "policy": {
+          "schema_version": 1,
+          "scaled_sizing": true,
+          "guardrails": true,
+          "entry_filters": {
+            "min_quality": 3.0,
+            "confirm_market_regime": true,
+            "blocked_symbols": "QQQ",
+            "require_delta": true,
+            "min_dte": 2,
+            "max_dte": 8,
+            "max_signal_age_minutes": 10,
+            "min_open_interest": 100,
+            "min_volume": 50,
+            "max_spread_pct": 0.1,
+            "delta_min": 0.35,
+            "delta_max": 0.45,
+            "preferred_dte": [
+              0,
+              1,
+              2
+            ],
+            "entry_price_mode": "marketable_limit",
+            "entry_marketable_offset_pct": 0.01,
+            "global_ranking": true
+          },
+          "premium_budget": 250.0,
+          "contract_cap": 10,
+          "max_active_positions": 1,
+          "max_entries": 3,
+          "max_symbols": 3,
+          "one_entry_per_symbol_per_day": true,
+          "max_risk_per_trade": 0.01,
+          "max_daily_loss_fraction": 0.02,
+          "daily_loss_dollars": 250.0,
+          "max_losing_trades": 2,
+          "cooldown_minutes": 15.0,
+          "correlated_groups": "broad_index:SPY,QQQ,IWM,DIA",
+          "market_open": "09:30",
+          "market_close": "16:00",
+          "open_buffer_minutes": 15,
+          "close_buffer_minutes": 15,
+          "eod_exit_time": "12:30",
+          "min_entry_minutes_before_eod": 30,
+          "orb_reservation": true,
+          "orb_reserve_until": "11:30",
+          "stop_loss_pct": 0.5,
+          "take_profit_pct": 1.0,
+          "trailing_stop_pct": 0.25,
+          "trailing_activation_pct": 0.25,
+          "max_hold_minutes": 120,
+          "entry_timeout_seconds": 120.0,
+          "variant_trigger_pct": 0.25,
+          "exit_variants_enabled": true,
+          "partial_fraction": 0.5
+        },
+        "admitted": 1,
+        "filled": 1,
+        "closed": 1,
+        "unresolved": 0,
+        "realized_pnl": -36.0,
+        "max_realized_drawdown": 36.0,
+        "losing_trades": 1,
+        "portfolio_pnl": -36.0
+      },
+      "breakeven_25": {
+        "variant": "breakeven_25",
+        "status": "complete",
+        "decisions": [
+          {
+            "pair_id": "v4-20260910-5259-IWM-vwap_reclaim:eligible",
+            "ts": "2026-09-10T10:30:31.278563-04:00",
+            "action": "admitted",
+            "reasons": [],
+            "quantity": 1
+          }
+        ],
+        "trades": [
+          {
+            "pair_id": "v4-20260910-5259-IWM-vwap_reclaim:eligible",
+            "symbol": "IWM",
+            "strategy_id": "vwap_reclaim",
+            "option_symbol": "IWM260914C00290000",
+            "entry_time": "2026-09-10T10:30:31.278563-04:00",
+            "fill_time": "2026-09-10T10:30:31.278563-04:00",
+            "exit_time": "2026-09-10T12:30:15.519687-04:00",
+            "entry_price": 1.81,
+            "exit_price": 1.45,
+            "quantity": 1,
+            "pnl": -36.0,
+            "exit_reason": "session_end"
+          }
+        ],
+        "scenario": "hypothetical_strategy_reactivation",
+        "initial_portfolio": "empty",
+        "counts_toward_readiness": false,
+        "pnl_basis": "sized_dollars_before_fees_and_slippage",
+        "policy_hash": "7ffc555cb32513d5",
+        "policy": {
+          "schema_version": 1,
+          "scaled_sizing": true,
+          "guardrails": true,
+          "entry_filters": {
+            "min_quality": 3.0,
+            "confirm_market_regime": true,
+            "blocked_symbols": "QQQ",
+            "require_delta": true,
+            "min_dte": 2,
+            "max_dte": 8,
+            "max_signal_age_minutes": 10,
+            "min_open_interest": 100,
+            "min_volume": 50,
+            "max_spread_pct": 0.1,
+            "delta_min": 0.35,
+            "delta_max": 0.45,
+            "preferred_dte": [
+              0,
+              1,
+              2
+            ],
+            "entry_price_mode": "marketable_limit",
+            "entry_marketable_offset_pct": 0.01,
+            "global_ranking": true
+          },
+          "premium_budget": 250.0,
+          "contract_cap": 10,
+          "max_active_positions": 1,
+          "max_entries": 3,
+          "max_symbols": 3,
+          "one_entry_per_symbol_per_day": true,
+          "max_risk_per_trade": 0.01,
+          "max_daily_loss_fraction": 0.02,
+          "daily_loss_dollars": 250.0,
+          "max_losing_trades": 2,
+          "cooldown_minutes": 15.0,
+          "correlated_groups": "broad_index:SPY,QQQ,IWM,DIA",
+          "market_open": "09:30",
+          "market_close": "16:00",
+          "open_buffer_minutes": 15,
+          "close_buffer_minutes": 15,
+          "eod_exit_time": "12:30",
+          "min_entry_minutes_before_eod": 30,
+          "orb_reservation": true,
+          "orb_reserve_until": "11:30",
+          "stop_loss_pct": 0.5,
+          "take_profit_pct": 1.0,
+          "trailing_stop_pct": 0.25,
+          "trailing_activation_pct": 0.25,
+          "max_hold_minutes": 120,
+          "entry_timeout_seconds": 120.0,
+          "variant_trigger_pct": 0.25,
+          "exit_variants_enabled": true,
+          "partial_fraction": 0.5
+        },
+        "admitted": 1,
+        "filled": 1,
+        "closed": 1,
+        "unresolved": 0,
+        "realized_pnl": -36.0,
+        "max_realized_drawdown": 36.0,
+        "losing_trades": 1,
+        "portfolio_pnl": -36.0
+      },
+      "partial_25_breakeven": {
+        "variant": "partial_25_breakeven",
+        "status": "complete",
+        "decisions": [
+          {
+            "pair_id": "v4-20260910-5259-IWM-vwap_reclaim:eligible",
+            "ts": "2026-09-10T10:30:31.278563-04:00",
+            "action": "rejected",
+            "reasons": [
+              "partial_exit_requires_two_contracts"
+            ],
+            "quantity": 1
+          }
+        ],
+        "trades": [],
+        "scenario": "hypothetical_strategy_reactivation",
+        "initial_portfolio": "empty",
+        "counts_toward_readiness": false,
+        "pnl_basis": "sized_dollars_before_fees_and_slippage",
+        "policy_hash": "7ffc555cb32513d5",
+        "policy": {
+          "schema_version": 1,
+          "scaled_sizing": true,
+          "guardrails": true,
+          "entry_filters": {
+            "min_quality": 3.0,
+            "confirm_market_regime": true,
+            "blocked_symbols": "QQQ",
+            "require_delta": true,
+            "min_dte": 2,
+            "max_dte": 8,
+            "max_signal_age_minutes": 10,
+            "min_open_interest": 100,
+            "min_volume": 50,
+            "max_spread_pct": 0.1,
+            "delta_min": 0.35,
+            "delta_max": 0.45,
+            "preferred_dte": [
+              0,
+              1,
+              2
+            ],
+            "entry_price_mode": "marketable_limit",
+            "entry_marketable_offset_pct": 0.01,
+            "global_ranking": true
+          },
+          "premium_budget": 250.0,
+          "contract_cap": 10,
+          "max_active_positions": 1,
+          "max_entries": 3,
+          "max_symbols": 3,
+          "one_entry_per_symbol_per_day": true,
+          "max_risk_per_trade": 0.01,
+          "max_daily_loss_fraction": 0.02,
+          "daily_loss_dollars": 250.0,
+          "max_losing_trades": 2,
+          "cooldown_minutes": 15.0,
+          "correlated_groups": "broad_index:SPY,QQQ,IWM,DIA",
+          "market_open": "09:30",
+          "market_close": "16:00",
+          "open_buffer_minutes": 15,
+          "close_buffer_minutes": 15,
+          "eod_exit_time": "12:30",
+          "min_entry_minutes_before_eod": 30,
+          "orb_reservation": true,
+          "orb_reserve_until": "11:30",
+          "stop_loss_pct": 0.5,
+          "take_profit_pct": 1.0,
+          "trailing_stop_pct": 0.25,
+          "trailing_activation_pct": 0.25,
+          "max_hold_minutes": 120,
+          "entry_timeout_seconds": 120.0,
+          "variant_trigger_pct": 0.25,
+          "exit_variants_enabled": true,
+          "partial_fraction": 0.5
+        },
+        "admitted": 0,
+        "filled": 0,
+        "closed": 0,
+        "unresolved": 0,
+        "realized_pnl": 0.0,
+        "max_realized_drawdown": 0.0,
+        "losing_trades": 0,
+        "portfolio_pnl": 0.0
+      }
+    },
+    "diagnostics": {
+      "all": {
+        "closed": 23
+      },
+      "oversized": {
+        "closed": 13
+      },
+      "rejected": {
+        "closed": 20
+      },
+      "by_variant": {
+        "baseline": {
+          "closed": 8,
+          "priced": 8,
+          "unpriced": 0,
+          "sized_priced": 3,
+          "sized_pnl": -8.0,
+          "one_contract_pnl": -209.0
+        },
+        "breakeven_25": {
+          "closed": 8,
+          "priced": 8,
+          "unpriced": 0,
+          "sized_priced": 3,
+          "sized_pnl": -8.0,
+          "one_contract_pnl": -209.0
+        },
+        "partial_25_breakeven": {
+          "closed": 0,
+          "priced": 0,
+          "unpriced": 0,
+          "sized_priced": 0,
+          "sized_pnl": null,
+          "one_contract_pnl": null
+        },
+        "inverted": {
+          "closed": 7,
+          "priced": 7,
+          "unpriced": 0,
+          "sized_priced": 4,
+          "sized_pnl": 122.0,
+          "one_contract_pnl": -58.0
+        }
+      },
+      "rejection_reasons": {
+        "symbol_disabled": 3,
+        "signal_quality_below_min": 15,
+        "market_regime_mismatch": 14,
+        "premium_budget_or_price_invalid": 13
+      },
+      "aggregation_note": "Rejected and oversized subsets overlap. Variants are alternative scenarios."
+    },
+    "observation_progress": {
+      "completed_scheduled_sessions": 1,
+      "dates": [
+        "2026-09-10"
+      ],
+      "eligible_opportunities": 1,
+      "targets": {
+        "scheduled_sessions": 5,
+        "eligible_opportunities": 10
+      },
+      "excluded_dates": {},
+      "review_checkpoint_reached": false,
+      "automatic_strategy_activation": false
+    }
+  },
+  "premium_budget_dollars": 250.0,
+  "contract_cap": 10,
+  "win_rate": null,
+  "avg_win": null,
+  "avg_loss": null,
+  "max_drawdown": 0.0,
+  "largest_win": null,
+  "largest_loss": null,
+  "trade_diagnostics": [],
+  "excursion_summary": {
+    "trades_analyzed": 0,
+    "trades_with_excursion_data": 0,
+    "coverage_pct": null,
+    "average_mfe_dollars": null,
+    "average_mae_dollars": null,
+    "total_mfe_giveback_dollars": 0,
+    "attribution_counts": {},
+    "pnl_by_attribution": {},
+    "dominant_failure_mode": null,
+    "sampling_note": "MFE/MAE use runner polling observations, not exchange-tick extrema."
+  },
+  "dominant_failure_mode": null,
+  "slippage_total": 0,
+  "spread_cost_estimate": 0,
+  "fill_rate": null,
+  "cancel_rate": null,
+  "missed_fills_count": 0,
+  "time_to_fill_avg_secs": null,
+  "avg_spread_at_entry": null,
+  "avg_spread_at_exit": null,
+  "stop_loss_hit_pct": null,
+  "take_profit_hit_pct": null,
+  "eod_exit_pct": null,
+  "fill_rate_by_mode": {},
+  "cancel_rate_by_mode": {},
+  "avg_fill_latency_by_mode": {},
+  "cancel_reason_breakdown": {},
+  "scanned_symbols_count": 1292,
+  "candidate_count_passed": 691,
+  "candidate_count_rejected": 601,
+  "selected_symbols": [
+    "TSLA",
+    "NVDA",
+    "AVGO",
+    "HOOD",
+    "AAPL",
+    "MSFT",
+    "AMZN",
+    "META",
+    "PLTR",
+    "RIVN",
+    "SOFI",
+    "MARA",
+    "RIOT",
+    "SPY",
+    "QQQ",
+    "IWM",
+    "MSTR",
+    "UBER"
+  ],
+  "top_candidates": [
+    {
+      "symbol": "HOOD",
+      "score": 95.0,
+      "signal_type": "LONG"
+    },
+    {
+      "symbol": "MSTR",
+      "score": 95.0,
+      "signal_type": "LONG"
+    },
+    {
+      "symbol": "NVDA",
+      "score": 87.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "XLE",
+      "score": 80.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "TSLA",
+      "score": 77.0,
+      "signal_type": "LONG"
+    }
+  ],
+  "candidates_by_group": {
+    "mega_cap": 238,
+    "core_etfs": 306,
+    "liquid_growth": 374,
+    "high_beta_liquid": 374
+  },
+  "rejected_by_group": {
+    "mega_cap": 19,
+    "core_etfs": 169,
+    "liquid_growth": 281,
+    "high_beta_liquid": 132
+  },
+  "trades_by_group": {},
+  "pnl_by_group": {},
+  "liquidity_rejections": 510,
+  "pnl_by_symbol": {},
+  "win_rate_by_symbol": {},
+  "expectancy_by_symbol": {},
+  "api_errors": 0,
+  "kill_switch_events": 0,
+  "by_strategy": [
+    {
+      "strategy_id": "orb",
+      "signals": 2,
+      "signal_observations": 18,
+      "diagnostic_observations": 0,
+      "submitted": 0,
+      "fills": 0,
+      "cancels": 0,
+      "rejects": 0,
+      "realized_pnl": 0.0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": null,
+      "avg_win": null,
+      "avg_loss": null
+    },
+    {
+      "strategy_id": "rsi_trend",
+      "signals": 0,
+      "signal_observations": 1452,
+      "diagnostic_observations": 1452,
+      "submitted": 0,
+      "fills": 0,
+      "cancels": 0,
+      "rejects": 0,
+      "realized_pnl": 0.0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": null,
+      "avg_win": null,
+      "avg_loss": null
+    },
+    {
+      "strategy_id": "vwap_reclaim",
+      "signals": 9,
+      "signal_observations": 69,
+      "diagnostic_observations": 0,
+      "submitted": 0,
+      "fills": 0,
+      "cancels": 0,
+      "rejects": 0,
+      "realized_pnl": 0.0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": null,
+      "avg_win": null,
+      "avg_loss": null
+    }
+  ],
+  "scanner_standby_activated": false,
+  "standby_reason": null,
+  "scanner_standby_event_count": 1,
+  "scanner_standby_recovered": true,
+  "exit_spread_warning_count": 0,
+  "bridge_entries_count": 1539,
+  "bridge_traded_count": 0,
+  "bridge_blocked_count": 87,
+  "bridge_skipped_count": 1452,
+  "bridge_by_strategy": {
+    "rsi_trend": {
+      "traded": 0,
+      "blocked": 0,
+      "skipped": 1452
+    },
+    "vwap_reclaim": {
+      "traded": 0,
+      "blocked": 69,
+      "skipped": 0
+    },
+    "orb": {
+      "traded": 0,
+      "blocked": 18,
+      "skipped": 0
+    }
+  },
+  "bridge_top_blocked_reasons": [
+    "signal_quality_below_min",
+    "market_regime_mismatch",
+    "strategy_shadow_only"
+  ],
+  "sample_size_warning": "Sample size too small for statistical conclusions (0 fill(s) this session). Win rate and PnL metrics require 30+ trades to be meaningful.",
+  "orb_signals_total": 2,
+  "orb_signal_observations": 18,
+  "orb_signals_traded": 0,
+  "orb_signals_blocked": 2,
+  "orb_signals_skipped": 0,
+  "orb_quality_distribution": {
+    "2": 1,
+    "3": 1
+  },
+  "orb_slot_reserved_events": 0,
+  "orb_actual_pnl": null,
+  "orb_avg_quality": 2.5,
+  "orb_top_blocked_reasons": [
+    "signal_quality_below_min",
+    "market_regime_mismatch"
+  ],
+  "orb_avg_fwd_pct_5m": 0.0008,
+  "orb_avg_fwd_pct_15m": 0.0003,
+  "orb_avg_fwd_pct_30m": 0.001,
+  "pnl_by_strategy": {},
+  "notes": [
+    "Observation session: all configured strategies are shadow-only or diagnostic-only; broker entries are disabled.",
+    "Separate paper-only scaled-sizing cohort: paper_scaled_budget_250_cap_10_guardrails_v3_shadow_validation; do not merge with the frozen one-contract clean cohort",
+    "Scanner recovered after 1 STANDBY event(s); later scans resumed candidate selection",
+    "ORB strategy: 2 signal(s) evaluated but none traded \u2014 check block reasons above"
+  ],
+  "recommendations": [],
+  "phase": "phase3",
+  "evidence_type": "scaled_paper_evaluation"
+}

@@ -1317,6 +1317,9 @@ async def scan_and_place(
                     block_reason=_reason, option_symbol=_osym,
                     limit_price=_lp, entry_ask=_ask, quality_score=_qscore,
                     contract_metadata=_contract_meta, market_regime=market_regime,
+                    signal_timestamp=sig.timestamp,
+                    runtime_gates={"reconciliation_clear": not risk.recon_blocked,
+                                   "kill_switch_clear": not settings.is_kill_switch_active()},
                 )
                 if _new_shadow_opportunity:
                     _SHADOW_BOOK.record_exit_variants(
@@ -1851,6 +1854,9 @@ async def scan_and_place(
                     limit_price=float(limit_price), quality_score=_qscore,
                     entry_ask=float(used_contract.ask),
                     contract_metadata=_used_meta, market_regime=market_regime,
+                    signal_timestamp=sig.timestamp,
+                    runtime_gates={"reconciliation_clear": not risk.recon_blocked,
+                                   "kill_switch_clear": not settings.is_kill_switch_active()},
                 )
                 if (
                     _new_shadow_opportunity
@@ -2506,6 +2512,7 @@ async def run_session(args: argparse.Namespace):
     session_context = capture_session_context(
         settings, datetime.now(tz=ET), [s.strategy_id for s in strategies],
     )
+    session_context["starting_equity"] = float(acct.equity)
     logger.info("Session context: %s", json.dumps(session_context, sort_keys=True))
     if journal:
         await journal.log_event(
@@ -2988,6 +2995,15 @@ async def run_session(args: argparse.Namespace):
         except Exception as exc:
             logger.error("Health report generation failed: %s", exc)
 
+    # Finish shadow observations before their daily report is assembled.
+    try:
+        shadow_book.finish_session(
+            datetime.now(tz=ET), api_errors=api_errors,
+            reconciliation_warnings=len(recon_warnings),
+        )
+    except Exception as exc:
+        logger.warning("Shadow observation completion failed: %s", exc)
+
     # ── Post-session evaluation (evaluation mode) ─────────────────────────────
     if settings.paper_evaluation_mode:
         try:
@@ -3017,12 +3033,6 @@ async def run_session(args: argparse.Namespace):
         cycle, effective_entry_orders, float(risk.daily_pnl),
     )
     print(f"\n  Session complete — {cycle} cycles | {effective_entry_orders} entry order(s) | P&L ${float(risk.daily_pnl):.2f}\n")
-    try:
-        _sb_open = shadow_book.close_all(datetime.now(tz=ET), reason="session_end")
-        if _sb_open:
-            logger.info("ShadowBook: force-closed %d shadow position(s) at session end", _sb_open)
-    except Exception as _sb_exc:
-        logger.debug("ShadowBook close_all error: %s", _sb_exc)
     push_notifier.on_session_end(
         daily_pnl=float(risk.daily_pnl),
         now=datetime.now(tz=ET),

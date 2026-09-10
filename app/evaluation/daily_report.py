@@ -70,6 +70,7 @@ class DailyReport:
     session_labels: List[str] = field(default_factory=list)
     broker_entry_strategies: Optional[List[str]] = None
     session_context: Dict[str, Any] = field(default_factory=dict)
+    shadow_evaluation: Dict[str, Any] = field(default_factory=dict)
     premium_budget_dollars: Optional[float] = None
     contract_cap: int = 1
 
@@ -1180,6 +1181,13 @@ def to_markdown(report: DailyReport) -> str:
         )
 
     budget_str = f"${r.premium_budget_dollars:.2f}" if r.premium_budget_dollars is not None else "n/a"
+    shadow_md = ""
+    if r.shadow_evaluation:
+        from app.evaluation.shadow_summary import to_markdown as shadow_markdown
+        if "error" in r.shadow_evaluation:
+            shadow_md = "Shadow evaluation unavailable: " + r.shadow_evaluation["error"]
+        else:
+            shadow_md = shadow_markdown(r.shadow_evaluation)
 
     return f"""# Daily Evaluation Report — {r.date}
 
@@ -1196,6 +1204,8 @@ def to_markdown(report: DailyReport) -> str:
 **Start delay:** {f"{r.start_delay_seconds / 60:.1f} minutes" if r.start_delay_seconds is not None else "unrecorded"}
 
 **Strategies permitted to submit entries:** {", ".join(r.broker_entry_strategies) if r.broker_entry_strategies else ("none" if r.broker_entry_strategies == [] else "unrecorded")}
+
+{shadow_md}
 
 ## Trade Summary
 

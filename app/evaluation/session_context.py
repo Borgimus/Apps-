@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[2]
 def capture_session_context(settings, started_at: datetime, strategy_ids=(), *,
                             baseline_path=None) -> dict:
     from app.evaluation.shadow_book import SHADOW_MODEL_VERSION
+    from app.evaluation.shadow_replay import capture_replay_policy, policy_hash
     from app.trading.entry_filters import scaled_entry_block_reason, scaled_guardrails_active
 
     if started_at.tzinfo is None:
@@ -49,6 +50,7 @@ def capture_session_context(settings, started_at: datetime, strategy_ids=(), *,
     shadow_only = [sid for sid in strategy_ids
                    if scaled_entry_block_reason(settings, "", sid) == "strategy_shadow_only"]
     enabled = sorted(set(strategy_ids) - set(diagnostic) - set(shadow_only))
+    replay_policy = capture_replay_policy(settings)
     return {
         "schema_version": 1,
         "options_data_provider": provider,
@@ -62,6 +64,9 @@ def capture_session_context(settings, started_at: datetime, strategy_ids=(), *,
         "broker_entry_strategies": enabled,
         "diagnostic_only_strategies": diagnostic,
         "shadow_only_strategies": shadow_only,
+        "replay_policy": replay_policy,
+        "replay_policy_hash": policy_hash(replay_policy),
+        "observation_review_targets": {"scheduled_sessions": 5, "eligible_opportunities": 10},
     }
 
 
@@ -80,7 +85,7 @@ def context_from_logs(logs) -> dict:
         return {}  # Historical reports must not inherit today's provider/cohort.
     result = dict(contexts[0])
     keys = ("options_data_provider", "options_data_adapter_hash", "evaluation_cohort",
-            "shadow_model_version", "broker_entry_strategies")
+            "shadow_model_version", "broker_entry_strategies", "replay_policy_hash")
     if any(any(c.get(k) != result.get(k) for k in keys) for c in contexts[1:]):
         result["options_data_provider"] = "mixed"
         result["evaluation_cohort"] = "mixed_session_context"

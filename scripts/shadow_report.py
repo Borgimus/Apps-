@@ -85,6 +85,25 @@ def main() -> None:
         print(f"No shadow book at {path}")
         return
 
+    if args.model_version == "4":
+        from app.evaluation.shadow_summary import read_events, session_date, summarize, to_markdown
+        events = read_events(path, date=args.date)
+        excluded = sum(str(e.get("model_version", "1")) != "4" for e in events)
+        unpriced = sum(e.get("event") == "shadow_close" and e.get("shadow_pnl") is None
+                       and str(e.get("model_version")) == "4"
+                       and (not args.date or session_date(e) == args.date) for e in events)
+        print(f"Model 4; excluded other-version events: {excluded}; unpriced closes: {unpriced}")
+        dates = sorted({session_date(e) for e in events
+                        if str(e.get("model_version")) == "4" and session_date(e)})
+        if args.date:
+            dates = [args.date]
+        if not dates:
+            print("No model-4 first-eligible evidence. Historical diagnostics require --model-version.")
+        for day in dates:
+            print(f"# Shadow evaluation: {day}\n")
+            print(to_markdown(summarize(events, day)))
+        return
+
     signals, closes = [], {}
     excluded_models = unpriced = unfilled = 0
     for line in path.read_text().splitlines():

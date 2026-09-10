@@ -276,6 +276,17 @@ async def _build_and_save_report(
                 logger.warning("Post-session: ORB forward performance failed: %s", exc)
 
         report = await build_daily_report(db_session, today, settings)
+        try:
+            from app.evaluation.shadow_summary import read_events, summarize
+            shadow_path = Path(getattr(settings, "evaluation_output_dir", "./evaluation")) / "shadow_book.jsonl"
+            report.shadow_evaluation = summarize(
+                read_events(shadow_path, date=today), today,
+                model_version=report.shadow_model_version or "unrecorded",
+                context=report.session_context,
+            )
+        except Exception as exc:
+            logger.warning("Shadow evaluation unavailable: %s", exc)
+            report.shadow_evaluation = {"error": "Recorded shadow evidence could not be validated."}
 
         # Determine output dir
         output_dir = Path(getattr(settings, "evaluation_output_dir", "./evaluation")) / "reports"

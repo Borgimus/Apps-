@@ -1,6 +1,6 @@
 """Passive diagnostic shadow book, separate from broker execution.
 
-Model 3 uses the shared PositionManager exit policy, including trailing-stop
+Model 4 uses the shared PositionManager exit policy, including trailing-stop
 activation. Entry simulation requires a positive, uncrossed OPRA quote no more
 than 60 seconds old. Orders expire at the configured broker entry timeout.
 Holding duration and price excursions begin at validated fill time. Stale exit
@@ -8,9 +8,9 @@ marks have no realized P&L. A touched ask still cannot guarantee a queued fill,
 and the model excludes commissions, exit latency and slippage.
 
 Every observation is logged, including failed quality, regime, symbol and
-budget checks. Entry-filter eligibility is recorded separately. The simulator
-has no chronological portfolio risk replay: capacity, daily entries, cooldown,
-loss limits and reconciliation are NOT established by these results. No shadow
+budget checks. First-eligible entries are independent of diagnostic entries.
+Matched exits share one entry and one quote per contract per update. Recorded
+candidates and quotes support offline chronological portfolio replay. No shadow
 record counts toward readiness or authorizes strategy reactivation.
 
 Repeated observations form one opportunity. An initially unpriceable episode
@@ -28,7 +28,7 @@ from __future__ import annotations
 import json
 import logging
 import math
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from datetime import datetime, time, timedelta
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Tuple
@@ -39,7 +39,7 @@ from app.evaluation.shadow_eligibility import assess_entry_filters
 
 logger = logging.getLogger(__name__)
 _ET = ZoneInfo("America/New_York")
-SHADOW_MODEL_VERSION = "3"
+SHADOW_MODEL_VERSION = "4"
 
 # Block reasons considered "capacity competition" — these get shadow-simulated.
 CAPACITY_REASONS = frozenset({
@@ -95,6 +95,8 @@ class ShadowPosition:
     last_quote_timestamp: Optional[str] = None
     last_quote_feed: Optional[str] = None
     eligibility: Dict[str, Any] = field(default_factory=dict)
+    channel: str = "diagnostic"
+    pair_id: Optional[str] = None
 
 
 class ShadowBook:
@@ -146,6 +148,10 @@ class ShadowBook:
         self._episodes: Dict[str, Dict[str, Any]] = {}
         self._seq = 0
         self._load_state()
+        if self._session_context.get("replay_policy"):
+            self._emit({"event": "shadow_session_start",
+                        "ts": self._clock().isoformat(),
+                        "session_context": self._session_context})
 
     # ── Recording ─────────────────────────────────────────────────────────────
 
@@ -165,6 +171,8 @@ class ShadowBook:
         variant: str = "baseline",
         market_regime: Optional[str] = None,
         contract_metadata: Optional[Dict[str, Any]] = None,
+        signal_timestamp: Optional[datetime] = None,
+        runtime_gates: Optional[Dict[str, bool]] = None,
     ) -> bool:
         """Log a diagnostic signal. Return true for a new opportunity or a
         simulation that has just become priceable, so variant recording can retry.
@@ -220,8 +228,17 @@ class ShadowBook:
             "quality_score": quality_score,
             "variant": variant,
             "contract_metadata": metadata,
+            "channel": "diagnostic",
             **eligibility,
         })
+        # Each episode has two independent anchors. A diagnostic simulation
+        # must never consume the first later observation that becomes eligible.
+        if variant == "baseline" and not ep.get("eligible_signal_id"):
+            self._record_first_eligible(
+                ep, now, signal_id, opportunity_id, strategy_id, symbol,
+                direction, option_symbol, limit_price, entry_ask, eligibility,
+                metadata, signal_timestamp, runtime_gates or {}, executed,
+            )
         self._save_state()
 
         if executed:
@@ -246,6 +263,7 @@ class ShadowBook:
             return new_opportunity
         if any(
             sp.option_symbol == option_symbol and sp.variant == variant
+            and sp.channel == "diagnostic"
             for sp in self._open.values()
         ):
             return new_opportunity  # already simulating this contract
@@ -278,8 +296,12 @@ class ShadowBook:
             sp.fill_validated_at = now.isoformat()
             sp.last_quote_timestamp = metadata["quote_timestamp"]
             sp.last_quote_feed = metadata["quote_feed"]
+            sp.last_price = float(metadata["bid"])
         self._open[sp.signal_id] = sp
+        sp.pair_id = sp.signal_id
         ep["simulated"] = True
+        if variant == "baseline":
+            self._clone_exit_variants(sp)
         self._save_state()
         logger.info(
             "ShadowBook: simulating %s/%s %s @ %.4f (blocked: %s%s)",
@@ -302,25 +324,67 @@ class ShadowBook:
         contract_metadata: Optional[Dict[str, Any]] = None,
         market_regime: Optional[str] = None,
     ) -> None:
-        """Open passive breakeven and partial-profit policy variants."""
+        """Compatibility hook: variants now open atomically with their baseline.
+
+        A later call cannot create a differently timed comparison or reopen a
+        variant that already closed. Broker-executed signals have a separate
+        first-eligible research anchor when their entry evidence is complete.
+        """
+
+    def _clone_exit_variants(self, baseline: ShadowPosition) -> None:
         if not self._exit_variants_enabled:
             return
         for variant in ("breakeven_25", "partial_25_breakeven"):
-            self.record_signal(
-                now=now,
-                strategy_id=strategy_id,
-                symbol=symbol,
-                direction=direction,
-                executed=False,
-                block_reason="exit_policy_counterfactual",
-                option_symbol=option_symbol,
-                limit_price=limit_price,
-                entry_ask=entry_ask,
-                quality_score=quality_score,
-                variant=variant,
-                contract_metadata=contract_metadata,
-                market_regime=market_regime,
-            )
+            if variant == "partial_25_breakeven" and baseline.quantity < 2:
+                self._emit({"event": "variant_not_executable",
+                            "ts": baseline.entry_time, "pair_id": baseline.pair_id,
+                            "opportunity_id": baseline.opportunity_id,
+                            "channel": baseline.channel, "variant": variant,
+                            "quantity": baseline.quantity,
+                            "reason": "partial_exit_requires_two_contracts"})
+                continue
+            sp = replace(baseline, signal_id=f"{baseline.signal_id}:{variant}",
+                         variant=variant, eligibility=dict(baseline.eligibility))
+            self._open[sp.signal_id] = sp
+
+    def _record_first_eligible(self, ep, now, signal_id, opportunity_id,
+                               strategy_id, symbol, direction, option_symbol,
+                               limit_price, entry_ask, eligibility, metadata,
+                               signal_timestamp, runtime_gates, executed):
+        from app.evaluation.shadow_replay import eligible_observation_reasons
+        reasons = list(eligibility["entry_filter_reasons"])
+        reasons.extend(eligible_observation_reasons(
+            self._settings, now, signal_timestamp, metadata, entry_ask,
+        ))
+        if (reasons or not option_symbol or limit_price is None
+                or not math.isfinite(limit_price) or limit_price <= 0):
+            return
+        metadata = dict(metadata, ask=float(entry_ask))
+        sid = f"{signal_id}:eligible"
+        evidence = {**eligibility, "simulation_scope": "first_eligible_entry"}
+        sp = ShadowPosition(
+            signal_id=sid, opportunity_id=opportunity_id, strategy_id=strategy_id,
+            symbol=symbol, direction=direction, option_symbol=option_symbol,
+            entry_time=now.isoformat(), entry_price=float(limit_price),
+            block_reason="first_eligible_counterfactual",
+            fill_deadline=(now + self._fill_window).isoformat(),
+            peak_price=float(limit_price), trough_price=float(limit_price),
+            last_price=float(metadata["bid"]), quantity=eligibility["affordable_quantity"],
+            eligibility=evidence, channel="eligible", pair_id=sid,
+            trailing_stop_armed=self._trailing_activation_pct == 0,
+            fill_validated=entry_ask <= float(limit_price),
+            fill_validated_at=now.isoformat() if entry_ask <= float(limit_price) else None,
+            last_quote_timestamp=metadata["quote_timestamp"],
+            last_quote_feed=metadata["quote_feed"],
+        )
+        ep["eligible_signal_id"] = sid
+        self._open[sid] = sp
+        self._emit({"event": "eligible_entry", **asdict(sp), "ts": now.isoformat(),
+                    "contract_metadata": metadata,
+                    "signal_timestamp": signal_timestamp.isoformat(),
+                    "runtime_gates": runtime_gates, "broker_executed": executed,
+                    **evidence})
+        self._clone_exit_variants(sp)
 
     def record_inverted_signal(
         self,
@@ -361,23 +425,53 @@ class ShadowBook:
         Explicit now freezes time for deterministic replay/tests."""
         closed = 0
         dirty = False
-        for sid, sp in list(self._open.items()):
-            observed_at = self._clock() if now is None else now
+        quotes = {}
+        eligible_contracts = {sp.option_symbol for sp in self._open.values()
+                              if sp.channel == "eligible"}
+        grouped = {}
+        for item in self._open.items():
+            grouped.setdefault(item[1].option_symbol, []).append(item)
+        for sid, sp in [item for group in grouped.values() for item in group]:
+            cached = quotes.get(sp.option_symbol)
+            observed_at = cached[1] if cached else (self._clock() if now is None else now)
             if not sp.fill_validated and observed_at > datetime.fromisoformat(sp.fill_deadline):
                 self._emit({"event": "shadow_unfilled", "signal_id": sid,
                             "opportunity_id": sp.opportunity_id, "ts": observed_at.isoformat(),
+                            "channel": sp.channel, "pair_id": sp.pair_id,
                             "variant": sp.variant, "reason": "entry_timeout",
                             "shadow_pnl": None, "fill_validated": False})
                 self._open.pop(sid)
                 dirty = True
                 continue
             try:
-                quote = await broker.get_option_quote(sp.option_symbol)
-                observed_at = self._clock() if now is None else now
+                if sp.option_symbol not in quotes:
+                    try:
+                        quote = await broker.get_option_quote(sp.option_symbol)
+                        observed_at = self._clock() if now is None else now
+                        quotes[sp.option_symbol] = (quote, observed_at)
+                        if sp.option_symbol in eligible_contracts:
+                            ts = parse_quote_timestamp(quote.timestamp)
+                            self._emit({"event": "shadow_quote", "ts": observed_at.isoformat(),
+                                        "option_symbol": sp.option_symbol,
+                                        "bid": float(quote.bid), "ask": float(quote.ask),
+                                        "quote_timestamp": ts.isoformat() if ts else None,
+                                        "quote_feed": getattr(quote, "feed", None)})
+                    except Exception:
+                        quotes[sp.option_symbol] = None
+                        if sp.option_symbol in eligible_contracts:
+                            self._emit({"event": "shadow_quote_error",
+                                        "ts": (self._clock() if now is None else now).isoformat(),
+                                        "option_symbol": sp.option_symbol,
+                                        "reason": "quote_request_failed"})
+                        raise
+                if quotes[sp.option_symbol] is None:
+                    continue
+                quote, observed_at = quotes[sp.option_symbol]
                 # A request started in time may finish after the entry deadline.
                 if not sp.fill_validated and observed_at > datetime.fromisoformat(sp.fill_deadline):
                     self._emit({"event": "shadow_unfilled", "signal_id": sid,
                                 "opportunity_id": sp.opportunity_id, "ts": observed_at.isoformat(),
+                                "channel": sp.channel, "pair_id": sp.pair_id,
                                 "variant": sp.variant, "reason": "entry_timeout",
                                 "shadow_pnl": None, "fill_validated": False})
                     self._open.pop(sid)
@@ -474,6 +568,12 @@ class ShadowBook:
     def open_count(self) -> int:
         return len(self._open)
 
+    def finish_session(self, now: datetime, *, api_errors=0, reconciliation_warnings=0) -> None:
+        self.close_all(now)
+        self._emit({"event": "shadow_session_end", "ts": now.isoformat(),
+                    "api_errors": api_errors,
+                    "reconciliation_warnings": reconciliation_warnings})
+
     # ── Internals ─────────────────────────────────────────────────────────────
 
     def _exit_reason(self, sp: ShadowPosition, price: float, now: datetime) -> Optional[str]:
@@ -538,6 +638,8 @@ class ShadowBook:
             "profit_retention_ratio": retention if priced else None,
             "mfe_giveback": giveback if priced else None,
             "variant": sp.variant,
+            "channel": sp.channel,
+            "pair_id": sp.pair_id,
             "remaining_fraction": sp.remaining_fraction,
             "partial_taken": sp.partial_taken,
             "partial_realized_pnl": round(sp.realized_pnl, 2),
@@ -553,6 +655,8 @@ class ShadowBook:
 
     def _emit(self, record: Dict[str, Any]) -> None:
         record["model_version"] = SHADOW_MODEL_VERSION
+        record["session_id"] = self._session_context.get("runner_started_at")
+        record["replay_policy_hash"] = self._session_context.get("replay_policy_hash")
         for key in ("options_data_provider", "options_data_adapter_hash", "evaluation_cohort"):
             record[key] = self._session_context.get(key, "unrecorded")
         record["counts_toward_readiness"] = False

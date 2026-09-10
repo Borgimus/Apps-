@@ -78,7 +78,7 @@ async def test_each_quote_samples_clock_after_request(tmp_path):
         return quote(clock[0])
 
     await sb.update(SimpleNamespace(get_option_quote=AsyncMock(side_effect=fetch)))
-    assert [p.fill_validated_at for p in sb._open.values()] == [
+    assert [p.fill_validated_at for p in sb._open.values() if p.variant == "baseline"] == [
         (NOW + timedelta(seconds=2)).isoformat(),
         (NOW + timedelta(seconds=4)).isoformat(),
     ]
@@ -138,7 +138,7 @@ def test_model_two_state_archived_without_resuming(tmp_path):
     (tmp_path / "state.json").write_text(raw)
     (tmp_path / "state.json.legacy-v1").write_text("preserved v1")
     sb = book(tmp_path, lambda: NOW)
-    assert sb.open_count() == 0 and SHADOW_MODEL_VERSION == "3"
+    assert sb.open_count() == 0 and SHADOW_MODEL_VERSION == "4"
     assert (tmp_path / "state.json.legacy-v2").read_text() == raw
     assert (tmp_path / "state.json.legacy-v1").read_text() == "preserved v1"
 

@@ -27,6 +27,7 @@ NOW = datetime(2026, 9, 8, 10, tzinfo=ET)
 def settings(tmp_path):
     return Settings(broker="paper", live_trading_enabled=False,
                     paper_evaluation_mode=True, paper_scaled_sizing_enabled=True,
+                    paper_scaled_exit_variant_shadow_enabled=False,
                     universe={"max_contracts_per_position": 10},
                     kill_switch_file=str(tmp_path / "KILL_SWITCH"))
 
@@ -331,4 +332,4 @@ def test_shadow_report_excludes_legacy_and_unpriced_results(tmp_path, monkeypatc
     assert "unpriced closes: 1" in output
     assert "excluded other-version events: 1" in output
     assert "9999" not in output
-    assert "Portfolio constraints have not been replayed" in output
+    assert "no portfolio outcome is inferred" in output

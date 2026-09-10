@@ -160,7 +160,8 @@ class TestRecording:
             entry_ask=entry_ask,
             quality_score=4,
         )
-        assert book.open_count() == 1
+        assert {p.variant for p in book._open.values()} == {"baseline", "breakeven_25"}
+        assert all(p.channel == "diagnostic" for p in book._open.values())
 
     def test_inverted_signal_is_separate_and_simulated(self, tmp_path):
         sb = _book(tmp_path)

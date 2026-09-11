@@ -2,6 +2,7 @@
 # The deterministic core is stdlib-only; these support Postgres persistence, the Alpaca
 # client, and YAML config. Pin/upgrade deliberately (document changes in docs/CHANGELOG).
 pyyaml>=6.0.1
+tzdata>=2024.1        # IANA time-zone data for zoneinfo — REQUIRED on Windows, harmless elsewhere
 SQLAlchemy>=2.0.25
 alembic>=1.13.1
 psycopg[binary]>=3.1.0

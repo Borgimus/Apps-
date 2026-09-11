@@ -42,7 +42,12 @@ downgrades to SHADOW.
 
 ## Running it
 
+The live loop needs `pyyaml` + `httpx` (and `tzdata` on Windows, where Python has no system
+IANA time-zone database — without it startup fails with
+`No time zone found with key America/New_York`):
+
 ```bash
+pip install pyyaml httpx tzdata     # tzdata required on Windows; harmless on Linux/macOS
 # in .env (never committed): paper keys + dashboard token, then:
 export SWING_MODE=SHADOW            # start here; PAPER_AUTO also needs SWING_ACCEPT_PAPER_AUTO=1
 export SWING_ENABLE_LOOP=1          # opt-in; without it the process is dashboard/health only

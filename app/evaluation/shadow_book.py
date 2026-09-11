@@ -25,6 +25,7 @@ under the new rules. Historical events are never rewritten.
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import math
@@ -40,6 +41,8 @@ from app.evaluation.shadow_eligibility import assess_entry_filters
 logger = logging.getLogger(__name__)
 _ET = ZoneInfo("America/New_York")
 SHADOW_MODEL_VERSION = "4"
+_FINAL_QUOTE_TIMEOUT_SECONDS = 5.0
+_FINAL_REFRESH_TIMEOUT_SECONDS = 30.0
 
 # Block reasons considered "capacity competition" — these get shadow-simulated.
 CAPACITY_REASONS = frozenset({
@@ -97,6 +100,7 @@ class ShadowPosition:
     eligibility: Dict[str, Any] = field(default_factory=dict)
     channel: str = "diagnostic"
     pair_id: Optional[str] = None
+    final_quote_refresh: Optional[str] = None
 
 
 class ShadowBook:
@@ -419,7 +423,7 @@ class ShadowBook:
 
     # ── Simulation ────────────────────────────────────────────────────────────
 
-    async def update(self, broker, now: Optional[datetime] = None) -> int:
+    async def update(self, broker, now: Optional[datetime] = None, *, final_refresh=False) -> int:
         """Mark open shadow positions to quote, run fill validation, and close
         any that hit an exit rule. Runtime samples the clock after each await.
         Explicit now freezes time for deterministic replay/tests."""
@@ -432,6 +436,8 @@ class ShadowBook:
         for item in self._open.items():
             grouped.setdefault(item[1].option_symbol, []).append(item)
         for sid, sp in [item for group in grouped.values() for item in group]:
+            if final_refresh and not sp.fill_validated:
+                continue  # Shutdown must not open a new hypothetical position.
             cached = quotes.get(sp.option_symbol)
             observed_at = cached[1] if cached else (self._clock() if now is None else now)
             if not sp.fill_validated and observed_at > datetime.fromisoformat(sp.fill_deadline):
@@ -446,7 +452,9 @@ class ShadowBook:
             try:
                 if sp.option_symbol not in quotes:
                     try:
-                        quote = await broker.get_option_quote(sp.option_symbol)
+                        request = broker.get_option_quote(sp.option_symbol)
+                        quote = (await asyncio.wait_for(request, timeout=_FINAL_QUOTE_TIMEOUT_SECONDS)
+                                 if final_refresh else await request)
                         observed_at = self._clock() if now is None else now
                         quotes[sp.option_symbol] = (quote, observed_at)
                         if sp.option_symbol in eligible_contracts:
@@ -455,14 +463,16 @@ class ShadowBook:
                                         "option_symbol": sp.option_symbol,
                                         "bid": float(quote.bid), "ask": float(quote.ask),
                                         "quote_timestamp": ts.isoformat() if ts else None,
-                                        "quote_feed": getattr(quote, "feed", None)})
+                                        "quote_feed": getattr(quote, "feed", None),
+                                        "purpose": "session_end" if final_refresh else "poll"})
                     except Exception:
                         quotes[sp.option_symbol] = None
                         if sp.option_symbol in eligible_contracts:
                             self._emit({"event": "shadow_quote_error",
                                         "ts": (self._clock() if now is None else now).isoformat(),
                                         "option_symbol": sp.option_symbol,
-                                        "reason": "quote_request_failed"})
+                                        "reason": "quote_request_failed",
+                                        "purpose": "session_end" if final_refresh else "poll"})
                         raise
                 if quotes[sp.option_symbol] is None:
                     continue
@@ -485,6 +495,8 @@ class ShadowBook:
                 ):
                     continue
                 price = bid
+                if final_refresh:
+                    sp.final_quote_refresh = "success"
             except Exception as exc:
                 logger.debug("ShadowBook: quote failed for %s: %s", sp.option_symbol, exc)
                 continue
@@ -506,7 +518,7 @@ class ShadowBook:
 
             if not sp.fill_validated:
                 continue
-            sp.last_quote_timestamp = quote.timestamp.isoformat()
+            sp.last_quote_timestamp = parse_quote_timestamp(quote.timestamp).isoformat()
             sp.last_quote_feed = quote.feed
             sp.last_price = price
             sp.peak_price = max(sp.peak_price, price)
@@ -568,11 +580,41 @@ class ShadowBook:
     def open_count(self) -> int:
         return len(self._open)
 
-    def finish_session(self, now: datetime, *, api_errors=0, reconciliation_warnings=0) -> None:
+    async def refresh_and_finish_session(self, broker, now=None, *, api_errors=0,
+                                         reconciliation_warnings=0) -> None:
+        """Request one final quote per held contract, with bounded shutdown time.
+
+        A failed/invalid refresh cannot reuse an earlier mark as a priced exit.
+        The final event tells replay to require the same terminal quote evidence.
+        """
+        held = [sp for sp in self._open.values() if sp.fill_validated]
+        for sp in held:
+            sp.final_quote_refresh = "pending"
+        try:
+            await asyncio.wait_for(self.update(broker, now, final_refresh=True),
+                                   timeout=_FINAL_REFRESH_TIMEOUT_SECONDS)
+        except asyncio.TimeoutError:
+            logger.warning("ShadowBook: final quote refresh exceeded %.0fs", _FINAL_REFRESH_TIMEOUT_SECONDS)
+        for sp in held:
+            if sp.final_quote_refresh == "pending":
+                sp.final_quote_refresh = "failed"
+        ended_at = self._clock() if now is None else now
+        failed = sorted({sp.option_symbol for sp in held if sp.final_quote_refresh != "success"})
+        self._emit({"event": "shadow_final_quote_refresh", "ts": ended_at.isoformat(),
+                    "contracts_targeted": len({sp.option_symbol for sp in held}),
+                    "failed_contracts": failed})
+        self.finish_session(ended_at, api_errors=api_errors,
+                            reconciliation_warnings=reconciliation_warnings,
+                            final_quote_refresh_required=True)
+
+    def finish_session(self, now: datetime, *, api_errors=0, reconciliation_warnings=0,
+                       final_quote_refresh_required=False) -> None:
+        """Complete recorded observations; runtime uses refresh_and_finish_session."""
         self.close_all(now)
         self._emit({"event": "shadow_session_end", "ts": now.isoformat(),
                     "api_errors": api_errors,
-                    "reconciliation_warnings": reconciliation_warnings})
+                    "reconciliation_warnings": reconciliation_warnings,
+                    "final_quote_refresh_required": final_quote_refresh_required})
 
     # ── Internals ─────────────────────────────────────────────────────────────
 
@@ -590,7 +632,10 @@ class ShadowBook:
         )
 
     def _close(self, sp: ShadowPosition, exit_price: float, reason: str, now: datetime) -> None:
-        priced = sp.fill_validated and sp.last_quote_feed in ("opra", "tradier_opra") and quote_is_fresh(sp.last_quote_timestamp, now)
+        priced = (sp.fill_validated and sp.final_quote_refresh in (None, "success")
+                  and sp.last_quote_feed in ("opra", "tradier_opra")
+                  and quote_is_fresh(sp.last_quote_timestamp, now))
+        quote_ts = parse_quote_timestamp(sp.last_quote_timestamp)
         raw_pnl = sp.realized_pnl + (exit_price - sp.entry_price) * 100 * sp.remaining_fraction
         pnl = round(raw_pnl, 2)
         mfe = round((sp.peak_price - sp.entry_price) * 100, 2)
@@ -626,6 +671,8 @@ class ShadowBook:
             "sized_shadow_pnl": round(raw_pnl * sp.quantity, 2) if priced and sp.quantity > 0 else None,
             "last_quote_timestamp": sp.last_quote_timestamp,
             "last_quote_feed": sp.last_quote_feed,
+            "exit_quote_age_seconds": round((now - quote_ts).total_seconds(), 3) if quote_ts else None,
+            "final_quote_refresh": sp.final_quote_refresh,
             **sp.eligibility,
             "exit_reason": reason,
             "hold_seconds": int((now - entry_dt).total_seconds()),
@@ -655,6 +702,7 @@ class ShadowBook:
 
     def _emit(self, record: Dict[str, Any]) -> None:
         record["model_version"] = SHADOW_MODEL_VERSION
+        record["evidence_revision"] = 2
         record["session_id"] = self._session_context.get("runner_started_at")
         record["replay_policy_hash"] = self._session_context.get("replay_policy_hash")
         for key in ("options_data_provider", "options_data_adapter_hash", "evaluation_cohort"):

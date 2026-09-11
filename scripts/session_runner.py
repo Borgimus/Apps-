@@ -2942,6 +2942,15 @@ async def run_session(args: argparse.Namespace):
         )
         await eod_liquidate(broker, pm, journal, risk, now, args.dry_run, settings=settings)
 
+    # Finish shadow observations before recording the session's final DB timestamp.
+    try:
+        await shadow_book.refresh_and_finish_session(
+            broker, api_errors=api_errors,
+            reconciliation_warnings=len(recon_warnings),
+        )
+    except Exception as exc:
+        logger.warning("Shadow observation completion failed: %s", exc)
+
     # 4. Generate and persist health report
     if journal and store:
         try:
@@ -2994,15 +3003,6 @@ async def run_session(args: argparse.Namespace):
             )
         except Exception as exc:
             logger.error("Health report generation failed: %s", exc)
-
-    # Finish shadow observations before their daily report is assembled.
-    try:
-        shadow_book.finish_session(
-            datetime.now(tz=ET), api_errors=api_errors,
-            reconciliation_warnings=len(recon_warnings),
-        )
-    except Exception as exc:
-        logger.warning("Shadow observation completion failed: %s", exc)
 
     # ── Post-session evaluation (evaluation mode) ─────────────────────────────
     if settings.paper_evaluation_mode:

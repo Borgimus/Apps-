@@ -264,20 +264,14 @@ class TestPreSessionChecks:
     @pytest.mark.asyncio
     async def test_data_feed_freshness_advisory(self):
         from app.evaluation.pre_session import _check_data_feed_freshness
-        factory, engine = await _make_memory_session()
-        async with factory() as session:
-            r = await _check_data_feed_freshness(session)
-        await engine.dispose()
+        r = await _check_data_feed_freshness()
         assert r.required is False
 
     @pytest.mark.asyncio
-    async def test_data_feed_fresh_with_no_logs_passes(self):
+    async def test_data_feed_without_a_source_does_not_claim_freshness(self):
         from app.evaluation.pre_session import _check_data_feed_freshness
-        factory, engine = await _make_memory_session()
-        async with factory() as session:
-            r = await _check_data_feed_freshness(session)
-        await engine.dispose()
-        assert r.passed  # no logs → "first run of day"
+        r = await _check_data_feed_freshness()
+        assert not r.passed
 
 
 # ── pre_session: full run ─────────────────────────────────────────────────────

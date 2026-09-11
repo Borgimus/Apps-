@@ -287,6 +287,8 @@ def _replay_session(events: list[dict], variant="baseline", *, respect_permissio
                 if pos["option_symbol"] != event["option_symbol"]:
                     continue
                 if pos["fill_time"] is None:
+                    if event.get("purpose") == "session_end":
+                        continue  # Terminal quotes only value positions already held.
                     if ask > pos["entry_price"]:
                         continue
                     pos["fill_time"] = now
@@ -319,8 +321,9 @@ def _replay_session(events: list[dict], variant="baseline", *, respect_permissio
                 if pos["fill_time"] is None:
                     positions.pop(sid)
                     result["decisions"].append({"pair_id": sid, "ts": now.isoformat(), "action": "cancelled_at_end"})
-                elif fill_evidence_valid(bid=q["bid"], ask=q["ask"], timestamp=q["quote_timestamp"],
-                                          feed=q["quote_feed"], now=now):
+                elif ((not event.get("final_quote_refresh_required") or q.get("purpose") == "session_end")
+                      and fill_evidence_valid(bid=q["bid"], ask=q["ask"], timestamp=q["quote_timestamp"],
+                                              feed=q["quote_feed"], now=now)):
                     finish(sid, pos, pos["last_bid"], now, "session_end")
 
     result.update(status="complete" if ended and not positions else "incomplete",
@@ -329,4 +332,10 @@ def _replay_session(events: list[dict], variant="baseline", *, respect_permissio
                   unresolved=len(positions), realized_pnl=round(realized, 2),
                   max_realized_drawdown=round(drawdown, 2), losing_trades=losses)
     result["portfolio_pnl"] = result["realized_pnl"] if result["status"] == "complete" else None
+    candidates = [d for d in result["decisions"] if d["action"] in ("admitted", "rejected")]
+    if (result["status"] == "complete" and variant == "partial_25_breakeven" and candidates
+            and result["admitted"] == 0
+            and all("partial_exit_requires_two_contracts" in d.get("reasons", []) for d in candidates)):
+        result.update(status="not_executable", portfolio_pnl=None,
+                      reason="partial_exit_requires_two_contracts")
     return result

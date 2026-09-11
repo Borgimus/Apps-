@@ -51,14 +51,15 @@ def setup_book(tmp_path):
     return sb, c
 
 
-def record(sb, now, *, price=1.82, regime="short", symbol="IWM", signal_time=None, quality=4):
+def record(sb, now, *, price=1.82, regime="short", symbol="IWM", signal_time=None, quality=4, ask=None):
+    ask = price if ask is None else ask
     sb.record_signal(
         now=now, strategy_id="orb", symbol=symbol, direction="short",
         executed=False, block_reason="strategy_shadow_only", option_symbol=f"{symbol}_TEST",
-        limit_price=price, entry_ask=price, quality_score=quality, market_regime=regime,
+        limit_price=price, entry_ask=ask, quality_score=quality, market_regime=regime,
         signal_timestamp=signal_time or now - timedelta(minutes=5),
         runtime_gates={"reconciliation_clear": True, "kill_switch_clear": True},
-        contract_metadata={"bid": price - .01, "ask": price, "liquidity_passed": True,
+        contract_metadata={"bid": price - .01, "ask": ask, "liquidity_passed": True,
                            "quote_timestamp": now.isoformat(), "quote_feed": "tradier_opra"},
     )
 
@@ -378,3 +379,132 @@ async def test_daily_report_persists_completed_shadow_evidence(tmp_path, monkeyp
     assert saved["shadow_evaluation"]["observation_progress"]["completed_scheduled_sessions"] == 1
     text = (tmp_path / "reports" / f"{DAY}.md").read_text()
     assert text.index("Eligible shadow evidence") < text.index("Diagnostic setups")
+
+
+@pytest.mark.asyncio
+async def test_shutdown_refreshes_once_per_contract_and_replay_uses_that_quote(tmp_path):
+    sb, _ = setup_book(tmp_path)
+    record(sb, at("10:30:31"), price=1.81)
+    await sb.update(broker(at("12:29:44"), 1.45, 1.46), at("12:29:44"))
+    final_broker = broker(at("12:30:02"), 1.48, 1.49)
+    await sb.refresh_and_finish_session(final_broker, at("12:30:02"))
+    final_broker.get_option_quote.assert_awaited_once_with("IWM_TEST")
+    events = read_events(tmp_path / "events.jsonl")
+    closes = [e for e in events if e["event"] == "shadow_close"]
+    assert len(closes) == 4  # Diagnostic and eligible baseline/breakeven share one quote.
+    assert all(e["exit_price"] == 1.48 and e["final_quote_refresh"] == "success" for e in closes)
+    assert all(e["exit_quote_age_seconds"] == 0 for e in closes)
+    summary = summarize(events, DAY)
+    assert summary["research_portfolios"]["baseline"]["portfolio_pnl"] == -33
+    assert summary["eligible_independent"]["baseline"]["sized_pnl"] == -33
+    assert summary["observation_progress"]["completed_scheduled_sessions"] == 1
+    assert "Eligible baseline exit quotes" in to_markdown(summary)
+    assert events[-1]["final_quote_refresh_required"] is True
+    assert sb.open_count() == 0
+
+
+@pytest.mark.parametrize("issue", ["request_failure", "stale", "future", "crossed", "missing_time", "indicative"])
+@pytest.mark.asyncio
+async def test_failed_final_refresh_cannot_reuse_a_recent_cached_quote(tmp_path, issue):
+    sb, _ = setup_book(tmp_path)
+    record(sb, at("10:30:31"), price=1.81)
+    # This cached quote would still pass the 60-second rule at shutdown.
+    await sb.update(broker(at("12:29:44"), 1.45, 1.46), at("12:29:44"))
+    final_broker = broker(at("12:30:02"), 1.48, 1.49)
+    q = final_broker.get_option_quote.return_value
+    if issue == "request_failure": final_broker.get_option_quote.side_effect = RuntimeError("unavailable")
+    elif issue == "stale": q.timestamp = at("12:28:00")
+    elif issue == "future": q.timestamp = at("12:30:03")
+    elif issue == "crossed": q.bid = 1.5
+    elif issue == "missing_time": q.timestamp = None
+    elif issue == "indicative": q.feed = "indicative"
+    await sb.refresh_and_finish_session(final_broker, at("12:30:02"))
+    final_broker.get_option_quote.assert_awaited_once()
+    events = read_events(tmp_path / "events.jsonl")
+    closes = [e for e in events if e["event"] == "shadow_close"]
+    assert all(e["shadow_pnl"] is None and not e["outcome_priced"] for e in closes)
+    assert all(e["final_quote_refresh"] == "failed" for e in closes)
+    summary = summarize(events, DAY)
+    assert summary["research_portfolios"]["baseline"]["status"] == "incomplete"
+    assert summary["research_portfolios"]["baseline"]["portfolio_pnl"] is None
+    assert summary["observation_progress"]["completed_scheduled_sessions"] == 0
+    assert "unpriced_eligible_exit" in summary["observation_progress"]["excluded_dates"][DAY]
+
+
+@pytest.mark.parametrize("timeout_scope", ["request", "whole_refresh"])
+@pytest.mark.asyncio
+async def test_final_refresh_timeout_completes_as_unpriced(tmp_path, monkeypatch, timeout_scope):
+    import asyncio
+    from app.evaluation import shadow_book
+    sb, _ = setup_book(tmp_path)
+    record(sb, at("10:30:31"), price=1.81)
+    cancelled = asyncio.Event()
+    async def hanging_quote(symbol):
+        try:
+            await asyncio.Event().wait()
+        finally:
+            cancelled.set()
+    attr = "_FINAL_QUOTE_TIMEOUT_SECONDS" if timeout_scope == "request" else "_FINAL_REFRESH_TIMEOUT_SECONDS"
+    monkeypatch.setattr(shadow_book, attr, .01)
+    source = SimpleNamespace(get_option_quote=AsyncMock(side_effect=hanging_quote))
+    await sb.refresh_and_finish_session(source, at("12:30:02"))
+    assert cancelled.is_set() and sb.open_count() == 0
+    events = read_events(tmp_path / "events.jsonl")
+    assert events[-1]["event"] == "shadow_session_end"
+    assert summarize(events, DAY)["research_portfolios"]["baseline"]["portfolio_pnl"] is None
+
+
+@pytest.mark.asyncio
+async def test_shutdown_does_not_create_new_fills_for_pending_shadow_entries(tmp_path):
+    sb, _ = setup_book(tmp_path)
+    record(sb, at("10:30:00"), price=1.81, ask=1.9)
+    source = broker(at("10:31:00"), 1.7, 1.71)
+    await sb.refresh_and_finish_session(source, at("10:31:00"))
+    source.get_option_quote.assert_not_awaited()
+    closes = [e for e in read_events(tmp_path / "events.jsonl") if e["event"] == "shadow_close"]
+    assert all(not e["fill_validated"] and e["shadow_pnl"] is None for e in closes)
+    result = research(read_events(tmp_path / "events.jsonl"))
+    assert result["filled"] == 0
+    assert any(d["action"] == "cancelled_at_end" for d in result["decisions"])
+
+
+def test_partial_scenario_without_two_contract_candidates_is_not_executable(tmp_path):
+    records, candidate, quote, end = stream(tmp_path)
+    candidate("IWM", "10:30:31", price=1.81, qty=1)
+    quote("IWM", "12:29:44", 1.45)
+    end()
+    result = research(records, "partial_25_breakeven")
+    assert result["status"] == "not_executable" and result["portfolio_pnl"] is None
+    assert result["reason"] == "partial_exit_requires_two_contracts"
+    assert result["realized_pnl"] == 0 and result["admitted"] == 0
+    summary = summarize(records, DAY)
+    assert "not executable | 0 | 0 | unavailable" in to_markdown(summary)
+    assert summary["current_permissions_replay"]["portfolio_pnl"] == 0
+
+
+@pytest.mark.asyncio
+async def test_final_quote_for_held_diagnostic_cannot_fill_pending_eligible_replay(tmp_path):
+    sb, _ = setup_book(tmp_path)
+    record(sb, at("10:30:00"), price=1.9, quality=2)
+    record(sb, at("10:30:30"), price=1.81, ask=1.9)
+    source = broker(at("10:31:00"), 1.7, 1.71)
+    await sb.refresh_and_finish_session(source, at("10:31:00"))
+    source.get_option_quote.assert_awaited_once_with("IWM_TEST")
+    events = read_events(tmp_path / "events.jsonl")
+    assert any(e["event"] == "shadow_quote" and e["purpose"] == "session_end" for e in events)
+    eligible = [e for e in events if e["event"] == "shadow_close" and e["channel"] == "eligible"]
+    assert eligible and all(not e["fill_validated"] for e in eligible)
+    result = research(events)
+    assert result["filled"] == 0 and result["closed"] == 0
+    assert any(d["action"] == "cancelled_at_end" for d in result["decisions"])
+
+
+def test_partial_scenario_with_an_executable_candidate_keeps_its_portfolio_result(tmp_path):
+    records, candidate, quote, end = stream(tmp_path)
+    candidate("one", "10:30:00", price=1.81, qty=1)
+    candidate("two", "10:31:00", price=1, qty=2)
+    quote("two", "12:29:45", 1.1)
+    end()
+    result = research(records, "partial_25_breakeven")
+    assert result["status"] == "complete" and result["portfolio_pnl"] == 20
+    assert result["admitted"] == 1

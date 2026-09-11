@@ -6,6 +6,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from app.evaluation.shadow_replay import ET, VARIANTS, replay_session
+from app.evaluation.shadow_funnel import rejection_breakdown
 from app.trading.quote_evidence import parse_quote_timestamp
 
 
@@ -89,6 +90,8 @@ def summarize(events, date, *, model_version="4", context=None) -> dict:
         "model_version": str(model_version), "date": date, "counts_toward_readiness": False,
         "first_eligible_tracking": "available" if str(model_version) == "4" and starts else "unavailable",
         "eligible_opportunities": len(candidates),
+        "rejection_breakdown": rejection_breakdown(selected),
+        "exit_quote_evidence": [_exit_quote_evidence(r) for r in eligible if r["variant"] == "baseline"],
         "eligible_independent": {v: totals([r for r in eligible if r["variant"] == v]) for v in VARIANTS},
         "matched_exits": comparisons,
         "current_permissions_replay": replay_session(selected, respect_permissions=True),
@@ -104,6 +107,17 @@ def summarize(events, date, *, model_version="4", context=None) -> dict:
         "observation_progress": observation_progress(events, context, through_date=date),
     }
     return result
+
+
+def _exit_quote_evidence(row):
+    quote_ts = parse_quote_timestamp(row.get("last_quote_timestamp"))
+    exit_ts = parse_quote_timestamp(row.get("ts"))
+    age = (exit_ts - quote_ts).total_seconds() if quote_ts and exit_ts else None
+    return {"option_symbol": row.get("option_symbol"), "exit_time": row.get("ts"),
+            "quote_timestamp": row.get("last_quote_timestamp"),
+            "quote_age_seconds": round(age, 3) if age is not None else None,
+            "final_quote_refresh": row.get("final_quote_refresh") or "not_requested",
+            "outcome_priced": row.get("outcome_priced", row.get("shadow_pnl") is not None)}
 
 
 def observation_progress(events, context, *, through_date):
@@ -186,16 +200,54 @@ def to_markdown(summary):
               "| Scenario | Status | Admitted | Closed | Sized portfolio P&L |",
               "| --- | --- | ---: | ---: | ---: |"]
     for name, r in [("Current permissions", s["current_permissions_replay"]), *s["research_portfolios"].items()]:
-        lines.append(f"| {name} | {r['status']} | {r.get('admitted', 'n/a')} | "
+        lines.append(f"| {name} | {r['status'].replace('_', ' ')} | {r.get('admitted', 'n/a')} | "
                      f"{r.get('closed', 'n/a')} | {money(r.get('portfolio_pnl'))} |")
+    if s["research_portfolios"]["partial_25_breakeven"]["status"] == "not_executable":
+        lines += ["", "Partial-exit replay was **not executable**: no eligible candidate supported two contracts. "
+                  "There is no partial-exit P&L comparison."]
+    evidence = s.get("exit_quote_evidence", [])
+    if evidence:
+        lines += ["", "### Eligible baseline exit quotes", "",
+                  "| Contract | Quote age at exit | Final refresh | Priced |",
+                  "| --- | ---: | --- | --- |"]
+        for row in evidence:
+            age = "unavailable" if row["quote_age_seconds"] is None else f"{row['quote_age_seconds']:.3f}s"
+            lines.append(f"| {row['option_symbol']} | {age} | {row['final_quote_refresh'].replace('_', ' ')} | "
+                         f"{'yes' if row['outcome_priced'] else 'no'} |")
     if s["first_eligible_tracking"] != "available":
         lines += ["", "Recorded events lack a complete first-eligible quote stream; no portfolio outcome is inferred."]
     progress = s["observation_progress"]
     lines += ["", "### Observation progress", "",
               f"Completed scheduled sessions: {progress['completed_scheduled_sessions']}/{progress['targets']['scheduled_sessions']}. "
               f"Eligible opportunities: {progress['eligible_opportunities']}/{progress['targets']['eligible_opportunities']}.",
-              "The checkpoint requests a review only. It never activates a strategy.", "",
-              "### Diagnostic setups", "",
+              "The checkpoint requests a review only. It never activates a strategy."]
+    funnel = s.get("rejection_breakdown", {})
+    lines += ["", "### Entry-filter rejection breakdown", ""]
+    if funnel.get("status") != "available":
+        lines.append("Original-direction signal observations are unavailable; no rejection counts are inferred.")
+    else:
+        lines += [f"{funnel['signal_observations']} original-direction observations formed "
+                  f"{funnel['unique_setups']} unique shadow setups using the existing 60-minute episode rule. "
+                  "This denominator differs from the distinct signal timestamps in the trade summary.", "",
+                  f"Initially passed filters: {funnel['initially_passed']}. "
+                  f"Initially rejected: {funnel['initially_rejected']}. "
+                  f"Initial eligibility unrecorded: {funnel['initial_eligibility_unrecorded']}.",
+                  f"Ever passed filters: {funnel['ever_passed_entry_filters']}. "
+                  f"Eligible anchors recorded: {funnel['eligible_anchors']}. "
+                  f"Became eligible after rejection: {funnel['became_eligible_after_rejection']}.", "",
+                  "| Initial blocker | Unique setups |", "| --- | ---: |"]
+        for reason, count in funnel["initial_rejections_by_reason"].items():
+            lines.append(f"| {reason} | {count} |")
+        lines += ["", f"Setups with multiple initial blockers: {funnel['initial_multiple_blockers']}. "
+                  "Reason counts overlap and must not be added together.", "",
+                  "| Initial blocker combination | Unique setups |", "| --- | ---: |"]
+        for combo in funnel["initial_rejection_combinations"]:
+            lines.append(f"| {', '.join(combo['reasons'])} | {combo['setups']} |")
+        lines += ["", funnel["eligibility_note"]]
+        if funnel["observations_without_setup_id"] or funnel["anchors_without_recorded_signals"]:
+            lines += [f"Coverage gaps: {funnel['observations_without_setup_id']} observations without setup IDs; "
+                      f"{funnel['anchors_without_recorded_signals']} anchors without recorded signals."]
+    lines += ["", "### Diagnostic setups", "",
               "These include failed entry filters and oversized contracts. P&L is one-contract normalized; "
               "it does not establish an executable portfolio. Alternative exit policies must not be added together.", "",
               "| Diagnostic variant | Priced / closed | Normalized P&L |", "| --- | ---: | ---: |"]

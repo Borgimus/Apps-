@@ -35,6 +35,8 @@ class LiquidityFilter:
         self._max_spread_pct: float = params.get("max_spread_pct", 0.10)
         self._delta_min: float = params.get("delta_target_min", 0.35)
         self._delta_max: float = params.get("delta_target_max", 0.45)
+        self._require_delta: bool = params.get("require_delta", False)
+        self._strict_delta_range: bool = params.get("strict_delta_range", False)
         # Optional cost cap: skip contracts whose ask * 100 exceeds this value.
         # Prevents deep-ITM contracts (e.g. delta=N/A, bid~$79) from being
         # selected and then rejected every cycle by the risk manager.
@@ -55,6 +57,8 @@ class LiquidityFilter:
             "max_spread_pct": self._max_spread_pct,
             "delta_target_min": self._delta_min,
             "delta_target_max": self._delta_max,
+            "require_delta": self._require_delta,
+            "strict_delta_range": self._strict_delta_range,
             "max_contract_cost": self._max_contract_cost,
         }
 
@@ -225,14 +229,17 @@ class LiquidityFilter:
 
         # Reject contracts outside the configured delta fallback band.
         # Uses abs(delta) so puts (negative delta) are compared by magnitude.
-        if contract.delta is not None:
+        if contract.delta is None and self._require_delta:
+            reasons.append("delta unavailable")
+        elif contract.delta is not None:
             d = abs(contract.delta)
-            # Fallback band: ±0.10 around the configured target range.
-            lower = max(0.0, self._delta_min - 0.10)
-            upper = self._delta_max + 0.10
+            lower = self._delta_min if self._strict_delta_range else max(
+                0.0, self._delta_min - 0.10
+            )
+            upper = self._delta_max if self._strict_delta_range else self._delta_max + 0.10
             if d < lower or d > upper:
                 reasons.append(
-                    f"delta abs={d:.3f} outside fallback band "
+                    f"delta abs={d:.3f} outside allowed band "
                     f"[{lower:.2f}, {upper:.2f}]"
                 )
 
@@ -267,14 +274,21 @@ class LiquidityFilter:
         if self._last_rejection_reason:
             return self._last_rejection_reason
 
-        if self._max_contract_cost is None:
-            return "liquidity_filter_no_contract"
-
         candidates = (
             chain.calls
             if signal.direction == SignalDirection.LONG
             else chain.puts
         )
+        if self._require_delta and any(c.delta is None for c in candidates):
+            return "delta_unavailable"
+        if self._strict_delta_range and any(
+            c.delta is not None
+            and not self._delta_min <= abs(c.delta) <= self._delta_max
+            for c in candidates
+        ):
+            return "delta_outside_target"
+        if self._max_contract_cost is None:
+            return "liquidity_filter_no_contract"
         for contract in candidates:
             passes_basic = (
                 contract.open_interest >= self._min_oi

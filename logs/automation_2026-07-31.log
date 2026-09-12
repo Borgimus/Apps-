@@ -1,0 +1,103 @@
+[2026-07-31T09:30:01-04:00] automatic start requested
+Market calendar and paper-account gate passed
+
+All static+broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "9c7f396b874aa607e8f823277eba48137e6f2720",
+  "working_tree_dirty": false,
+  "source_changes": [],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-07-30.log"
+  ],
+  "config_hash_sha256_16": "67954547a3a617d4",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "bd9d7d0a",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+[2026-07-31T09:30:03-04:00] launching Phase 3 runner -> /root/trader/logs/session_2026-07-31.log
+[2026-07-31T12:30:09-04:00] runner exited rc=0
+[2026-07-31T12:35:01-04:00] automatic EOD close-out requested
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "9c7f396b874aa607e8f823277eba48137e6f2720",
+  "working_tree_dirty": true,
+  "source_changes": [
+    "evaluation/ledger.paper_scaled_250_cap_10.json",
+    "evaluation/shadow_book.jsonl"
+  ],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-07-30.log",
+    "logs/broker.log",
+    "logs/live_status.json",
+    "logs/push_events.jsonl",
+    "logs/shadow_book_state.json",
+    "logs/trading.jsonl",
+    "logs/trading.jsonl.1",
+    "logs/trading.jsonl.2",
+    "logs/trading.jsonl.3",
+    "logs/trading.jsonl.4",
+    "logs/trading.jsonl.5",
+    "logs/trading.log"
+  ],
+  "config_hash_sha256_16": "67954547a3a617d4",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "bd9d7d0a",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "9c7f396b874aa607e8f823277eba48137e6f2720",
+  "working_tree_dirty": true,
+  "source_changes": [
+    "evaluation/ledger.paper_scaled_250_cap_10.json",
+    "evaluation/shadow_book.jsonl"
+  ],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-07-30.log",
+    "logs/broker.log",
+    "logs/live_status.json",
+    "logs/push_events.jsonl",
+    "logs/shadow_book_state.json",
+    "logs/trading.jsonl",
+    "logs/trading.jsonl.1",
+    "logs/trading.jsonl.2",
+    "logs/trading.jsonl.3",
+    "logs/trading.jsonl.4",
+    "logs/trading.jsonl.5",
+    "logs/trading.log"
+  ],
+  "config_hash_sha256_16": "67954547a3a617d4",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "a0b6951831e6a013",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "bd9d7d0a",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+[2026-07-31T12:35:03-04:00] broker EOD state clean: 0 positions, 0 open orders
+[agent/paper-scaled-sizing-250-10 21cd7a7] Record Phase 3 session raw artifacts (2026-07-31)
+ 23 files changed, 377530 insertions(+), 310170 deletions(-)
+ create mode 100644 evaluation/reports/2026-07-31.json
+ create mode 100644 evaluation/reports/2026-07-31.md
+ create mode 100644 logs/automation_2026-07-31.log
+ create mode 100644 logs/preflight_2026-07-31.log
+ create mode 100644 logs/session_2026-07-31.exitcode
+ create mode 100644 logs/session_2026-07-31.json
+ create mode 100644 logs/session_2026-07-31.log
+ create mode 100644 logs/shadow_report_2026-07-31.txt
+ create mode 100644 logs/trading.jsonl.6
+To https://github.com/Borgimus/Apps-.git
+   9c7f396..21cd7a7  agent/paper-scaled-sizing-250-10 -> agent/paper-scaled-sizing-250-10
+[2026-07-31T12:35:15-04:00] artifacts committed and pushed
+[2026-07-31T12:35:15-04:00] automatic EOD close-out complete

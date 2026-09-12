@@ -1,0 +1,47 @@
+{
+  "session_date": "2026-08-13",
+  "generated_at": "2026-08-13T12:30:22.891228-04:00",
+  "api_errors": 0,
+  "reconciliation_warnings": [],
+  "trades": {
+    "total_closed": 3,
+    "wins": 1,
+    "losses": 2,
+    "win_rate": 0.3333,
+    "still_open": 0,
+    "rejected": 10,
+    "cancelled": 0
+  },
+  "realized_pnl": -3.0,
+  "unrealized_pnl": 0,
+  "avg_win": 10.0,
+  "avg_loss": -6.5,
+  "max_drawdown": 13.0,
+  "orders": {
+    "submitted": 3,
+    "filled": 3,
+    "partial_fills": 0,
+    "cancelled": 0,
+    "stale_cancels": 0,
+    "rejected": 10,
+    "status_breakdown": {
+      "filled": 3
+    }
+  },
+  "by_strategy": {
+    "orb": {
+      "trades": 2,
+      "wins": 0,
+      "losses": 2,
+      "pnl": -13.0,
+      "win_rate": 0.0
+    },
+    "vwap_reclaim": {
+      "trades": 1,
+      "wins": 1,
+      "losses": 0,
+      "pnl": 10.0,
+      "win_rate": 1.0
+    }
+  }
+}

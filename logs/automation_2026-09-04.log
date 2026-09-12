@@ -1,0 +1,98 @@
+[2026-09-04T09:30:01-04:00] automatic start requested
+Market calendar and paper-account gate passed
+
+All static+broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "c576d7862abfbe08bccd349cb7ec4a839497e43f",
+  "working_tree_dirty": false,
+  "source_changes": [],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-09-03.log"
+  ],
+  "config_hash_sha256_16": "d9b983ac2c7d4383",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "112d178b8a6d7dbf",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "ea5f90ca",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+[2026-09-04T09:30:03-04:00] launching Phase 3 runner -> /root/trader/logs/session_2026-09-04.log
+[2026-09-04T12:30:34-04:00] runner exited rc=0
+[2026-09-04T12:35:01-04:00] automatic EOD close-out requested
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "c576d7862abfbe08bccd349cb7ec4a839497e43f",
+  "working_tree_dirty": true,
+  "source_changes": [
+    "evaluation/ledger.paper_scaled_250_cap_10.guardrails_v3_shadow_validation.json",
+    "evaluation/shadow_book.jsonl"
+  ],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-09-03.log",
+    "logs/broker.log",
+    "logs/live_status.json",
+    "logs/push_events.jsonl",
+    "logs/shadow_book_state.json",
+    "logs/trading.jsonl",
+    "logs/trading.jsonl.1",
+    "logs/trading.jsonl.10",
+    "logs/trading.jsonl.2",
+    "logs/trading.jsonl.3",
+    "logs/trading.jsonl.4",
+    "logs/trading.jsonl.5",
+    "logs/trading.jsonl.6",
+    "logs/trading.jsonl.7",
+    "logs/trading.jsonl.8",
+    "logs/trading.jsonl.9",
+    "logs/trading.log"
+  ],
+  "config_hash_sha256_16": "d9b983ac2c7d4383",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "112d178b8a6d7dbf",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "ea5f90ca",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "c576d7862abfbe08bccd349cb7ec4a839497e43f",
+  "working_tree_dirty": true,
+  "source_changes": [
+    "evaluation/ledger.paper_scaled_250_cap_10.guardrails_v3_shadow_validation.json",
+    "evaluation/shadow_book.jsonl"
+  ],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-09-03.log",
+    "logs/broker.log",
+    "logs/live_status.json",
+    "logs/push_events.jsonl",
+    "logs/shadow_book_state.json",
+    "logs/trading.jsonl",
+    "logs/trading.jsonl.1",
+    "logs/trading.jsonl.10",
+    "logs/trading.jsonl.2",
+    "logs/trading.jsonl.3",
+    "logs/trading.jsonl.4",
+    "logs/trading.jsonl.5",
+    "logs/trading.jsonl.6",
+    "logs/trading.jsonl.7",
+    "logs/trading.jsonl.8",
+    "logs/trading.jsonl.9",
+    "logs/trading.log"
+  ],
+  "config_hash_sha256_16": "d9b983ac2c7d4383",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "112d178b8a6d7dbf",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "ea5f90ca",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+[2026-09-04T12:35:03-04:00] broker EOD state clean: 0 positions, 0 open orders

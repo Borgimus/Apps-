@@ -26,6 +26,8 @@ _ET = ZoneInfo("America/New_York")
 class StrategyStats:
     strategy_id: str
     signals: int = 0
+    signal_observations: int = 0
+    diagnostic_observations: int = 0
     submitted: int = 0
     fills: int = 0
     cancels: int = 0
@@ -46,6 +48,9 @@ class DailyReport:
 
     # Signal / trade counts
     total_signals: int = 0
+    signal_count_basis: str = "stored_signal_rows"
+    entry_signal_observations: int = 0
+    diagnostic_signal_observations: int = 0
     trades_submitted: int = 0
     trades_filled: int = 0
     trades_cancelled: int = 0
@@ -53,7 +58,21 @@ class DailyReport:
 
     # PnL
     realized_pnl: float = 0.0
+    one_contract_normalized_pnl: float = 0.0
     unrealized_pnl: float = 0.0
+    contracts_filled: int = 0
+    sizing_cohort: str = "one_contract"
+    evaluation_cohort: str = "unrecorded"
+    options_data_provider: str = "unrecorded"
+    options_data_adapter_hash: Optional[str] = None
+    shadow_model_version: Optional[str] = None
+    start_delay_seconds: Optional[float] = None
+    session_labels: List[str] = field(default_factory=list)
+    broker_entry_strategies: Optional[List[str]] = None
+    session_context: Dict[str, Any] = field(default_factory=dict)
+    shadow_evaluation: Dict[str, Any] = field(default_factory=dict)
+    premium_budget_dollars: Optional[float] = None
+    contract_cap: int = 1
 
     # Performance
     win_rate: Optional[float] = None
@@ -62,6 +81,12 @@ class DailyReport:
     max_drawdown: float = 0.0
     largest_win: Optional[float] = None
     largest_loss: Optional[float] = None
+
+    # Per-trade option-price excursion and failure-mode diagnostics. These are
+    # observational and never feed back into live entry, exit, or sizing gates.
+    trade_diagnostics: List[Dict[str, Any]] = field(default_factory=list)
+    excursion_summary: Dict[str, Any] = field(default_factory=dict)
+    dominant_failure_mode: Optional[str] = None
 
     # Cost analysis
     slippage_total: float = 0.0
@@ -117,6 +142,8 @@ class DailyReport:
     # Scanner standby
     scanner_standby_activated: bool = False
     standby_reason: Optional[str] = None
+    scanner_standby_event_count: int = 0
+    scanner_standby_recovered: bool = False
 
     # Exit spread warnings
     exit_spread_warning_count: int = 0
@@ -132,6 +159,7 @@ class DailyReport:
 
     # ── ORB evaluation (permissive entry mode) ────────────────────────────────
     orb_signals_total: int = 0
+    orb_signal_observations: int = 0
     orb_signals_traded: int = 0
     orb_signals_blocked: int = 0
     orb_signals_skipped: int = 0
@@ -168,14 +196,45 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
     from app.api.models import DBSessionLog, DBSignal, DBTradeJournal
 
     from app.evaluation.ledger import PHASE3_START
+    _scaled = (
+        settings is not None
+        and getattr(settings, "paper_scaled_sizing_enabled", False) is True
+    )
+    _budget = (
+        float(getattr(settings, "paper_scaled_premium_budget_dollars", 250.0))
+        if _scaled else None
+    )
+    _cap = (
+        int(getattr(settings.universe, "max_contracts_per_position", 1))
+        if settings else 1
+    )
+    _guardrails = (
+        _scaled
+        and getattr(settings, "paper_scaled_guardrails_enabled", False) is True
+    )
+    _guardrail_cohort = (
+        str(getattr(settings, "paper_scaled_guardrail_cohort", "guardrails_v2"))
+        if _guardrails else ""
+    )
+    _cohort = (
+        f"paper_scaled_budget_{_budget:g}_cap_{_cap}_{_guardrail_cohort}"
+        if _guardrails
+        else (f"paper_scaled_budget_{_budget:g}_cap_{_cap}" if _scaled else "one_contract")
+    )
     _phase = "phase3" if session_date >= PHASE3_START else "pre_phase3"
-    _evidence_type = "clean_evaluation" if _phase == "phase3" else "engineering_evidence_only"
+    _evidence_type = (
+        "scaled_paper_evaluation" if _scaled
+        else ("clean_evaluation" if _phase == "phase3" else "engineering_evidence_only")
+    )
     report = DailyReport(
         date=session_date,
         session_start=None,
         session_end=None,
         phase=_phase,
         evidence_type=_evidence_type,
+        sizing_cohort=_cohort,
+        premium_budget_dollars=_budget,
+        contract_cap=_cap,
     )
 
     # ── Session start / end from session logs ─────────────────────────────────
@@ -193,23 +252,41 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
         report.session_start = _fmt_ts(first_ts)
         report.session_end = _fmt_ts(last_ts)
 
+    from app.evaluation.session_context import context_from_logs
+    report.session_context = context_from_logs(logs)
+    for key in ("evaluation_cohort", "options_data_provider", "options_data_adapter_hash",
+                "shadow_model_version", "start_delay_seconds", "session_labels",
+                "broker_entry_strategies"):
+        if key in report.session_context:
+            setattr(report, key, report.session_context[key])
+
     # ── API errors, kill switch, standby, and spread warnings ────────────────
+    # Replay STANDBY events in timestamp order so a later successful scan can
+    # clear the end-of-session state. Older reports treated any opening-cycle
+    # rejection as if the scanner remained halted all day.
+    standby_active = False
     for log in logs:
         if log.level == "error":
             report.api_errors += 1
         evt = (log.event or "").lower()
         if "kill_switch" in evt or "kill switch" in evt:
             report.kill_switch_events += 1
-        if evt == "standby" and not report.scanner_standby_activated:
-            report.scanner_standby_activated = True
+        if evt == "standby":
+            report.scanner_standby_event_count += 1
+            standby_active = True
             try:
                 import json as _json
                 _data = _json.loads(log.data_json) if log.data_json else {}
                 report.standby_reason = _data.get("reason") or log.message
             except Exception:
                 report.standby_reason = log.message
+        elif evt == "standby_recovered":
+            standby_active = False
+            report.scanner_standby_recovered = True
+            report.standby_reason = None
         if evt == "exit_spread_warning":
             report.exit_spread_warning_count += 1
+    report.scanner_standby_activated = standby_active
 
     # ── Signal counts ─────────────────────────────────────────────────────────
     signal_rows = (
@@ -244,7 +321,15 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
 
     # ── PnL ───────────────────────────────────────────────────────────────────
     pnls = [float(t.realized_pnl) for t in closed]
+    quantities = [
+        max(1, int(getattr(t, "filled_quantity", None) or getattr(t, "quantity", 1) or 1))
+        for t in closed
+    ]
     report.realized_pnl = sum(pnls)
+    report.contracts_filled = sum(quantities)
+    report.one_contract_normalized_pnl = sum(
+        pnl / qty for pnl, qty in zip(pnls, quantities)
+    )
     report.unrealized_pnl = sum(
         float(t.unrealized_pnl) for t in trades
         if t.status == "open" and t.unrealized_pnl is not None
@@ -276,6 +361,39 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
             if dd > max_dd:
                 max_dd = dd
         report.max_drawdown = max_dd
+
+    # ── Trade excursion / failure attribution ────────────────────────────────
+    # MFE and MAE are already persisted by the runner. Surface that telemetry
+    # here so a losing session can be separated into entry timing, contract
+    # selection, signal failure, and exit-giveback evidence.
+    from app.evaluation.trade_attribution import (
+        AttributionThresholds,
+        analyze_trade,
+        summarize_diagnostics,
+    )
+
+    attribution_thresholds = AttributionThresholds()
+    if settings is not None:
+        attribution_thresholds = AttributionThresholds(
+            max_spread_pct=float(
+                getattr(getattr(settings, "risk", None), "max_spread_pct", 0.10)
+            ),
+            delta_target_min=float(
+                getattr(getattr(settings, "options", None), "delta_target_min", 0.35)
+            ),
+            delta_target_max=float(
+                getattr(getattr(settings, "options", None), "delta_target_max", 0.45)
+            ),
+        )
+    diagnostics = [
+        analyze_trade(trade, attribution_thresholds)
+        for trade in sorted(closed, key=lambda t: t.exit_time or datetime.min)
+    ]
+    report.trade_diagnostics = [row.to_dict() for row in diagnostics]
+    report.excursion_summary = summarize_diagnostics(diagnostics)
+    report.dominant_failure_mode = report.excursion_summary.get(
+        "dominant_failure_mode"
+    )
 
     # ── Slippage & spread cost ────────────────────────────────────────────────
     report.slippage_total = sum(
@@ -370,11 +488,22 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
             report.scanned_symbols_count = len(scan_rows)
             report.candidate_count_passed  = sum(1 for r in scan_rows if not r.is_rejected)
             report.candidate_count_rejected = sum(1 for r in scan_rows if r.is_rejected)
-            report.selected_symbols = [r.symbol for r in scan_rows if r.selected]
-            top = sorted(
+            report.selected_symbols = list(dict.fromkeys(
+                r.symbol for r in scan_rows if r.selected
+            ))
+            ranked = sorted(
                 [r for r in scan_rows if not r.is_rejected],
                 key=lambda r: r.score or 0, reverse=True,
-            )[:5]
+            )
+            top = []
+            top_symbols = set()
+            for row in ranked:
+                if row.symbol in top_symbols:
+                    continue
+                top_symbols.add(row.symbol)
+                top.append(row)
+                if len(top) == 5:
+                    break
             report.top_candidates = [
                 {"symbol": r.symbol, "score": r.score, "signal_type": r.signal_type}
                 for r in top
@@ -464,7 +593,31 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
             )
         ).scalars().all()
         if bridge_rows:
+            from app.evaluation.signal_counts import distinct_entry_signals, is_diagnostic
+            unique_rows = distinct_entry_signals(bridge_rows)
             report.bridge_entries_count = len(bridge_rows)
+            report.diagnostic_signal_observations = sum(is_diagnostic(row) for row in bridge_rows)
+            report.entry_signal_observations = len(bridge_rows) - report.diagnostic_signal_observations
+            report.total_signals = len(unique_rows)
+            report.signal_count_basis = "distinct_entry_signals"
+            unique_counts = _Counter(row.strategy_id or "unknown" for row in unique_rows)
+            _bridge_signal_counts = _Counter(
+                (row.strategy_id or "unknown") for row in bridge_rows
+            )
+            _stats_by_strategy = {
+                stats.strategy_id: stats for stats in report.by_strategy
+            }
+            for _sid, _count in _bridge_signal_counts.items():
+                if _sid not in _stats_by_strategy:
+                    _stats = StrategyStats(strategy_id=_sid)
+                    report.by_strategy.append(_stats)
+                    _stats_by_strategy[_sid] = _stats
+                _stats_by_strategy[_sid].signals = unique_counts[_sid]
+                _stats_by_strategy[_sid].signal_observations = _count
+                _stats_by_strategy[_sid].diagnostic_observations = sum(
+                    is_diagnostic(row) for row in bridge_rows if (row.strategy_id or "unknown") == _sid
+                )
+            report.by_strategy.sort(key=lambda stats: stats.strategy_id)
             report.bridge_traded_count = sum(1 for r in bridge_rows if r.final_decision == "traded")
             report.bridge_blocked_count = sum(1 for r in bridge_rows if r.final_decision == "blocked")
             report.bridge_skipped_count = sum(1 for r in bridge_rows if r.final_decision == "skipped")
@@ -486,7 +639,10 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
             report.bridge_top_blocked_reasons = top_reasons
 
             # ── ORB-specific diagnostics ──────────────────────────────────────
-            orb_rows = [r for r in bridge_rows if r.strategy_id == "orb"]
+            # Repeated polls of one ORB event must not multiply its quality or
+            # forward-performance weight. Raw decisions remain visible above.
+            report.orb_signal_observations = sum(r.strategy_id == "orb" for r in bridge_rows)
+            orb_rows = [r for r in unique_rows if r.strategy_id == "orb"]
             report.orb_signals_total = len(orb_rows)
             report.orb_signals_traded = sum(1 for r in orb_rows if r.final_decision == "traded")
             report.orb_signals_blocked = sum(1 for r in orb_rows if r.final_decision == "blocked")
@@ -589,9 +745,23 @@ def _fmt_ts(ts: Optional[datetime]) -> Optional[str]:
 def _generate_notes(r: DailyReport):
     notes: List[str] = []
     recs: List[str] = []
+    if r.broker_entry_strategies == []:
+        notes.append("Observation session: all configured strategies are shadow-only or diagnostic-only; broker entries are disabled.")
+    if "late_start" in r.session_labels:
+        notes.append(f"Late start: {r.start_delay_seconds / 60:.1f} minutes after the scheduled open; analyze separately from full sessions.")
+    if r.options_data_provider == "unrecorded":
+        notes.append("Historical provider/cohort context was not recorded; current settings have not been applied retroactively.")
+    if "mixed_session_context" in r.session_labels:
+        notes.append("Provider, cohort, simulator version or strategy permissions changed during this session; exclude from a homogeneous cohort.")
 
     total_closed = len([s for s in r.by_strategy for _ in range(s.wins + s.losses)])
     total_attempted = r.trades_submitted + r.trades_rejected
+
+    if r.sizing_cohort != "one_contract":
+        notes.append(
+            f"Separate paper-only scaled-sizing cohort: {r.sizing_cohort}; "
+            "do not merge with the frozen one-contract clean cohort"
+        )
 
     if total_attempted > 0:
         rej_pct = r.trades_rejected / total_attempted * 100
@@ -627,10 +797,46 @@ def _generate_notes(r: DailyReport):
         reason_str = f": {r.standby_reason}" if r.standby_reason else ""
         notes.append(f"Scanner entered STANDBY — no new entries{reason_str}")
         recs.append("Review universe scan settings; consider adjusting min_scan_score or rvol threshold")
+    elif r.scanner_standby_recovered:
+        notes.append(
+            f"Scanner recovered after {r.scanner_standby_event_count} "
+            "STANDBY event(s); later scans resumed candidate selection"
+        )
 
     if r.exit_spread_warning_count > 0:
         notes.append(f"{r.exit_spread_warning_count} exit spread warning(s) — spread exceeded max_spread_pct at exit")
         recs.append("Wide exit spreads recorded; consider using marketable_limit exit mode or tighter spread gate")
+
+    if r.dominant_failure_mode == "exit_asymmetry":
+        notes.append(
+            "Excursion evidence is dominated by trades that developed meaningful "
+            "MFE and later closed at a loss"
+        )
+        recs.append(
+            "Test alternative profit-protection and trailing-exit variants in shadow mode"
+        )
+    elif r.dominant_failure_mode == "entry_timing":
+        notes.append(
+            "Excursion evidence is dominated by late fills that never developed meaningful MFE"
+        )
+        recs.append(
+            "Review signal-to-fill delay and compare signal-time quotes with actual fills"
+        )
+    elif r.dominant_failure_mode == "contract_selection":
+        notes.append(
+            "Excursion evidence is dominated by trades that never worked and carried "
+            "spread or delta selection flags"
+        )
+        recs.append(
+            "Review spread, delta, and DTE selection using shadow comparisons before changing gates"
+        )
+    elif r.dominant_failure_mode == "entry_signal_failure":
+        notes.append(
+            "Excursion evidence is dominated by entries that never developed meaningful MFE"
+        )
+        recs.append(
+            "Validate entry conditions and direction before tuning exits"
+        )
 
     slippage_per_fill = (r.slippage_total / r.trades_filled) if r.trades_filled > 0 else 0
     if abs(slippage_per_fill) > 0.10:
@@ -703,10 +909,15 @@ def _scan_pipeline_section(r: DailyReport) -> str:
     if r.scanned_symbols_count == 0 and not r.scanner_standby_activated:
         return ""
     selected_str = ", ".join(r.selected_symbols) if r.selected_symbols else "none"
-    standby_row = (
-        f"| **STANDBY** | {r.standby_reason or 'activated'} |\n"
-        if r.scanner_standby_activated else ""
-    )
+    if r.scanner_standby_activated:
+        standby_row = f"| **STANDBY** | {r.standby_reason or 'activated'} |\n"
+    elif r.scanner_standby_recovered:
+        standby_row = (
+            f"| STANDBY recovery | recovered after "
+            f"{r.scanner_standby_event_count} event(s) |\n"
+        )
+    else:
+        standby_row = ""
     top_rows = ""
     for c in r.top_candidates:
         top_rows += f"| {c.get('symbol','')} | {c.get('score', 0):.1f} | {c.get('signal_type', '')} |\n"
@@ -738,7 +949,7 @@ def _scan_pipeline_section(r: DailyReport) -> str:
         f"\n## Scan Pipeline\n\n"
         f"| Metric | Value |\n|---|---|\n"
         f"{standby_row}"
-        f"| Symbols scanned | {r.scanned_symbols_count} |\n"
+        f"| Symbol scan observations | {r.scanned_symbols_count} |\n"
         f"| Passed | {r.candidate_count_passed} |\n"
         f"| Rejected | {r.candidate_count_rejected} |\n"
         f"{liquidity_row}"
@@ -776,10 +987,13 @@ def _bridge_section(r: DailyReport) -> str:
         f"\n## Signal Bridge Diagnostics\n\n"
         f"{sample_warn}"
         f"| Metric | Value |\n|---|---|\n"
-        f"| Signals evaluated | {r.bridge_entries_count} |\n"
+        f"| Raw bridge observations | {r.bridge_entries_count} |\n"
+        f"| Diagnostic-only observations | {r.diagnostic_signal_observations} |\n"
+        f"| Entry-signal observations | {r.entry_signal_observations} |\n"
+        f"| Distinct entry signals | {r.total_signals} |\n"
         f"| Traded | {r.bridge_traded_count} |\n"
         f"| Blocked | {r.bridge_blocked_count} |\n"
-        f"| Skipped (dedup/cooldown) | {r.bridge_skipped_count} |\n"
+        f"| Skipped (including diagnostics) | {r.bridge_skipped_count} |\n"
         f"{strat_table}"
         f"{reasons_md}"
     )
@@ -802,6 +1016,67 @@ def _pnl_by_symbol_section(r: DailyReport) -> str:
         "\n## P&L by Symbol\n\n"
         "| Symbol | PnL | Win Rate | Expectancy |\n"
         "|---|---|---|---|\n"
+        f"{rows}"
+    )
+
+
+def _excursion_section(r: DailyReport) -> str:
+    if not r.trade_diagnostics:
+        return ""
+
+    summary = r.excursion_summary or {}
+    analyzed = summary.get("trades_analyzed", len(r.trade_diagnostics))
+    covered = summary.get("trades_with_excursion_data", 0)
+    coverage = summary.get("coverage_pct")
+    avg_mfe = summary.get("average_mfe_dollars")
+    avg_mae = summary.get("average_mae_dollars")
+    giveback = summary.get("total_mfe_giveback_dollars", 0.0)
+    dominant = summary.get("dominant_failure_mode") or "none"
+    attribution_counts = summary.get("attribution_counts") or {}
+    attribution_count_text = ", ".join(
+        f"{name}={count}" for name, count in attribution_counts.items()
+    ) or "none"
+
+    rows = ""
+    for row in r.trade_diagnostics:
+        pnl = row.get("realized_pnl")
+        mfe = row.get("mfe_dollars")
+        mae = row.get("mae_dollars")
+        retention = row.get("profit_retention_ratio")
+        latency = row.get("fill_latency_seconds")
+        spread = row.get("entry_spread_pct")
+        delta = row.get("delta")
+        dte = row.get("dte")
+        flags = ", ".join(row.get("evidence_flags") or []) or "none"
+        rows += (
+            f"| {row.get('symbol', 'unknown')} | {row.get('strategy_id', 'unknown')} | "
+            f"{row.get('quantity', 1)} | "
+            f"{f'${pnl:+.2f}' if pnl is not None else 'n/a'} | "
+            f"{f'${mfe:+.2f}' if mfe is not None else 'n/a'} | "
+            f"{f'${mae:+.2f}' if mae is not None else 'n/a'} | "
+            f"{f'{retention:.1%}' if retention is not None else 'n/a'} | "
+            f"{f'{latency:.0f}s' if latency is not None else 'n/a'} | "
+            f"{f'{spread:.1%}' if spread is not None else 'n/a'} | "
+            f"{f'{delta:.2f}' if delta is not None else 'n/a'} | "
+            f"{dte if dte is not None else 'n/a'} | "
+            f"{row.get('primary_attribution', 'unknown')} | {flags} |\n"
+        )
+
+    return (
+        "\n## Trade Excursion and Failure Attribution\n\n"
+        "> MFE and MAE are sampled at the runner polling cadence, not from "
+        "exchange-tick data. Attribution is diagnostic evidence, not a trading gate.\n\n"
+        "| Metric | Value |\n|---|---|\n"
+        f"| Trades analyzed | {analyzed} |\n"
+        f"| Excursion coverage | {covered}/{analyzed} "
+        f"({f'{coverage:.1%}' if coverage is not None else 'n/a'}) |\n"
+        f"| Average MFE | {f'${avg_mfe:+.2f}' if avg_mfe is not None else 'n/a'} |\n"
+        f"| Average MAE | {f'${avg_mae:+.2f}' if avg_mae is not None else 'n/a'} |\n"
+        f"| Total MFE giveback | ${giveback:.2f} |\n"
+        f"| Dominant failure mode | {dominant} |\n"
+        f"| Attribution counts | {attribution_count_text} |\n\n"
+        "| Symbol | Strategy | Qty | PnL | MFE | MAE | MFE retained | Fill | Spread | Delta | DTE | Attribution | Flags |\n"
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|\n"
         f"{rows}"
     )
 
@@ -850,7 +1125,8 @@ def _orb_section(r: DailyReport) -> str:
     return (
         f"\n## ORB Evaluation\n\n"
         f"| Metric | Value |\n|---|---|\n"
-        f"| ORB signals total | {r.orb_signals_total} |\n"
+        f"| Distinct ORB entry signals | {r.orb_signals_total} |\n"
+        f"| Raw ORB observations | {r.orb_signal_observations} |\n"
         f"| Traded | {r.orb_signals_traded} |\n"
         f"| Blocked | {r.orb_signals_blocked} |\n"
         f"| Skipped (dedup/cooldown/reserve) | {r.orb_signals_skipped} |\n"
@@ -894,9 +1170,24 @@ def to_markdown(report: DailyReport) -> str:
         "(2026-07-12). P&L and win-rate statistics in this report cannot be used as "
         "strategy-performance conclusions. See `research/pre_phase3_engineering_evidence.md`."
         if r.phase == "pre_phase3"
-        else "> **Phase 3 clean evaluation** — all P1–P7 defect fixes applied. "
-        "This session is eligible for the clean-cohort analysis after acceptance criteria are met."
+        else "> **Phase 3 evaluation record.** Cohort acceptance requires review of "
+        "the session's data provider, timing, and evidence. A zero-fill session adds no broker-fill performance sample."
     )
+    if r.sizing_cohort != "one_contract":
+        phase_banner += (
+            "\n\n> **Separate paper-only scaled-sizing cohort** — actual P&L reflects "
+            "multi-contract sizing. One-contract-normalized P&L is shown for comparison; "
+            "do not merge this session into the frozen one-contract clean cohort."
+        )
+
+    budget_str = f"${r.premium_budget_dollars:.2f}" if r.premium_budget_dollars is not None else "n/a"
+    shadow_md = ""
+    if r.shadow_evaluation:
+        from app.evaluation.shadow_summary import to_markdown as shadow_markdown
+        if "error" in r.shadow_evaluation:
+            shadow_md = "Shadow evaluation unavailable: " + r.shadow_evaluation["error"]
+        else:
+            shadow_md = shadow_markdown(r.shadow_evaluation)
 
     return f"""# Daily Evaluation Report — {r.date}
 
@@ -904,11 +1195,23 @@ def to_markdown(report: DailyReport) -> str:
 
 **Session:** {r.session_start or "unknown"} → {r.session_end or "unknown"}
 
+**Evaluation cohort:** {r.evaluation_cohort}
+
+**Options data:** {r.options_data_provider} | **Shadow model:** {r.shadow_model_version or "unrecorded"}
+
+**Session labels:** {", ".join(r.session_labels) or ("scheduled_start" if r.start_delay_seconds is not None else "unrecorded")}
+
+**Start delay:** {f"{r.start_delay_seconds / 60:.1f} minutes" if r.start_delay_seconds is not None else "unrecorded"}
+
+**Strategies permitted to submit entries:** {", ".join(r.broker_entry_strategies) if r.broker_entry_strategies else ("none" if r.broker_entry_strategies == [] else "unrecorded")}
+
+{shadow_md}
+
 ## Trade Summary
 
 | Metric | Value |
 |---|---|
-| Total signals | {r.total_signals} |
+| {"Distinct entry signals" if r.signal_count_basis == "distinct_entry_signals" else "Stored signals"} | {r.total_signals} |
 | Trades submitted | {r.trades_submitted} |
 | Fills | {r.trades_filled} |
 | Cancels | {r.trades_cancelled} |
@@ -918,8 +1221,13 @@ def to_markdown(report: DailyReport) -> str:
 
 | Metric | Value |
 |---|---|
-| Realized PnL | ${r.realized_pnl:.2f} |
+| Actual realized PnL | ${r.realized_pnl:.2f} |
+| One-contract-normalized PnL | ${r.one_contract_normalized_pnl:.2f} |
 | Unrealized PnL | ${r.unrealized_pnl:.2f} |
+| Contracts filled | {r.contracts_filled} |
+| Sizing cohort | {r.sizing_cohort} |
+| Premium budget | {budget_str} |
+| Contract cap | {r.contract_cap} |
 | Win rate | {win_rate_str} |
 | Avg win | {avg_win_str} |
 | Avg loss | {avg_loss_str} |
@@ -948,7 +1256,7 @@ def to_markdown(report: DailyReport) -> str:
 | Take-profit exits | {f"{r.take_profit_hit_pct:.1%}" if r.take_profit_hit_pct is not None else "n/a"} |
 | EOD exits | {f"{r.eod_exit_pct:.1%}" if r.eod_exit_pct is not None else "n/a"} |
 
-{_fill_mode_table(r)}{_cancel_reason_table(r)}{_bridge_section(r)}{_orb_section(r)}
+{_fill_mode_table(r)}{_cancel_reason_table(r)}{_excursion_section(r)}{_bridge_section(r)}{_orb_section(r)}
 
 ## System Health
 
@@ -956,14 +1264,14 @@ def to_markdown(report: DailyReport) -> str:
 |---|---|
 | API errors | {r.api_errors} |
 | Kill switch events | {r.kill_switch_events} |
-| Scanner standby | {"YES — " + r.standby_reason if r.scanner_standby_activated and r.standby_reason else ("YES" if r.scanner_standby_activated else "no")} |
+| Scanner standby | {"YES — " + r.standby_reason if r.scanner_standby_activated and r.standby_reason else ("YES" if r.scanner_standby_activated else (f"recovered after {r.scanner_standby_event_count} event(s)" if r.scanner_standby_recovered else "no"))} |
 | Exit spread warnings | {r.exit_spread_warning_count} |
 
 {_scan_pipeline_section(r)}{_pnl_by_symbol_section(r)}
 
 ## Per-Strategy Breakdown
 
-| Strategy | Signals | Submitted | Fills | Cancels | Rejects | PnL | Win Rate |
+| Strategy | Distinct entry signals | Submitted | Fills | Cancels | Rejects | PnL | Win Rate |
 |---|---|---|---|---|---|---|---|
 {strat_rows.rstrip()}
 
@@ -990,6 +1298,7 @@ async def send_summary_alert(report: DailyReport, alert_service) -> None:
                 f"Eval report {report.date} | "
                 f"trades={report.trades_filled} | "
                 f"pnl=${report.realized_pnl:.2f} | "
+                f"normalized=${report.one_contract_normalized_pnl:.2f} | "
                 f"win={win_rate_str} | "
                 f"dd=${report.max_drawdown:.2f}"
             ),
@@ -997,6 +1306,8 @@ async def send_summary_alert(report: DailyReport, alert_service) -> None:
                 "date": report.date,
                 "trades_filled": report.trades_filled,
                 "realized_pnl": report.realized_pnl,
+                "one_contract_normalized_pnl": report.one_contract_normalized_pnl,
+                "sizing_cohort": report.sizing_cohort,
                 "win_rate": report.win_rate,
                 "max_drawdown": report.max_drawdown,
                 "api_errors": report.api_errors,

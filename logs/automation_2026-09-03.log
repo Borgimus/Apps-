@@ -1,0 +1,113 @@
+[2026-09-03T09:30:01-04:00] automatic start requested
+Market calendar and paper-account gate passed
+
+All static+broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "b005fa9026cbdf1a7258de6b6166c14478e4b617",
+  "working_tree_dirty": false,
+  "source_changes": [],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-09-02.log"
+  ],
+  "config_hash_sha256_16": "d9b983ac2c7d4383",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "112d178b8a6d7dbf",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "ea5f90ca",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+[2026-09-03T09:30:03-04:00] launching Phase 3 runner -> /root/trader/logs/session_2026-09-03.log
+[2026-09-03T12:30:08-04:00] runner exited rc=0
+[2026-09-03T12:35:01-04:00] automatic EOD close-out requested
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "b005fa9026cbdf1a7258de6b6166c14478e4b617",
+  "working_tree_dirty": true,
+  "source_changes": [
+    "evaluation/ledger.paper_scaled_250_cap_10.guardrails_v3_shadow_validation.json",
+    "evaluation/shadow_book.jsonl"
+  ],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-09-02.log",
+    "logs/broker.log",
+    "logs/live_status.json",
+    "logs/push_events.jsonl",
+    "logs/shadow_book_state.json",
+    "logs/trading.jsonl",
+    "logs/trading.jsonl.1",
+    "logs/trading.jsonl.10",
+    "logs/trading.jsonl.2",
+    "logs/trading.jsonl.3",
+    "logs/trading.jsonl.4",
+    "logs/trading.jsonl.5",
+    "logs/trading.jsonl.6",
+    "logs/trading.jsonl.7",
+    "logs/trading.jsonl.8",
+    "logs/trading.jsonl.9",
+    "logs/trading.log"
+  ],
+  "config_hash_sha256_16": "d9b983ac2c7d4383",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "112d178b8a6d7dbf",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "ea5f90ca",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "b005fa9026cbdf1a7258de6b6166c14478e4b617",
+  "working_tree_dirty": true,
+  "source_changes": [
+    "evaluation/ledger.paper_scaled_250_cap_10.guardrails_v3_shadow_validation.json",
+    "evaluation/shadow_book.jsonl"
+  ],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-09-02.log",
+    "logs/broker.log",
+    "logs/live_status.json",
+    "logs/push_events.jsonl",
+    "logs/shadow_book_state.json",
+    "logs/trading.jsonl",
+    "logs/trading.jsonl.1",
+    "logs/trading.jsonl.10",
+    "logs/trading.jsonl.2",
+    "logs/trading.jsonl.3",
+    "logs/trading.jsonl.4",
+    "logs/trading.jsonl.5",
+    "logs/trading.jsonl.6",
+    "logs/trading.jsonl.7",
+    "logs/trading.jsonl.8",
+    "logs/trading.jsonl.9",
+    "logs/trading.log"
+  ],
+  "config_hash_sha256_16": "d9b983ac2c7d4383",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "112d178b8a6d7dbf",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "ea5f90ca",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+[2026-09-03T12:35:05-04:00] broker EOD state clean: 0 positions, 0 open orders
+[agent/paper-scaled-sizing-250-10 c576d78] Record Phase 3 session raw artifacts (2026-09-03)
+ 28 files changed, 929901 insertions(+), 913909 deletions(-)
+ create mode 100644 evaluation/reports/2026-09-03.json
+ create mode 100644 evaluation/reports/2026-09-03.md
+ create mode 100644 logs/automation_2026-09-03.log
+ create mode 100644 logs/preflight_2026-09-03.log
+ create mode 100644 logs/session_2026-09-03.exitcode
+ create mode 100644 logs/session_2026-09-03.json
+ create mode 100644 logs/session_2026-09-03.log
+ create mode 100644 logs/shadow_report_2026-09-03.txt
+ create mode 100644 logs/trading.log.1
+To https://github.com/Borgimus/Apps-.git
+   b005fa9..c576d78  agent/paper-scaled-sizing-250-10 -> agent/paper-scaled-sizing-250-10
+[2026-09-03T12:35:20-04:00] artifacts committed and pushed
+[2026-09-03T12:35:20-04:00] automatic EOD close-out complete

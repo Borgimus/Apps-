@@ -25,14 +25,16 @@ from __future__ import annotations
 
 import json
 import logging
+import math
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+from zoneinfo import ZoneInfo
 
 logger = logging.getLogger(__name__)
 
-_LEDGER_VERSION = "2"
+_LEDGER_VERSION = "3"
 
 # First session date for which ALL P1–P7 defect fixes are in effect.
 # Sessions on or after this date are eligible for Phase 3 (clean cohort) analysis.
@@ -74,6 +76,14 @@ class LedgerEntry:
     breakevens: int = 0
     gross_wins: float = 0.0    # sum of P&L for individual winning trades
     gross_losses: float = 0.0  # sum of abs(P&L) for individual losing trades
+    trade_metrics_complete: Optional[bool] = None  # None means legacy, unverified coverage
+    trade_metric_errors: List[str] = field(default_factory=list)
+    options_data_provider: str = "unrecorded"
+    options_data_adapter_hash: Optional[str] = None
+    evaluation_cohort: str = "unrecorded"
+    shadow_model_version: Optional[str] = None
+    start_delay_seconds: Optional[float] = None
+    session_labels: List[str] = field(default_factory=list)
 
 
 # ── Ledger class ──────────────────────────────────────────────────────────────
@@ -85,6 +95,7 @@ class EvaluationLedger:
         self.sessions: List[LedgerEntry] = []
         self._created_at: str = datetime.utcnow().isoformat()
         self._last_updated: str = self._created_at
+        self._load_errors: List[str] = []
 
     # ── Persistence ───────────────────────────────────────────────────────────
 
@@ -96,11 +107,14 @@ class EvaluationLedger:
             "created_at": self._created_at,
             "last_updated": self._last_updated,
             "phase3_start_date": PHASE3_START,
+            "load_errors": self._load_errors,
             "sessions": [asdict(s) for s in self.sessions],
             "cumulative": self.compute_cumulative(),
             "phase3_cumulative": self.compute_cumulative(phase3_only=True),
         }
-        self.ledger_file.write_text(json.dumps(data, indent=2, default=str))
+        tmp = self.ledger_file.with_suffix(".tmp")
+        tmp.write_text(json.dumps(data, indent=2, default=str, allow_nan=False))
+        tmp.replace(self.ledger_file)
         logger.info("Evaluation ledger saved to %s (%d session(s))", self.ledger_file, len(self.sessions))
 
     @classmethod
@@ -113,13 +127,16 @@ class EvaluationLedger:
             raw = json.loads(p.read_text())
             inst._created_at = raw.get("created_at", inst._created_at)
             inst._last_updated = raw.get("last_updated", inst._last_updated)
+            inst._load_errors = raw.get("load_errors", [])
             for s in raw.get("sessions", []):
                 try:
                     inst.sessions.append(LedgerEntry(**s))
                 except Exception as exc:
                     logger.warning("Skipping malformed ledger entry: %s", exc)
+                    inst._load_errors.append(f"Malformed session {s.get('date', 'unknown')}")
         except Exception as exc:
             logger.error("Could not load ledger from %s: %s", ledger_file, exc)
+            inst._load_errors.append("Ledger could not be parsed")
         return inst
 
     # ── Update ────────────────────────────────────────────────────────────────
@@ -154,21 +171,61 @@ class EvaluationLedger:
         breakevens = 0
         gross_wins = 0.0
         gross_losses = 0.0
+        metric_errors = []
+        complete = trade_records is not None
+        if trade_records is None:
+            metric_errors.append("Trade records not supplied")
+        else:
+            wins = losses = 0
+            by_strategy = {}
 
         if trade_records:
             for t in trade_records:
+                # Rejections remain diagnostic attempts, never completed trades.
+                _accumulate_reject(t, reject_reasons)
+
+                # Only broker-closed journal rows belong in performance metrics.
+                # Rejected and cancelled attempts can carry a default 0.0 P&L;
+                # treating those rows as breakevens corrupts trade count,
+                # expectancy, win rate, and every cumulative dimension.
+                if getattr(t, "status", "") != "closed":
+                    continue
+                _realized_pnl = getattr(t, "realized_pnl", None)
+                if _realized_pnl is None:
+                    metric_errors.append("Closed trade has no realized P&L")
+                    continue
+                if not math.isfinite(float(_realized_pnl)):
+                    metric_errors.append("Closed trade has non-finite realized P&L")
+                    continue
+
                 _accumulate_hour(t, by_hour)
                 _accumulate_delta(t, by_delta)
                 _accumulate_spread(t, by_spread)
-                _accumulate_reject(t, reject_reasons)
-                # Accumulate per-trade P&L for trade-level profit factor
-                _pnl = float(getattr(t, "realized_pnl", None) or 0)
+
+                # Accumulate per-trade P&L for trade-level profit factor.
+                _pnl = float(_realized_pnl)
+                sid = getattr(t, "strategy_id", None) or "unknown"
+                bucket = by_strategy.setdefault(sid, {"trades": 0, "wins": 0, "losses": 0, "breakevens": 0, "pnl": 0.0})
+                bucket["trades"] += 1
+                bucket["pnl"] = round(bucket["pnl"] + _pnl, 2)
                 if _pnl > 0:
+                    wins += 1
+                    bucket["wins"] += 1
                     gross_wins += _pnl
                 elif _pnl < 0:
+                    losses += 1
+                    bucket["losses"] += 1
                     gross_losses += abs(_pnl)
                 else:
                     breakevens += 1
+                    bucket["breakevens"] += 1
+
+        if trade_records is not None:
+            if not math.isclose(gross_wins - gross_losses, r.realized_pnl, rel_tol=0, abs_tol=0.011):
+                metric_errors.append("Trade P&L does not reconcile to daily report")
+            if wins != sum(s.wins for s in r.by_strategy) or losses != sum(s.losses for s in r.by_strategy):
+                metric_errors.append("Trade outcomes do not reconcile to daily report")
+        complete = complete and not metric_errors
 
         phase = "phase3" if r.date >= PHASE3_START else "pre_phase3"
         entry = LedgerEntry(
@@ -196,6 +253,15 @@ class EvaluationLedger:
             breakevens=breakevens,
             gross_wins=round(gross_wins, 2),
             gross_losses=round(gross_losses, 2),
+            trade_metrics_complete=complete,
+            trade_metric_errors=metric_errors,
+            options_data_provider=r.options_data_provider,
+            options_data_adapter_hash=r.options_data_adapter_hash,
+            evaluation_cohort=r.evaluation_cohort,
+            shadow_model_version=r.shadow_model_version,
+            start_delay_seconds=r.start_delay_seconds,
+            session_labels=list(r.session_labels),
+            contamination_flags=list(r.session_labels),
         )
 
         # Replace if same date already present
@@ -213,8 +279,14 @@ class EvaluationLedger:
             else self.sessions
         )
         if not sessions:
-            return _empty_cumulative()
+            result = _empty_cumulative()
+            if self._load_errors:
+                result.update(trade_metrics_complete=False, total_trades=None,
+                              expectancy=None, load_errors=self._load_errors)
+            return result
 
+        incomplete_dates = [s.date for s in sessions if not _metrics_complete(s)]
+        complete = not incomplete_dates and not self._load_errors
         total_wins = sum(s.wins for s in sessions)
         total_losses = sum(s.losses for s in sessions)
         total_breakevens = sum(s.breakevens for s in sessions)
@@ -223,17 +295,10 @@ class EvaluationLedger:
         expectancy = (total_pnl / total_trades) if total_trades else 0.0
         win_rate = (total_wins / total_trades) if total_trades else None
 
-        # Profit factor from individual trade P&L when available;
-        # falls back to session-level gross P&L for older entries lacking gross_wins/losses.
+        # Never mix partial trade coverage or session-level P&L with trade metrics.
         gw = sum(s.gross_wins for s in sessions)
         gl = sum(s.gross_losses for s in sessions)
-        if gl > 0:
-            profit_factor = gw / gl
-        else:
-            # Legacy fallback: sum positive/negative session P&L
-            wins_sum = sum(s.realized_pnl for s in sessions if s.realized_pnl > 0)
-            losses_sum = abs(sum(s.realized_pnl for s in sessions if s.realized_pnl < 0))
-            profit_factor = (wins_sum / losses_sum) if losses_sum > 0 else None
+        profit_factor = gw / gl if complete and gl > 0 else None
 
         # Max drawdown from cumulative PnL curve
         cum_pnl = 0.0
@@ -261,10 +326,14 @@ class EvaluationLedger:
 
         return {
             "trading_days": len(sessions),
-            "total_trades": total_trades,
+            "total_trades": total_trades if complete else None,
+            "reported_total_trades": sum(s.total_trades for s in sessions),
+            "trade_metrics_complete": complete,
+            "incomplete_session_dates": incomplete_dates,
+            "load_errors": self._load_errors,
             "total_pnl": round(total_pnl, 2),
-            "expectancy": round(expectancy, 2),
-            "win_rate": round(win_rate, 4) if win_rate is not None else None,
+            "expectancy": round(expectancy, 2) if complete else None,
+            "win_rate": round(win_rate, 4) if complete and win_rate is not None else None,
             "profit_factor": round(profit_factor, 2) if profit_factor is not None else None,
             "max_drawdown": round(max_drawdown, 2),
             "pnl_by_strategy": pnl_by_strategy,
@@ -280,6 +349,10 @@ class EvaluationLedger:
 
 def _empty_cumulative() -> Dict[str, Any]:
     return {
+        "trade_metrics_complete": True,
+        "reported_total_trades": 0,
+        "incomplete_session_dates": [],
+        "load_errors": [],
         "trading_days": 0,
         "total_trades": 0,
         "total_pnl": 0.0,
@@ -295,15 +368,28 @@ def _empty_cumulative() -> Dict[str, Any]:
     }
 
 
+def _metrics_complete(s: LedgerEntry) -> bool:
+    return (
+        s.trade_metrics_complete is True
+        and not s.trade_metric_errors
+        and s.total_trades == s.wins + s.losses + s.breakevens
+        and s.gross_wins >= 0 and s.gross_losses >= 0
+        and math.isclose(s.gross_wins - s.gross_losses, s.realized_pnl, rel_tol=0, abs_tol=0.011)
+        and (s.wins == 0) == (s.gross_wins == 0)
+        and (s.losses == 0) == (s.gross_losses == 0)
+    )
+
+
 def _merge_dimension(sessions: List[LedgerEntry], attr: str) -> Dict[str, Dict]:
     merged: Dict[str, Dict] = {}
     for s in sessions:
         for key, val in getattr(s, attr, {}).items():
             if key not in merged:
-                merged[key] = {"trades": 0, "wins": 0, "losses": 0, "pnl": 0.0}
+                merged[key] = {"trades": 0, "wins": 0, "losses": 0, "breakevens": 0, "pnl": 0.0}
             merged[key]["trades"] += val.get("trades", 0)
             merged[key]["wins"] += val.get("wins", 0)
             merged[key]["losses"] += val.get("losses", 0)
+            merged[key]["breakevens"] += val.get("breakevens", 0)
             merged[key]["pnl"] = round(merged[key]["pnl"] + val.get("pnl", 0.0), 2)
     return merged
 
@@ -339,18 +425,19 @@ def _accumulate_hour(trade, by_hour: Dict) -> None:
     ts = entry_time
     if hasattr(ts, "astimezone"):
         if ts.tzinfo is None:
-            from zoneinfo import ZoneInfo
             ts = ts.replace(tzinfo=ZoneInfo("America/New_York"))
         ts = ts.astimezone(ZoneInfo("America/New_York"))
     hour_key = ts.strftime("%H:00")
     if hour_key not in by_hour:
-        by_hour[hour_key] = {"trades": 0, "wins": 0, "losses": 0, "pnl": 0.0}
+        by_hour[hour_key] = {"trades": 0, "wins": 0, "losses": 0, "breakevens": 0, "pnl": 0.0}
     by_hour[hour_key]["trades"] += 1
     pnl_f = float(pnl)
     if pnl_f > 0:
         by_hour[hour_key]["wins"] += 1
     elif pnl_f < 0:
         by_hour[hour_key]["losses"] += 1
+    else:
+        by_hour[hour_key]["breakevens"] += 1
     by_hour[hour_key]["pnl"] = round(by_hour[hour_key]["pnl"] + pnl_f, 2)
 
 
@@ -361,13 +448,15 @@ def _accumulate_delta(trade, by_delta: Dict) -> None:
         return
     bucket = _delta_bucket(delta)
     if bucket not in by_delta:
-        by_delta[bucket] = {"trades": 0, "wins": 0, "losses": 0, "pnl": 0.0}
+        by_delta[bucket] = {"trades": 0, "wins": 0, "losses": 0, "breakevens": 0, "pnl": 0.0}
     by_delta[bucket]["trades"] += 1
     pnl_f = float(pnl)
     if pnl_f > 0:
         by_delta[bucket]["wins"] += 1
     elif pnl_f < 0:
         by_delta[bucket]["losses"] += 1
+    else:
+        by_delta[bucket]["breakevens"] += 1
     by_delta[bucket]["pnl"] = round(by_delta[bucket]["pnl"] + pnl_f, 2)
 
 
@@ -378,13 +467,15 @@ def _accumulate_spread(trade, by_spread: Dict) -> None:
         return
     bucket = _spread_bucket(spread_pct)
     if bucket not in by_spread:
-        by_spread[bucket] = {"trades": 0, "wins": 0, "losses": 0, "pnl": 0.0}
+        by_spread[bucket] = {"trades": 0, "wins": 0, "losses": 0, "breakevens": 0, "pnl": 0.0}
     by_spread[bucket]["trades"] += 1
     pnl_f = float(pnl)
     if pnl_f > 0:
         by_spread[bucket]["wins"] += 1
     elif pnl_f < 0:
         by_spread[bucket]["losses"] += 1
+    else:
+        by_spread[bucket]["breakevens"] += 1
     by_spread[bucket]["pnl"] = round(by_spread[bucket]["pnl"] + pnl_f, 2)
 
 

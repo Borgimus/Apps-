@@ -1,41 +1,160 @@
 {
-  "seq": 705,
+  "model_version": "4",
+  "seq": 5430,
   "open": [],
   "episodes": {
-    "vwap_reclaim|SPY|short": {
-      "opportunity_id": "20260728-SPY-vwap_reclaim-459",
-      "last_seen": "2026-07-28T09:45:03.396381-04:00",
-      "observations": 8
+    "baseline|vwap_reclaim|IWM|short": {
+      "opportunity_id": "20260911-IWM-vwap_reclaim-5312",
+      "last_seen": "2026-09-11T09:54:33.528452-04:00",
+      "observations": 9,
+      "simulated": true
     },
-    "vwap_reclaim|QQQ|short": {
-      "opportunity_id": "20260728-QQQ-vwap_reclaim-460",
-      "last_seen": "2026-07-28T09:45:03.396381-04:00",
-      "observations": 8
+    "inverted|vwap_reclaim|IWM|long": {
+      "opportunity_id": "20260911-IWM-vwap_reclaim-5313",
+      "last_seen": "2026-09-11T09:50:13.809686-04:00",
+      "observations": 1,
+      "simulated": true
     },
-    "vwap_reclaim|AAPL|short": {
-      "opportunity_id": "20260728-AAPL-vwap_reclaim-475",
-      "last_seen": "2026-07-28T10:26:01.796647-04:00",
-      "observations": 40
+    "baseline|vwap_reclaim|GOOGL|short": {
+      "opportunity_id": "20260911-GOOGL-vwap_reclaim-5314",
+      "last_seen": "2026-09-11T09:50:46.853451-04:00",
+      "observations": 2
     },
-    "vwap_reclaim|XLE|short": {
-      "opportunity_id": "20260728-XLE-vwap_reclaim-515",
-      "last_seen": "2026-07-28T11:30:23.236403-04:00",
-      "observations": 145
+    "inverted|vwap_reclaim|GOOGL|long": {
+      "opportunity_id": "20260911-GOOGL-vwap_reclaim-5315",
+      "last_seen": "2026-09-11T09:50:14.830277-04:00",
+      "observations": 1,
+      "simulated": true
     },
-    "vwap_reclaim|IWM|long": {
-      "opportunity_id": "20260728-IWM-vwap_reclaim-553",
-      "last_seen": "2026-07-28T11:30:54.362734-04:00",
-      "observations": 17
+    "baseline|orb|MSTR|long": {
+      "opportunity_id": "20260911-MSTR-orb-5325",
+      "last_seen": "2026-09-11T09:59:58.319851-04:00",
+      "observations": 10,
+      "simulated": true
     },
-    "vwap_reclaim|IWM|short": {
-      "opportunity_id": "20260728-IWM-vwap_reclaim-599",
-      "last_seen": "2026-07-28T11:09:41.384390-04:00",
-      "observations": 5
+    "inverted|orb|MSTR|short": {
+      "opportunity_id": "20260911-MSTR-orb-5326",
+      "last_seen": "2026-09-11T09:55:06.902206-04:00",
+      "observations": 1,
+      "simulated": true
     },
-    "vwap_reclaim|AAPL|long": {
-      "opportunity_id": "20260728-AAPL-vwap_reclaim-638",
-      "last_seen": "2026-07-28T11:33:26.640333-04:00",
-      "observations": 24
+    "baseline|orb|HOOD|long": {
+      "opportunity_id": "20260911-HOOD-orb-5336",
+      "last_seen": "2026-09-11T10:09:46.830930-04:00",
+      "observations": 9,
+      "simulated": true
+    },
+    "inverted|orb|HOOD|short": {
+      "opportunity_id": "20260911-HOOD-orb-5337",
+      "last_seen": "2026-09-11T10:05:22.247733-04:00",
+      "observations": 1,
+      "simulated": true
+    },
+    "baseline|orb|MARA|long": {
+      "opportunity_id": "20260911-MARA-orb-5338",
+      "last_seen": "2026-09-11T10:09:47.195371-04:00",
+      "observations": 9,
+      "eligible_signal_id": "v4-20260911-5338-MARA-orb:eligible",
+      "simulated": true
+    },
+    "inverted|orb|MARA|short": {
+      "opportunity_id": "20260911-MARA-orb-5339",
+      "last_seen": "2026-09-11T10:05:23.262469-04:00",
+      "observations": 1
+    },
+    "baseline|orb|RIOT|long": {
+      "opportunity_id": "20260911-RIOT-orb-5348",
+      "last_seen": "2026-09-11T10:09:47.985933-04:00",
+      "observations": 5,
+      "simulated": true
+    },
+    "inverted|orb|RIOT|short": {
+      "opportunity_id": "20260911-RIOT-orb-5349",
+      "last_seen": "2026-09-11T10:07:37.651656-04:00",
+      "observations": 1
+    },
+    "baseline|orb|PLTR|long": {
+      "opportunity_id": "20260911-PLTR-orb-5350",
+      "last_seen": "2026-09-11T10:09:48.283578-04:00",
+      "observations": 5,
+      "simulated": true
+    },
+    "inverted|orb|PLTR|short": {
+      "opportunity_id": "20260911-PLTR-orb-5351",
+      "last_seen": "2026-09-11T10:07:38.186400-04:00",
+      "observations": 1,
+      "simulated": true
+    },
+    "baseline|orb|NVDA|long": {
+      "opportunity_id": "20260911-NVDA-orb-5368",
+      "last_seen": "2026-09-11T10:14:40.700364-04:00",
+      "observations": 4,
+      "simulated": true
+    },
+    "inverted|orb|NVDA|short": {
+      "opportunity_id": "20260911-NVDA-orb-5369",
+      "last_seen": "2026-09-11T10:13:03.964015-04:00",
+      "observations": 1,
+      "simulated": true
+    },
+    "baseline|vwap_reclaim|QQQ|short": {
+      "opportunity_id": "20260911-QQQ-vwap_reclaim-5373",
+      "last_seen": "2026-09-11T10:49:36.649622-04:00",
+      "observations": 8,
+      "simulated": true
+    },
+    "inverted|vwap_reclaim|QQQ|long": {
+      "opportunity_id": "20260911-QQQ-vwap_reclaim-5374",
+      "last_seen": "2026-09-11T10:45:48.999236-04:00",
+      "observations": 1,
+      "simulated": true
+    },
+    "baseline|orb|AAPL|long": {
+      "opportunity_id": "20260911-AAPL-orb-5382",
+      "last_seen": "2026-09-11T11:04:56.660650-04:00",
+      "observations": 9,
+      "simulated": true
+    },
+    "inverted|orb|AAPL|short": {
+      "opportunity_id": "20260911-AAPL-orb-5383",
+      "last_seen": "2026-09-11T11:00:28.295039-04:00",
+      "observations": 1
+    },
+    "baseline|vwap_reclaim|MARA|long": {
+      "opportunity_id": "20260911-MARA-vwap_reclaim-5392",
+      "last_seen": "2026-09-11T12:14:50.354840-04:00",
+      "observations": 18,
+      "simulated": true
+    },
+    "inverted|vwap_reclaim|MARA|short": {
+      "opportunity_id": "20260911-MARA-vwap_reclaim-5393",
+      "last_seen": "2026-09-11T11:10:20.824144-04:00",
+      "observations": 1,
+      "simulated": true
+    },
+    "baseline|vwap_reclaim|QQQ|long": {
+      "opportunity_id": "20260911-QQQ-vwap_reclaim-5402",
+      "last_seen": "2026-09-11T11:34:57.228500-04:00",
+      "observations": 9,
+      "simulated": true
+    },
+    "inverted|vwap_reclaim|QQQ|short": {
+      "opportunity_id": "20260911-QQQ-vwap_reclaim-5403",
+      "last_seen": "2026-09-11T11:30:28.448808-04:00",
+      "observations": 1,
+      "simulated": true
+    },
+    "baseline|vwap_reclaim|RIOT|long": {
+      "opportunity_id": "20260911-RIOT-vwap_reclaim-5413",
+      "last_seen": "2026-09-11T12:14:51.297702-04:00",
+      "observations": 9,
+      "simulated": true
+    },
+    "inverted|vwap_reclaim|RIOT|short": {
+      "opportunity_id": "20260911-RIOT-vwap_reclaim-5414",
+      "last_seen": "2026-09-11T12:10:28.311460-04:00",
+      "observations": 1,
+      "simulated": true
     }
   }
 }

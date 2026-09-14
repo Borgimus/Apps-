@@ -152,6 +152,28 @@ async def _retry(coro_fn, label: str = "", max_retries: int = 3):
     raise last_exc
 
 
+# ── Data-feed failure accounting ─────────────────────────────────────────────
+# Market-data fetches that fail after retries are exhausted. Broker-order
+# failures are counted separately as api_errors; this counter exists so a
+# session that lost its bar or scan feed is flagged for review instead of
+# passing the health report with api_errors=0. Reset by run_session().
+
+_data_feed_errors: int = 0
+_data_feed_error_labels: List[str] = []
+
+
+def _record_data_feed_error(label: str) -> None:
+    global _data_feed_errors
+    _data_feed_errors += 1
+    _data_feed_error_labels.append(label)
+
+
+def _reset_data_feed_errors() -> None:
+    global _data_feed_errors
+    _data_feed_errors = 0
+    _data_feed_error_labels.clear()
+
+
 # ── Exit state constants ──────────────────────────────────────────────────────
 
 _MANDATORY_EXIT_REASONS = frozenset({"stop_loss", "max_hold", "eod_exit", "daily_loss", "kill_switch"})
@@ -1067,6 +1089,7 @@ async def scan_and_place(
         )
     except Exception as exc:
         logger.error("Cannot fetch bars for %s: %s", symbol, exc)
+        _record_data_feed_error(f"bars({symbol})")
         return 0
 
     if bars.empty:
@@ -2065,6 +2088,8 @@ async def _run_universe_scan(
     # YFinance scan
     scanner = YFinanceScanner()
     metrics_list = await scanner.scan(all_syms)
+    for _ in range(getattr(scanner, "batch_fetch_failures", 0)):
+        _record_data_feed_error("universe_scan_batch")
 
     # Attach universe_group to each metrics object so scorer can propagate it
     for m in metrics_list:
@@ -2373,6 +2398,7 @@ async def run_session(args: argparse.Namespace):
     # ── Runtime stats (for health report) ────────────────────────────────────
     api_errors: int = 0
     recon_warnings: List[str] = []
+    _reset_data_feed_errors()
     today_str = datetime.now(tz=ET).strftime("%Y-%m-%d")
 
     # ── Session window ────────────────────────────────────────────────────────
@@ -2843,6 +2869,7 @@ async def run_session(args: argparse.Namespace):
                     _market_regime = _market_regime_from_bars(_regime_bars)
                 except Exception:
                     _market_regime = "neutral"
+                    _record_data_feed_error("market_regime_bars(SPY)")
                 _market_regime_at = now
                 logger.info("Broad-market regime | SPY=%s", _market_regime)
 
@@ -2947,9 +2974,22 @@ async def run_session(args: argparse.Namespace):
         await shadow_book.refresh_and_finish_session(
             broker, api_errors=api_errors,
             reconciliation_warnings=len(recon_warnings),
+            data_feed_errors=_data_feed_errors,
         )
     except Exception as exc:
         logger.warning("Shadow observation completion failed: %s", exc)
+
+    if journal:
+        try:
+            await journal.log_event(
+                event="data_feed_errors",
+                message=f"{_data_feed_errors} market-data fetch failure(s) after retries",
+                level="error" if _data_feed_errors else "info",
+                data={"count": _data_feed_errors, "labels": list(_data_feed_error_labels)},
+            )
+            await journal.commit()
+        except Exception as exc:
+            logger.warning("Could not record data feed error summary: %s", exc)
 
     # 4. Generate and persist health report
     if journal and store:
@@ -2959,6 +2999,7 @@ async def run_session(args: argparse.Namespace):
                 session_date=today_str,
                 api_errors=api_errors,
                 reconciliation_warnings=recon_warnings,
+                data_feed_errors=_data_feed_errors,
             )
             import json as _json
             report_line = _json.dumps(report, default=str)

@@ -37,6 +37,7 @@ class HealthReporter:
         session_date: str,
         api_errors: int = 0,
         reconciliation_warnings: Optional[List[str]] = None,
+        data_feed_errors: int = 0,
     ) -> Dict[str, Any]:
         """
         Build the full health report for a session date.
@@ -46,11 +47,13 @@ class HealthReporter:
         session_date       : YYYY-MM-DD string matching DBTradeJournal.session_date
         api_errors         : count of broker API failures recorded by session runner
         reconciliation_warnings : list of reconciler / recovery warning strings
+        data_feed_errors   : count of market-data fetches that failed after retries
         """
         report: Dict[str, Any] = {
             "session_date": session_date,
             "generated_at": datetime.now(tz=ET).isoformat(),
             "api_errors": api_errors,
+            "data_feed_errors": data_feed_errors,
             "reconciliation_warnings": reconciliation_warnings or [],
         }
 

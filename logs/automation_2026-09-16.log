@@ -1,0 +1,44 @@
+[2026-09-16T09:30:01-04:00] automatic start requested
+ABORT: no preflight arming marker
+[2026-09-16T12:35:01-04:00] automatic EOD close-out requested
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "options_data_provider": "tradier",
+  "options_data_adapter_hash": "567d1f77",
+  "commit_sha": "da329df8a1ff86dc97e15ffcb9ca24d3a0e301d3",
+  "working_tree_dirty": false,
+  "source_changes": [],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-09-15.log"
+  ],
+  "config_hash_sha256_16": "d9b983ac2c7d4383",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "92a841bb277eacb6",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "7023790c",
+    "paper_broker": "241f1432",
+    "broker_interface": "54ebc37a"
+  }
+}
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "options_data_provider": "tradier",
+  "options_data_adapter_hash": "567d1f77",
+  "commit_sha": "da329df8a1ff86dc97e15ffcb9ca24d3a0e301d3",
+  "working_tree_dirty": false,
+  "source_changes": [],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-09-15.log"
+  ],
+  "config_hash_sha256_16": "d9b983ac2c7d4383",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "92a841bb277eacb6",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "7023790c",
+    "paper_broker": "241f1432",
+    "broker_interface": "54ebc37a"
+  }
+}
+[2026-09-16T12:35:08-04:00] broker EOD state clean: 0 positions, 0 open orders

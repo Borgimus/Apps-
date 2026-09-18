@@ -1,0 +1,1279 @@
+{
+  "date": "2026-09-11",
+  "session_start": "2026-09-11 09:30:11 EDT",
+  "session_end": "2026-09-11 12:30:30 EDT",
+  "total_signals": 14,
+  "signal_count_basis": "distinct_entry_signals",
+  "entry_signal_observations": 106,
+  "diagnostic_signal_observations": 2707,
+  "trades_submitted": 0,
+  "trades_filled": 0,
+  "trades_cancelled": 0,
+  "trades_rejected": 0,
+  "realized_pnl": 0,
+  "one_contract_normalized_pnl": 0,
+  "unrealized_pnl": 0,
+  "contracts_filled": 0,
+  "sizing_cohort": "paper_scaled_budget_250_cap_10_guardrails_v3_shadow_validation",
+  "evaluation_cohort": "guardrails_v3_tradier_options_2026_09_08",
+  "options_data_provider": "tradier",
+  "options_data_adapter_hash": "567d1f77",
+  "shadow_model_version": "4",
+  "start_delay_seconds": 11.624,
+  "session_labels": [],
+  "broker_entry_strategies": [],
+  "session_context": {
+    "schema_version": 1,
+    "options_data_provider": "tradier",
+    "options_data_adapter_hash": "567d1f77",
+    "evaluation_cohort": "guardrails_v3_tradier_options_2026_09_08",
+    "shadow_model_version": "4",
+    "runner_started_at": "2026-09-11T09:30:11.623824-04:00",
+    "scheduled_start_at": "2026-09-11T09:30:00-04:00",
+    "start_delay_seconds": 11.624,
+    "session_labels": [],
+    "broker_entry_strategies": [],
+    "diagnostic_only_strategies": [
+      "rsi_trend"
+    ],
+    "shadow_only_strategies": [
+      "orb",
+      "vwap_reclaim"
+    ],
+    "replay_policy": {
+      "schema_version": 1,
+      "scaled_sizing": true,
+      "guardrails": true,
+      "entry_filters": {
+        "min_quality": 3.0,
+        "confirm_market_regime": true,
+        "blocked_symbols": "QQQ",
+        "require_delta": true,
+        "min_dte": 2,
+        "max_dte": 8,
+        "max_signal_age_minutes": 10,
+        "min_open_interest": 100,
+        "min_volume": 50,
+        "max_spread_pct": 0.1,
+        "delta_min": 0.35,
+        "delta_max": 0.45,
+        "preferred_dte": [
+          0,
+          1,
+          2
+        ],
+        "entry_price_mode": "marketable_limit",
+        "entry_marketable_offset_pct": 0.01,
+        "global_ranking": true
+      },
+      "premium_budget": 250.0,
+      "contract_cap": 10,
+      "max_active_positions": 1,
+      "max_entries": 3,
+      "max_symbols": 3,
+      "one_entry_per_symbol_per_day": true,
+      "max_risk_per_trade": 0.01,
+      "max_daily_loss_fraction": 0.02,
+      "daily_loss_dollars": 250.0,
+      "max_losing_trades": 2,
+      "cooldown_minutes": 15.0,
+      "correlated_groups": "broad_index:SPY,QQQ,IWM,DIA",
+      "market_open": "09:30",
+      "market_close": "16:00",
+      "open_buffer_minutes": 15,
+      "close_buffer_minutes": 15,
+      "eod_exit_time": "12:30",
+      "min_entry_minutes_before_eod": 30,
+      "orb_reservation": true,
+      "orb_reserve_until": "11:30",
+      "stop_loss_pct": 0.5,
+      "take_profit_pct": 1.0,
+      "trailing_stop_pct": 0.25,
+      "trailing_activation_pct": 0.25,
+      "max_hold_minutes": 120,
+      "entry_timeout_seconds": 120.0,
+      "variant_trigger_pct": 0.25,
+      "exit_variants_enabled": true,
+      "partial_fraction": 0.5
+    },
+    "replay_policy_hash": "7ffc555cb32513d5",
+    "observation_review_targets": {
+      "scheduled_sessions": 5,
+      "eligible_opportunities": 10
+    },
+    "starting_equity": 98461.4
+  },
+  "shadow_evaluation": {
+    "model_version": "4",
+    "date": "2026-09-11",
+    "counts_toward_readiness": false,
+    "first_eligible_tracking": "available",
+    "eligible_opportunities": 1,
+    "rejection_breakdown": {
+      "status": "available",
+      "count_basis": "session_id + existing 60-minute shadow opportunity_id; original direction only",
+      "overlap_note": "Reason counts overlap. Each combination counts a setup once at its first observation.",
+      "eligibility_note": "Passing entry filters alone does not prove quote evidence, a fill, or portfolio admission.",
+      "signal_observations": 106,
+      "observations_without_setup_id": 0,
+      "anchors_without_recorded_signals": 0,
+      "unique_setups": 13,
+      "initially_passed": 1,
+      "initially_rejected": 12,
+      "initial_eligibility_unrecorded": 0,
+      "ever_passed_entry_filters": 1,
+      "eligible_anchors": 1,
+      "became_eligible_after_rejection": 0,
+      "initial_multiple_blockers": 6,
+      "initial_rejections_by_reason": {
+        "contract_filters_unverified": 1,
+        "market_regime_mismatch": 6,
+        "premium_budget_or_price_invalid": 8,
+        "signal_quality_below_min": 3,
+        "symbol_disabled": 2
+      },
+      "initial_rejection_combinations": [
+        {
+          "reasons": [
+            "market_regime_mismatch",
+            "premium_budget_or_price_invalid"
+          ],
+          "setups": 3
+        },
+        {
+          "reasons": [
+            "market_regime_mismatch"
+          ],
+          "setups": 2
+        },
+        {
+          "reasons": [
+            "premium_budget_or_price_invalid"
+          ],
+          "setups": 2
+        },
+        {
+          "reasons": [
+            "signal_quality_below_min"
+          ],
+          "setups": 2
+        },
+        {
+          "reasons": [
+            "contract_filters_unverified",
+            "market_regime_mismatch",
+            "premium_budget_or_price_invalid"
+          ],
+          "setups": 1
+        },
+        {
+          "reasons": [
+            "premium_budget_or_price_invalid",
+            "signal_quality_below_min",
+            "symbol_disabled"
+          ],
+          "setups": 1
+        },
+        {
+          "reasons": [
+            "premium_budget_or_price_invalid",
+            "symbol_disabled"
+          ],
+          "setups": 1
+        }
+      ],
+      "by_strategy": {
+        "orb": {
+          "unique_setups": 7,
+          "initially_passed": 1,
+          "initially_rejected": 6,
+          "initial_eligibility_unrecorded": 0,
+          "ever_passed_entry_filters": 1,
+          "eligible_anchors": 1,
+          "became_eligible_after_rejection": 0,
+          "initial_multiple_blockers": 3,
+          "initial_rejections_by_reason": {
+            "market_regime_mismatch": 4,
+            "premium_budget_or_price_invalid": 5
+          },
+          "initial_rejection_combinations": [
+            {
+              "reasons": [
+                "market_regime_mismatch",
+                "premium_budget_or_price_invalid"
+              ],
+              "setups": 3
+            },
+            {
+              "reasons": [
+                "premium_budget_or_price_invalid"
+              ],
+              "setups": 2
+            },
+            {
+              "reasons": [
+                "market_regime_mismatch"
+              ],
+              "setups": 1
+            }
+          ]
+        },
+        "vwap_reclaim": {
+          "unique_setups": 6,
+          "initially_passed": 0,
+          "initially_rejected": 6,
+          "initial_eligibility_unrecorded": 0,
+          "ever_passed_entry_filters": 0,
+          "eligible_anchors": 0,
+          "became_eligible_after_rejection": 0,
+          "initial_multiple_blockers": 3,
+          "initial_rejections_by_reason": {
+            "contract_filters_unverified": 1,
+            "market_regime_mismatch": 2,
+            "premium_budget_or_price_invalid": 3,
+            "signal_quality_below_min": 3,
+            "symbol_disabled": 2
+          },
+          "initial_rejection_combinations": [
+            {
+              "reasons": [
+                "signal_quality_below_min"
+              ],
+              "setups": 2
+            },
+            {
+              "reasons": [
+                "contract_filters_unverified",
+                "market_regime_mismatch",
+                "premium_budget_or_price_invalid"
+              ],
+              "setups": 1
+            },
+            {
+              "reasons": [
+                "market_regime_mismatch"
+              ],
+              "setups": 1
+            },
+            {
+              "reasons": [
+                "premium_budget_or_price_invalid",
+                "signal_quality_below_min",
+                "symbol_disabled"
+              ],
+              "setups": 1
+            },
+            {
+              "reasons": [
+                "premium_budget_or_price_invalid",
+                "symbol_disabled"
+              ],
+              "setups": 1
+            }
+          ]
+        }
+      },
+      "setups": [
+        {
+          "session_id": "2026-09-11T09:30:11.623824-04:00",
+          "opportunity_id": "20260911-IWM-vwap_reclaim-5312",
+          "strategy_id": "vwap_reclaim",
+          "symbol": "IWM",
+          "direction": "short",
+          "observations": 9,
+          "first_observed_at": "2026-09-11T09:50:13.461798-04:00",
+          "initial_filter_status": "rejected",
+          "initial_reasons": [
+            "market_regime_mismatch"
+          ],
+          "observed_reasons": [
+            "market_regime_mismatch"
+          ],
+          "ever_passed_entry_filters": false,
+          "eligible_anchor_recorded": false,
+          "became_eligible_after_rejection": false
+        },
+        {
+          "session_id": "2026-09-11T09:30:11.623824-04:00",
+          "opportunity_id": "20260911-GOOGL-vwap_reclaim-5314",
+          "strategy_id": "vwap_reclaim",
+          "symbol": "GOOGL",
+          "direction": "short",
+          "observations": 2,
+          "first_observed_at": "2026-09-11T09:50:14.470246-04:00",
+          "initial_filter_status": "rejected",
+          "initial_reasons": [
+            "contract_filters_unverified",
+            "market_regime_mismatch",
+            "premium_budget_or_price_invalid"
+          ],
+          "observed_reasons": [
+            "contract_filters_unverified",
+            "market_regime_mismatch",
+            "premium_budget_or_price_invalid"
+          ],
+          "ever_passed_entry_filters": false,
+          "eligible_anchor_recorded": false,
+          "became_eligible_after_rejection": false
+        },
+        {
+          "session_id": "2026-09-11T09:30:11.623824-04:00",
+          "opportunity_id": "20260911-MSTR-orb-5325",
+          "strategy_id": "orb",
+          "symbol": "MSTR",
+          "direction": "long",
+          "observations": 10,
+          "first_observed_at": "2026-09-11T09:55:06.326550-04:00",
+          "initial_filter_status": "rejected",
+          "initial_reasons": [
+            "premium_budget_or_price_invalid"
+          ],
+          "observed_reasons": [
+            "premium_budget_or_price_invalid"
+          ],
+          "ever_passed_entry_filters": false,
+          "eligible_anchor_recorded": false,
+          "became_eligible_after_rejection": false
+        },
+        {
+          "session_id": "2026-09-11T09:30:11.623824-04:00",
+          "opportunity_id": "20260911-HOOD-orb-5336",
+          "strategy_id": "orb",
+          "symbol": "HOOD",
+          "direction": "long",
+          "observations": 9,
+          "first_observed_at": "2026-09-11T10:05:22.062037-04:00",
+          "initial_filter_status": "rejected",
+          "initial_reasons": [
+            "premium_budget_or_price_invalid"
+          ],
+          "observed_reasons": [
+            "market_regime_mismatch",
+            "premium_budget_or_price_invalid"
+          ],
+          "ever_passed_entry_filters": false,
+          "eligible_anchor_recorded": false,
+          "became_eligible_after_rejection": false
+        },
+        {
+          "session_id": "2026-09-11T09:30:11.623824-04:00",
+          "opportunity_id": "20260911-MARA-orb-5338",
+          "strategy_id": "orb",
+          "symbol": "MARA",
+          "direction": "long",
+          "observations": 9,
+          "first_observed_at": "2026-09-11T10:05:23.082282-04:00",
+          "initial_filter_status": "passed",
+          "initial_reasons": [],
+          "observed_reasons": [
+            "market_regime_mismatch"
+          ],
+          "ever_passed_entry_filters": true,
+          "eligible_anchor_recorded": true,
+          "became_eligible_after_rejection": false
+        },
+        {
+          "session_id": "2026-09-11T09:30:11.623824-04:00",
+          "opportunity_id": "20260911-RIOT-orb-5348",
+          "strategy_id": "orb",
+          "symbol": "RIOT",
+          "direction": "long",
+          "observations": 5,
+          "first_observed_at": "2026-09-11T10:07:37.042674-04:00",
+          "initial_filter_status": "rejected",
+          "initial_reasons": [
+            "market_regime_mismatch"
+          ],
+          "observed_reasons": [
+            "market_regime_mismatch"
+          ],
+          "ever_passed_entry_filters": false,
+          "eligible_anchor_recorded": false,
+          "became_eligible_after_rejection": false
+        },
+        {
+          "session_id": "2026-09-11T09:30:11.623824-04:00",
+          "opportunity_id": "20260911-PLTR-orb-5350",
+          "strategy_id": "orb",
+          "symbol": "PLTR",
+          "direction": "long",
+          "observations": 5,
+          "first_observed_at": "2026-09-11T10:07:38.014331-04:00",
+          "initial_filter_status": "rejected",
+          "initial_reasons": [
+            "market_regime_mismatch",
+            "premium_budget_or_price_invalid"
+          ],
+          "observed_reasons": [
+            "market_regime_mismatch",
+            "premium_budget_or_price_invalid"
+          ],
+          "ever_passed_entry_filters": false,
+          "eligible_anchor_recorded": false,
+          "became_eligible_after_rejection": false
+        },
+        {
+          "session_id": "2026-09-11T09:30:11.623824-04:00",
+          "opportunity_id": "20260911-NVDA-orb-5368",
+          "strategy_id": "orb",
+          "symbol": "NVDA",
+          "direction": "long",
+          "observations": 4,
+          "first_observed_at": "2026-09-11T10:13:03.818382-04:00",
+          "initial_filter_status": "rejected",
+          "initial_reasons": [
+            "market_regime_mismatch",
+            "premium_budget_or_price_invalid"
+          ],
+          "observed_reasons": [
+            "market_regime_mismatch",
+            "premium_budget_or_price_invalid"
+          ],
+          "ever_passed_entry_filters": false,
+          "eligible_anchor_recorded": false,
+          "became_eligible_after_rejection": false
+        },
+        {
+          "session_id": "2026-09-11T09:30:11.623824-04:00",
+          "opportunity_id": "20260911-QQQ-vwap_reclaim-5373",
+          "strategy_id": "vwap_reclaim",
+          "symbol": "QQQ",
+          "direction": "short",
+          "observations": 8,
+          "first_observed_at": "2026-09-11T10:45:48.561935-04:00",
+          "initial_filter_status": "rejected",
+          "initial_reasons": [
+            "premium_budget_or_price_invalid",
+            "symbol_disabled"
+          ],
+          "observed_reasons": [
+            "premium_budget_or_price_invalid",
+            "symbol_disabled"
+          ],
+          "ever_passed_entry_filters": false,
+          "eligible_anchor_recorded": false,
+          "became_eligible_after_rejection": false
+        },
+        {
+          "session_id": "2026-09-11T09:30:11.623824-04:00",
+          "opportunity_id": "20260911-AAPL-orb-5382",
+          "strategy_id": "orb",
+          "symbol": "AAPL",
+          "direction": "long",
+          "observations": 9,
+          "first_observed_at": "2026-09-11T11:00:27.280113-04:00",
+          "initial_filter_status": "rejected",
+          "initial_reasons": [
+            "market_regime_mismatch",
+            "premium_budget_or_price_invalid"
+          ],
+          "observed_reasons": [
+            "market_regime_mismatch",
+            "premium_budget_or_price_invalid"
+          ],
+          "ever_passed_entry_filters": false,
+          "eligible_anchor_recorded": false,
+          "became_eligible_after_rejection": false
+        },
+        {
+          "session_id": "2026-09-11T09:30:11.623824-04:00",
+          "opportunity_id": "20260911-MARA-vwap_reclaim-5392",
+          "strategy_id": "vwap_reclaim",
+          "symbol": "MARA",
+          "direction": "long",
+          "observations": 18,
+          "first_observed_at": "2026-09-11T11:10:20.658304-04:00",
+          "initial_filter_status": "rejected",
+          "initial_reasons": [
+            "signal_quality_below_min"
+          ],
+          "observed_reasons": [
+            "market_regime_mismatch",
+            "signal_quality_below_min"
+          ],
+          "ever_passed_entry_filters": false,
+          "eligible_anchor_recorded": false,
+          "became_eligible_after_rejection": false
+        },
+        {
+          "session_id": "2026-09-11T09:30:11.623824-04:00",
+          "opportunity_id": "20260911-QQQ-vwap_reclaim-5402",
+          "strategy_id": "vwap_reclaim",
+          "symbol": "QQQ",
+          "direction": "long",
+          "observations": 9,
+          "first_observed_at": "2026-09-11T11:30:28.117006-04:00",
+          "initial_filter_status": "rejected",
+          "initial_reasons": [
+            "premium_budget_or_price_invalid",
+            "signal_quality_below_min",
+            "symbol_disabled"
+          ],
+          "observed_reasons": [
+            "premium_budget_or_price_invalid",
+            "signal_quality_below_min",
+            "symbol_disabled"
+          ],
+          "ever_passed_entry_filters": false,
+          "eligible_anchor_recorded": false,
+          "became_eligible_after_rejection": false
+        },
+        {
+          "session_id": "2026-09-11T09:30:11.623824-04:00",
+          "opportunity_id": "20260911-RIOT-vwap_reclaim-5413",
+          "strategy_id": "vwap_reclaim",
+          "symbol": "RIOT",
+          "direction": "long",
+          "observations": 9,
+          "first_observed_at": "2026-09-11T12:10:28.118829-04:00",
+          "initial_filter_status": "rejected",
+          "initial_reasons": [
+            "signal_quality_below_min"
+          ],
+          "observed_reasons": [
+            "signal_quality_below_min"
+          ],
+          "ever_passed_entry_filters": false,
+          "eligible_anchor_recorded": false,
+          "became_eligible_after_rejection": false
+        }
+      ]
+    },
+    "exit_quote_evidence": [
+      {
+        "option_symbol": "MARA260918C00012000",
+        "exit_time": "2026-09-11T12:05:33.229629-04:00",
+        "quote_timestamp": "2026-09-11T16:05:31+00:00",
+        "quote_age_seconds": 2.23,
+        "final_quote_refresh": "not_requested",
+        "outcome_priced": true
+      }
+    ],
+    "eligible_independent": {
+      "baseline": {
+        "closed": 1,
+        "priced": 1,
+        "unpriced": 0,
+        "sized_priced": 1,
+        "sized_pnl": -39.0,
+        "one_contract_pnl": -13.0
+      },
+      "breakeven_25": {
+        "closed": 1,
+        "priced": 1,
+        "unpriced": 0,
+        "sized_priced": 1,
+        "sized_pnl": -39.0,
+        "one_contract_pnl": -13.0
+      },
+      "partial_25_breakeven": {
+        "closed": 1,
+        "priced": 1,
+        "unpriced": 0,
+        "sized_priced": 1,
+        "sized_pnl": -39.0,
+        "one_contract_pnl": -13.0
+      }
+    },
+    "matched_exits": {
+      "breakeven_25": {
+        "matched_pairs": 1,
+        "pairs": [
+          {
+            "pair_id": "v4-20260911-5338-MARA-orb:eligible",
+            "baseline_pnl": -39.0,
+            "variant_pnl": -39.0,
+            "difference": 0.0
+          }
+        ],
+        "unmatched_or_unpriced": 0,
+        "baseline_pnl": -39.0,
+        "variant_pnl": -39.0,
+        "difference": 0.0
+      },
+      "partial_25_breakeven": {
+        "matched_pairs": 1,
+        "pairs": [
+          {
+            "pair_id": "v4-20260911-5338-MARA-orb:eligible",
+            "baseline_pnl": -39.0,
+            "variant_pnl": -39.0,
+            "difference": 0.0
+          }
+        ],
+        "unmatched_or_unpriced": 0,
+        "baseline_pnl": -39.0,
+        "variant_pnl": -39.0,
+        "difference": 0.0
+      }
+    },
+    "current_permissions_replay": {
+      "variant": "baseline",
+      "status": "complete",
+      "decisions": [
+        {
+          "pair_id": "v4-20260911-5338-MARA-orb:eligible",
+          "ts": "2026-09-11T10:05:23.082282-04:00",
+          "action": "rejected",
+          "reasons": [
+            "strategy_suspended"
+          ],
+          "quantity": 3
+        }
+      ],
+      "trades": [],
+      "scenario": "current_strategy_permissions",
+      "initial_portfolio": "empty",
+      "counts_toward_readiness": false,
+      "pnl_basis": "sized_dollars_before_fees_and_slippage",
+      "policy_hash": "7ffc555cb32513d5",
+      "policy": {
+        "schema_version": 1,
+        "scaled_sizing": true,
+        "guardrails": true,
+        "entry_filters": {
+          "min_quality": 3.0,
+          "confirm_market_regime": true,
+          "blocked_symbols": "QQQ",
+          "require_delta": true,
+          "min_dte": 2,
+          "max_dte": 8,
+          "max_signal_age_minutes": 10,
+          "min_open_interest": 100,
+          "min_volume": 50,
+          "max_spread_pct": 0.1,
+          "delta_min": 0.35,
+          "delta_max": 0.45,
+          "preferred_dte": [
+            0,
+            1,
+            2
+          ],
+          "entry_price_mode": "marketable_limit",
+          "entry_marketable_offset_pct": 0.01,
+          "global_ranking": true
+        },
+        "premium_budget": 250.0,
+        "contract_cap": 10,
+        "max_active_positions": 1,
+        "max_entries": 3,
+        "max_symbols": 3,
+        "one_entry_per_symbol_per_day": true,
+        "max_risk_per_trade": 0.01,
+        "max_daily_loss_fraction": 0.02,
+        "daily_loss_dollars": 250.0,
+        "max_losing_trades": 2,
+        "cooldown_minutes": 15.0,
+        "correlated_groups": "broad_index:SPY,QQQ,IWM,DIA",
+        "market_open": "09:30",
+        "market_close": "16:00",
+        "open_buffer_minutes": 15,
+        "close_buffer_minutes": 15,
+        "eod_exit_time": "12:30",
+        "min_entry_minutes_before_eod": 30,
+        "orb_reservation": true,
+        "orb_reserve_until": "11:30",
+        "stop_loss_pct": 0.5,
+        "take_profit_pct": 1.0,
+        "trailing_stop_pct": 0.25,
+        "trailing_activation_pct": 0.25,
+        "max_hold_minutes": 120,
+        "entry_timeout_seconds": 120.0,
+        "variant_trigger_pct": 0.25,
+        "exit_variants_enabled": true,
+        "partial_fraction": 0.5
+      },
+      "admitted": 0,
+      "filled": 0,
+      "closed": 0,
+      "unresolved": 0,
+      "realized_pnl": 0.0,
+      "max_realized_drawdown": 0.0,
+      "losing_trades": 0,
+      "portfolio_pnl": 0.0
+    },
+    "research_portfolios": {
+      "baseline": {
+        "variant": "baseline",
+        "status": "complete",
+        "decisions": [
+          {
+            "pair_id": "v4-20260911-5338-MARA-orb:eligible",
+            "ts": "2026-09-11T10:05:23.082282-04:00",
+            "action": "admitted",
+            "reasons": [],
+            "quantity": 3
+          }
+        ],
+        "trades": [
+          {
+            "pair_id": "v4-20260911-5338-MARA-orb:eligible",
+            "symbol": "MARA",
+            "strategy_id": "orb",
+            "option_symbol": "MARA260918C00012000",
+            "entry_time": "2026-09-11T10:05:23.082282-04:00",
+            "fill_time": "2026-09-11T10:05:23.082282-04:00",
+            "exit_time": "2026-09-11T12:05:33.229629-04:00",
+            "entry_price": 0.79,
+            "exit_price": 0.66,
+            "quantity": 3,
+            "pnl": -39.0,
+            "exit_reason": "max_hold"
+          }
+        ],
+        "scenario": "hypothetical_strategy_reactivation",
+        "initial_portfolio": "empty",
+        "counts_toward_readiness": false,
+        "pnl_basis": "sized_dollars_before_fees_and_slippage",
+        "policy_hash": "7ffc555cb32513d5",
+        "policy": {
+          "schema_version": 1,
+          "scaled_sizing": true,
+          "guardrails": true,
+          "entry_filters": {
+            "min_quality": 3.0,
+            "confirm_market_regime": true,
+            "blocked_symbols": "QQQ",
+            "require_delta": true,
+            "min_dte": 2,
+            "max_dte": 8,
+            "max_signal_age_minutes": 10,
+            "min_open_interest": 100,
+            "min_volume": 50,
+            "max_spread_pct": 0.1,
+            "delta_min": 0.35,
+            "delta_max": 0.45,
+            "preferred_dte": [
+              0,
+              1,
+              2
+            ],
+            "entry_price_mode": "marketable_limit",
+            "entry_marketable_offset_pct": 0.01,
+            "global_ranking": true
+          },
+          "premium_budget": 250.0,
+          "contract_cap": 10,
+          "max_active_positions": 1,
+          "max_entries": 3,
+          "max_symbols": 3,
+          "one_entry_per_symbol_per_day": true,
+          "max_risk_per_trade": 0.01,
+          "max_daily_loss_fraction": 0.02,
+          "daily_loss_dollars": 250.0,
+          "max_losing_trades": 2,
+          "cooldown_minutes": 15.0,
+          "correlated_groups": "broad_index:SPY,QQQ,IWM,DIA",
+          "market_open": "09:30",
+          "market_close": "16:00",
+          "open_buffer_minutes": 15,
+          "close_buffer_minutes": 15,
+          "eod_exit_time": "12:30",
+          "min_entry_minutes_before_eod": 30,
+          "orb_reservation": true,
+          "orb_reserve_until": "11:30",
+          "stop_loss_pct": 0.5,
+          "take_profit_pct": 1.0,
+          "trailing_stop_pct": 0.25,
+          "trailing_activation_pct": 0.25,
+          "max_hold_minutes": 120,
+          "entry_timeout_seconds": 120.0,
+          "variant_trigger_pct": 0.25,
+          "exit_variants_enabled": true,
+          "partial_fraction": 0.5
+        },
+        "admitted": 1,
+        "filled": 1,
+        "closed": 1,
+        "unresolved": 0,
+        "realized_pnl": -39.0,
+        "max_realized_drawdown": 39.0,
+        "losing_trades": 1,
+        "portfolio_pnl": -39.0
+      },
+      "breakeven_25": {
+        "variant": "breakeven_25",
+        "status": "complete",
+        "decisions": [
+          {
+            "pair_id": "v4-20260911-5338-MARA-orb:eligible",
+            "ts": "2026-09-11T10:05:23.082282-04:00",
+            "action": "admitted",
+            "reasons": [],
+            "quantity": 3
+          }
+        ],
+        "trades": [
+          {
+            "pair_id": "v4-20260911-5338-MARA-orb:eligible",
+            "symbol": "MARA",
+            "strategy_id": "orb",
+            "option_symbol": "MARA260918C00012000",
+            "entry_time": "2026-09-11T10:05:23.082282-04:00",
+            "fill_time": "2026-09-11T10:05:23.082282-04:00",
+            "exit_time": "2026-09-11T12:05:33.229629-04:00",
+            "entry_price": 0.79,
+            "exit_price": 0.66,
+            "quantity": 3,
+            "pnl": -39.0,
+            "exit_reason": "max_hold"
+          }
+        ],
+        "scenario": "hypothetical_strategy_reactivation",
+        "initial_portfolio": "empty",
+        "counts_toward_readiness": false,
+        "pnl_basis": "sized_dollars_before_fees_and_slippage",
+        "policy_hash": "7ffc555cb32513d5",
+        "policy": {
+          "schema_version": 1,
+          "scaled_sizing": true,
+          "guardrails": true,
+          "entry_filters": {
+            "min_quality": 3.0,
+            "confirm_market_regime": true,
+            "blocked_symbols": "QQQ",
+            "require_delta": true,
+            "min_dte": 2,
+            "max_dte": 8,
+            "max_signal_age_minutes": 10,
+            "min_open_interest": 100,
+            "min_volume": 50,
+            "max_spread_pct": 0.1,
+            "delta_min": 0.35,
+            "delta_max": 0.45,
+            "preferred_dte": [
+              0,
+              1,
+              2
+            ],
+            "entry_price_mode": "marketable_limit",
+            "entry_marketable_offset_pct": 0.01,
+            "global_ranking": true
+          },
+          "premium_budget": 250.0,
+          "contract_cap": 10,
+          "max_active_positions": 1,
+          "max_entries": 3,
+          "max_symbols": 3,
+          "one_entry_per_symbol_per_day": true,
+          "max_risk_per_trade": 0.01,
+          "max_daily_loss_fraction": 0.02,
+          "daily_loss_dollars": 250.0,
+          "max_losing_trades": 2,
+          "cooldown_minutes": 15.0,
+          "correlated_groups": "broad_index:SPY,QQQ,IWM,DIA",
+          "market_open": "09:30",
+          "market_close": "16:00",
+          "open_buffer_minutes": 15,
+          "close_buffer_minutes": 15,
+          "eod_exit_time": "12:30",
+          "min_entry_minutes_before_eod": 30,
+          "orb_reservation": true,
+          "orb_reserve_until": "11:30",
+          "stop_loss_pct": 0.5,
+          "take_profit_pct": 1.0,
+          "trailing_stop_pct": 0.25,
+          "trailing_activation_pct": 0.25,
+          "max_hold_minutes": 120,
+          "entry_timeout_seconds": 120.0,
+          "variant_trigger_pct": 0.25,
+          "exit_variants_enabled": true,
+          "partial_fraction": 0.5
+        },
+        "admitted": 1,
+        "filled": 1,
+        "closed": 1,
+        "unresolved": 0,
+        "realized_pnl": -39.0,
+        "max_realized_drawdown": 39.0,
+        "losing_trades": 1,
+        "portfolio_pnl": -39.0
+      },
+      "partial_25_breakeven": {
+        "variant": "partial_25_breakeven",
+        "status": "complete",
+        "decisions": [
+          {
+            "pair_id": "v4-20260911-5338-MARA-orb:eligible",
+            "ts": "2026-09-11T10:05:23.082282-04:00",
+            "action": "admitted",
+            "reasons": [],
+            "quantity": 3
+          }
+        ],
+        "trades": [
+          {
+            "pair_id": "v4-20260911-5338-MARA-orb:eligible",
+            "symbol": "MARA",
+            "strategy_id": "orb",
+            "option_symbol": "MARA260918C00012000",
+            "entry_time": "2026-09-11T10:05:23.082282-04:00",
+            "fill_time": "2026-09-11T10:05:23.082282-04:00",
+            "exit_time": "2026-09-11T12:05:33.229629-04:00",
+            "entry_price": 0.79,
+            "exit_price": 0.66,
+            "quantity": 3,
+            "pnl": -39.0,
+            "exit_reason": "max_hold"
+          }
+        ],
+        "scenario": "hypothetical_strategy_reactivation",
+        "initial_portfolio": "empty",
+        "counts_toward_readiness": false,
+        "pnl_basis": "sized_dollars_before_fees_and_slippage",
+        "policy_hash": "7ffc555cb32513d5",
+        "policy": {
+          "schema_version": 1,
+          "scaled_sizing": true,
+          "guardrails": true,
+          "entry_filters": {
+            "min_quality": 3.0,
+            "confirm_market_regime": true,
+            "blocked_symbols": "QQQ",
+            "require_delta": true,
+            "min_dte": 2,
+            "max_dte": 8,
+            "max_signal_age_minutes": 10,
+            "min_open_interest": 100,
+            "min_volume": 50,
+            "max_spread_pct": 0.1,
+            "delta_min": 0.35,
+            "delta_max": 0.45,
+            "preferred_dte": [
+              0,
+              1,
+              2
+            ],
+            "entry_price_mode": "marketable_limit",
+            "entry_marketable_offset_pct": 0.01,
+            "global_ranking": true
+          },
+          "premium_budget": 250.0,
+          "contract_cap": 10,
+          "max_active_positions": 1,
+          "max_entries": 3,
+          "max_symbols": 3,
+          "one_entry_per_symbol_per_day": true,
+          "max_risk_per_trade": 0.01,
+          "max_daily_loss_fraction": 0.02,
+          "daily_loss_dollars": 250.0,
+          "max_losing_trades": 2,
+          "cooldown_minutes": 15.0,
+          "correlated_groups": "broad_index:SPY,QQQ,IWM,DIA",
+          "market_open": "09:30",
+          "market_close": "16:00",
+          "open_buffer_minutes": 15,
+          "close_buffer_minutes": 15,
+          "eod_exit_time": "12:30",
+          "min_entry_minutes_before_eod": 30,
+          "orb_reservation": true,
+          "orb_reserve_until": "11:30",
+          "stop_loss_pct": 0.5,
+          "take_profit_pct": 1.0,
+          "trailing_stop_pct": 0.25,
+          "trailing_activation_pct": 0.25,
+          "max_hold_minutes": 120,
+          "entry_timeout_seconds": 120.0,
+          "variant_trigger_pct": 0.25,
+          "exit_variants_enabled": true,
+          "partial_fraction": 0.5
+        },
+        "admitted": 1,
+        "filled": 1,
+        "closed": 1,
+        "unresolved": 0,
+        "realized_pnl": -39.0,
+        "max_realized_drawdown": 39.0,
+        "losing_trades": 1,
+        "portfolio_pnl": -39.0
+      }
+    },
+    "diagnostics": {
+      "all": {
+        "closed": 39
+      },
+      "oversized": {
+        "closed": 15
+      },
+      "rejected": {
+        "closed": 35
+      },
+      "by_variant": {
+        "baseline": {
+          "closed": 12,
+          "priced": 12,
+          "unpriced": 0,
+          "sized_priced": 5,
+          "sized_pnl": -57.0,
+          "one_contract_pnl": -578.0
+        },
+        "breakeven_25": {
+          "closed": 12,
+          "priced": 12,
+          "unpriced": 0,
+          "sized_priced": 5,
+          "sized_pnl": -57.0,
+          "one_contract_pnl": -573.0
+        },
+        "partial_25_breakeven": {
+          "closed": 5,
+          "priced": 5,
+          "unpriced": 0,
+          "sized_priced": 5,
+          "sized_pnl": -30.0,
+          "one_contract_pnl": -13.5
+        },
+        "inverted": {
+          "closed": 10,
+          "priced": 10,
+          "unpriced": 0,
+          "sized_priced": 9,
+          "sized_pnl": 10.0,
+          "one_contract_pnl": 206.0
+        }
+      },
+      "rejection_reasons": {
+        "premium_budget_or_price_invalid": 15,
+        "market_regime_mismatch": 20,
+        "symbol_disabled": 6,
+        "signal_quality_below_min": 11
+      },
+      "aggregation_note": "Rejected and oversized subsets overlap. Variants are alternative scenarios."
+    },
+    "observation_progress": {
+      "completed_scheduled_sessions": 2,
+      "dates": [
+        "2026-09-10",
+        "2026-09-11"
+      ],
+      "eligible_opportunities": 2,
+      "targets": {
+        "scheduled_sessions": 5,
+        "eligible_opportunities": 10
+      },
+      "excluded_dates": {},
+      "review_checkpoint_reached": false,
+      "automatic_strategy_activation": false
+    }
+  },
+  "premium_budget_dollars": 250.0,
+  "contract_cap": 10,
+  "win_rate": null,
+  "avg_win": null,
+  "avg_loss": null,
+  "max_drawdown": 0.0,
+  "largest_win": null,
+  "largest_loss": null,
+  "trade_diagnostics": [],
+  "excursion_summary": {
+    "trades_analyzed": 0,
+    "trades_with_excursion_data": 0,
+    "coverage_pct": null,
+    "average_mfe_dollars": null,
+    "average_mae_dollars": null,
+    "total_mfe_giveback_dollars": 0,
+    "attribution_counts": {},
+    "pnl_by_attribution": {},
+    "dominant_failure_mode": null,
+    "sampling_note": "MFE/MAE use runner polling observations, not exchange-tick extrema."
+  },
+  "dominant_failure_mode": null,
+  "slippage_total": 0,
+  "spread_cost_estimate": 0,
+  "fill_rate": null,
+  "cancel_rate": null,
+  "missed_fills_count": 0,
+  "time_to_fill_avg_secs": null,
+  "avg_spread_at_entry": null,
+  "avg_spread_at_exit": null,
+  "stop_loss_hit_pct": null,
+  "take_profit_hit_pct": null,
+  "eod_exit_pct": null,
+  "fill_rate_by_mode": {},
+  "cancel_rate_by_mode": {},
+  "avg_fill_latency_by_mode": {},
+  "cancel_reason_breakdown": {},
+  "scanned_symbols_count": 1292,
+  "candidate_count_passed": 559,
+  "candidate_count_rejected": 733,
+  "selected_symbols": [
+    "QQQ",
+    "NVDA",
+    "MSTR",
+    "TSLA",
+    "MARA",
+    "MSFT",
+    "GOOGL",
+    "HOOD",
+    "AAPL",
+    "META",
+    "PLTR",
+    "RIVN",
+    "RIOT",
+    "DKNG",
+    "UBER",
+    "SPY",
+    "IWM"
+  ],
+  "top_candidates": [
+    {
+      "symbol": "HOOD",
+      "score": 95.0,
+      "signal_type": "LONG"
+    },
+    {
+      "symbol": "XLE",
+      "score": 90.0,
+      "signal_type": "LONG"
+    },
+    {
+      "symbol": "MARA",
+      "score": 87.0,
+      "signal_type": "LONG"
+    },
+    {
+      "symbol": "MSFT",
+      "score": 83.0,
+      "signal_type": "LONG"
+    },
+    {
+      "symbol": "TSLA",
+      "score": 83.0,
+      "signal_type": "LONG"
+    }
+  ],
+  "candidates_by_group": {
+    "core_etfs": 306,
+    "mega_cap": 238,
+    "liquid_growth": 374,
+    "high_beta_liquid": 374
+  },
+  "rejected_by_group": {
+    "mega_cap": 93,
+    "liquid_growth": 300,
+    "high_beta_liquid": 158,
+    "core_etfs": 182
+  },
+  "trades_by_group": {},
+  "pnl_by_group": {},
+  "liquidity_rejections": 592,
+  "pnl_by_symbol": {},
+  "win_rate_by_symbol": {},
+  "expectancy_by_symbol": {},
+  "api_errors": 0,
+  "kill_switch_events": 0,
+  "by_strategy": [
+    {
+      "strategy_id": "orb",
+      "signals": 7,
+      "signal_observations": 51,
+      "diagnostic_observations": 0,
+      "submitted": 0,
+      "fills": 0,
+      "cancels": 0,
+      "rejects": 0,
+      "realized_pnl": 0.0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": null,
+      "avg_win": null,
+      "avg_loss": null
+    },
+    {
+      "strategy_id": "rsi_trend",
+      "signals": 0,
+      "signal_observations": 2707,
+      "diagnostic_observations": 2707,
+      "submitted": 0,
+      "fills": 0,
+      "cancels": 0,
+      "rejects": 0,
+      "realized_pnl": 0.0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": null,
+      "avg_win": null,
+      "avg_loss": null
+    },
+    {
+      "strategy_id": "vwap_reclaim",
+      "signals": 7,
+      "signal_observations": 55,
+      "diagnostic_observations": 0,
+      "submitted": 0,
+      "fills": 0,
+      "cancels": 0,
+      "rejects": 0,
+      "realized_pnl": 0.0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": null,
+      "avg_win": null,
+      "avg_loss": null
+    }
+  ],
+  "scanner_standby_activated": true,
+  "standby_reason": "all_38_candidates_rejected_fallback_disabled",
+  "scanner_standby_event_count": 3,
+  "scanner_standby_recovered": false,
+  "exit_spread_warning_count": 0,
+  "bridge_entries_count": 2813,
+  "bridge_traded_count": 0,
+  "bridge_blocked_count": 106,
+  "bridge_skipped_count": 2707,
+  "bridge_by_strategy": {
+    "rsi_trend": {
+      "traded": 0,
+      "blocked": 0,
+      "skipped": 2707
+    },
+    "vwap_reclaim": {
+      "traded": 0,
+      "blocked": 55,
+      "skipped": 0
+    },
+    "orb": {
+      "traded": 0,
+      "blocked": 51,
+      "skipped": 0
+    }
+  },
+  "bridge_top_blocked_reasons": [
+    "market_regime_mismatch",
+    "signal_quality_below_min",
+    "strategy_shadow_only",
+    "symbol_disabled"
+  ],
+  "sample_size_warning": "Sample size too small for statistical conclusions (0 fill(s) this session). Win rate and PnL metrics require 30+ trades to be meaningful.",
+  "orb_signals_total": 7,
+  "orb_signal_observations": 51,
+  "orb_signals_traded": 0,
+  "orb_signals_blocked": 7,
+  "orb_signals_skipped": 0,
+  "orb_quality_distribution": {
+    "3": 4,
+    "4": 3
+  },
+  "orb_slot_reserved_events": 0,
+  "orb_actual_pnl": null,
+  "orb_avg_quality": 3.43,
+  "orb_top_blocked_reasons": [
+    "market_regime_mismatch",
+    "strategy_shadow_only"
+  ],
+  "orb_avg_fwd_pct_5m": null,
+  "orb_avg_fwd_pct_15m": null,
+  "orb_avg_fwd_pct_30m": null,
+  "pnl_by_strategy": {},
+  "notes": [
+    "Observation session: all configured strategies are shadow-only or diagnostic-only; broker entries are disabled.",
+    "Separate paper-only scaled-sizing cohort: paper_scaled_budget_250_cap_10_guardrails_v3_shadow_validation; do not merge with the frozen one-contract clean cohort",
+    "Scanner entered STANDBY \u2014 no new entries: all_38_candidates_rejected_fallback_disabled",
+    "ORB strategy: 7 signal(s) evaluated but none traded \u2014 check block reasons above"
+  ],
+  "recommendations": [
+    "Review universe scan settings; consider adjusting min_scan_score or rvol threshold"
+  ],
+  "phase": "phase3",
+  "evidence_type": "scaled_paper_evaluation"
+}

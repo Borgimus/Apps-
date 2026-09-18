@@ -712,8 +712,8 @@ class TestHealthReport:
         reporter = HealthReporter(seeded_session)
         report = await reporter.generate(TODAY)
 
-        # Max drawdown is computed from the pnl time series; just verify it's in [0, 1]
-        assert 0.0 <= report["max_drawdown"] <= 1.0
+        # Max drawdown is a dollar amount, consistent with the daily report.
+        assert report["max_drawdown"] == 130.0
 
     @pytest.mark.asyncio
     async def test_empty_session_report(self, db_session: AsyncSession):

@@ -1,0 +1,49 @@
+[2026-09-07T09:30:01-04:00] automatic start requested
+Market calendar reports no trading session today; skipping launch
+[2026-09-07T12:35:01-04:00] automatic EOD close-out requested
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "a3b6a249d86fcb9a5a7e7d6b752e7990defb75ac",
+  "working_tree_dirty": false,
+  "source_changes": [],
+  "ignored_runtime_changes": [
+    "logs/preflight_2026-09-04.log"
+  ],
+  "config_hash_sha256_16": "d9b983ac2c7d4383",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "92a841bb277eacb6",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "682cfcd0",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+
+All broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "commit_sha": "a3b6a249d86fcb9a5a7e7d6b752e7990defb75ac",
+  "working_tree_dirty": false,
+  "source_changes": [],
+  "ignored_runtime_changes": [
+    "logs/preflight_2026-09-04.log"
+  ],
+  "config_hash_sha256_16": "d9b983ac2c7d4383",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "92a841bb277eacb6",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "682cfcd0",
+    "paper_broker": "241f1432",
+    "broker_interface": "6a307cc7"
+  }
+}
+[2026-09-07T12:35:03-04:00] broker EOD state clean: 0 positions, 0 open orders
+[agent/paper-scaled-sizing-250-10 0c89a3f] Record Phase 3 session raw artifacts (2026-09-07)
+ 4 files changed, 104 insertions(+)
+ create mode 100644 logs/automation_2026-09-07.log
+ create mode 100644 logs/preflight_2026-09-07.log
+ create mode 100644 logs/shadow_report_2026-09-07.txt
+To https://github.com/Borgimus/Apps-.git
+   a3b6a24..0c89a3f  agent/paper-scaled-sizing-250-10 -> agent/paper-scaled-sizing-250-10
+[2026-09-07T12:35:05-04:00] artifacts committed and pushed
+[2026-09-07T12:35:05-04:00] automatic EOD close-out complete

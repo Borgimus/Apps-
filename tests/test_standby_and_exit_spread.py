@@ -225,6 +225,72 @@ class TestStandbyGuard:
         assert result == [], "Expected [] when fallback is allowed"
         assert scan_store.get("standby") is False
 
+    @pytest.mark.asyncio
+    async def test_successful_rescan_clears_standby_and_logs_recovery(self):
+        """A later passing scan clears STANDBY and records the recovery once."""
+        from collections import OrderedDict
+        from scripts.session_runner import _run_universe_scan
+
+        settings = _make_settings()
+        metrics = MagicMock(symbol="SPY")
+        candidate = MagicMock(
+            symbol="SPY",
+            score=80.0,
+            signal_type="LONG",
+            is_rejected=False,
+            rejected_reasons=[],
+            reason_codes=["trend_up"],
+            metrics=MagicMock(rvol=1.2),
+            universe_group="test",
+        )
+        confirmed = MagicMock(symbol="SPY")
+
+        loader = MagicMock()
+        loader.mode = "dynamic"
+        loader.enabled_groups_from_yaml = ["test"]
+        loader.get_symbols_with_groups.return_value = OrderedDict([("SPY", "test")])
+
+        scanner = MagicMock()
+        scanner.scan = AsyncMock(return_value=[metrics])
+        scorer = MagicMock()
+        scorer.score_all.return_value = [candidate]
+        confirmer = MagicMock()
+        confirmer.confirm_all = AsyncMock(return_value=[confirmed])
+
+        journal = MagicMock()
+        journal._db.add = MagicMock()
+        journal._db.execute = AsyncMock()
+        journal.log_event = AsyncMock()
+        journal.commit = AsyncMock()
+        scan_store = {
+            "standby": True,
+            "standby_reason": "all_38_candidates_rejected_fallback_disabled",
+        }
+
+        with (
+            patch("app.scanning.UniverseLoader", return_value=loader),
+            patch("app.scanning.YFinanceScanner", return_value=scanner),
+            patch("app.scanning.CandidateScorer", return_value=scorer),
+            patch("app.scanning.AlpacaConfirmer", return_value=confirmer),
+        ):
+            result = await _run_universe_scan(
+                settings=settings,
+                broker=MagicMock(),
+                journal=journal,
+                session_date="2026-09-01",
+                scan_store=scan_store,
+            )
+
+        assert result == ["SPY"]
+        assert scan_store["standby"] is False
+        assert scan_store["standby_reason"] is None
+        recovery_calls = [
+            call for call in journal.log_event.await_args_list
+            if call.kwargs.get("event") == "standby_recovered"
+        ]
+        assert len(recovery_calls) == 1
+        assert recovery_calls[0].kwargs["data"]["candidates_passed"] == 1
+
     # Test 5: dashboard session_state exposes scanner_standby=True from scan_store
     @pytest.mark.asyncio
     async def test_dashboard_session_state_exposes_standby_flag(self):
@@ -291,6 +357,78 @@ class TestStandbyGuard:
 
         assert report.scanner_standby_activated is True
         assert report.standby_reason == "all_3_candidates_rejected_fallback_disabled"
+
+    @pytest.mark.asyncio
+    async def test_daily_report_marks_standby_recovered(self):
+        """A recovery event clears the final STANDBY state in the report."""
+        from app.evaluation.daily_report import build_daily_report
+
+        standby_log = MagicMock(
+            timestamp=datetime(2026, 9, 1, 9, 30, tzinfo=ET),
+            level="warning",
+            event="standby",
+            message="Scanner STANDBY",
+            data_json=json.dumps({"reason": "all_38_candidates_rejected"}),
+        )
+        recovery_log = MagicMock(
+            timestamp=datetime(2026, 9, 1, 9, 35, tzinfo=ET),
+            level="info",
+            event="standby_recovered",
+            message="Scanner recovered",
+            data_json=json.dumps({"candidates_passed": 12}),
+        )
+        db_session = MagicMock()
+        db_session.execute = AsyncMock(
+            side_effect=_make_db_execute_responses(
+                logs=[standby_log, recovery_log], signals=[], trades=[], scan_rows=[]
+            )
+        )
+
+        report = await build_daily_report(db_session, "2026-09-01")
+
+        assert report.scanner_standby_activated is False
+        assert report.scanner_standby_recovered is True
+        assert report.scanner_standby_event_count == 1
+        assert report.standby_reason is None
+        assert "recovered" in " ".join(report.notes).lower()
+
+    @pytest.mark.asyncio
+    async def test_daily_report_deduplicates_scan_rankings(self):
+        """Repeated scan cycles produce one selected and top row per symbol."""
+        from app.evaluation.daily_report import build_daily_report
+
+        def scan_row(symbol, score, selected=True):
+            return MagicMock(
+                symbol=symbol,
+                score=score,
+                signal_type="LONG",
+                selected=selected,
+                is_rejected=False,
+                universe_group="test",
+                rejected_reasons="[]",
+            )
+
+        scan_rows = [
+            scan_row("SPY", 65.0),
+            scan_row("SPY", 90.0),
+            scan_row("AAPL", 80.0),
+            scan_row("AAPL", 75.0),
+            scan_row("NVDA", 70.0, selected=False),
+        ]
+        db_session = MagicMock()
+        db_session.execute = AsyncMock(
+            side_effect=_make_db_execute_responses(
+                logs=[], signals=[], trades=[], scan_rows=scan_rows
+            )
+        )
+
+        report = await build_daily_report(db_session, "2026-09-01")
+
+        assert report.selected_symbols == ["SPY", "AAPL"]
+        assert [row["symbol"] for row in report.top_candidates] == [
+            "SPY", "AAPL", "NVDA"
+        ]
+        assert report.top_candidates[0]["score"] == 90.0
 
 
 # ─────────────────────────────────────────────────────────────────────────────

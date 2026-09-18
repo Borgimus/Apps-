@@ -1,0 +1,36 @@
+2026-09-11T12:16:09 | ERROR    | session_runner | [bars(QQQ)] all 3 attempts failed: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=QQQ&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:16:09 | ERROR    | session_runner | Cannot fetch bars for QQQ: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=QQQ&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:16:24 | ERROR    | session_runner | [bars(AAPL)] all 3 attempts failed: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=AAPL&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:16:24 | ERROR    | session_runner | Cannot fetch bars for AAPL: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=AAPL&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:16:39 | ERROR    | session_runner | [bars(MARA)] all 3 attempts failed: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=MARA&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:16:39 | ERROR    | session_runner | Cannot fetch bars for MARA: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=MARA&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:16:54 | ERROR    | session_runner | [bars(IWM)] all 3 attempts failed: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=IWM&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:16:54 | ERROR    | session_runner | Cannot fetch bars for IWM: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=IWM&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:17:10 | ERROR    | session_runner | [bars(MSTR)] all 3 attempts failed: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=MSTR&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:17:10 | ERROR    | session_runner | Cannot fetch bars for MSTR: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=MSTR&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:17:25 | ERROR    | session_runner | [bars(RIOT)] all 3 attempts failed: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=RIOT&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:17:25 | ERROR    | session_runner | Cannot fetch bars for RIOT: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=RIOT&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:17:59 | ERROR    | app.scanning.yfinance_scanner | AlpacaScanner: batch fetch failed: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=SPY%2CQQQ%2CIWM%2CDIA%2CXLK%2CXLF%2CXLE%2CXLY%2CSMH%2CAAPL%2CMSFT%2CNVDA%2CAMZN%2CMETA%2CGOOGL%2CTSLA%2CAMD%2CARM%2CAVGO%2CCOIN%2CMSTR%2CPLTR%2CSHOP%2CSNOW%2CNET%2CCRWD%2CDDOG%2CRIVN%2CSOFI%2CHOOD%2CMARA%2CRIOT%2CROKU%2CDKNG%2CUBER%2CLYFT%2CXYZ%2CAFRM&timeframe=1Day&start=2026-06-28&adjustment=all&feed=iex&limit=10000&end=2026-09-11'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:18:14 | ERROR    | session_runner | [market_regime_bars(SPY)] all 3 attempts failed: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=SPY&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:23:21 | ERROR    | app.scanning.yfinance_scanner | AlpacaScanner: batch fetch failed: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=SPY%2CQQQ%2CIWM%2CDIA%2CXLK%2CXLF%2CXLE%2CXLY%2CSMH%2CAAPL%2CMSFT%2CNVDA%2CAMZN%2CMETA%2CGOOGL%2CTSLA%2CAMD%2CARM%2CAVGO%2CCOIN%2CMSTR%2CPLTR%2CSHOP%2CSNOW%2CNET%2CCRWD%2CDDOG%2CRIVN%2CSOFI%2CHOOD%2CMARA%2CRIOT%2CROKU%2CDKNG%2CUBER%2CLYFT%2CXYZ%2CAFRM&timeframe=1Day&start=2026-06-28&adjustment=all&feed=iex&limit=10000&end=2026-09-11'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:23:37 | ERROR    | session_runner | [market_regime_bars(SPY)] all 3 attempts failed: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=SPY&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:28:43 | ERROR    | app.scanning.yfinance_scanner | AlpacaScanner: batch fetch failed: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=SPY%2CQQQ%2CIWM%2CDIA%2CXLK%2CXLF%2CXLE%2CXLY%2CSMH%2CAAPL%2CMSFT%2CNVDA%2CAMZN%2CMETA%2CGOOGL%2CTSLA%2CAMD%2CARM%2CAVGO%2CCOIN%2CMSTR%2CPLTR%2CSHOP%2CSNOW%2CNET%2CCRWD%2CDDOG%2CRIVN%2CSOFI%2CHOOD%2CMARA%2CRIOT%2CROKU%2CDKNG%2CUBER%2CLYFT%2CXYZ%2CAFRM&timeframe=1Day&start=2026-06-28&adjustment=all&feed=iex&limit=10000&end=2026-09-11'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504
+2026-09-11T12:28:58 | ERROR    | session_runner | [market_regime_bars(SPY)] all 3 attempts failed: Server error '504 Gateway Timeout' for url 'https://data.alpaca.markets/v2/stocks/bars?symbols=SPY&timeframe=5Min&start=2026-09-07&feed=iex&limit=10000'
+For more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/504

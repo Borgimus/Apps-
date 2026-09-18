@@ -176,6 +176,49 @@ class TestFullOrderPipeline:
         contract = lf.select_contract(bad_chain, signal)
         assert contract is None
 
+    def test_scaled_liquidity_requires_present_delta_inside_target(self):
+        from dataclasses import replace
+        from app.brokers.broker_interface import OptionChain
+
+        signal = Signal("orb", "SPY", SignalDirection.LONG, MID_SESSION, 450.0)
+        strict = LiquidityFilter({
+            "min_open_interest": 100,
+            "min_volume": 50,
+            "max_spread_pct": 0.15,
+            "delta_target_min": 0.35,
+            "delta_target_max": 0.45,
+            "require_delta": True,
+            "strict_delta_range": True,
+        })
+
+        valid = _make_liquid_contract()
+        missing = replace(valid, delta=None)
+        outside = replace(valid, delta=0.55)
+        for rejected, reason in (
+            (missing, "delta_unavailable"),
+            (outside, "delta_outside_target"),
+        ):
+            chain = OptionChain(
+                symbol="SPY",
+                expiration=rejected.expiration,
+                underlying_price=Decimal("450"),
+                calls=[rejected],
+                puts=[],
+                fetched_at=MID_SESSION,
+            )
+            assert strict.select_contract(chain, signal) is None
+            assert strict.classify_no_contract_reason(chain, signal) == reason
+
+        chain = OptionChain(
+            symbol="SPY",
+            expiration=valid.expiration,
+            underlying_price=Decimal("450"),
+            calls=[valid],
+            puts=[],
+            fetched_at=MID_SESSION,
+        )
+        assert strict.select_contract(chain, signal) == valid
+
     @pytest.mark.asyncio
     async def test_daily_trade_counter_increments(self):
         rm = RiskManager()

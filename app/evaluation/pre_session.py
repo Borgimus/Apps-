@@ -14,15 +14,22 @@ Usage:
 
 from __future__ import annotations
 
+import asyncio
 import logging
+import math
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import List, Optional
 from zoneinfo import ZoneInfo
 
+from app.trading.quote_evidence import parse_quote_timestamp, quote_is_fresh, valid_quote
+
 logger = logging.getLogger(__name__)
 _ET = ZoneInfo("America/New_York")
+_DATA_CHECK_TIMEOUT_SECONDS = 5.0
+_BAR_INTERVAL = timedelta(minutes=5)
+_MAX_BAR_CLOSE_AGE_SECONDS = 600
 
 
 @dataclass
@@ -31,6 +38,7 @@ class CheckResult:
     passed: bool
     message: str
     required: bool = True
+    status: Optional[str] = None
 
 
 def all_required_pass(checks: List[CheckResult]) -> bool:
@@ -47,7 +55,8 @@ def format_check_table(checks: List[CheckResult]) -> str:
         else:
             icon = "⚠"
         req_label = "required" if c.required else "advisory"
-        lines.append(f"  {icon}  [{req_label:8}]  {c.name:30s}  {c.message}")
+        status = f"{c.status.upper()}: " if c.status else ""
+        lines.append(f"  {icon}  [{req_label:8}]  {c.name:30s}  {status}{c.message}")
     ok = all_required_pass(checks)
     lines.append("")
     lines.append("  Result: PASS" if ok else "  Result: FAIL — session aborted")
@@ -71,11 +80,12 @@ async def run_pre_session_checks(
     checks.append(_check_logs_writable(settings))
     checks.append(_check_daily_loss_reset(risk_manager))
     checks.append(await _check_no_stale_pending_orders(db_session))
-    checks.append(await _check_data_feed_freshness(db_session))
+    checks.append(await _check_data_feed_freshness(broker, settings))
 
     for c in checks:
-        level = logging.INFO if c.passed else (logging.ERROR if c.required else logging.WARNING)
-        logger.log(level, "pre_session [%s] %s: %s", "PASS" if c.passed else "FAIL", c.name, c.message)
+        level = logging.INFO if c.passed or c.status == "warming_up" else (logging.ERROR if c.required else logging.WARNING)
+        status = c.status.upper() if c.status else ("PASS" if c.passed else "FAIL")
+        logger.log(level, "pre_session [%s] %s: %s", status, c.name, c.message)
 
     return checks
 
@@ -280,58 +290,70 @@ async def _check_no_stale_pending_orders(db_session) -> CheckResult:
         )
 
 
-async def _check_data_feed_freshness(db_session) -> CheckResult:
-    """Advisory: last session log entry age."""
-    if db_session is None:
-        return CheckResult(
-            name="data_feed_fresh",
-            passed=True,
-            message="No DB session (dry-run)",
-            required=False,
-        )
+async def _check_data_feed_freshness(broker=None, settings=None, *, now=None) -> CheckResult:
+    """Advisory SPY equity quote and completed-bar check using source timestamps.
+
+    The first regular-session five-minute bar cannot complete before 09:35.
+    Warm-up is explicitly unverified. Existing scanner and option-entry gates
+    continue to own entry eligibility; this check does not change their rules.
+    """
+    def result(status, message):
+        return CheckResult("data_feed_fresh", status == "fresh", message,
+                           required=False, status=status)
+
+    requested_at = now if now is not None else datetime.now(tz=_ET)
+    if parse_quote_timestamp(requested_at) is None:
+        return result("unavailable", "Readiness check requires an aware observation time")
+    requested_at = requested_at.astimezone(_ET)
     try:
-        from sqlalchemy import select
-        from app.api.models import DBSessionLog
+        open_h, open_m = map(int, getattr(settings, "market_open", "09:30").split(":"))
+        close_h, close_m = map(int, getattr(settings, "market_close", "16:00").split(":"))
+        opened = requested_at.replace(hour=open_h, minute=open_m, second=0, microsecond=0)
+        closed = requested_at.replace(hour=close_h, minute=close_m, second=0, microsecond=0)
+    except (AttributeError, TypeError, ValueError):
+        return result("unavailable", "Market session hours are unavailable; data readiness is unverified")
+    if requested_at.weekday() >= 5 or requested_at >= closed:
+        return result("market_closed", "Regular-session data readiness is not asserted outside market hours")
+    if broker is None or not callable(getattr(broker, "get_quote", None)):
+        return result("unavailable", "No broker equity quote source; data freshness is unverified")
+    warmup = requested_at < opened + _BAR_INTERVAL
 
-        today = str(date.today())
-        now = datetime.now(tz=_ET)
-        row = (
-            await db_session.execute(
-                select(DBSessionLog)
-                .where(DBSessionLog.session_date == today)
-                .order_by(DBSessionLog.timestamp.desc())
-                .limit(1)
-            )
-        ).scalars().first()
+    async def fetch():
+        quote = await broker.get_quote("SPY")
+        if warmup:
+            return quote, []
+        bars = await broker.get_stock_bars("SPY", start=opened, end=requested_at, timeframe="5Min")
+        return quote, bars
 
-        if row and row.timestamp:
-            ts = row.timestamp
-            if ts.tzinfo is None:
-                ts = ts.replace(tzinfo=_ET)
-            age_secs = int((now - ts.astimezone(_ET)).total_seconds())
-            if age_secs > 7200:
-                return CheckResult(
-                    name="data_feed_fresh",
-                    passed=False,
-                    message=f"Last session log is {age_secs // 60}m old — data may be stale",
-                    required=False,
-                )
-            return CheckResult(
-                name="data_feed_fresh",
-                passed=True,
-                message=f"Last session log: {age_secs}s ago",
-                required=False,
-            )
-        return CheckResult(
-            name="data_feed_fresh",
-            passed=True,
-            message="No prior session log today — first run of the day",
-            required=False,
-        )
+    try:
+        quote, bars = await asyncio.wait_for(fetch(), timeout=_DATA_CHECK_TIMEOUT_SECONDS)
+        observed_at = requested_at if now is not None else datetime.now(tz=_ET)
+        timestamp = parse_quote_timestamp(getattr(quote, "timestamp", None))
+        quote_ok = (valid_quote(float(quote.bid), float(quote.ask))
+                    and quote_is_fresh(timestamp, observed_at))
+        age = (observed_at - timestamp).total_seconds() if timestamp else None
+        quote_text = (f"SPY equity quote age={age:.1f}s" if age is not None
+                      else "SPY equity quote timestamp unavailable")
+        if warmup:
+            return result("warming_up", f"First completed regular-session 5Min bar is expected at "
+                          f"{(opened + _BAR_INTERVAL):%H:%M} ET; {quote_text}; "
+                          f"quote_valid_and_fresh={quote_ok}; bar readiness unverified")
+        completed = []
+        for value, price in bars:
+            ts = parse_quote_timestamp(value)
+            if ts is None or not math.isfinite(float(price)) or float(price) <= 0:
+                continue
+            if ts > observed_at:
+                return result("unverified", f"{quote_text}; future-dated SPY bar received")
+            if opened <= ts and ts + _BAR_INTERVAL <= observed_at:
+                completed.append(ts + _BAR_INTERVAL)
+        if not completed:
+            return result("unverified", f"{quote_text}; no valid completed regular-session SPY 5Min bars")
+        bar_age = (observed_at - max(completed)).total_seconds()
+        ready = quote_ok and 0 <= bar_age <= _MAX_BAR_CLOSE_AGE_SECONDS
+        return result("fresh" if ready else "unverified",
+                      f"{quote_text}; quote_valid_and_fresh={quote_ok}; "
+                      f"latest completed SPY 5Min bar close age={bar_age:.1f}s "
+                      f"(quote limit=60s, bar-close limit={_MAX_BAR_CLOSE_AGE_SECONDS}s)")
     except Exception as exc:
-        return CheckResult(
-            name="data_feed_fresh",
-            passed=True,
-            message=f"Feed freshness check skipped: {exc}",
-            required=False,
-        )
+        return result("unavailable", f"SPY market-data readiness unverified: {type(exc).__name__}")

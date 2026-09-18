@@ -322,7 +322,7 @@ def test_observation_progress_does_not_pool_changed_entry_quality_rules(tmp_path
     assert progress["completed_scheduled_sessions"] == 0
 
 
-@pytest.mark.parametrize("change", ["provider", "late", "early", "errors", "permissions", "model"])
+@pytest.mark.parametrize("change", ["provider", "late", "early", "errors", "feed_errors", "permissions", "model"])
 def test_progress_excludes_mixed_controls_late_or_incomplete_sessions(tmp_path, change):
     records, candidate, quote, end = stream(tmp_path)
     end("11:00:00" if change == "early" else "12:30:01")
@@ -334,6 +334,8 @@ def test_progress_excludes_mixed_controls_late_or_incomplete_sessions(tmp_path, 
         actual["start_delay_seconds"] = 300
     elif change == "errors":
         records[-1]["api_errors"] = 1
+    elif change == "feed_errors":
+        records[-1]["data_feed_errors"] = 1
     elif change == "permissions":
         actual["broker_entry_strategies"] = ["orb"]
     elif change == "model":
@@ -508,3 +510,18 @@ def test_partial_scenario_with_an_executable_candidate_keeps_its_portfolio_resul
     result = research(records, "partial_25_breakeven")
     assert result["status"] == "complete" and result["portfolio_pnl"] == 20
     assert result["admitted"] == 1
+
+
+def test_session_end_event_records_data_feed_errors_and_requires_review(tmp_path):
+    sb, c = setup_book(tmp_path)
+    sb.finish_session(at("12:30:01"), data_feed_errors=2)
+    events = read_events(tmp_path / "events.jsonl")
+    assert events[-1]["event"] == "shadow_session_end"
+    assert events[-1]["data_feed_errors"] == 2
+    progress = observation_progress(events, c, through_date=DAY)
+    assert progress["completed_scheduled_sessions"] == 0
+    assert "data_feed_errors_review_required" in progress["excluded_dates"][DAY]
+
+    # Sessions recorded before the field existed carry no key and still count.
+    del events[-1]["data_feed_errors"]
+    assert observation_progress(events, c, through_date=DAY)["completed_scheduled_sessions"] == 1

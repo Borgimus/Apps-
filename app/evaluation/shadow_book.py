@@ -581,7 +581,7 @@ class ShadowBook:
         return len(self._open)
 
     async def refresh_and_finish_session(self, broker, now=None, *, api_errors=0,
-                                         reconciliation_warnings=0) -> None:
+                                         reconciliation_warnings=0, data_feed_errors=0) -> None:
         """Request one final quote per held contract, with bounded shutdown time.
 
         A failed/invalid refresh cannot reuse an earlier mark as a priced exit.
@@ -605,15 +605,17 @@ class ShadowBook:
                     "failed_contracts": failed})
         self.finish_session(ended_at, api_errors=api_errors,
                             reconciliation_warnings=reconciliation_warnings,
+                            data_feed_errors=data_feed_errors,
                             final_quote_refresh_required=True)
 
     def finish_session(self, now: datetime, *, api_errors=0, reconciliation_warnings=0,
-                       final_quote_refresh_required=False) -> None:
+                       data_feed_errors=0, final_quote_refresh_required=False) -> None:
         """Complete recorded observations; runtime uses refresh_and_finish_session."""
         self.close_all(now)
         self._emit({"event": "shadow_session_end", "ts": now.isoformat(),
                     "api_errors": api_errors,
                     "reconciliation_warnings": reconciliation_warnings,
+                    "data_feed_errors": data_feed_errors,
                     "final_quote_refresh_required": final_quote_refresh_required})
 
     # ── Internals ─────────────────────────────────────────────────────────────

@@ -134,6 +134,7 @@ class DailyReport:
 
     # System health
     api_errors: int = 0
+    data_feed_errors: int = 0
     kill_switch_events: int = 0
 
     # Per-strategy breakdown
@@ -266,9 +267,19 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
     # rejection as if the scanner remained halted all day.
     standby_active = False
     for log in logs:
+        evt = (log.event or "").lower()
+        if evt == "data_feed_errors":
+            # Runner-written summary of market-data fetches that exhausted
+            # retries. Kept out of api_errors, which counts broker failures.
+            try:
+                import json as _json
+                _feed = _json.loads(log.data_json) if log.data_json else {}
+                report.data_feed_errors = int(_feed.get("count") or 0)
+            except (ValueError, TypeError):
+                report.data_feed_errors = 0
+            continue
         if log.level == "error":
             report.api_errors += 1
-        evt = (log.event or "").lower()
         if "kill_switch" in evt or "kill switch" in evt:
             report.kill_switch_events += 1
         if evt == "standby":
@@ -789,6 +800,10 @@ def _generate_notes(r: DailyReport):
         notes.append(f"{r.api_errors} API error(s) recorded during session")
         recs.append("Investigate API errors in logs — persistent errors may affect fill accuracy")
 
+    if r.data_feed_errors > 0:
+        notes.append(f"{r.data_feed_errors} market-data fetch(es) failed after retries")
+        recs.append("Session requires review before counting toward the observation checkpoint — see data_feed_errors labels in session logs")
+
     if r.kill_switch_events > 0:
         notes.append(f"Kill switch was activated {r.kill_switch_events} time(s)")
         recs.append("Investigate what triggered the kill switch")
@@ -1263,6 +1278,7 @@ def to_markdown(report: DailyReport) -> str:
 | Metric | Value |
 |---|---|
 | API errors | {r.api_errors} |
+| Data feed errors | {r.data_feed_errors} |
 | Kill switch events | {r.kill_switch_events} |
 | Scanner standby | {"YES — " + r.standby_reason if r.scanner_standby_activated and r.standby_reason else ("YES" if r.scanner_standby_activated else (f"recovered after {r.scanner_standby_event_count} event(s)" if r.scanner_standby_recovered else "no"))} |
 | Exit spread warnings | {r.exit_spread_warning_count} |

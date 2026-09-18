@@ -156,6 +156,10 @@ def observation_progress(events, context, *, through_date):
                 reasons.append("early_end")
             if end.get("api_errors") != 0 or end.get("reconciliation_warnings") != 0:
                 reasons.append("session_health_review_required")
+            # Sessions recorded before this field existed carry no key and are
+            # not retroactively excluded; their review is documented separately.
+            if end.get("data_feed_errors", 0):
+                reasons.append("data_feed_errors_review_required")
             if any(r.get("event") == "shadow_quote_error" for r in records):
                 reasons.append("shadow_quote_errors")
             if any(r.get("event") == "shadow_close" and r.get("channel") == "eligible"

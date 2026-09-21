@@ -74,12 +74,15 @@ def _print_excursion_summary(label: str, rows: list) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--events", default="evaluation/shadow_book.jsonl")
+    ap.add_argument("--events", default=None)
     ap.add_argument("--date", default=None, help="Restrict to one session date (YYYY-MM-DD)")
     ap.add_argument("--model-version", default=SHADOW_MODEL_VERSION,
                     help="Report exactly one simulator version; use 1 for legacy diagnostics")
     args = ap.parse_args()
 
+    if args.events is None:
+        from app.config import get_settings
+        args.events = str(Path(get_settings().evaluation_output_dir) / "shadow_book.jsonl")
     path = Path(args.events)
     if not path.exists():
         print(f"No shadow book at {path}")

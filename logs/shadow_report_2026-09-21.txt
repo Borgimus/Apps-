@@ -1,0 +1,78 @@
+Model 4; excluded other-version events: 367; unpriced closes: 0
+# Shadow evaluation: 2026-09-21
+
+## Eligible shadow evidence
+
+First-eligible tracking: **available**. Eligible entry anchors: **0**.
+
+These are simulated quote-touch outcomes. They exclude fees, queue uncertainty and exit slippage and add no broker-fill readiness evidence.
+
+| Independent exit policy | Priced / closed | Sized P&L |
+| --- | ---: | ---: |
+| baseline | 0 / 0 | unavailable |
+| breakeven_25 | 0 / 0 | unavailable |
+| partial_25_breakeven | 0 / 0 | unavailable |
+
+Matched comparisons use identical contract, entry time, limit price, quantity and fill time.
+
+| Variant | Complete matched pairs | Baseline P&L | Variant P&L | Difference |
+| --- | ---: | ---: | ---: | ---: |
+| breakeven_25 | 0 | unavailable | unavailable | unavailable |
+| partial_25_breakeven | 0 | unavailable | unavailable | unavailable |
+
+Partial exits require at least two contracts. Missing or unpriced pairs are excluded.
+
+### Chronological portfolio replay
+
+Each exit policy has an independent portfolio. Research portfolios assume strategy reactivation while applying the captured budget and risk rules. Actual permissions stay unchanged.
+
+| Scenario | Status | Admitted | Closed | Sized portfolio P&L |
+| --- | --- | ---: | ---: | ---: |
+| Current permissions | complete | 0 | 0 | $+0.00 |
+| baseline | complete | 0 | 0 | $+0.00 |
+| breakeven_25 | complete | 0 | 0 | $+0.00 |
+| partial_25_breakeven | complete | 0 | 0 | $+0.00 |
+
+### Observation progress
+
+Completed scheduled sessions: 6/5. Eligible opportunities: 6/10.
+The checkpoint requests a review only. It never activates a strategy.
+
+### Entry-filter rejection breakdown
+
+41 original-direction observations formed 6 unique shadow setups using the existing 60-minute episode rule. This denominator differs from the distinct signal timestamps in the trade summary.
+
+Initially passed filters: 0. Initially rejected: 6. Initial eligibility unrecorded: 0.
+Ever passed filters: 0. Eligible anchors recorded: 0. Became eligible after rejection: 0.
+
+| Initial blocker | Unique setups |
+| --- | ---: |
+| market_regime_mismatch | 3 |
+| premium_budget_or_price_invalid | 4 |
+| signal_quality_below_min | 5 |
+
+Setups with multiple initial blockers: 4. Reason counts overlap and must not be added together.
+
+| Initial blocker combination | Unique setups |
+| --- | ---: |
+| market_regime_mismatch, premium_budget_or_price_invalid, signal_quality_below_min | 2 |
+| market_regime_mismatch, signal_quality_below_min | 1 |
+| premium_budget_or_price_invalid | 1 |
+| premium_budget_or_price_invalid, signal_quality_below_min | 1 |
+| signal_quality_below_min | 1 |
+
+Passing entry filters alone does not prove quote evidence, a fill, or portfolio admission.
+
+### Diagnostic setups
+
+These include failed entry filters and oversized contracts. P&L is one-contract normalized; it does not establish an executable portfolio. Alternative exit policies must not be added together.
+
+| Diagnostic variant | Priced / closed | Normalized P&L |
+| --- | ---: | ---: |
+| baseline | 6 / 6 | $+232.00 |
+| breakeven_25 | 6 / 6 | $+232.00 |
+| partial_25_breakeven | 0 / 0 | unavailable |
+| inverted | 6 / 6 | $-96.00 |
+
+Oversized diagnostic closes: 10. Rejected diagnostic closes: 18. These subsets overlap.
+

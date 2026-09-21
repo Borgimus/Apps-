@@ -2,10 +2,14 @@
 
 Status: release authorized for rollout. VPS installation must be confirmed by
 `DEPLOYED_PREFLIGHT_READY`; publishing this release alone does not install it.
-Based on deployed-branch snapshot `b0608ead15c36db9ca3e7a8a359eb04c39ef1317`.
+Updated to include deployed-branch snapshot `306212783a4761b69c0548994dfc133cc12a2b8b`
+and its September 21 session evidence. The initial release preceded that daily
+artifact commit, so the installer correctly stopped at its ancestry check.
+That early stop did not pause cron or install code. Failure messages now
+distinguish pre-maintenance stops from failures after cron was paused.
 This document does not authorize live trading or change strategy permissions.
 
-Validation including close-script and installer integration: **851 passed, 2 skipped**
+Validation after incorporating September 21 evidence: **853 passed, 2 skipped**
 on Python 3.12 using the installed locked dependencies. The four existing
 quarantined files were excluded exactly as in CI; quarantine is not claimed
 fixed. Python compilation, shell syntax and diff whitespace checks passed.
@@ -16,9 +20,9 @@ not exercised by this validation. CI still runs its configured Python 3.11.
 Close-script tests cover natural exit, graceful SIGTERM, a wedged runner with
 both clean and unverified broker snapshots, final-check failure, report failure,
 publication failure, and blocking a new start/preflight during close-out.
-One additional targeted regression passed after that suite run, confirming
-migration retains the newest backed-up events after Git restores older tracked
-runtime files. Installer tests verify cron stays paused on migration, artifact
+Regressions confirm migration retains the newest backed-up events after Git
+restores older tracked runtime files, and a stale release stops before cron or
+code changes. Installer tests verify cron stays paused on migration, artifact
 publication, code push and preflight failures. No server deployment is claimed
 from these local tests.
 

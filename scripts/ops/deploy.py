@@ -24,6 +24,7 @@ BEGIN = "# BEGIN PHASE3 SESSION AUTOMATION"
 END = "# END PHASE3 SESSION AUTOMATION"
 FROZEN = ("config.yaml", "requirements.lock", "ticker_universe.yaml",
           "app/config/settings.py", "evaluation/phase3_tracking.json")
+DEPLOYMENT_STATE = {"maintenance_started": False}
 
 
 def runtime_file(name):
@@ -60,6 +61,7 @@ def backup_tree(source, destination):
 
 
 def main():
+    DEPLOYMENT_STATE["maintenance_started"] = False
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--release", required=True, help="Full SHA already fetched from the reviewed release branch")
     args = parser.parse_args()
@@ -171,6 +173,7 @@ asyncio.run(check())
         (root / "KILL_SWITCH").touch()
         (Path("/root") / ".session_armed").unlink(missing_ok=True)
         run("crontab", "-", input=paused)
+        DEPLOYMENT_STATE["maintenance_started"] = True
         print("Trading disarmed; session cron paused until validation passes.", flush=True)
         # The backup above was byte-verified. Only known runtime paths are restored.
         if dirty:
@@ -220,5 +223,8 @@ if __name__ == "__main__":
         # Avoid displaying notification credentials or credential-bearing Git errors.
         print(f"DEPLOYMENT_STOPPED: {type(exc).__name__}", file=sys.stderr)
         if isinstance(exc, ValueError): print(str(exc), file=sys.stderr)
-        print("Do not start a session. Preserve the backup and inspect deployment output; paused cron is not automatically restored.", file=sys.stderr)
+        if DEPLOYMENT_STATE["maintenance_started"]:
+            print("Do not start a session. Preserve the backup and inspect deployment output; paused cron is not automatically restored.", file=sys.stderr)
+        else:
+            print("Stopped before cron maintenance or code installation. The existing schedule was not paused by this attempt.", file=sys.stderr)
         raise SystemExit(1)

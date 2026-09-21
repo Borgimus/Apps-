@@ -7,6 +7,7 @@ from pathlib import Path
 
 from app.evaluation.shadow_replay import ET, VARIANTS, replay_session
 from app.evaluation.shadow_funnel import rejection_breakdown
+from app.evaluation.evidence_annotations import health_review, exit_trigger_coverage
 from app.trading.quote_evidence import parse_quote_timestamp
 
 
@@ -94,6 +95,7 @@ def summarize(events, date, *, model_version="4", context=None) -> dict:
         "exit_quote_evidence": [_exit_quote_evidence(r) for r in eligible if r["variant"] == "baseline"],
         "eligible_independent": {v: totals([r for r in eligible if r["variant"] == v]) for v in VARIANTS},
         "matched_exits": comparisons,
+        "exit_trigger_coverage": exit_trigger_coverage(eligible, context),
         "current_permissions_replay": replay_session(selected, respect_permissions=True),
         "research_portfolios": replay,
         "diagnostics": {
@@ -131,6 +133,8 @@ def observation_progress(events, context, *, through_date):
         if day and day <= through_date:
             sessions[day].append(event)
     completed, exclusions, opportunities = [], {}, 0
+    reviewed_exceptions, sessions_without_reviewed_outages = [], []
+    opportunities_without_reviewed_outages = 0
     for day, records in sorted(sessions.items()):
         starts = [r for r in records if r.get("event") == "shadow_session_start"]
         if not starts or not any(all(r.get("session_context", {}).get(k) == context.get(k) for k in identity) for r in starts):
@@ -169,12 +173,26 @@ def observation_progress(events, context, *, through_date):
             exclusions[day] = reasons
         else:
             completed.append(day)
-            opportunities += len({r["pair_id"] for r in records if r.get("event") == "eligible_entry"})
+            day_opportunities = len({r["pair_id"] for r in records if r.get("event") == "eligible_entry"})
+            opportunities += day_opportunities
+            review = health_review(c)
+            if review:
+                reviewed_exceptions.append(review)
+            else:
+                sessions_without_reviewed_outages.append(day)
+                opportunities_without_reviewed_outages += day_opportunities
     return {"completed_scheduled_sessions": len(completed), "dates": completed,
             "eligible_opportunities": opportunities, "targets": targets, "excluded_dates": exclusions,
             "review_checkpoint_reached": len(completed) >= targets["scheduled_sessions"]
             and opportunities >= targets["eligible_opportunities"],
-            "automatic_strategy_activation": False}
+            "automatic_strategy_activation": False,
+            "counting_basis": "Accepted scheduled sessions under recorded policy, including documented health reviews",
+            "reviewed_health_exceptions": reviewed_exceptions,
+            "without_known_reviewed_outages": {
+                "sessions": len(sessions_without_reviewed_outages),
+                "dates": sessions_without_reviewed_outages,
+                "eligible_opportunities": opportunities_without_reviewed_outages,
+                "note": "Supplementary subset, not a replacement checkpoint. Historical missing error counters do not prove outage-free operation."}}
 
 
 def to_markdown(summary):
@@ -197,6 +215,16 @@ def to_markdown(summary):
     for variant, value in s["matched_exits"].items():
         lines.append(f"| {variant} | {value['matched_pairs']} | {money(value['baseline_pnl'])} | "
                      f"{money(value['variant_pnl'])} | {money(value['difference'])} |")
+    coverage = s.get("exit_trigger_coverage")
+    if coverage:
+        threshold = coverage["threshold_pct"]
+        threshold_text = "unrecorded" if threshold is None else f"{threshold:.0%}"
+        base, partial = coverage["baseline"], coverage["partial_executable"]
+        lines += ["", f"Exit trigger ({threshold_text}): {base['observed_threshold_reached']}/"
+                  f"{base['known_peak_paths']} eligible baseline paths reached the threshold; "
+                  f"{base['unknown_peak_paths']} paths unavailable.",
+                  f"Partial-exit candidates: {partial['opportunities']}; "
+                  f"threshold reached on {partial['observed_threshold_reached']} known paths.", coverage["note"]]
     lines += ["", "Partial exits require at least two contracts. Missing or unpriced pairs are excluded.", "",
               "### Chronological portfolio replay", "",
               "Each exit policy has an independent portfolio. Research portfolios assume strategy "
@@ -222,9 +250,18 @@ def to_markdown(summary):
         lines += ["", "Recorded events lack a complete first-eligible quote stream; no portfolio outcome is inferred."]
     progress = s["observation_progress"]
     lines += ["", "### Observation progress", "",
-              f"Completed scheduled sessions: {progress['completed_scheduled_sessions']}/{progress['targets']['scheduled_sessions']}. "
+              f"Accepted scheduled sessions: {progress['completed_scheduled_sessions']}/{progress['targets']['scheduled_sessions']}. "
               f"Eligible opportunities: {progress['eligible_opportunities']}/{progress['targets']['eligible_opportunities']}.",
               "The checkpoint requests a review only. It never activates a strategy."]
+    for review in progress.get("reviewed_health_exceptions", []):
+        lines += ["", f"Health exception retained: {review['date']}. {review['reason']} "
+                  f"Review: `{review['reference']}`."]
+    subset = progress.get("without_known_reviewed_outages")
+    if subset:
+        lines += [f"Excluding known reviewed outages: {subset['sessions']} sessions, "
+                  f"{subset['eligible_opportunities']} eligible opportunities. {subset['note']}"]
+    for day, reasons in progress.get("excluded_dates", {}).items():
+        lines += [f"Excluded {day}: {', '.join(reasons)}."]
     funnel = s.get("rejection_breakdown", {})
     lines += ["", "### Entry-filter rejection breakdown", ""]
     if funnel.get("status") != "available":
@@ -247,6 +284,10 @@ def to_markdown(summary):
                   "| Initial blocker combination | Unique setups |", "| --- | ---: |"]
         for combo in funnel["initial_rejection_combinations"]:
             lines.append(f"| {', '.join(combo['reasons'])} | {combo['setups']} |")
+        lines += ["", "Sole initial blockers (removing that entire check would clear the recorded initial reasons):"]
+        for reason, count in funnel.get("sole_initial_blockers", {}).items():
+            lines.append(f"- {reason}: {count} unique setups")
+        lines += ["These counts do not estimate a specific threshold change, prove a fill, or account for portfolio capacity."]
         lines += ["", funnel["eligibility_note"]]
         if funnel["observations_without_setup_id"] or funnel["anchors_without_recorded_signals"]:
             lines += [f"Coverage gaps: {funnel['observations_without_setup_id']} observations without setup IDs; "

@@ -1,15 +1,15 @@
-[2026-09-22T09:30:01-04:00] automatic start requested
+[2026-09-23T09:30:01-04:00] automatic start requested
 Market calendar and paper-account gate passed
 
 All static+broker checks passed — session is eligible for Phase 3 cohort.
 {
   "options_data_provider": "tradier",
   "options_data_adapter_hash": "567d1f77",
-  "commit_sha": "306212783a4761b69c0548994dfc133cc12a2b8b",
+  "commit_sha": "9e7df34b0f4fd6c22c2d074b6bf2721a0ec32e25",
   "working_tree_dirty": false,
   "source_changes": [],
   "ignored_runtime_changes": [
-    "logs/automation_2026-09-21.log"
+    "logs/automation_2026-09-22.log"
   ],
   "config_hash_sha256_16": "d9b983ac2c7d4383",
   "requirements_lock_hash_sha256_16": "b91299a905e74506",
@@ -20,37 +20,27 @@ All static+broker checks passed — session is eligible for Phase 3 cohort.
     "broker_interface": "54ebc37a"
   }
 }
-[2026-09-22T09:30:07-04:00] launching Phase 3 runner -> /root/trader/logs/session_2026-09-22.log
-[2026-09-22T12:30:31-04:00] runner exited rc=0
-[2026-09-22T12:35:01-04:00] automatic EOD close-out requested
+[2026-09-23T09:30:07-04:00] launching Phase 3 runner -> /root/trader/logs/session_2026-09-23.log
+[2026-09-23T12:30:04-04:00] runner exited rc=0
+[2026-09-23T12:35:01-04:00] automatic EOD close-out requested
 
 All broker checks passed — session is eligible for Phase 3 cohort.
 {
   "options_data_provider": "tradier",
   "options_data_adapter_hash": "567d1f77",
-  "commit_sha": "306212783a4761b69c0548994dfc133cc12a2b8b",
+  "commit_sha": "9e7df34b0f4fd6c22c2d074b6bf2721a0ec32e25",
   "working_tree_dirty": true,
   "source_changes": [
     "evaluation/ledger.options_tradier.guardrails_v3_tradier_options_2026_09_08.paper_scaled_250_cap_10.guardrails_v3_shadow_validation.json",
     "evaluation/shadow_book.jsonl"
   ],
   "ignored_runtime_changes": [
-    "logs/automation_2026-09-21.log",
+    "logs/automation_2026-09-22.log",
     "logs/broker.log",
     "logs/live_status.json",
     "logs/push_events.jsonl",
     "logs/shadow_book_state.json",
     "logs/trading.jsonl",
-    "logs/trading.jsonl.1",
-    "logs/trading.jsonl.10",
-    "logs/trading.jsonl.2",
-    "logs/trading.jsonl.3",
-    "logs/trading.jsonl.4",
-    "logs/trading.jsonl.5",
-    "logs/trading.jsonl.6",
-    "logs/trading.jsonl.7",
-    "logs/trading.jsonl.8",
-    "logs/trading.jsonl.9",
     "logs/trading.log"
   ],
   "config_hash_sha256_16": "d9b983ac2c7d4383",
@@ -67,29 +57,19 @@ All broker checks passed — session is eligible for Phase 3 cohort.
 {
   "options_data_provider": "tradier",
   "options_data_adapter_hash": "567d1f77",
-  "commit_sha": "306212783a4761b69c0548994dfc133cc12a2b8b",
+  "commit_sha": "9e7df34b0f4fd6c22c2d074b6bf2721a0ec32e25",
   "working_tree_dirty": true,
   "source_changes": [
     "evaluation/ledger.options_tradier.guardrails_v3_tradier_options_2026_09_08.paper_scaled_250_cap_10.guardrails_v3_shadow_validation.json",
     "evaluation/shadow_book.jsonl"
   ],
   "ignored_runtime_changes": [
-    "logs/automation_2026-09-21.log",
+    "logs/automation_2026-09-22.log",
     "logs/broker.log",
     "logs/live_status.json",
     "logs/push_events.jsonl",
     "logs/shadow_book_state.json",
     "logs/trading.jsonl",
-    "logs/trading.jsonl.1",
-    "logs/trading.jsonl.10",
-    "logs/trading.jsonl.2",
-    "logs/trading.jsonl.3",
-    "logs/trading.jsonl.4",
-    "logs/trading.jsonl.5",
-    "logs/trading.jsonl.6",
-    "logs/trading.jsonl.7",
-    "logs/trading.jsonl.8",
-    "logs/trading.jsonl.9",
     "logs/trading.log"
   ],
   "config_hash_sha256_16": "d9b983ac2c7d4383",
@@ -101,18 +81,4 @@ All broker checks passed — session is eligible for Phase 3 cohort.
     "broker_interface": "54ebc37a"
   }
 }
-[2026-09-22T12:35:06-04:00] broker EOD state clean: 0 positions, 0 open orders
-[agent/paper-scaled-sizing-250-10 9e7df34] Record Phase 3 session raw artifacts (2026-09-22)
- 27 files changed, 745407 insertions(+), 772951 deletions(-)
- create mode 100644 evaluation/reports/2026-09-22.json
- create mode 100644 evaluation/reports/2026-09-22.md
- create mode 100644 logs/automation_2026-09-22.log
- create mode 100644 logs/preflight_2026-09-22.log
- create mode 100644 logs/session_2026-09-22.exitcode
- create mode 100644 logs/session_2026-09-22.json
- create mode 100644 logs/session_2026-09-22.log
- create mode 100644 logs/shadow_report_2026-09-22.txt
-To https://github.com/Borgimus/Apps-.git
-   3062127..9e7df34  agent/paper-scaled-sizing-250-10 -> agent/paper-scaled-sizing-250-10
-[2026-09-22T12:35:22-04:00] artifacts committed and pushed
-[2026-09-22T12:35:22-04:00] automatic EOD close-out complete
+[2026-09-23T12:35:07-04:00] broker EOD state clean: 0 positions, 0 open orders

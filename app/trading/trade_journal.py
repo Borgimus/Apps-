@@ -406,7 +406,29 @@ class TradeJournal:
             )
         )
         row = result.one()
-        return {"entries": int(row.entries), "pnl": Decimal(str(row.pnl))}
+        closed_result = await self._db.execute(
+            select(DBTradeJournal).where(
+                DBTradeJournal.session_date == session_date,
+                DBTradeJournal.status == "closed",
+            )
+        )
+        closed = list(closed_result.scalars().all())
+        stop_losses = [
+            (trade.underlying_symbol, trade.signal_direction)
+            for trade in closed
+            if trade.exit_reason == "stop_loss"
+            and float(trade.realized_pnl or 0) < 0
+            and trade.underlying_symbol
+            and trade.signal_direction
+        ]
+        return {
+            "entries": int(row.entries),
+            "pnl": Decimal(str(row.pnl)),
+            "losing_exits": sum(
+                1 for trade in closed if float(trade.realized_pnl or 0) < 0
+            ),
+            "stop_losses": stop_losses,
+        }
 
     async def get_open_with_exit_order(self, session_date: str):
         """

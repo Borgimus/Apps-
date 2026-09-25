@@ -66,6 +66,23 @@ options:
   # Limit price as a fraction of mid-price (e.g. 0.02 = 2 cents over mid for buys)
   limit_price_offset_pct: 0.02
 
+universe:
+  mode: grouped
+  file: ./config/ticker_universe.yaml
+  max_symbols_per_scan: 40
+  max_active_symbols: 6
+  max_symbols_traded_per_day: 3
+  max_active_positions: 1
+  min_scan_score: 40.0
+  scan_interval_minutes: 5
+  allow_cli_fallback_when_scanner_rejects: false
+  fallback_min_rvol: 0.20
+  max_contracts_per_position: 1
+  groups_enabled: core_etfs,mega_cap,liquid_growth,high_beta_liquid
+  include_experimental: false
+  max_total_symbols: 40
+  max_per_group: 15
+
 backtesting:
   # Directory to write backtest HTML/CSV reports
   output_dir: ./backtest_results

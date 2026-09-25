@@ -1,0 +1,53 @@
+Model 4; excluded other-version events: 367; unpriced closes: 0
+# Shadow evaluation: 2026-09-10
+
+## Eligible shadow evidence
+
+First-eligible tracking: **available**. Eligible entry anchors: **1**.
+
+These are simulated quote-touch outcomes. They exclude fees, queue uncertainty and exit slippage and add no broker-fill readiness evidence.
+
+| Independent exit policy | Priced / closed | Sized P&L |
+| --- | ---: | ---: |
+| baseline | 1 / 1 | $-36.00 |
+| breakeven_25 | 1 / 1 | $-36.00 |
+| partial_25_breakeven | 0 / 0 | unavailable |
+
+Matched comparisons use identical contract, entry time, limit price, quantity and fill time.
+
+| Variant | Complete matched pairs | Baseline P&L | Variant P&L | Difference |
+| --- | ---: | ---: | ---: | ---: |
+| breakeven_25 | 1 | $-36.00 | $-36.00 | $+0.00 |
+| partial_25_breakeven | 0 | unavailable | unavailable | unavailable |
+
+Partial exits require at least two contracts. Missing or unpriced pairs are excluded.
+
+### Chronological portfolio replay
+
+Each exit policy has an independent portfolio. Research portfolios assume strategy reactivation while applying the captured budget and risk rules. Actual permissions stay unchanged.
+
+| Scenario | Status | Admitted | Closed | Sized portfolio P&L |
+| --- | --- | ---: | ---: | ---: |
+| Current permissions | complete | 0 | 0 | $+0.00 |
+| baseline | complete | 1 | 1 | $-36.00 |
+| breakeven_25 | complete | 1 | 1 | $-36.00 |
+| partial_25_breakeven | complete | 0 | 0 | $+0.00 |
+
+### Observation progress
+
+Completed scheduled sessions: 1/5. Eligible opportunities: 1/10.
+The checkpoint requests a review only. It never activates a strategy.
+
+### Diagnostic setups
+
+These include failed entry filters and oversized contracts. P&L is one-contract normalized; it does not establish an executable portfolio. Alternative exit policies must not be added together.
+
+| Diagnostic variant | Priced / closed | Normalized P&L |
+| --- | ---: | ---: |
+| baseline | 8 / 8 | $-209.00 |
+| breakeven_25 | 8 / 8 | $-209.00 |
+| partial_25_breakeven | 0 / 0 | unavailable |
+| inverted | 7 / 7 | $-58.00 |
+
+Oversized diagnostic closes: 13. Rejected diagnostic closes: 20. These subsets overlap.
+

@@ -1,0 +1,56 @@
+=== PREFLIGHT 2026-09-10T05:06:50-04:00 ===
+From https://github.com/Borgimus/Apps-
+ * branch            agent/paper-scaled-sizing-250-10 -> FETCH_HEAD
+Running focused safety suite...
+.....................................                                    [100%]
+37 passed in 3.97s
+Running fingerprint and broker checks...
+
+All static+broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "options_data_provider": "tradier",
+  "options_data_adapter_hash": "567d1f77",
+  "commit_sha": "5becb995bf207e1959b33b14e1485c08dbe2e00e",
+  "working_tree_dirty": false,
+  "source_changes": [],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-09-09.log"
+  ],
+  "config_hash_sha256_16": "d9b983ac2c7d4383",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "92a841bb277eacb6",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "7023790c",
+    "paper_broker": "241f1432",
+    "broker_interface": "54ebc37a"
+  }
+}
+CHECK-ONLY PASS: kill switch remains active
+=== PREFLIGHT 2026-09-10T09:20:02-04:00 ===
+From https://github.com/Borgimus/Apps-
+ * branch            agent/paper-scaled-sizing-250-10 -> FETCH_HEAD
+Running focused safety suite...
+.....................................                                    [100%]
+37 passed in 3.72s
+Running fingerprint and broker checks...
+
+All static+broker checks passed — session is eligible for Phase 3 cohort.
+{
+  "options_data_provider": "tradier",
+  "options_data_adapter_hash": "567d1f77",
+  "commit_sha": "5becb995bf207e1959b33b14e1485c08dbe2e00e",
+  "working_tree_dirty": false,
+  "source_changes": [],
+  "ignored_runtime_changes": [
+    "logs/automation_2026-09-09.log"
+  ],
+  "config_hash_sha256_16": "d9b983ac2c7d4383",
+  "requirements_lock_hash_sha256_16": "b91299a905e74506",
+  "ticker_universe_hash_sha256_16": "92a841bb277eacb6",
+  "broker_adapter_hashes_sha256_8": {
+    "alpaca_broker": "7023790c",
+    "paper_broker": "241f1432",
+    "broker_interface": "54ebc37a"
+  }
+}
+PREFLIGHT PASS: session armed for 2026-09-10 at 5becb995bf207e1959b33b14e1485c08dbe2e00e

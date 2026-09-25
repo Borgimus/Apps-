@@ -97,6 +97,21 @@ class TestOpeningRangeBreakout:
         for s in signals:
             assert s.symbol == "QQQ"
 
+    def test_two_bar_confirmation_rejects_one_bar_breakout(self):
+        bars = self._make_orb_bars("up")
+        strat = OpeningRangeBreakoutStrategy(params={
+            "range_minutes": 15,
+            "min_range_pts": 0.1,
+            "volume_confirmation": True,
+            "confirmation_bars": 2,
+        })
+        assert strat.generate_signals(bars, "SPY") == []
+
+        bars.iloc[5, bars.columns.get_loc("close")] = 452.0
+        signals = strat.generate_signals(bars, "SPY")
+        assert len([s for s in signals if s.direction == SignalDirection.LONG]) == 1
+        assert signals[0].timestamp == bars.index[5].to_pydatetime()
+
 
 # ── RSI + Trend ───────────────────────────────────────────────────────────────
 

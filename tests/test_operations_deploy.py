@@ -31,7 +31,7 @@ def test_cron_replacement_preserves_other_jobs_and_rejects_ambiguity():
     with pytest.raises(ValueError): d.cron_replace(original + "* * * * * /root/start_session.sh\n", "")
 
 
-@pytest.mark.parametrize("fail_at", [None, "migrate", "publish", "push", "preflight"])
+@pytest.mark.parametrize("fail_at", [None, "stale_release", "migrate", "publish", "push", "preflight"])
 def test_deploy_enables_cron_only_after_all_gates_and_preserves_live_evidence(tmp_path, monkeypatch, fail_at):
     root = tmp_path / "root"
     repo = root / "trader"
@@ -69,6 +69,7 @@ def test_deploy_enables_cron_only_after_all_gates_and_preserves_live_evidence(tm
             if argv[1] == "branch": output = d.BRANCH
             elif argv[1:3] == ("rev-parse", "HEAD"): output = state["local"]
             elif argv[1] == "rev-parse": output = state["remote"]
+            elif argv[1] == "merge-base" and fail_at == "stale_release": rc = 1
             elif argv[1:3] == ("diff", "--name-only") and "--no-renames" in argv:
                 output = "logs/trading.jsonl\nevaluation/shadow_book.jsonl\n"
             elif argv[1] == "merge": state["local"] = "b"*40
@@ -87,9 +88,19 @@ def test_deploy_enables_cron_only_after_all_gates_and_preserves_live_evidence(tm
         if rc and kwargs.get("check", True): raise subprocess.CalledProcessError(rc, argv)
         return result
     monkeypatch.setattr(d.subprocess, "run", command)
+    if fail_at == "stale_release":
+        with pytest.raises(ValueError, match="Release does not include current deployed code"):
+            d.main()
+        assert state["cron"] == original
+        assert not d.DEPLOYMENT_STATE["maintenance_started"]
+        assert not (root / "trader-backups").exists()
+        assert not (repo / "KILL_SWITCH").exists()
+        assert (root / "auto_close_session.sh").read_text() == "old script"
+        return
     if fail_at:
         with pytest.raises(subprocess.CalledProcessError): d.main()
         assert "Paused for operations deployment" in state["cron"]
+        assert d.DEPLOYMENT_STATE["maintenance_started"]
         assert "watchdog.sh" not in state["cron"]
     else:
         d.main()

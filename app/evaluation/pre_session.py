@@ -282,11 +282,12 @@ async def _check_no_stale_pending_orders(db_session) -> CheckResult:
             message="No stale pending orders from prior sessions",
         )
     except Exception as exc:
+        # An unverifiable check is a failed check: a stale order from a prior
+        # session could still be working at the broker.
         return CheckResult(
             name="no_stale_pending_orders",
-            passed=True,
-            message=f"Stale order check skipped: {exc}",
-            required=False,
+            passed=False,
+            message=f"Stale order check could not run: {exc}",
         )
 
 

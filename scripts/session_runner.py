@@ -176,7 +176,13 @@ def _reset_data_feed_errors() -> None:
 
 # ── Exit state constants ──────────────────────────────────────────────────────
 
-_MANDATORY_EXIT_REASONS = frozenset({"stop_loss", "max_hold", "eod_exit", "daily_loss", "kill_switch"})
+_MANDATORY_EXIT_REASONS = frozenset({
+    "stop_loss", "max_hold", "eod_exit", "daily_loss", "kill_switch", "quote_unavailable",
+})
+
+# An open position that cannot be priced cannot be protected by its stop.
+# After this long without a usable quote it is closed as a mandatory exit.
+_MAX_UNPRICED_EXPOSURE_SECONDS = 120
 
 # Set by run_session() so confirmed-close helpers can emit exit push events
 # with broker-confirmed fill prices (not cached estimates).
@@ -624,6 +630,7 @@ async def monitor_positions(
         _exit_bid: Optional[float] = None
         _exit_ask: Optional[float] = None
         _exit_mid: Optional[float] = None
+        current_price: Optional[float] = None
         try:
             quote = await _retry(
                 lambda p=pos: broker.get_option_quote(p.option_symbol),
@@ -644,14 +651,30 @@ async def monitor_positions(
                 )
             # Use bid for exit decisions on long options (reflects executable price).
             # Mid is used only for logging/display so phantom trailing-stop peaks are avoided.
-            current_price = _exit_bid if _exit_bid and _exit_bid > 0 else (
-                _exit_mid or pos.entry_price
-            )
-        except Exception:
-            current_price = pos.entry_price
+            current_price = _exit_bid if _exit_bid and _exit_bid > 0 else _exit_mid
+        except Exception as exc:
+            logger.warning("Exit quote unavailable | %s | %s", pos.option_symbol, exc)
 
-        pm.update_price(pos.option_symbol, current_price)
-        reason = pm.should_exit(pos.option_symbol, current_price, now)
+        if current_price:
+            pos.unpriced_since = None
+            pm.update_price(pos.option_symbol, current_price)
+            reason = pm.should_exit(pos.option_symbol, current_price, now)
+        else:
+            # Never substitute a price: a fabricated mark at entry makes the
+            # position look flat, which silently disables stop and trailing exits.
+            _record_data_feed_error(f"exit_quote({pos.option_symbol})")
+            if pos.unpriced_since is None:
+                pos.unpriced_since = now
+            _unpriced_secs = (now - pos.unpriced_since).total_seconds()
+            logger.warning(
+                "UNPRICED EXPOSURE | %s | no usable quote for %.0fs",
+                pos.option_symbol, _unpriced_secs,
+            )
+            # Time-based exits still apply against the last valid mark.
+            current_price = pos.current_price
+            reason = pm.should_exit(pos.option_symbol, current_price, now)
+            if not reason and _unpriced_secs >= _MAX_UNPRICED_EXPOSURE_SECONDS:
+                reason = "quote_unavailable"
 
         if not reason:
             continue
@@ -1724,12 +1747,20 @@ async def scan_and_place(
             strategy_id=sig.strategy_id,
             notes=sig.notes,
         )
+        # A symbol with no scan record this session was never earnings-checked.
+        _earnings_status = next(
+            (c.get("earnings_status", "unknown")
+             for c in ((scan_store or {}).get("candidates") or [])
+             if c.get("symbol") == symbol),
+            "unknown",
+        )
         risk_result = risk.check_order(
             request=request,
             equity=acct.equity,
             contract=contract,
             now=now,
             signal_direction=sig.direction.value,
+            earnings_status=_earnings_status,
         )
         if _bridge is not None:
             _bridge.risk_passed = risk_result.passed
@@ -2277,6 +2308,7 @@ async def _run_universe_scan(
                 "rejected_reasons": c.rejected_reasons,
                 "universe_group": c.universe_group,
                 "rvol": getattr(c.metrics, "rvol", None),
+                "earnings_status": getattr(c.metrics, "earnings_status", "unknown"),
             }
             for c in candidates
         ]

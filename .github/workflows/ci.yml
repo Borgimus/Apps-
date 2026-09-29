@@ -8,7 +8,8 @@ on:
 
 jobs:
   # ── Required gate ─────────────────────────────────────────────────────────
-  # All tests in this job must pass before a merge is allowed.
+  # Every test must pass before a merge is allowed. There is no quarantine:
+  # a failing test is either fixed or deleted with a stated reason.
   test:
     runs-on: ubuntu-latest
 
@@ -29,53 +30,6 @@ jobs:
         run: |
           find app scripts -name "*.py" | xargs python -m py_compile
 
-      - name: Run required test suite
-        # Order lifecycle, exit pricing, accounting and shadow parity are required.
+      - name: Run test suite
         run: |
-          python -m pytest tests/ -q \
-            --ignore=tests/test_alerts.py \
-            --ignore=tests/test_bug_d_e_fixes.py \
-            --ignore=tests/test_permissive_mode.py \
-            --ignore=tests/test_scanner.py \
-            --tb=short \
-            -p no:warnings
-
-  # ── Quarantine gate ───────────────────────────────────────────────────────
-  # These files have pre-existing failures due to known fixture or interface
-  # drift.  They run on every push so failures remain VISIBLE, but they do NOT
-  # block merges.  Each entry is linked to the defect that needs fixing.
-  #
-  # To graduate a file back to the required suite:
-  #   1. Fix the underlying defect.
-  #   2. Move the file from this job's list back to the required run above.
-  #   3. Remove it from the --collect-only list here.
-  quarantine:
-    runs-on: ubuntu-latest
-    continue-on-error: true   # failures are reported but do not block merges
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-          cache: "pip"
-          cache-dependency-path: requirements.lock
-
-      - name: Install pinned dependencies
-        run: pip install -r requirements.lock
-
-      - name: Run quarantined tests (non-blocking)
-        # Defect notes (one per file):
-        #   test_alerts.py              — AlertService mock interface changed post-P6; needs fixture update
-        #   test_bug_d_e_fixes.py       — async session fixture drifted from DBTradeJournal schema v2
-        #   test_permissive_mode.py     — BridgeEntry schema changed; test fixtures not updated
-        #   test_scanner.py             — YFinanceScanner mock returns changed format; metrics field name drift
-        run: |
-          python -m pytest \
-            tests/test_alerts.py \
-            tests/test_bug_d_e_fixes.py \
-            tests/test_permissive_mode.py \
-            tests/test_scanner.py \
-            --tb=short -q
+          python -m pytest tests/ -q --tb=short -p no:warnings

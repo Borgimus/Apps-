@@ -33,7 +33,8 @@ Data fetch:
     (daily 1Day + intraday 5Min), replacing the prior yfinance dependency.
   - Alpaca uses existing broker credentials (ALPACA_API_KEY / ALPACA_SECRET_KEY).
   - yfinance is retained only for the per-symbol earnings calendar check; it
-    fails gracefully (returns has_earnings=False) when Yahoo is unavailable.
+    reports earnings_status="unknown" when Yahoo is unavailable, which blocks
+    broker entries (RiskManager) but not observation.
 """
 
 from __future__ import annotations
@@ -177,6 +178,7 @@ class SymbolMetrics:
     daily_bar_timestamp: Optional[datetime] = None           # ET datetime of last daily bar
     daily_data_age_seconds: float = 0.0                      # seconds since last daily bar
     is_data_stale: bool = False                              # True when intraday data exceeds max age
+    earnings_status: str = "clear"                           # "clear" | "earnings" | "unknown"
 
 
 class YFinanceScanner:
@@ -265,7 +267,7 @@ class YFinanceScanner:
                 opening_range_high=0.0, opening_range_low=0.0,
                 is_orb_breakout=False, is_orb_breakdown=False,
                 trend="unknown", ma_compression=False, gap_pct=0.0,
-                volatility_5d=0.0, has_earnings_today=False,
+                volatility_5d=0.0, has_earnings_today=False, earnings_status="unknown",
                 volume_today=0, avg_volume_20d=0.0,
                 fetched_at=now_et, errors=[str(exc)],
                 is_data_stale=True,
@@ -394,6 +396,10 @@ class YFinanceScanner:
             has_earnings = self._check_earnings(
                 yf.Ticker(symbol, session=_make_session()), today
             )
+        if has_earnings is None:
+            earnings_status = "unknown"
+        else:
+            earnings_status = "earnings" if has_earnings else "clear"
 
         # ── Previous close from daily bars ────────────────────────────────────
         previous_close = float(daily_df["close"].iloc[-1])
@@ -490,7 +496,8 @@ class YFinanceScanner:
             ma_compression=ma_compression,
             gap_pct=gap_pct,
             volatility_5d=vol_5d,
-            has_earnings_today=has_earnings,
+            has_earnings_today=has_earnings is True,
+            earnings_status=earnings_status,
             volume_today=volume_today,
             avg_volume_20d=avg_vol_20d,
             fetched_at=now_et,
@@ -675,7 +682,11 @@ class YFinanceScanner:
         )
 
     @staticmethod
-    def _check_earnings(ticker, today: date) -> bool:
+    def _check_earnings(ticker, today: date) -> Optional[bool]:
+        """True/False when the calendar was read; None when it could not be.
+
+        None must not be treated as "no earnings": the blackout depends on it.
+        """
         try:
             cal = ticker.calendar
             if cal is None:
@@ -706,8 +717,12 @@ class YFinanceScanner:
                                     return True
                             except Exception:
                                 pass
-        except Exception:
-            pass
+        except Exception as exc:
+            logger.warning(
+                "YFinanceScanner: earnings calendar unavailable for %s: %s",
+                getattr(ticker, "ticker", "?"), exc,
+            )
+            return None
         return False
 
 

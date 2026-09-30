@@ -16,8 +16,10 @@ Endpoints:
   GET  /strategies                  — list configured strategies and status
   WS   /ws/signals                  — real-time signal stream (WebSocket)
 
-Security note: This API binds to 127.0.0.1 by default and has no
-authentication.  Do not expose it to the public internet.
+Security note: This API binds to 127.0.0.1 by default. Endpoints that change
+trading state require DASHBOARD_CONTROL_TOKEN as a bearer token (see
+app/api/control_auth.py); activating the kill switch does not. Read-only
+endpoints are unauthenticated: do not expose the API to the public internet.
 """
 
 from __future__ import annotations
@@ -30,6 +32,8 @@ from typing import Any, Dict, List, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+
+from .control_auth import allowed_origins, require_control_token
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from sqlalchemy import func, select, text
@@ -137,9 +141,9 @@ def create_app(
     )
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],   # localhost-only by bind address; no auth token needed
+        allow_origins=allowed_origins(settings.dashboard_allowed_origins),
         allow_methods=["GET", "POST", "DELETE"],
-        allow_headers=["*"],
+        allow_headers=["Authorization", "Content-Type"],
     )
 
     app.include_router(_sessions_router)
@@ -452,7 +456,7 @@ def create_app(
         logger.warning("Kill switch ACTIVATED via API")
         return {"kill_switch": "active", "file": settings.kill_switch_file}
 
-    @app.delete("/kill-switch")
+    @app.delete("/kill-switch", dependencies=[Depends(require_control_token)])
     async def deactivate_kill_switch():
         p = Path(settings.kill_switch_file)
         if p.exists():
@@ -507,7 +511,7 @@ def create_app(
             for r in rows
         ]
 
-    @app.post("/backtest/run")
+    @app.post("/backtest/run", dependencies=[Depends(require_control_token)])
     async def run_backtest(req: BacktestRunRequest, db: AsyncSession = Depends(get_db)):
         from ..backtesting import BacktestEngine
         from ..strategies import (

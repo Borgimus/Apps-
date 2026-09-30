@@ -7,6 +7,7 @@ PYTHON="$REPO/.venv/bin/python"
 LOCK_DIR="${TRADER_LOCK_DIR:-/root}"
 ARMED_FILE="$LOCK_DIR/.session_armed"
 TODAY="$(date +%F)"
+CODE_BRANCH="${TRADER_CODE_BRANCH:-agent/paper-scaled-sizing-250-10}"
 cd "$REPO"
 mkdir -p "$REPO/logs" "$LOCK_DIR"
 set -a

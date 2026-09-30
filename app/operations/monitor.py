@@ -157,6 +157,55 @@ def session_problem(snapshot: dict, now: datetime) -> str | None:
     return None
 
 
+# By this time a session with a working options feed has fetched chains for
+# its opening scan; none means the feed is unusable, not a quiet market.
+DATA_EXPECTED_BY = time(10, 5)
+
+
+def data_problem(snapshot: dict, now: datetime) -> str | None:
+    """A running session that receives no options data is not healthy.
+
+    Heartbeats written before provider metering carry no data_health and are
+    not judged here; the session-end verdict still applies to them.
+    """
+    health = snapshot.get("data_health")
+    if not isinstance(health, dict):
+        return None
+    if health.get("breaker_open") or health.get("authorization_failures"):
+        return "Options data provider is rejecting authorization"
+    if now.astimezone(ET).time() >= DATA_EXPECTED_BY and not health.get("chains_with_data"):
+        return "No options chains with data received since the open"
+    return None
+
+
+async def options_data_canary(symbol: str = "SPY") -> dict:
+    """One real, read-only options-data request through the configured provider.
+
+    Fingerprints hash adapter source files and cannot tell whether provider
+    credentials still work; this request can. Pre-market quotes may be
+    filtered as stale, so an empty chain is reported, not failed; any error is.
+    """
+    from app.config import get_settings
+    from app.brokers.factory import get_broker
+    settings = get_settings()
+    if settings.live_trading_enabled:
+        raise ValueError("Operations require paper configuration")
+    broker = get_broker(settings)
+    try:
+        async with asyncio.timeout(30):
+            expirations = await broker.get_available_expirations(symbol)
+            today = datetime.now(ET).date()
+            upcoming = sorted(e for e in expirations or [] if e >= today)
+            if not upcoming:
+                raise ValueError(f"No upcoming option expirations returned for {symbol}")
+            chain = await broker.get_option_chain(symbol, upcoming[0])
+            return {"provider": getattr(settings, "options_data_provider", None),
+                    "symbol": symbol, "expiration": str(upcoming[0]),
+                    "contracts": len(chain.calls) + len(chain.puts)}
+    finally:
+        await broker.close()
+
+
 def watchdog(root: Path, *, now=None, query=None, sender=None) -> bool:
     now = (now or datetime.now(ET)).astimezone(ET)
     # Retry unsent preflight/start/publication alerts, including previous days.
@@ -178,8 +227,13 @@ def watchdog(root: Path, *, now=None, query=None, sender=None) -> bool:
         return False
     if not scheduled:
         return delivered
-    issue = session_problem(read_json(root / "logs/live_status.json"), now)
+    snapshot = read_json(root / "logs/live_status.json")
+    issue = session_problem(snapshot, now)
     if issue:
         notify(root, "session_missing_or_stale", f"{now.date()}: {issue}. Check preflight and automation logs.", now=now, sender=sender)
+        return False
+    issue = data_problem(snapshot, now)
+    if issue:
+        notify(root, "session_data_degraded", f"{now.date()}: {issue}. The session is running but its evidence is unusable.", now=now, sender=sender)
         return False
     return delivered

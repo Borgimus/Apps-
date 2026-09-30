@@ -15,13 +15,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from dotenv import load_dotenv
-from app.operations.monitor import ET, calendar, notify, watchdog, verify_flat
+from app.operations.monitor import ET, calendar, notify, options_data_canary, watchdog, verify_flat
 from app.operations.artifacts import outside_code, publish, seed_evidence
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["watchdog", "calendar", "publish", "migrate", "alert", "check-config", "test-alert", "verify-flat"])
+    parser.add_argument("command", choices=["watchdog", "calendar", "publish", "migrate", "alert", "check-config", "check-options-data", "test-alert", "verify-flat"])
     parser.add_argument("--date", default=str(datetime.now(ET).date()))
     parser.add_argument("--code", default="operations_failure")
     parser.add_argument("--message", default="Trader operations failed. Review host logs.")
@@ -42,6 +42,10 @@ def main():
                 fcntl.flock(session_lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
             if args.command == "calendar":
                 return 0 if calendar(ROOT, refresh=True) else 3
+            if args.command == "check-options-data":
+                result = asyncio.run(options_data_canary())
+                print(f"OPTIONS_DATA_READY {result}")
+                return 0
             if args.command == "verify-flat":
                 asyncio.run(verify_flat())
                 print("BROKER_FLAT: 0 positions, 0 open orders (paper account)")

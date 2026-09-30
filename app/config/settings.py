@@ -197,6 +197,14 @@ class Settings(BaseSettings):
     options_data_provider: Literal["alpaca", "tradier"] = "alpaca"
     tradier_market_data_token: Optional[str] = Field(default=None, repr=False)
 
+    # Dashboard endpoints that change trading state (disable the kill switch,
+    # start/stop/restart sessions, run backtests) require this bearer token.
+    # Unset means those endpoints are refused; activating the kill switch
+    # never requires it.
+    dashboard_control_token: Optional[str] = Field(default=None, repr=False)
+    # Comma-separated origins allowed cross-origin access; empty means none.
+    dashboard_allowed_origins: str = ""
+
     tradier_access_token: Optional[str] = None
     tradier_base_url: str = "https://sandbox.tradier.com/v1"
 

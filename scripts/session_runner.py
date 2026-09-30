@@ -2799,6 +2799,7 @@ async def run_session(args: argparse.Namespace):
             pending_orders=fill_tracker.count(),
             scanner_standby=bool(_scan_store.get("standby", False)),
             session_date=now.strftime("%Y-%m-%d"),
+            data_health=_PROVIDER_HEALTH.live_status(),
         )
 
         # EOD warning push (once, 35 min before EOD)

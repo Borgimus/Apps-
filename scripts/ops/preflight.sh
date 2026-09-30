@@ -32,7 +32,7 @@ if pgrep -af '[s]cripts/session_runner.py'; then exit 76; fi
 OWN_STATE=1
 touch "$REPO/KILL_SWITCH"
 rm -f "$ARMED_FILE"
-BRANCH=agent/paper-scaled-sizing-250-10
+BRANCH="$CODE_BRANCH"
 git fetch origin "$BRANCH"
 test "$(git branch --show-current)" = "$BRANCH"
 LOCAL_SHA="$(git rev-parse HEAD)"
@@ -43,6 +43,7 @@ test "$LOCAL_SHA" = "$(git rev-parse "origin/$BRANCH")" || {
 "$PYTHON" scripts/session_ops.py check-config
 "$PYTHON" -m pytest tests/test_session_safety_hardening.py tests/test_position_manager.py tests/test_market_data_observer.py -q -p no:warnings
 "$PYTHON" scripts/capture_session_fingerprint.py --verify --check-broker
+"$PYTHON" scripts/session_ops.py check-options-data
 calendar_rc=0
 "$PYTHON" scripts/session_ops.py calendar || calendar_rc=$?
 if test "$calendar_rc" = 3; then

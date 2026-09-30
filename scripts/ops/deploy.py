@@ -19,7 +19,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 from zoneinfo import ZoneInfo
 
-BRANCH = "agent/paper-scaled-sizing-250-10"
+BRANCH = os.getenv("TRADER_CODE_BRANCH", "agent/paper-scaled-sizing-250-10")
 BEGIN = "# BEGIN PHASE3 SESSION AUTOMATION"
 END = "# END PHASE3 SESSION AUTOMATION"
 FROZEN = ("config.yaml", "requirements.lock", "ticker_universe.yaml",

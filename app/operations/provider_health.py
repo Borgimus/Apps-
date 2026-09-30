@@ -148,6 +148,15 @@ class ProviderHealth:
             reasons.append("options_failure_rate_above_threshold")
         return reasons
 
+    def live_status(self) -> Dict[str, Any]:
+        """Compact counters for the per-cycle heartbeat the watchdog reads."""
+        return {
+            "options_requests": sum(self.requests.values()),
+            "chains_with_data": self.successes["get_option_chain"],
+            "authorization_failures": self.auth_failures,
+            "breaker_open": self.breaker_open,
+        }
+
     def snapshot(self) -> Dict[str, Any]:
         return {
             "requests": dict(self.requests),

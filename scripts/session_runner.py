@@ -107,6 +107,16 @@ def _rank_active_symbols(symbols: List[str], scan_store: Optional[dict]) -> List
     )
 
 
+def _completed_market_regime(bars, now: datetime) -> str:
+    """Regime from completed bars only.
+
+    Signals are generated from completed bars; the regime that gates them must
+    read the same snapshot, not the still-forming candle.
+    """
+    from app.trading.entry_filters import completed_intraday_bars
+    return _market_regime_from_bars(completed_intraday_bars(bars, now, interval_minutes=5))
+
+
 def _market_regime_from_bars(bars) -> str:
     """Return long, short, or neutral from SPY price versus VWAP and EMA20."""
     if bars is None or bars.empty or len(bars) < 5:
@@ -2973,7 +2983,7 @@ async def run_session(args: argparse.Namespace):
                         ),
                         label="market_regime_bars(SPY)",
                     )
-                    _market_regime = _market_regime_from_bars(_regime_bars)
+                    _market_regime = _completed_market_regime(_regime_bars, now)
                 except Exception:
                     _market_regime = "neutral"
                     _record_data_feed_error("market_regime_bars(SPY)")

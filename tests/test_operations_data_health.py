@@ -87,8 +87,9 @@ def test_heartbeat_carries_data_health(tmp_path):
 
 class TestOptionsDataCanary:
 
-    def _patch(self, monkeypatch, broker):
-        settings = SimpleNamespace(live_trading_enabled=False, options_data_provider="alpaca")
+    def _patch(self, monkeypatch, broker, feed="opra"):
+        settings = SimpleNamespace(live_trading_enabled=False, options_data_provider="alpaca",
+                                   alpaca_options_feed=feed)
         monkeypatch.setattr("app.config.get_settings", lambda: settings)
         monkeypatch.setattr("app.brokers.factory.get_broker", lambda s: broker)
 
@@ -123,3 +124,13 @@ class TestOptionsDataCanary:
         self._patch(monkeypatch, broker)
         with pytest.raises(ValueError, match="No upcoming option expirations"):
             await m.options_data_canary()
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("feed", [None, "indicative"])
+    async def test_alpaca_provider_requires_the_opra_feed(self, monkeypatch, feed):
+        broker = MagicMock()
+        broker.get_available_expirations = AsyncMock()
+        self._patch(monkeypatch, broker, feed=feed)
+        with pytest.raises(ValueError, match="opra"):
+            await m.options_data_canary()
+        broker.get_available_expirations.assert_not_awaited()

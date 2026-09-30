@@ -17,7 +17,8 @@ if test -f "${TRADER_OPS_ENV:-/root/trader-ops.env}"; then
 fi
 set +a
 export BROKER=alpaca LIVE_TRADING_ENABLED=false PAPER_EVALUATION_MODE=true
-export TRADIER_CONTRACT_GATE_MODE=off TRADIER_MARKET_DATA_MODE=observe
+# Tradier deactivated the account (2026-09-22); nothing may call it.
+export TRADIER_CONTRACT_GATE_MODE=off TRADIER_MARKET_DATA_MODE=off
 export POSITION_TRAILING_ACTIVATION_PCT=0.25
 export EVALUATION_OUTPUT_DIR="${TRADER_EVIDENCE_DIR:-/root/trader-evidence}"
 export EVALUATION_LEDGER_FILE="$EVALUATION_OUTPUT_DIR/ledger.json"

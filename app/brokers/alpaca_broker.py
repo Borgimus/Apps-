@@ -15,13 +15,13 @@ LIVE_TRADING_ENABLED=true is explicitly set and you accept the risk.
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from typing import List, Optional
 from zoneinfo import ZoneInfo
 
 import httpx
-from app.trading.quote_evidence import parse_quote_timestamp
+from app.trading.quote_evidence import parse_quote_timestamp, quote_is_fresh, valid_quote
 
 from .broker_interface import (
     AccountInfo,
@@ -242,27 +242,42 @@ class AlpacaBroker(BrokerInterface):
             underlying_price = Decimal("0")
 
         # Enrich with live quotes from the snapshot endpoint
+        contracts_raw = [c for c in contracts_raw if c.get("tradable", True) is not False]
         all_symbols = [c["symbol"] for c in contracts_raw]
         snapshots = await self._fetch_snapshots(all_symbols)
 
+        # Aware UTC: a naive stamp is read as host-local time by staleness checks,
+        # which on an Eastern-time host makes every chain look four hours newer.
+        now = datetime.now(timezone.utc)
         chain = OptionChain(
             symbol=symbol,
             expiration=expiration,
             underlying_price=underlying_price,
-            fetched_at=datetime.utcnow(),
+            fetched_at=now,
         )
         for c in contracts_raw:
-            snap = snapshots.get(c["symbol"], {})
-            greeks = snap.get("greeks", {})
-            latest_quote = snap.get("latestQuote", {})
+            snap = snapshots.get(c["symbol"])
+            # A contract without a valid, fresh quote is omitted rather than
+            # listed at zero: "the feed returned nothing" must not look like an
+            # illiquid market. Same rule as the Tradier adapter.
+            if not snap:
+                continue
+            greeks = snap.get("greeks") or {}
+            latest_quote = snap.get("latestQuote") or {}
+            try:
+                bid_f, ask_f = float(latest_quote.get("bp")), float(latest_quote.get("ap"))
+            except (TypeError, ValueError):
+                continue
+            if not valid_quote(bid_f, ask_f) or not quote_is_fresh(latest_quote.get("t"), now):
+                continue
             contract = OptionContract(
                 symbol=symbol,
                 option_symbol=c["symbol"],
                 expiration=expiration,
                 strike=Decimal(str(c["strike_price"])),
                 option_type=c["type"],
-                bid=Decimal(str(latest_quote.get("bp") or c.get("bid_price") or 0)),
-                ask=Decimal(str(latest_quote.get("ap") or c.get("ask_price") or 0)),
+                bid=Decimal(str(latest_quote["bp"])),
+                ask=Decimal(str(latest_quote["ap"])),
                 last=Decimal(str(snap.get("latestTrade", {}).get("p") or c.get("close_price") or 0)),
                 volume=int(snap.get("dailyBar", {}).get("v") or c.get("volume") or 0),
                 open_interest=int(c.get("open_interest") or 0),
@@ -320,8 +335,9 @@ class AlpacaBroker(BrokerInterface):
                 "/v1beta1/options/snapshots",
                 params=self._snapshot_params(",".join(chunk)),
             )
-            if resp.status_code == 200:
-                snapshots.update(resp.json().get("snapshots", {}))
+            # A rejected or failed chunk is an error, never an empty result.
+            resp.raise_for_status()
+            snapshots.update(resp.json().get("snapshots") or {})
         return snapshots
 
     # ── Orders ────────────────────────────────────────────────────────────────

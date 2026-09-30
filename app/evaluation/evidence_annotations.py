@@ -24,6 +24,22 @@ def health_review(context):
     return None
 
 
+# Tradier deactivated the account supplying options quotes and Greeks. From
+# this date every Tradier request returned 401 while sessions still reported
+# zero errors (2,458 authorization failures across 09-22..09-29). The account
+# is not being reinstated, so no later session under this provider has data.
+TRADIER_DEACTIVATED_FROM = "2026-09-22"
+
+
+def outage_exclusion(context):
+    """Exclusion reason for sessions recorded while their provider was down."""
+    started = str(context.get("runner_started_at") or "")[:10]
+    if (context.get("options_data_provider") == "tradier"
+            and started and started >= TRADIER_DEACTIVATED_FROM):
+        return "options_provider_deactivated"
+    return None
+
+
 def exit_trigger_coverage(eligible, context):
     """Describe observed triggers without claiming unobserved quote-path behavior."""
     baselines = {r["pair_id"]: r for r in eligible

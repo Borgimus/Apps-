@@ -496,21 +496,31 @@ class TestAlpacaConfirmer:
         result = asyncio.run(confirmer.confirm(candidate))
         assert result is None
 
-    def test_reject_on_broker_error(self):
+    def test_provider_error_is_recorded_not_swallowed(self):
+        """A provider outage must be distinguishable from 'no liquid contract'.
+
+        Returning None is the confirmer's contract for both cases, so the
+        outage has to be visible in provider health at the broker boundary.
+        """
+        from app.operations.provider_health import InstrumentedBroker, ProviderHealth
         from app.scanning.alpaca_confirmer import AlpacaConfirmer
 
         settings = self._make_settings()
-        broker = MagicMock()
-        broker.get_available_expirations = AsyncMock(side_effect=RuntimeError("API down"))
+        raw = MagicMock()
+        raw.get_available_expirations = AsyncMock(side_effect=RuntimeError("API down"))
+        health = ProviderHealth()
 
         candidate = CandidateScore(
             symbol="SPY", score=70.0, signal_type="LONG",
             reason_codes=[], rejected_reasons=[], is_rejected=False,
             metrics=_metrics(),
         )
-        confirmer = AlpacaConfirmer(broker, settings)
+        confirmer = AlpacaConfirmer(InstrumentedBroker(raw, health), settings)
         result = asyncio.run(confirmer.confirm(candidate))
+
         assert result is None
+        assert health.failures["get_available_expirations"] == 1
+        assert "no_options_chain_requests" in health.degraded_reasons()
 
     def test_reject_stale_chain(self):
         from app.scanning.alpaca_confirmer import AlpacaConfirmer

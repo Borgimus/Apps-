@@ -56,6 +56,7 @@ class AlertEvent(str, Enum):
     API_ERROR = "api_broker_error"
     EOD_LIQUIDATION = "eod_liquidation"
     SESSION_SUMMARY = "session_summary"
+    DATA_DEGRADED = "session_data_degraded"
 
 
 # Default level for each event
@@ -75,6 +76,7 @@ _EVENT_LEVELS: Dict[AlertEvent, AlertLevel] = {
     AlertEvent.API_ERROR: AlertLevel.WARNING,
     AlertEvent.EOD_LIQUIDATION: AlertLevel.INFO,
     AlertEvent.SESSION_SUMMARY: AlertLevel.INFO,
+    AlertEvent.DATA_DEGRADED: AlertLevel.CRITICAL,
 }
 
 _LEVEL_ORDER = [AlertLevel.INFO, AlertLevel.WARNING, AlertLevel.CRITICAL]

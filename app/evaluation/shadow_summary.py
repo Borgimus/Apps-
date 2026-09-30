@@ -7,7 +7,7 @@ from pathlib import Path
 
 from app.evaluation.shadow_replay import ET, VARIANTS, replay_session
 from app.evaluation.shadow_funnel import rejection_breakdown
-from app.evaluation.evidence_annotations import health_review, exit_trigger_coverage
+from app.evaluation.evidence_annotations import exit_trigger_coverage, health_review, outage_exclusion
 from app.trading.quote_evidence import parse_quote_timestamp
 
 
@@ -164,6 +164,12 @@ def observation_progress(events, context, *, through_date):
             # not retroactively excluded; their review is documented separately.
             if end.get("data_feed_errors", 0):
                 reasons.append("data_feed_errors_review_required")
+            # Written by the runner from provider metering; absent on sessions
+            # recorded before it existed (those are covered by annotations).
+            reasons.extend(f"data_health:{r}" for r in end.get("data_health_reasons") or [])
+            outage = outage_exclusion(c)
+            if outage:
+                reasons.append(outage)
             if any(r.get("event") == "shadow_quote_error" for r in records):
                 reasons.append("shadow_quote_errors")
             if any(r.get("event") == "shadow_close" and r.get("channel") == "eligible"

@@ -499,7 +499,7 @@ class ShadowBook:
                 if final_refresh:
                     sp.final_quote_refresh = "success"
             except Exception as exc:
-                logger.debug("ShadowBook: quote failed for %s: %s", sp.option_symbol, exc)
+                logger.warning("ShadowBook: quote failed for %s: %s", sp.option_symbol, exc)
                 continue
 
             # Fill validation: buy-limit is demonstrably reachable when the
@@ -582,7 +582,8 @@ class ShadowBook:
         return len(self._open)
 
     async def refresh_and_finish_session(self, broker, now=None, *, api_errors=0,
-                                         reconciliation_warnings=0, data_feed_errors=0) -> None:
+                                         reconciliation_warnings=0, data_feed_errors=0,
+                                         data_health_reasons=None) -> None:
         """Request one final quote per held contract, with bounded shutdown time.
 
         A failed/invalid refresh cannot reuse an earlier mark as a priced exit.
@@ -607,16 +608,19 @@ class ShadowBook:
         self.finish_session(ended_at, api_errors=api_errors,
                             reconciliation_warnings=reconciliation_warnings,
                             data_feed_errors=data_feed_errors,
+                            data_health_reasons=data_health_reasons,
                             final_quote_refresh_required=True)
 
     def finish_session(self, now: datetime, *, api_errors=0, reconciliation_warnings=0,
-                       data_feed_errors=0, final_quote_refresh_required=False) -> None:
+                       data_feed_errors=0, data_health_reasons=None,
+                       final_quote_refresh_required=False) -> None:
         """Complete recorded observations; runtime uses refresh_and_finish_session."""
         self.close_all(now)
         self._emit({"event": "shadow_session_end", "ts": now.isoformat(),
                     "api_errors": api_errors,
                     "reconciliation_warnings": reconciliation_warnings,
                     "data_feed_errors": data_feed_errors,
+                    "data_health_reasons": list(data_health_reasons or []),
                     "final_quote_refresh_required": final_quote_refresh_required})
 
     # ── Internals ─────────────────────────────────────────────────────────────
@@ -818,7 +822,7 @@ async def select_shadow_contract(broker, liq_filter, settings, symbol, sig, now,
             metadata.update(contract_evidence(contract, now))
         return contract.option_symbol, float(limit_price), float(contract.ask)
     except Exception as exc:
-        logger.debug("ShadowBook: shadow contract selection failed for %s: %s", symbol, exc)
+        logger.warning("ShadowBook: shadow contract selection failed for %s: %s", symbol, exc)
         return None, None, None
 
 

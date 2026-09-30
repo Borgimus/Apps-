@@ -71,8 +71,9 @@ def capture_session_context(settings, started_at: datetime, strategy_ids=(), *,
     hour, minute = map(int, settings.market_open.split(":"))
     scheduled = started_at.replace(hour=hour, minute=minute, second=0, microsecond=0)
     delay = max(0.0, (started_at - scheduled).total_seconds())
-    diagnostic = [sid for sid in strategy_ids if sid == "rsi_trend"
-                  and settings.paper_eval_permissive_entry_mode]
+    # rsi_trend is diagnostic-only in every entry mode (see the runner's
+    # DIAGNOSTIC_ONLY_STRATEGIES); the context must not report it as enabled.
+    diagnostic = [sid for sid in strategy_ids if sid == "rsi_trend"]
     shadow_only = [sid for sid in strategy_ids
                    if scaled_entry_block_reason(settings, "", sid) == "strategy_shadow_only"]
     enabled = sorted(set(strategy_ids) - set(diagnostic) - set(shadow_only))

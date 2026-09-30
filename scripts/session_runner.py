@@ -223,6 +223,16 @@ _MANDATORY_EXIT_REASONS = frozenset({
     "stop_loss", "max_hold", "eod_exit", "daily_loss", "kill_switch", "quote_unavailable",
 })
 
+# Strategies that are observed but may never submit a broker order, whatever
+# the entry mode. rsi_trend was previously excluded only in permissive mode, so
+# turning that flag off would have made it the only broker-eligible strategy.
+DIAGNOSTIC_ONLY_STRATEGIES = frozenset({"rsi_trend"})
+
+
+def _exclude_diagnostic_only(signals):
+    return [s for s in signals if getattr(s, "strategy_id", None) not in DIAGNOSTIC_ONLY_STRATEGIES]
+
+
 # An open position that cannot be priced cannot be protected by its stop.
 # After this long without a usable quote it is closed as a mandatory exit.
 _MAX_UNPRICED_EXPOSURE_SECONDS = 120
@@ -1312,6 +1322,8 @@ async def scan_and_place(
                 exact_block_reason="rsi_trend_diagnostic_only",
             )
             _bridge_entries.append(_rb)
+
+    actionable = _exclude_diagnostic_only(actionable)
 
     placed = 0
     for sig in actionable:

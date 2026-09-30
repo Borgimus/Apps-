@@ -33,7 +33,7 @@ from typing import Any, Dict, List, Optional
 from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 
-from .control_auth import allowed_origins, require_control_token
+from .control_auth import configured_origins, require_control_token
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from sqlalchemy import func, select, text
@@ -141,7 +141,7 @@ def create_app(
     )
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=allowed_origins(settings.dashboard_allowed_origins),
+        allow_origins=configured_origins(),
         allow_methods=["GET", "POST", "DELETE"],
         allow_headers=["Authorization", "Content-Type"],
     )

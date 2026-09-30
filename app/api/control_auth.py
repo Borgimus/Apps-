@@ -7,17 +7,22 @@ tailnet, where a local proxy makes every request look like it came from
 from __future__ import annotations
 
 import hmac
+import os
 from typing import Optional
 
 from fastapi import Header, HTTPException
 
-from app.config import get_settings
-
 MIN_TOKEN_LENGTH = 16
 
 
+# Read from the environment rather than Settings: app/config/settings.py is a
+# frozen file the operations installer will not deploy changes to.
 def _expected_token() -> str:
-    return get_settings().dashboard_control_token or ""
+    return os.getenv("DASHBOARD_CONTROL_TOKEN", "")
+
+
+def configured_origins() -> list[str]:
+    return allowed_origins(os.getenv("DASHBOARD_ALLOWED_ORIGINS", ""))
 
 
 def require_control_token(authorization: Optional[str] = Header(default=None)) -> None:

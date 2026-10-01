@@ -207,13 +207,13 @@ def _data_health() -> dict:
     """One verdict combining options-provider health and equity-feed failures."""
     reasons = _PROVIDER_HEALTH.degraded_reasons()
     if _data_feed_errors:
-        reasons.append("market_data_fetch_failures")
+        reasons.append("fetch_failures_after_retries")
     return {
         "status": "degraded" if reasons else "ok",
         "reasons": reasons,
         "options_provider": _PROVIDER_HEALTH.snapshot(),
-        "market_data_fetch_failures": _data_feed_errors,
-        "market_data_fetch_failure_labels": list(_data_feed_error_labels[:50]),
+        "fetch_failures_after_retries": _data_feed_errors,
+        "fetch_failure_labels": list(_data_feed_error_labels[:50]),
     }
 
 
@@ -372,7 +372,9 @@ async def _place_exit_order(
                 label=f"exit_quote({pos.option_symbol})",
             )
             current_bid = float(quote.bid) if float(quote.bid) > 0 else None
-        except Exception:
+        except Exception as exc:
+            logger.warning("Exit order for %s priced from last mark: quote unavailable: %s",
+                           pos.option_symbol, exc)
             current_bid = None
 
     exit_quote_bid = current_bid
@@ -569,7 +571,8 @@ async def _poll_pending_exit(
             label=f"exit_reprice_quote({pos.option_symbol})",
         )
         current_bid = float(quote.bid) if float(quote.bid) > 0 else 0.0
-    except Exception:
+    except Exception as exc:
+        logger.warning("Exit reprice skipped for %s: quote unavailable: %s", pos.option_symbol, exc)
         return False
 
     if current_bid <= 0 or current_bid >= pos.exit_order_limit_price - 0.01:
@@ -839,7 +842,8 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
             )
             _bid = float(quote.bid) if float(quote.bid) > 0 else None
             _ask = float(quote.ask) if float(quote.ask) > 0 else None
-        except Exception:
+        except Exception as exc:
+            logger.warning("EOD quote unavailable for %s: %s", pos.option_symbol, exc)
             _bid = None
             _ask = None
 
@@ -984,7 +988,8 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
                 try:
                     _q = await _retry(lambda p=pos: broker.get_option_quote(p.option_symbol), label=f"eod_requeue_q({pos.option_symbol})")
                     _new_bid = float(_q.bid) if float(_q.bid) > 0 else None
-                except Exception:
+                except Exception as exc:
+                    logger.warning("EOD requeue quote unavailable for %s: %s", pos.option_symbol, exc)
                     _new_bid = None
                 _rem = max(0, pos.quantity - pos.confirmed_fill_qty)
                 if _rem == 0:
@@ -1012,7 +1017,8 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
             try:
                 _q = await _retry(lambda p=pos: broker.get_option_quote(p.option_symbol), label=f"eod_reprice_q({pos.option_symbol})")
                 _cur_bid = float(_q.bid) if float(_q.bid) > 0 else None
-            except Exception:
+            except Exception as exc:
+                logger.warning("EOD reprice quote unavailable for %s: %s", pos.option_symbol, exc)
                 _cur_bid = None
 
             if _cur_bid and _cur_bid < pos.exit_order_limit_price - 0.01:
@@ -1297,8 +1303,14 @@ async def scan_and_place(
                         _non_orb, _max_ent - 1,
                         now.strftime("%H:%M"), _orb_reserve_until_str,
                     )
-        except Exception:
-            pass
+        except Exception as exc:
+            # A broken reservation setting must not silently disable the gate;
+            # reserve the slots (skip non-ORB entries) until it is fixed.
+            _orb_slot_active = True
+            logger.error(
+                "ORB slot reservation could not be evaluated (%r): reserving slots: %s",
+                _orb_reserve_until_str, exc,
+            )
 
     # ── Create bridge stubs for RSI_trend diagnostic signals ─────────────────
     if _permissive and _rsi_diagnostic:
@@ -1468,7 +1480,7 @@ async def scan_and_place(
                         contract_metadata=_inv_meta, market_regime=market_regime,
                     )
             except Exception as _sb_exc:
-                logger.debug("ShadowBook record failed: %s", _sb_exc)
+                logger.warning("ShadowBook record failed: %s", _sb_exc)
 
         # Amended scaled cohort: quality is now an entry gate, not merely an
         # advisory field. A score below 3/4 is recorded for shadow analysis.
@@ -1602,7 +1614,8 @@ async def scan_and_place(
                 lambda: broker.get_available_expirations(symbol),
                 label=f"expirations({symbol})",
             )
-        except Exception:
+        except Exception as exc:
+            logger.warning("Entry skipped for %s: expirations unavailable: %s", symbol, exc)
             continue
 
         today = now.date()
@@ -1627,7 +1640,8 @@ async def scan_and_place(
                 lambda: broker.get_option_chain(symbol, target_exp),
                 label=f"chain({symbol})",
             )
-        except Exception:
+        except Exception as exc:
+            logger.warning("Entry skipped for %s: option chain unavailable: %s", symbol, exc)
             continue
 
         # Stale quote check
@@ -1681,7 +1695,9 @@ async def scan_and_place(
         # Risk check
         try:
             acct = await _retry(broker.get_account, label="get_account")
-        except Exception:
+        except Exception as exc:
+            logger.error("Entry skipped for %s: broker account unavailable: %s", symbol, exc)
+            _record_data_feed_error("get_account")
             continue
 
         # ── Determine limit price based on configured pricing mode ────────────
@@ -2015,7 +2031,7 @@ async def scan_and_place(
                         contract_metadata=_used_meta, market_regime=market_regime,
                     )
             except Exception as _sb_exc:
-                logger.debug("ShadowBook record failed: %s", _sb_exc)
+                logger.warning("ShadowBook record failed: %s", _sb_exc)
 
         if journal:
             journal_id = await journal.record_entry(
@@ -2929,7 +2945,7 @@ async def run_session(args: argparse.Namespace):
         try:
             await _sync_positions_to_db(db_session, pm)
         except Exception as _sync_exc:
-            logger.debug("DBPosition sync failed (non-fatal): %s", _sync_exc)
+            logger.warning("DBPosition sync failed (non-fatal): %s", _sync_exc)
 
         # Periodic re-scan (skip in fill-test mode)
         if (

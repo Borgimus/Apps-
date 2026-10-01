@@ -167,7 +167,7 @@ class TestSessionVerdict:
         verdict = runner._data_health()
         runner._reset_data_feed_errors()
         assert verdict["status"] == "degraded"
-        assert verdict["reasons"] == ["market_data_fetch_failures"]
+        assert verdict["reasons"] == ["fetch_failures_after_retries"]
 
 
 # ── Observation progress ─────────────────────────────────────────────────────

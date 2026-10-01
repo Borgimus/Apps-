@@ -144,8 +144,8 @@ async def _check_market_day(broker=None) -> CheckResult:
                 ),
                 required=False,
             )
-        except Exception:
-            pass  # fall through to weekday-only check on API error
+        except Exception as exc:
+            logger.warning("Market calendar unavailable, using weekday check: %s", exc)
     # Fallback: weekday heuristic (no holiday awareness)
     return CheckResult(
         name="market_day",
@@ -239,7 +239,7 @@ def _check_daily_loss_reset(risk_manager) -> CheckResult:
     except Exception as exc:
         return CheckResult(
             name="daily_loss_reset",
-            passed=True,
+            passed=False,
             message=f"Could not check daily PnL: {exc}",
             required=False,
         )

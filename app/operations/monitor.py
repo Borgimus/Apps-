@@ -190,6 +190,11 @@ async def options_data_canary(symbol: str = "SPY") -> dict:
     settings = get_settings()
     if settings.live_trading_enabled:
         raise ValueError("Operations require paper configuration")
+    provider = getattr(settings, "options_data_provider", None)
+    if provider == "alpaca" and getattr(settings, "alpaca_options_feed", None) != "opra":
+        # Indicative or auto-selected feeds cannot validate a shadow fill, so
+        # every eligible outcome would be unpriced and every session excluded.
+        raise ValueError("ALPACA_OPTIONS_FEED must be 'opra' for the Alpaca options provider")
     broker = get_broker(settings)
     try:
         async with asyncio.timeout(30):

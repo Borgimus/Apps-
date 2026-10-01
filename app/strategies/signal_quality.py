@@ -7,11 +7,18 @@ These scores are used for deterministic signal ranking and bridge diagnostics
 when PAPER_EVAL_PERMISSIVE_ENTRY_MODE is enabled.  They are ADVISORY ONLY —
 they do not alter strategy gate logic, thresholds, or position sizing.
 
-VWAP quality (0-4):
+Scores use only bars up to and including the signal bar, so a signal scores
+the same whether it is evaluated when it appears or minutes later. A scoring
+failure returns None ("unscored"), never 0.
+
+VWAP quality (0-3):
   1. Prior trend clearly on opposite side of VWAP (3+ of last 5 bars)
   2. Reclaim/rejection candle closes cleanly through VWAP (>0.1% clear)
   3. Volume above rolling mean of prior 10 bars
-  4. Next bar confirms direction (stays above/below VWAP)
+  (A former fourth point, "next bar confirms direction", read the bar after
+  the signal. VWAP signals are stamped at their last confirmation bar, so that
+  bar never exists when a signal first appears: fresh signals were capped at 3
+  and the same signal could score 4 once it was 5-10 minutes stale.)
 
 ORB quality (0-4):
   1. Breakout candle closes outside range (>0.1% clear)
@@ -26,7 +33,7 @@ RSI_trend:
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import pandas as pd
 
@@ -36,8 +43,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def score_vwap_signal(signal: "Signal", bars: pd.DataFrame) -> int:
-    """VWAP reclaim/rejection quality, 0–4."""
+def score_vwap_signal(signal: "Signal", bars: pd.DataFrame) -> Optional[int]:
+    """VWAP reclaim/rejection quality, 0–3; None when it cannot be scored."""
     score = 0
     try:
         from .strategy_base import SignalDirection
@@ -101,21 +108,15 @@ def score_vwap_signal(signal: "Signal", bars: pd.DataFrame) -> int:
             if avg_vol > 0 and vol[sig_idx] > avg_vol:
                 score += 1
 
-        # 4. Next bar confirms direction
-        if sig_idx + 1 < len(close) and not pd.isna(vwap[sig_idx + 1]):
-            nxt_c = close[sig_idx + 1]
-            nxt_v = vwap[sig_idx + 1]
-            if (is_long and nxt_c > nxt_v) or (not is_long and nxt_c < nxt_v):
-                score += 1
-
     except Exception as exc:
-        logger.debug("VWAP quality score error for %s: %s", signal.symbol, exc)
+        logger.warning("VWAP quality score unavailable for %s: %s", signal.symbol, exc)
+        return None
 
-    return min(4, score)
+    return min(3, score)
 
 
-def score_orb_signal(signal: "Signal", bars: pd.DataFrame) -> int:
-    """ORB breakout quality, 0–4."""
+def score_orb_signal(signal: "Signal", bars: pd.DataFrame) -> Optional[int]:
+    """ORB breakout quality, 0–4; None when it cannot be scored."""
     score = 0
     try:
         from .strategy_base import SignalDirection
@@ -196,23 +197,37 @@ def score_orb_signal(signal: "Signal", bars: pd.DataFrame) -> int:
                 score += 1
 
     except Exception as exc:
-        logger.debug("ORB quality score error for %s: %s", signal.symbol, exc)
+        logger.warning("ORB quality score unavailable for %s: %s", signal.symbol, exc)
+        return None
 
     return min(4, score)
 
 
-def compute_signal_quality_score(signal: "Signal", bars: pd.DataFrame) -> float:
+def bars_through_signal(signal: "Signal", bars: pd.DataFrame) -> pd.DataFrame:
+    """Bars up to and including the signal bar: what was known when it fired."""
+    ts = getattr(signal, "timestamp", None)
+    if ts is None or bars.empty or not isinstance(bars.index, pd.DatetimeIndex):
+        return bars
+    cutoff = pd.Timestamp(ts)
+    if bars.index.tz is not None:
+        cutoff = cutoff.tz_localize("UTC") if cutoff.tzinfo is None else cutoff.tz_convert(bars.index.tz)
+    elif cutoff.tzinfo is not None:
+        cutoff = cutoff.tz_convert("UTC").tz_localize(None)
+    return bars.loc[bars.index <= cutoff]
+
+
+def compute_signal_quality_score(signal: "Signal", bars: pd.DataFrame) -> Optional[float]:
     """
     Route to the appropriate quality scorer by strategy_id.
-    Returns a float 0–4.
+    Returns a float, or None when the signal could not be scored.
 
     RSI_trend returns 0 — readiness is logged separately and is not a
     quality score (not-ready is not a failure; it's a timing constraint).
     """
     sid = signal.strategy_id
-    if sid == "vwap_reclaim":
-        return float(score_vwap_signal(signal, bars))
-    if sid == "orb":
-        return float(score_orb_signal(signal, bars))
-    # rsi_trend and others: no quality score in this framework
-    return 0.0
+    if sid not in ("vwap_reclaim", "orb"):
+        # rsi_trend and others: no quality score in this framework
+        return 0.0
+    bars = bars_through_signal(signal, bars)
+    score = score_vwap_signal(signal, bars) if sid == "vwap_reclaim" else score_orb_signal(signal, bars)
+    return None if score is None else float(score)

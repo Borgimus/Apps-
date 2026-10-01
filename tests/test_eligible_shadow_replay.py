@@ -525,3 +525,16 @@ def test_session_end_event_records_data_feed_errors_and_requires_review(tmp_path
     # Sessions recorded before the field existed carry no key and still count.
     del events[-1]["data_feed_errors"]
     assert observation_progress(events, c, through_date=DAY)["completed_scheduled_sessions"] == 1
+
+
+@pytest.mark.parametrize("reserve, expected", [(True, True), (False, False)])
+def test_replay_reserves_trade_stop_loss_only_when_policy_captured_it(tmp_path, reserve, expected):
+    """A $2.40 single contract stops out at -$120; with a $100 experiment limit
+    it cannot be admitted. Policies captured before the rule replay unchanged."""
+    records, candidate, quote, end = stream(tmp_path, daily_loss_dollars=100.0,
+                                            reserve_trade_loss=reserve)
+    candidate("A", "10:00:00", price=2.4, qty=1)
+    end()
+    decision = next(d for d in research(records)["decisions"] if d["pair_id"] == "A")
+    assert ("experiment_daily_loss_capacity" in decision.get("reasons", [])) is expected
+    assert (decision["action"] == "rejected") is expected

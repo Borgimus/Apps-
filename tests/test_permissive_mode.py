@@ -211,10 +211,11 @@ def _make_signal(strategy_id: str, direction: str = "LONG", ts: datetime = None)
 
 
 class TestVWAPQualityScore:
-    def test_zero_on_empty_bars(self):
+    def test_unscored_on_empty_bars(self):
+        """No bars means no score, not a score of zero."""
         from app.strategies.signal_quality import score_vwap_signal
         sig = _make_signal("vwap_reclaim")
-        assert score_vwap_signal(sig, pd.DataFrame()) == 0
+        assert score_vwap_signal(sig, pd.DataFrame()) is None
 
     def test_zero_when_sig_idx_too_small(self):
         from app.strategies.signal_quality import score_vwap_signal
@@ -249,10 +250,11 @@ class TestVWAPQualityScore:
 
 
 class TestORBQualityScore:
-    def test_zero_on_empty_bars(self):
+    def test_unscored_on_empty_bars(self):
+        """No bars means no score, not a score of zero."""
         from app.strategies.signal_quality import score_orb_signal
         sig = _make_signal("orb")
-        assert score_orb_signal(sig, pd.DataFrame()) == 0
+        assert score_orb_signal(sig, pd.DataFrame()) is None
 
     def test_score_in_range_0_4(self):
         from app.strategies.signal_quality import score_orb_signal

@@ -376,6 +376,7 @@ class RiskManager:
             signal_direction,
         )
         self._check_risk_per_trade(result, request, equity, contract)
+        self._check_loss_capacity(result, request, contract)
         if contract:
             self._check_liquidity(result, contract)
         self._check_earnings_blackout(
@@ -516,6 +517,37 @@ class RiskManager:
                 f"Scaled experiment losing-trade limit reached: "
                 f"{self._losing_exits_today}/{loss_limit}",
             )
+
+    def _check_loss_capacity(
+        self,
+        result: RiskCheckResult,
+        request: OrderRequest,
+        contract: Optional[OptionContract],
+    ) -> None:
+        """Reserve this trade's stop loss against what remains of each daily limit."""
+        from app.risk.loss_capacity import exceeds_loss_capacity, worst_case_trade_loss
+
+        premium = float(contract.ask if contract else request.limit_price or 0)
+        trade_loss = worst_case_trade_loss(
+            premium, result.approved_quantity, self._s.position.stop_loss_pct,
+        )
+        realized = float(self._daily_pnl)
+        if self._starting_equity and self._starting_equity > 0:
+            account_limit = float(self._starting_equity) * float(self._s.risk.max_daily_loss)
+            if exceeds_loss_capacity(realized, trade_loss, account_limit):
+                result.add_failure(
+                    RiskCheck.MAX_DAILY_LOSS,
+                    f"Trade stop loss ${trade_loss:.2f} exceeds remaining daily loss capacity "
+                    f"(${account_limit - max(0.0, -realized):.2f} of ${account_limit:.2f})",
+                )
+        if self._scaled_guardrails_active():
+            dollar_limit = float(getattr(self._s, "paper_scaled_daily_loss_limit_dollars", 250.0))
+            if exceeds_loss_capacity(realized, trade_loss, dollar_limit):
+                result.add_failure(
+                    RiskCheck.EXPERIMENT_DAILY_LOSS,
+                    f"Trade stop loss ${trade_loss:.2f} exceeds remaining experiment loss capacity "
+                    f"(${dollar_limit - max(0.0, -realized):.2f} of ${dollar_limit:.2f})",
+                )
 
     def _correlation_group(self, symbol: str) -> Optional[str]:
         raw = str(getattr(self._s, "paper_scaled_correlated_groups", ""))

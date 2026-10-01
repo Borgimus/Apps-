@@ -7,6 +7,7 @@ cooldown, loss limits and broker reconciliation still require chronological repl
 from math import isfinite
 
 from app.risk.paper_sizing import calculate_paper_scaled_quantity
+from app.trading.entry_filters import symbol_blocked
 
 
 def assess_entry_filters(settings, *, symbol, direction, quality_score,
@@ -28,9 +29,11 @@ def assess_entry_filters(settings, *, symbol, direction, quality_score,
         if quantity == 0:
             reasons.append("premium_budget_or_price_invalid")
     if guards:
-        if symbol.upper() in {s.strip().upper() for s in settings.paper_scaled_blocked_symbols.split(",")}:
+        if symbol_blocked(settings, symbol):
             reasons.append("symbol_disabled")
-        if quality_score is None or not isfinite(quality_score) or quality_score < settings.paper_scaled_min_signal_quality:
+        if quality_score is None or not isfinite(quality_score):
+            reasons.append("signal_quality_unavailable")
+        elif quality_score < settings.paper_scaled_min_signal_quality:
             reasons.append("signal_quality_below_min")
         if settings.paper_scaled_market_regime_confirmation_enabled and str(market_regime).lower() != direction.lower():
             reasons.append("market_regime_mismatch")

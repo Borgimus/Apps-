@@ -170,7 +170,7 @@ class TestPersistBridgeEntries:
     def test_empty_list_is_noop(self):
         from app.trading.bridge_diagnostics import persist_bridge_entries
         db_mock = AsyncMock()
-        asyncio.get_event_loop().run_until_complete(
+        asyncio.run(
             persist_bridge_entries([], db_mock)
         )
         db_mock.add_all.assert_not_called()
@@ -185,7 +185,7 @@ class TestPersistBridgeEntries:
             strategy_id="orb",
             signal_direction="LONG",
         )
-        asyncio.get_event_loop().run_until_complete(
+        asyncio.run(
             persist_bridge_entries([entry], db_mock)
         )
         db_mock.add_all.assert_called_once()
@@ -339,7 +339,7 @@ class TestDailyReportBridgeSection:
         r.bridge_skipped_count = 0
         md = to_markdown(r)
         assert "Signal Bridge Diagnostics" in md
-        assert "Signals evaluated" in md
+        assert "Distinct entry signals" in md
 
     def test_sample_size_warning_in_markdown(self):
         from app.evaluation.daily_report import DailyReport, to_markdown

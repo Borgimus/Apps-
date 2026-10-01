@@ -10,6 +10,32 @@ ET = ZoneInfo("America/New_York")
 ROOT = Path(__file__).resolve().parents[2]
 
 
+_SECRET_MARKERS = ("key", "secret", "token", "password", "webhook", "smtp_user")
+
+
+def effective_settings(settings) -> dict:
+    """Every setting this session ran with, secrets redacted.
+
+    The cohort's values have lived in an un-versioned host .env while
+    config.yaml said otherwise; recording what actually ran makes a session
+    reproducible from its own evidence.
+    """
+    def scrub(value, name=""):
+        if isinstance(value, dict):
+            return {k: scrub(v, k) for k, v in sorted(value.items())}
+        if any(marker in name.lower() for marker in _SECRET_MARKERS):
+            return "<set>" if value else None
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            return value
+        if isinstance(value, (list, tuple)):
+            return [scrub(v) for v in value]
+        return str(value)
+    try:
+        return scrub(settings.model_dump())
+    except Exception:  # a settings stand-in without pydantic; record the gap
+        return {"unavailable": True}
+
+
 def capture_session_context(settings, started_at: datetime, strategy_ids=(), *,
                             baseline_path=None) -> dict:
     from app.evaluation.shadow_book import SHADOW_MODEL_VERSION
@@ -45,8 +71,9 @@ def capture_session_context(settings, started_at: datetime, strategy_ids=(), *,
     hour, minute = map(int, settings.market_open.split(":"))
     scheduled = started_at.replace(hour=hour, minute=minute, second=0, microsecond=0)
     delay = max(0.0, (started_at - scheduled).total_seconds())
-    diagnostic = [sid for sid in strategy_ids if sid == "rsi_trend"
-                  and settings.paper_eval_permissive_entry_mode]
+    # rsi_trend is diagnostic-only in every entry mode (see the runner's
+    # DIAGNOSTIC_ONLY_STRATEGIES); the context must not report it as enabled.
+    diagnostic = [sid for sid in strategy_ids if sid == "rsi_trend"]
     shadow_only = [sid for sid in strategy_ids
                    if scaled_entry_block_reason(settings, "", sid) == "strategy_shadow_only"]
     enabled = sorted(set(strategy_ids) - set(diagnostic) - set(shadow_only))
@@ -67,6 +94,7 @@ def capture_session_context(settings, started_at: datetime, strategy_ids=(), *,
         "replay_policy": replay_policy,
         "replay_policy_hash": policy_hash(replay_policy),
         "observation_review_targets": {"scheduled_sessions": 5, "eligible_opportunities": 10},
+        "effective_settings": effective_settings(settings),
     }
 
 

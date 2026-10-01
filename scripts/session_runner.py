@@ -52,6 +52,12 @@ from zoneinfo import ZoneInfo
 warnings.filterwarnings("ignore")
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from app.operations.provider_health import (
+    InstrumentedBroker,
+    ProviderHealth,
+    ProviderUnavailable,
+    is_auth_error,
+)
 from app.risk.entry_capacity import reserved_entry_slots
 
 ET = ZoneInfo("America/New_York")
@@ -101,6 +107,16 @@ def _rank_active_symbols(symbols: List[str], scan_store: Optional[dict]) -> List
     )
 
 
+def _completed_market_regime(bars, now: datetime) -> str:
+    """Regime from completed bars only.
+
+    Signals are generated from completed bars; the regime that gates them must
+    read the same snapshot, not the still-forming candle.
+    """
+    from app.trading.entry_filters import completed_intraday_bars
+    return _market_regime_from_bars(completed_intraday_bars(bars, now, interval_minutes=5))
+
+
 def _market_regime_from_bars(bars) -> str:
     """Return long, short, or neutral from SPY price versus VWAP and EMA20."""
     if bars is None or bars.empty or len(bars) < 5:
@@ -144,6 +160,11 @@ async def _retry(coro_fn, label: str = "", max_retries: int = 3):
             return await coro_fn()
         except Exception as exc:
             last_exc = exc
+            # Rejected credentials do not recover within seconds; retrying only
+            # multiplies unauthorized requests and stalls the poll loop.
+            if isinstance(exc, ProviderUnavailable) or is_auth_error(exc):
+                logger.error("[%s] not retried: %s", label, exc)
+                raise
             if attempt < max_retries:
                 logger.warning("[%s] attempt %d failed: %s — retrying in %ds", label, attempt, exc, delay)
                 await asyncio.sleep(delay)
@@ -174,9 +195,47 @@ def _reset_data_feed_errors() -> None:
     _data_feed_error_labels.clear()
 
 
+# Options-data outcomes for the session, metered at the broker boundary.
+# run_session() wraps its broker in InstrumentedBroker bound to this object.
+_PROVIDER_HEALTH = ProviderHealth()
+
+# Exit status for a session that completed but produced unusable evidence.
+EXIT_DATA_DEGRADED = 3
+
+
+def _data_health() -> dict:
+    """One verdict combining options-provider health and equity-feed failures."""
+    reasons = _PROVIDER_HEALTH.degraded_reasons()
+    if _data_feed_errors:
+        reasons.append("fetch_failures_after_retries")
+    return {
+        "status": "degraded" if reasons else "ok",
+        "reasons": reasons,
+        "options_provider": _PROVIDER_HEALTH.snapshot(),
+        "fetch_failures_after_retries": _data_feed_errors,
+        "fetch_failure_labels": list(_data_feed_error_labels[:50]),
+    }
+
+
 # ── Exit state constants ──────────────────────────────────────────────────────
 
-_MANDATORY_EXIT_REASONS = frozenset({"stop_loss", "max_hold", "eod_exit", "daily_loss", "kill_switch"})
+_MANDATORY_EXIT_REASONS = frozenset({
+    "stop_loss", "max_hold", "eod_exit", "daily_loss", "kill_switch", "quote_unavailable",
+})
+
+# Strategies that are observed but may never submit a broker order, whatever
+# the entry mode. rsi_trend was previously excluded only in permissive mode, so
+# turning that flag off would have made it the only broker-eligible strategy.
+DIAGNOSTIC_ONLY_STRATEGIES = frozenset({"rsi_trend"})
+
+
+def _exclude_diagnostic_only(signals):
+    return [s for s in signals if getattr(s, "strategy_id", None) not in DIAGNOSTIC_ONLY_STRATEGIES]
+
+
+# An open position that cannot be priced cannot be protected by its stop.
+# After this long without a usable quote it is closed as a mandatory exit.
+_MAX_UNPRICED_EXPOSURE_SECONDS = 120
 
 # Set by run_session() so confirmed-close helpers can emit exit push events
 # with broker-confirmed fill prices (not cached estimates).
@@ -313,7 +372,9 @@ async def _place_exit_order(
                 label=f"exit_quote({pos.option_symbol})",
             )
             current_bid = float(quote.bid) if float(quote.bid) > 0 else None
-        except Exception:
+        except Exception as exc:
+            logger.warning("Exit order for %s priced from last mark: quote unavailable: %s",
+                           pos.option_symbol, exc)
             current_bid = None
 
     exit_quote_bid = current_bid
@@ -510,7 +571,8 @@ async def _poll_pending_exit(
             label=f"exit_reprice_quote({pos.option_symbol})",
         )
         current_bid = float(quote.bid) if float(quote.bid) > 0 else 0.0
-    except Exception:
+    except Exception as exc:
+        logger.warning("Exit reprice skipped for %s: quote unavailable: %s", pos.option_symbol, exc)
         return False
 
     if current_bid <= 0 or current_bid >= pos.exit_order_limit_price - 0.01:
@@ -624,6 +686,7 @@ async def monitor_positions(
         _exit_bid: Optional[float] = None
         _exit_ask: Optional[float] = None
         _exit_mid: Optional[float] = None
+        current_price: Optional[float] = None
         try:
             quote = await _retry(
                 lambda p=pos: broker.get_option_quote(p.option_symbol),
@@ -644,14 +707,30 @@ async def monitor_positions(
                 )
             # Use bid for exit decisions on long options (reflects executable price).
             # Mid is used only for logging/display so phantom trailing-stop peaks are avoided.
-            current_price = _exit_bid if _exit_bid and _exit_bid > 0 else (
-                _exit_mid or pos.entry_price
-            )
-        except Exception:
-            current_price = pos.entry_price
+            current_price = _exit_bid if _exit_bid and _exit_bid > 0 else _exit_mid
+        except Exception as exc:
+            logger.warning("Exit quote unavailable | %s | %s", pos.option_symbol, exc)
 
-        pm.update_price(pos.option_symbol, current_price)
-        reason = pm.should_exit(pos.option_symbol, current_price, now)
+        if current_price:
+            pos.unpriced_since = None
+            pm.update_price(pos.option_symbol, current_price)
+            reason = pm.should_exit(pos.option_symbol, current_price, now)
+        else:
+            # Never substitute a price: a fabricated mark at entry makes the
+            # position look flat, which silently disables stop and trailing exits.
+            _record_data_feed_error(f"exit_quote({pos.option_symbol})")
+            if pos.unpriced_since is None:
+                pos.unpriced_since = now
+            _unpriced_secs = (now - pos.unpriced_since).total_seconds()
+            logger.warning(
+                "UNPRICED EXPOSURE | %s | no usable quote for %.0fs",
+                pos.option_symbol, _unpriced_secs,
+            )
+            # Time-based exits still apply against the last valid mark.
+            current_price = pos.current_price
+            reason = pm.should_exit(pos.option_symbol, current_price, now)
+            if not reason and _unpriced_secs >= _MAX_UNPRICED_EXPOSURE_SECONDS:
+                reason = "quote_unavailable"
 
         if not reason:
             continue
@@ -763,7 +842,8 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
             )
             _bid = float(quote.bid) if float(quote.bid) > 0 else None
             _ask = float(quote.ask) if float(quote.ask) > 0 else None
-        except Exception:
+        except Exception as exc:
+            logger.warning("EOD quote unavailable for %s: %s", pos.option_symbol, exc)
             _bid = None
             _ask = None
 
@@ -908,7 +988,8 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
                 try:
                     _q = await _retry(lambda p=pos: broker.get_option_quote(p.option_symbol), label=f"eod_requeue_q({pos.option_symbol})")
                     _new_bid = float(_q.bid) if float(_q.bid) > 0 else None
-                except Exception:
+                except Exception as exc:
+                    logger.warning("EOD requeue quote unavailable for %s: %s", pos.option_symbol, exc)
                     _new_bid = None
                 _rem = max(0, pos.quantity - pos.confirmed_fill_qty)
                 if _rem == 0:
@@ -936,7 +1017,8 @@ async def eod_liquidate(broker, pm, journal, risk, now: datetime, dry_run: bool,
             try:
                 _q = await _retry(lambda p=pos: broker.get_option_quote(p.option_symbol), label=f"eod_reprice_q({pos.option_symbol})")
                 _cur_bid = float(_q.bid) if float(_q.bid) > 0 else None
-            except Exception:
+            except Exception as exc:
+                logger.warning("EOD reprice quote unavailable for %s: %s", pos.option_symbol, exc)
                 _cur_bid = None
 
             if _cur_bid and _cur_bid < pos.exit_order_limit_price - 0.01:
@@ -1221,8 +1303,14 @@ async def scan_and_place(
                         _non_orb, _max_ent - 1,
                         now.strftime("%H:%M"), _orb_reserve_until_str,
                     )
-        except Exception:
-            pass
+        except Exception as exc:
+            # A broken reservation setting must not silently disable the gate;
+            # reserve the slots (skip non-ORB entries) until it is fixed.
+            _orb_slot_active = True
+            logger.error(
+                "ORB slot reservation could not be evaluated (%r): reserving slots: %s",
+                _orb_reserve_until_str, exc,
+            )
 
     # ── Create bridge stubs for RSI_trend diagnostic signals ─────────────────
     if _permissive and _rsi_diagnostic:
@@ -1246,6 +1334,8 @@ async def scan_and_place(
                 exact_block_reason="rsi_trend_diagnostic_only",
             )
             _bridge_entries.append(_rb)
+
+    actionable = _exclude_diagnostic_only(actionable)
 
     placed = 0
     for sig in actionable:
@@ -1390,7 +1480,7 @@ async def scan_and_place(
                         contract_metadata=_inv_meta, market_regime=market_regime,
                     )
             except Exception as _sb_exc:
-                logger.debug("ShadowBook record failed: %s", _sb_exc)
+                logger.warning("ShadowBook record failed: %s", _sb_exc)
 
         # Amended scaled cohort: quality is now an entry gate, not merely an
         # advisory field. A score below 3/4 is recorded for shadow analysis.
@@ -1524,7 +1614,8 @@ async def scan_and_place(
                 lambda: broker.get_available_expirations(symbol),
                 label=f"expirations({symbol})",
             )
-        except Exception:
+        except Exception as exc:
+            logger.warning("Entry skipped for %s: expirations unavailable: %s", symbol, exc)
             continue
 
         today = now.date()
@@ -1549,7 +1640,8 @@ async def scan_and_place(
                 lambda: broker.get_option_chain(symbol, target_exp),
                 label=f"chain({symbol})",
             )
-        except Exception:
+        except Exception as exc:
+            logger.warning("Entry skipped for %s: option chain unavailable: %s", symbol, exc)
             continue
 
         # Stale quote check
@@ -1603,7 +1695,9 @@ async def scan_and_place(
         # Risk check
         try:
             acct = await _retry(broker.get_account, label="get_account")
-        except Exception:
+        except Exception as exc:
+            logger.error("Entry skipped for %s: broker account unavailable: %s", symbol, exc)
+            _record_data_feed_error("get_account")
             continue
 
         # ── Determine limit price based on configured pricing mode ────────────
@@ -1724,12 +1818,20 @@ async def scan_and_place(
             strategy_id=sig.strategy_id,
             notes=sig.notes,
         )
+        # A symbol with no scan record this session was never earnings-checked.
+        _earnings_status = next(
+            (c.get("earnings_status", "unknown")
+             for c in ((scan_store or {}).get("candidates") or [])
+             if c.get("symbol") == symbol),
+            "unknown",
+        )
         risk_result = risk.check_order(
             request=request,
             equity=acct.equity,
             contract=contract,
             now=now,
             signal_direction=sig.direction.value,
+            earnings_status=_earnings_status,
         )
         if _bridge is not None:
             _bridge.risk_passed = risk_result.passed
@@ -1929,7 +2031,7 @@ async def scan_and_place(
                         contract_metadata=_used_meta, market_regime=market_regime,
                     )
             except Exception as _sb_exc:
-                logger.debug("ShadowBook record failed: %s", _sb_exc)
+                logger.warning("ShadowBook record failed: %s", _sb_exc)
 
         if journal:
             journal_id = await journal.record_entry(
@@ -2020,6 +2122,10 @@ async def scan_and_place(
 
 # ── Universe scan helper ──────────────────────────────────────────────────────
 
+def _cli_fallback_allowed(settings) -> bool:
+    return getattr(settings.universe, "allow_cli_fallback_when_scanner_rejects", False) is True
+
+
 async def _run_universe_scan(
     settings,
     broker,
@@ -2040,8 +2146,9 @@ async def _run_universe_scan(
 
     Returns:
       None          — STANDBY: all candidates rejected, CLI fallback blocked.
-      []            — fallback allowed (allow_cli_fallback_when_scanner_rejects=True
-                      and rvol gate passed) but no confirmed symbols.
+      []            — no confirmed symbols and CLI fallback is allowed
+                      (allow_cli_fallback_when_scanner_rejects=True). With
+                      fallback disabled, zero confirmed symbols returns None.
       [sym, ...]    — confirmed symbol names, best first.
     """
     import json as _json
@@ -2156,7 +2263,7 @@ async def _run_universe_scan(
     # allowed AND the rvol gate passes.
     if len(passed) == 0 and len(candidates) > 0:
         uni = settings.universe
-        allow_fallback = getattr(uni, "allow_cli_fallback_when_scanner_rejects", False)
+        allow_fallback = _cli_fallback_allowed(settings)
         fallback_min_rvol = getattr(uni, "fallback_min_rvol", 0.20)
         max_rvol = max((c.metrics.rvol or 0.0) for c in candidates)
 
@@ -2251,6 +2358,51 @@ async def _run_universe_scan(
         except Exception as exc:
             logger.warning("Failed to update selected flags: %s", exc)
 
+    _cand_payload_full = [
+        {
+            "symbol": c.symbol,
+            "score": c.score,
+            "signal_type": c.signal_type,
+            "is_rejected": c.is_rejected,
+            "reason_codes": c.reason_codes,
+            "rejected_reasons": c.rejected_reasons,
+            "universe_group": c.universe_group,
+            "rvol": getattr(c.metrics, "rvol", None),
+            "earnings_status": getattr(c.metrics, "earnings_status", "unknown"),
+        }
+        for c in candidates
+    ]
+
+    # Passing candidates that no options chain could confirm are not a
+    # recovery: nothing is tradeable or observable without a chain. Falling
+    # back to CLI symbols here is the same decision the STANDBY guard makes,
+    # so it obeys the same policy.
+    if not confirmed_syms and not _cli_fallback_allowed(settings):
+        standby_reason = (
+            "no_scan_candidates" if not candidates
+            else f"no_options_confirmation_for_{len(passed)}_passing_candidates"
+        )
+        logger.warning("STANDBY: %s", standby_reason)
+        if journal:
+            await journal.log_event(
+                event="standby",
+                message=f"Scanner STANDBY: {standby_reason}",
+                level="warning",
+                data={"reason": standby_reason, "passing_candidates": len(passed)},
+            )
+            await journal.commit()
+        if scan_store is not None:
+            scan_store.clear()
+            scan_store.update({
+                "session_date": session_date,
+                "scanned_at": datetime.now(tz=ET).isoformat(),
+                "standby": True,
+                "standby_reason": standby_reason,
+                "confirmed": [],
+                "candidates": _cand_payload_full,
+            })
+        return None
+
     # Update in-memory scan store (for dashboard). A successful scan after a
     # STANDBY cycle is a recovery, not a session-long halt. Preserve the prior
     # state long enough to emit one recovery event before clearing it.
@@ -2267,19 +2419,7 @@ async def _run_universe_scan(
         scan_store["standby_reason"] = None
         scan_store["confirmed"] = confirmed_syms
         scan_store["enabled_groups"] = _active_grps
-        scan_store["candidates"] = [
-            {
-                "symbol": c.symbol,
-                "score": c.score,
-                "signal_type": c.signal_type,
-                "is_rejected": c.is_rejected,
-                "reason_codes": c.reason_codes,
-                "rejected_reasons": c.rejected_reasons,
-                "universe_group": c.universe_group,
-                "rvol": getattr(c.metrics, "rvol", None),
-            }
-            for c in candidates
-        ]
+        scan_store["candidates"] = _cand_payload_full
 
     if _was_standby:
         logger.info(
@@ -2332,7 +2472,8 @@ async def run_session(args: argparse.Namespace):
     signal.signal(signal.SIGTERM, _request_shutdown)
     signal.signal(signal.SIGINT, _request_shutdown)
 
-    broker = get_broker(settings)
+    _PROVIDER_HEALTH.reset()
+    broker = InstrumentedBroker(get_broker(settings), _PROVIDER_HEALTH)
     data = YFinanceDataSource()
     risk = RiskManager(settings)
     pm = PositionManager(settings)
@@ -2580,8 +2721,12 @@ async def run_session(args: argparse.Namespace):
                 )
                 active_symbols = list(args.symbols)
         except Exception as exc:
-            logger.error("Pre-session scan failed: %s — using arg symbols", exc)
-            active_symbols = list(args.symbols)
+            if _cli_fallback_allowed(settings):
+                logger.error("Pre-session scan failed: %s — using arg symbols", exc)
+                active_symbols = list(args.symbols)
+            else:
+                logger.error("STANDBY: pre-session scan failed and CLI fallback is disabled: %s", exc)
+                active_symbols = []
 
     _max_active_pos = getattr(settings.universe, "max_active_positions", 1)
     _max_sym_per_day = getattr(settings.universe, "max_symbols_traded_per_day", 1)
@@ -2682,6 +2827,7 @@ async def run_session(args: argparse.Namespace):
             pending_orders=fill_tracker.count(),
             scanner_standby=bool(_scan_store.get("standby", False)),
             session_date=now.strftime("%Y-%m-%d"),
+            data_health=_PROVIDER_HEALTH.live_status(),
         )
 
         # EOD warning push (once, 35 min before EOD)
@@ -2772,7 +2918,7 @@ async def run_session(args: argparse.Namespace):
         try:
             await shadow_book.update(broker)
         except Exception as _sb_exc:
-            logger.debug("ShadowBook update error: %s", _sb_exc)
+            logger.warning("ShadowBook update error: %s", _sb_exc)
 
         # Push notifier: announce any newly-opened position, regardless of
         # fill path (FillTracker fill or reconciler recovery restore)
@@ -2799,7 +2945,7 @@ async def run_session(args: argparse.Namespace):
         try:
             await _sync_positions_to_db(db_session, pm)
         except Exception as _sync_exc:
-            logger.debug("DBPosition sync failed (non-fatal): %s", _sync_exc)
+            logger.warning("DBPosition sync failed (non-fatal): %s", _sync_exc)
 
         # Periodic re-scan (skip in fill-test mode)
         if (
@@ -2866,7 +3012,7 @@ async def run_session(args: argparse.Namespace):
                         ),
                         label="market_regime_bars(SPY)",
                     )
-                    _market_regime = _market_regime_from_bars(_regime_bars)
+                    _market_regime = _completed_market_regime(_regime_bars, now)
                 except Exception:
                     _market_regime = "neutral"
                     _record_data_feed_error("market_regime_bars(SPY)")
@@ -2969,12 +3115,21 @@ async def run_session(args: argparse.Namespace):
         )
         await eod_liquidate(broker, pm, journal, risk, now, args.dry_run, settings=settings)
 
+    data_health = _data_health()
+    if data_health["status"] != "ok":
+        logger.critical(
+            "SESSION DATA DEGRADED: %s | options=%s",
+            ", ".join(data_health["reasons"]),
+            data_health["options_provider"],
+        )
+
     # Finish shadow observations before recording the session's final DB timestamp.
     try:
         await shadow_book.refresh_and_finish_session(
             broker, api_errors=api_errors,
             reconciliation_warnings=len(recon_warnings),
             data_feed_errors=_data_feed_errors,
+            data_health_reasons=data_health["reasons"],
         )
     except Exception as exc:
         logger.warning("Shadow observation completion failed: %s", exc)
@@ -2987,9 +3142,26 @@ async def run_session(args: argparse.Namespace):
                 level="error" if _data_feed_errors else "info",
                 data={"count": _data_feed_errors, "labels": list(_data_feed_error_labels)},
             )
+            await journal.log_event(
+                event="data_health",
+                message=f"data health {data_health['status']}: "
+                        f"{', '.join(data_health['reasons']) or 'none'}",
+                level="error" if data_health["status"] != "ok" else "info",
+                data=data_health,
+            )
             await journal.commit()
         except Exception as exc:
-            logger.warning("Could not record data feed error summary: %s", exc)
+            logger.warning("Could not record data health summary: %s", exc)
+    if data_health["status"] != "ok":
+        try:
+            await alert_service.send(
+                AlertEvent.DATA_DEGRADED,
+                f"Session {today_str} produced unusable evidence: "
+                f"{', '.join(data_health['reasons'])}",
+                data=data_health,
+            )
+        except Exception as exc:
+            logger.warning("Could not send data-degraded alert: %s", exc)
 
     # 4. Generate and persist health report
     if journal and store:
@@ -3000,6 +3172,7 @@ async def run_session(args: argparse.Namespace):
                 api_errors=api_errors,
                 reconciliation_warnings=recon_warnings,
                 data_feed_errors=_data_feed_errors,
+                data_health=data_health,
             )
             import json as _json
             report_line = _json.dumps(report, default=str)
@@ -3087,6 +3260,9 @@ async def run_session(args: argparse.Namespace):
 
     await broker.close()
     await db_session.close()
+    # A completed session with unusable evidence exits non-zero so the
+    # launcher's failure alert fires; artifacts above are already written.
+    return EXIT_DATA_DEGRADED if data_health["status"] != "ok" else 0
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
@@ -3129,4 +3305,4 @@ if __name__ == "__main__":
     from app.utils.logging_setup import configure_logging
     configure_logging(level=args.log_level)
 
-    asyncio.run(run_session(args))
+    sys.exit(asyncio.run(run_session(args)) or 0)

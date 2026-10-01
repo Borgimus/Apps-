@@ -86,8 +86,9 @@ def test_dashboard_routes_are_guarded():
         for method in methods - {"HEAD", "OPTIONS", "GET"}:
             guarded[(method, route.path)] = any(
                 d.dependency is control_auth.require_control_token for d in deps)
-    assert guarded[("POST", "/kill-switch/activate")] is False
-    assert guarded[("DELETE", "/kill-switch")] is True
-    assert guarded[("POST", "/backtest/run")] is True
+    assert guarded.pop(("POST", "/kill-switch/activate")) is False
+    assert ("DELETE", "/kill-switch") in guarded
     for path in ("/sessions/start", "/sessions/stop", "/sessions/restart"):
-        assert guarded[("POST", path)] is True
+        assert ("POST", path) in guarded
+    unguarded = [route for route, ok in guarded.items() if not ok]
+    assert unguarded == [], f"state-changing routes without the control token: {unguarded}"

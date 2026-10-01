@@ -407,10 +407,14 @@ class TestCandidateScorer:
 
     def test_data_error_rejected(self):
         scorer = CandidateScorer()
-        m = _metrics(errors=["connection timeout"])
+        m = _metrics(errors=["connection timeout"], rvol=0.0, atr_pct=0.0, rsi=50.0)
         c = scorer.score_one(m)
         assert c.is_rejected
-        assert "data_fetch_error" in c.rejected_reasons
+        # Sentinel metrics earn no score and do not cascade into fake findings
+        # such as low_volume_chop or atr_too_small.
+        assert c.rejected_reasons == ["data_fetch_error"]
+        assert c.score == 0.0
+        assert c.signal_type == "NEUTRAL"
 
     def test_reason_codes_populated(self):
         scorer = CandidateScorer(min_scan_score=0.0)

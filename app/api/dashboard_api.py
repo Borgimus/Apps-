@@ -11,8 +11,6 @@ Endpoints:
   GET  /risk                        — current risk counters
   POST /kill-switch/activate        — set kill switch (halts all new orders)
   DELETE /kill-switch               — deactivate kill switch
-  GET  /backtest/results            — list stored backtest summaries
-  POST /backtest/run                — trigger a new backtest (async)
   GET  /strategies                  — list configured strategies and status
   WS   /ws/signals                  — real-time signal stream (WebSocket)
 
@@ -42,7 +40,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..config import get_settings
 from .models import (
     AsyncSessionLocal,
-    DBBacktestResult,
     DBOrder,
     DBPendingOrder,
     DBPosition,
@@ -104,15 +101,6 @@ class StatusResponse(BaseModel):
     pending_entries: int
     exits_today: int
     daily_pnl: float
-
-
-class BacktestRunRequest(BaseModel):
-    strategy_id: str
-    symbol: str
-    start: Optional[str] = None
-    end: Optional[str] = None
-    interval: str = "1d"
-    starting_equity: float = 100_000.0
 
 
 # ── App factory ───────────────────────────────────────────────────────────────
@@ -474,88 +462,12 @@ def create_app(
             "opening_range_breakout": cfg.risk,
             "vwap_reclaim": cfg.risk,
             "rsi_trend": cfg.risk,
-            "ma_compression": cfg.risk,
         }
         return [
             {"id": "orb", "name": "Opening Range Breakout", "enabled": True},
             {"id": "vwap_reclaim", "name": "VWAP Reclaim/Rejection", "enabled": True},
             {"id": "rsi_trend", "name": "RSI + Trend Filter", "enabled": True},
-            {"id": "ma_compression", "name": "MA Compression Breakout", "enabled": True},
         ]
-
-    # ── Backtest results ───────────────────────────────────────────────────
-
-    @app.get("/backtest/results")
-    async def backtest_results(db: AsyncSession = Depends(get_db)):
-        rows = (
-            await db.execute(
-                select(DBBacktestResult).order_by(DBBacktestResult.ran_at.desc()).limit(50)
-            )
-        ).scalars().all()
-        return [
-            {
-                "id": r.id,
-                "strategy_id": r.strategy_id,
-                "symbol": r.symbol,
-                "start_date": r.start_date,
-                "end_date": r.end_date,
-                "total_trades": r.total_trades,
-                "win_rate": r.win_rate,
-                "profit_factor": r.profit_factor,
-                "total_pnl": r.total_pnl,
-                "sharpe_ratio": r.sharpe_ratio,
-                "max_drawdown": r.max_drawdown,
-                "is_approximate": r.is_approximate,
-                "ran_at": str(r.ran_at),
-            }
-            for r in rows
-        ]
-
-    @app.post("/backtest/run", dependencies=[Depends(require_control_token)])
-    async def run_backtest(req: BacktestRunRequest, db: AsyncSession = Depends(get_db)):
-        from ..backtesting import BacktestEngine
-        from ..strategies import (
-            MACompressionStrategy,
-            OpeningRangeBreakoutStrategy,
-            RSITrendStrategy,
-            VWAPReclaimStrategy,
-        )
-
-        strategy_map = {
-            "orb": OpeningRangeBreakoutStrategy,
-            "vwap_reclaim": VWAPReclaimStrategy,
-            "rsi_trend": RSITrendStrategy,
-            "ma_compression": MACompressionStrategy,
-        }
-        if req.strategy_id not in strategy_map:
-            raise HTTPException(400, f"Unknown strategy: {req.strategy_id}")
-
-        strat = strategy_map[req.strategy_id]()
-        engine = BacktestEngine()
-        result = await engine.run(
-            strat, req.symbol, req.start, req.end, req.interval, req.starting_equity
-        )
-        report_path = engine.save_report(result)
-
-        row = DBBacktestResult(
-            strategy_id=result.strategy_id,
-            symbol=result.symbol,
-            start_date=result.start_date,
-            end_date=result.end_date,
-            total_trades=result.total_trades,
-            win_rate=result.win_rate,
-            profit_factor=result.profit_factor,
-            total_pnl=result.total_pnl,
-            max_drawdown=result.max_drawdown,
-            sharpe_ratio=result.sharpe_ratio,
-            expectancy=result.expectancy,
-            is_approximate=result.is_approximate,
-            report_path=report_path,
-        )
-        db.add(row)
-        await db.commit()
-
-        return result.to_dict()
 
     # ── Open positions (live PositionManager) ──────────────────────────────
 

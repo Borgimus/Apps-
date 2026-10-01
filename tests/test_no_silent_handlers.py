@@ -18,7 +18,6 @@ VISIBLE_CALLS = {"warning", "error", "critical", "exception", "info", "notify",
 BASELINE = {
     "app/api/dashboard_api.py": 7,
     "app/api/models.py": 1,
-    "app/backtesting/backtest_engine.py": 1,
     "app/brokers/alpaca_broker.py": 1,
     "app/data/yfinance_data.py": 2,
     "app/evaluation/daily_report.py": 1,
@@ -30,10 +29,7 @@ BASELINE = {
     "app/strategies/signal_quality.py": 2,
     "app/utils/logging_setup.py": 1,
     "scripts/capture_session_fingerprint.py": 3,
-    "scripts/eval_smoke_test.py": 3,
-    "scripts/fill_lifecycle_test.py": 1,
     "scripts/session_runner.py": 2,
-    "scripts/validate_non_orb.py": 1,
 }
 
 

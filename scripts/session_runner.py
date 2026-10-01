@@ -1253,7 +1253,7 @@ async def scan_and_place(
         _rv = _rvol or 0.0
         _ss = _scanner_score or 0.0
         _scored.sort(
-            key=lambda x: (-_ss, -x[1], -_rv, x[2], -x[3])
+            key=lambda x: (-_ss, -(x[1] if x[1] is not None else -1.0), -_rv, x[2], -x[3])
         )
         actionable = [x[0] for x in _scored]
         _sig_meta: dict = {id(x[0]): (x[1], x[2], x[3]) for x in _scored}
@@ -1493,18 +1493,21 @@ async def scan_and_place(
                 "paper_scaled_min_signal_quality",
                 3.0,
             ))
-            if _qscore < _min_quality:
+            if _qscore is None or _qscore < _min_quality:
+                # An unscored signal is blocked under its own reason: a scoring
+                # failure must not be recorded as a low-quality setup.
+                _q_reason = ("signal_quality_unavailable" if _qscore is None
+                             else "signal_quality_below_min")
                 logger.info(
-                    "Signal quality blocked | %s/%s score=%.1f < %.1f",
-                    symbol,
-                    sig.strategy_id,
-                    _qscore,
-                    _min_quality,
+                    "Signal quality blocked | %s/%s score=%s < %.1f | %s",
+                    symbol, sig.strategy_id,
+                    "unscored" if _qscore is None else f"{_qscore:.1f}",
+                    _min_quality, _q_reason,
                 )
                 if _bridge is not None:
                     _bridge.final_decision = "blocked"
-                    _bridge.exact_block_reason = "signal_quality_below_min"
-                await _shadow_blocked("signal_quality_below_min")
+                    _bridge.exact_block_reason = _q_reason
+                await _shadow_blocked(_q_reason)
                 continue
 
             if getattr(

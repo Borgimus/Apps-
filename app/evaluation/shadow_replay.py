@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 
+from app.risk.loss_capacity import exceeds_loss_capacity, worst_case_trade_loss
 from app.trading.entry_filters import scaled_guardrails_active
 from app.trading.exit_rules import exit_reason, trailing_activation_setting
 from app.trading.quote_evidence import fill_evidence_valid, parse_quote_timestamp
@@ -28,6 +29,9 @@ def capture_replay_policy(settings) -> dict:
     s, p, r, u = settings, settings.position, settings.risk, settings.universe
     return {
         "schema_version": 1,
+        # Entry reserves its stop loss against the remaining daily-loss limits.
+        # Absent from policies captured before this rule; their replays are unchanged.
+        "reserve_trade_loss": True,
         "scaled_sizing": s.paper_scaled_sizing_enabled is True,
         "guardrails": scaled_guardrails_active(s),
         "entry_filters": {
@@ -258,6 +262,12 @@ def _replay_session(events: list[dict], variant="baseline", *, respect_permissio
                            int(Decimal(str(risk_dollars)) / (Decimal(str(ask)) * 100))) if ask > 0 else 0
             if quantity < 1:
                 reasons.append("max_risk_per_trade")
+            if p.get("reserve_trade_loss") and quantity >= 1:
+                trade_loss = worst_case_trade_loss(ask, quantity, p["stop_loss_pct"])
+                if exceeds_loss_capacity(realized, trade_loss, equity * p["max_daily_loss_fraction"]):
+                    reasons.append("account_daily_loss_capacity")
+                if p["guardrails"] and exceeds_loss_capacity(realized, trade_loss, p["daily_loss_dollars"]):
+                    reasons.append("experiment_daily_loss_capacity")
             if p["scaled_sizing"] and max(ask, event["entry_price"]) * quantity * 100 > p["premium_budget"] + 1e-8:
                 reasons.append("premium_budget")
             if variant == "partial_25_breakeven" and quantity < 2:

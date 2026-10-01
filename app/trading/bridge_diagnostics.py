@@ -32,7 +32,7 @@ class BridgeEntry:
     scanner_approved: Optional[bool] = None
 
     # Signal quality
-    signal_quality_score: float = 0.0
+    signal_quality_score: Optional[float] = 0.0  # None: could not be scored
     confluence_count: int = 1
 
     # Option contract (populated once liquidity filter selects a contract)

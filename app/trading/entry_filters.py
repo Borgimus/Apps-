@@ -120,15 +120,17 @@ def liquidity_filter_params(settings) -> dict:
     }
 
 
+def symbol_blocked(settings, symbol: str) -> bool:
+    """One case-insensitive rule for the cohort's disabled symbols."""
+    return symbol.strip().lower() in csv_set(getattr(settings, "paper_scaled_blocked_symbols", ""))
+
+
 def scaled_entry_block_reason(settings, symbol: str, strategy_id: str) -> Optional[str]:
     """Return the cohort-level broker-entry veto, if any."""
     if not scaled_guardrails_active(settings):
         return None
 
-    blocked_symbols = csv_set(
-        getattr(settings, "paper_scaled_blocked_symbols", "")
-    )
-    if symbol.strip().lower() in blocked_symbols:
+    if symbol_blocked(settings, symbol):
         return "symbol_disabled"
 
     shadow_only = csv_set(

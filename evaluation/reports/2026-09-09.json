@@ -1,0 +1,262 @@
+{
+  "date": "2026-09-09",
+  "session_start": "2026-09-09 09:30:10 EDT",
+  "session_end": "2026-09-09 12:30:00 EDT",
+  "total_signals": 13,
+  "signal_count_basis": "distinct_entry_signals",
+  "entry_signal_observations": 102,
+  "diagnostic_signal_observations": 1866,
+  "trades_submitted": 0,
+  "trades_filled": 0,
+  "trades_cancelled": 0,
+  "trades_rejected": 0,
+  "realized_pnl": 0,
+  "one_contract_normalized_pnl": 0,
+  "unrealized_pnl": 0,
+  "contracts_filled": 0,
+  "sizing_cohort": "paper_scaled_budget_250_cap_10_guardrails_v3_shadow_validation",
+  "evaluation_cohort": "guardrails_v3_tradier_options_2026_09_08",
+  "options_data_provider": "tradier",
+  "options_data_adapter_hash": "567d1f77",
+  "shadow_model_version": "3",
+  "start_delay_seconds": 10.638,
+  "session_labels": [],
+  "broker_entry_strategies": [],
+  "session_context": {
+    "schema_version": 1,
+    "options_data_provider": "tradier",
+    "options_data_adapter_hash": "567d1f77",
+    "evaluation_cohort": "guardrails_v3_tradier_options_2026_09_08",
+    "shadow_model_version": "3",
+    "runner_started_at": "2026-09-09T09:30:10.637564-04:00",
+    "scheduled_start_at": "2026-09-09T09:30:00-04:00",
+    "start_delay_seconds": 10.638,
+    "session_labels": [],
+    "broker_entry_strategies": [],
+    "diagnostic_only_strategies": [
+      "rsi_trend"
+    ],
+    "shadow_only_strategies": [
+      "orb",
+      "vwap_reclaim"
+    ]
+  },
+  "premium_budget_dollars": 250.0,
+  "contract_cap": 10,
+  "win_rate": null,
+  "avg_win": null,
+  "avg_loss": null,
+  "max_drawdown": 0.0,
+  "largest_win": null,
+  "largest_loss": null,
+  "trade_diagnostics": [],
+  "excursion_summary": {
+    "trades_analyzed": 0,
+    "trades_with_excursion_data": 0,
+    "coverage_pct": null,
+    "average_mfe_dollars": null,
+    "average_mae_dollars": null,
+    "total_mfe_giveback_dollars": 0,
+    "attribution_counts": {},
+    "pnl_by_attribution": {},
+    "dominant_failure_mode": null,
+    "sampling_note": "MFE/MAE use runner polling observations, not exchange-tick extrema."
+  },
+  "dominant_failure_mode": null,
+  "slippage_total": 0,
+  "spread_cost_estimate": 0,
+  "fill_rate": null,
+  "cancel_rate": null,
+  "missed_fills_count": 0,
+  "time_to_fill_avg_secs": null,
+  "avg_spread_at_entry": null,
+  "avg_spread_at_exit": null,
+  "stop_loss_hit_pct": null,
+  "take_profit_hit_pct": null,
+  "eod_exit_pct": null,
+  "fill_rate_by_mode": {},
+  "cancel_rate_by_mode": {},
+  "avg_fill_latency_by_mode": {},
+  "cancel_reason_breakdown": {},
+  "scanned_symbols_count": 1292,
+  "candidate_count_passed": 676,
+  "candidate_count_rejected": 616,
+  "selected_symbols": [
+    "NVDA",
+    "GOOGL",
+    "AVGO",
+    "HOOD",
+    "AAPL",
+    "MSFT",
+    "AMZN",
+    "TSLA",
+    "PLTR",
+    "RIVN",
+    "SOFI",
+    "DKNG",
+    "QQQ",
+    "IWM",
+    "RIOT",
+    "UBER",
+    "LYFT",
+    "META"
+  ],
+  "top_candidates": [
+    {
+      "symbol": "DKNG",
+      "score": 87.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "SOFI",
+      "score": 87.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "AAPL",
+      "score": 85.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "IWM",
+      "score": 80.0,
+      "signal_type": "SHORT"
+    },
+    {
+      "symbol": "GOOGL",
+      "score": 78.0,
+      "signal_type": "SHORT"
+    }
+  ],
+  "candidates_by_group": {
+    "high_beta_liquid": 374,
+    "core_etfs": 306,
+    "mega_cap": 238,
+    "liquid_growth": 374
+  },
+  "rejected_by_group": {
+    "high_beta_liquid": 120,
+    "core_etfs": 185,
+    "mega_cap": 26,
+    "liquid_growth": 285
+  },
+  "trades_by_group": {},
+  "pnl_by_group": {},
+  "liquidity_rejections": 529,
+  "pnl_by_symbol": {},
+  "win_rate_by_symbol": {},
+  "expectancy_by_symbol": {},
+  "api_errors": 0,
+  "kill_switch_events": 0,
+  "by_strategy": [
+    {
+      "strategy_id": "orb",
+      "signals": 4,
+      "signal_observations": 38,
+      "diagnostic_observations": 0,
+      "submitted": 0,
+      "fills": 0,
+      "cancels": 0,
+      "rejects": 0,
+      "realized_pnl": 0.0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": null,
+      "avg_win": null,
+      "avg_loss": null
+    },
+    {
+      "strategy_id": "rsi_trend",
+      "signals": 0,
+      "signal_observations": 1866,
+      "diagnostic_observations": 1866,
+      "submitted": 0,
+      "fills": 0,
+      "cancels": 0,
+      "rejects": 0,
+      "realized_pnl": 0.0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": null,
+      "avg_win": null,
+      "avg_loss": null
+    },
+    {
+      "strategy_id": "vwap_reclaim",
+      "signals": 9,
+      "signal_observations": 64,
+      "diagnostic_observations": 0,
+      "submitted": 0,
+      "fills": 0,
+      "cancels": 0,
+      "rejects": 0,
+      "realized_pnl": 0.0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": null,
+      "avg_win": null,
+      "avg_loss": null
+    }
+  ],
+  "scanner_standby_activated": false,
+  "standby_reason": null,
+  "scanner_standby_event_count": 1,
+  "scanner_standby_recovered": true,
+  "exit_spread_warning_count": 0,
+  "bridge_entries_count": 1968,
+  "bridge_traded_count": 0,
+  "bridge_blocked_count": 102,
+  "bridge_skipped_count": 1866,
+  "bridge_by_strategy": {
+    "rsi_trend": {
+      "traded": 0,
+      "blocked": 0,
+      "skipped": 1866
+    },
+    "vwap_reclaim": {
+      "traded": 0,
+      "blocked": 64,
+      "skipped": 0
+    },
+    "orb": {
+      "traded": 0,
+      "blocked": 38,
+      "skipped": 0
+    }
+  },
+  "bridge_top_blocked_reasons": [
+    "signal_quality_below_min",
+    "market_regime_mismatch",
+    "strategy_shadow_only"
+  ],
+  "sample_size_warning": "Sample size too small for statistical conclusions (0 fill(s) this session). Win rate and PnL metrics require 30+ trades to be meaningful.",
+  "orb_signals_total": 4,
+  "orb_signal_observations": 38,
+  "orb_signals_traded": 0,
+  "orb_signals_blocked": 4,
+  "orb_signals_skipped": 0,
+  "orb_quality_distribution": {
+    "3": 3,
+    "4": 1
+  },
+  "orb_slot_reserved_events": 0,
+  "orb_actual_pnl": null,
+  "orb_avg_quality": 3.25,
+  "orb_top_blocked_reasons": [
+    "strategy_shadow_only",
+    "market_regime_mismatch"
+  ],
+  "orb_avg_fwd_pct_5m": -0.0031,
+  "orb_avg_fwd_pct_15m": -0.0051,
+  "orb_avg_fwd_pct_30m": -0.0049,
+  "pnl_by_strategy": {},
+  "notes": [
+    "Observation session: all configured strategies are shadow-only or diagnostic-only; broker entries are disabled.",
+    "Separate paper-only scaled-sizing cohort: paper_scaled_budget_250_cap_10_guardrails_v3_shadow_validation; do not merge with the frozen one-contract clean cohort",
+    "Scanner recovered after 1 STANDBY event(s); later scans resumed candidate selection",
+    "ORB strategy: 4 signal(s) evaluated but none traded \u2014 check block reasons above"
+  ],
+  "recommendations": [],
+  "phase": "phase3",
+  "evidence_type": "scaled_paper_evaluation"
+}

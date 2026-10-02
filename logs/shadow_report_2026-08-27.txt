@@ -1,0 +1,30 @@
+Shadow book report — 2026-08-27
+(shadow results are design/capacity evidence only; NOT part of the live-readiness paper sample)
+
+strategy         raw  opps  exec blocked validN  validPnL  theoN  theoPnL
+orb                6     1     0       1      0     +0.00      0    +0.00
+orb:breakeven_25     1     1     0       1      0     +0.00      0    +0.00
+orb:inverted       1     1     0       1      0     +0.00      0    +0.00
+orb:partial_25_breakeven     1     1     0       1      0     +0.00      0    +0.00
+vwap_reclaim      68     7     0       7      0     +0.00      0    +0.00
+vwap_reclaim:breakeven_25     7     7     0       7      0     +0.00      0    +0.00
+vwap_reclaim:inverted     7     7     0       7      0     +0.00      0    +0.00
+vwap_reclaim:partial_25_breakeven     7     7     0       7      0     +0.00      0    +0.00
+
+orb blocked-opportunity reasons: market_regime_mismatch=1
+orb:breakeven_25 blocked-opportunity reasons: exit_policy_counterfactual=1
+orb:inverted blocked-opportunity reasons: inverted_direction_counterfactual=1
+orb:partial_25_breakeven blocked-opportunity reasons: exit_policy_counterfactual=1
+vwap_reclaim blocked-opportunity reasons: signal_quality_below_min=7
+vwap_reclaim:breakeven_25 blocked-opportunity reasons: exit_policy_counterfactual=7
+vwap_reclaim:inverted blocked-opportunity reasons: inverted_direction_counterfactual=7
+vwap_reclaim:partial_25_breakeven blocked-opportunity reasons: exit_policy_counterfactual=7
+
+Slot-competition check: 7/8 blocked opportunities were vwap_reclaim | fill-validated: 0 for +0.00 (0W) | theoretical: 0 for +0.00
+
+Excursion and failure attribution
+(poll-sampled option-price extrema; attribution is diagnostic only)
+Fill-validated: no closed priceable opportunities
+Theoretical: no closed priceable opportunities
+
+Baseline gate: >=10 unique capacity-blocked opportunities and >=5 sessions before evaluating cap changes (current blocked opps: 8)

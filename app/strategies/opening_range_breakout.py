@@ -33,6 +33,7 @@ class OpeningRangeBreakoutStrategy(StrategyBase):
         self._range_minutes: int = self.params.get("range_minutes", 15)
         self._min_range_pts: float = self.params.get("min_range_pts", 0.5)
         self._volume_confirmation: bool = self.params.get("volume_confirmation", True)
+        self._confirmation_bars: int = max(1, int(self.params.get("confirmation_bars", 1)))
 
     @property
     def min_bars_required(self) -> int:
@@ -100,18 +101,25 @@ class OpeningRangeBreakoutStrategy(StrategyBase):
 
         # Post-range bars start at orb_close (inclusive — the cutoff bar is NOT in the range)
         post_range = day_bars[day_bars.index.time >= orb_close]
-        for ts, row in post_range.iterrows():
+        for idx, (ts, row) in enumerate(post_range.iterrows()):
             vol_ok = not self._volume_confirmation or row["volume"] > avg_vol
 
             if row["close"] > or_high and vol_ok:
+                confirmation = post_range.iloc[idx:idx + self._confirmation_bars]
+                if len(confirmation) < self._confirmation_bars:
+                    continue
+                if not (confirmation["close"] > or_high).all():
+                    continue
+                confirmed_ts = confirmation.index[-1]
+                confirmed_close = float(confirmation["close"].iloc[-1])
                 signals.append(
                     Signal(
                         strategy_id=self.strategy_id,
                         symbol=symbol,
                         direction=SignalDirection.LONG,
-                        timestamp=ts.to_pydatetime(),
-                        price=float(row["close"]),
-                        confidence=min(0.9, (row["close"] - or_high) / or_range + 0.6),
+                        timestamp=confirmed_ts.to_pydatetime(),
+                        price=confirmed_close,
+                        confidence=min(0.9, (confirmed_close - or_high) / or_range + 0.6),
                         notes=f"ORB breakout above {or_high:.2f} | range={or_range:.2f}",
                         metadata={
                             "or_high": or_high,
@@ -123,14 +131,21 @@ class OpeningRangeBreakoutStrategy(StrategyBase):
                 break  # one signal per day per direction
 
             if row["close"] < or_low and vol_ok:
+                confirmation = post_range.iloc[idx:idx + self._confirmation_bars]
+                if len(confirmation) < self._confirmation_bars:
+                    continue
+                if not (confirmation["close"] < or_low).all():
+                    continue
+                confirmed_ts = confirmation.index[-1]
+                confirmed_close = float(confirmation["close"].iloc[-1])
                 signals.append(
                     Signal(
                         strategy_id=self.strategy_id,
                         symbol=symbol,
                         direction=SignalDirection.SHORT,
-                        timestamp=ts.to_pydatetime(),
-                        price=float(row["close"]),
-                        confidence=min(0.9, (or_low - row["close"]) / or_range + 0.6),
+                        timestamp=confirmed_ts.to_pydatetime(),
+                        price=confirmed_close,
+                        confidence=min(0.9, (or_low - confirmed_close) / or_range + 0.6),
                         notes=f"ORB breakdown below {or_low:.2f} | range={or_range:.2f}",
                         metadata={
                             "or_high": or_high,

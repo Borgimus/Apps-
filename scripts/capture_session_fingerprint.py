@@ -136,6 +136,10 @@ def _broker_adapter_version(module_path: str) -> str:
 
 
 def capture() -> dict:
+    if str(_REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(_REPO_ROOT))
+    from app.config import get_settings
+    provider = get_settings().options_data_provider
     changed_paths = _git_changed_paths()
     source_changes = [
         path for path in changed_paths if not _is_runtime_path(path)
@@ -157,6 +161,8 @@ def capture() -> dict:
     }
 
     return {
+        "options_data_provider": provider,
+        "options_data_adapter_hash": _broker_adapter_version("app/brokers/alpaca_tradier_data.py") if provider == "tradier" else None,
         "commit_sha": _git_sha(),
         "working_tree_dirty": bool(source_changes),
         "source_changes": source_changes,
@@ -177,6 +183,12 @@ def capture() -> dict:
 def _static_issues(baseline: dict, current: dict) -> list[str]:
     """Return descriptions for static fingerprint divergences."""
     issues: list[str] = []
+
+    if baseline.get("options_data_provider", "alpaca") != current.get("options_data_provider", "alpaca"):
+        issues.append("Options data provider changed: declare a new cohort baseline before starting")
+    if current.get("options_data_provider") == "tradier":
+        if not baseline.get("options_data_adapter_hash") or baseline.get("options_data_adapter_hash") != current.get("options_data_adapter_hash"):
+            issues.append("Tradier options adapter hash missing or changed in baseline")
 
     identifier = baseline.get("paper_account_identifier", "")
     if not identifier or "RECORD_" in identifier:

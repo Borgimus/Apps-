@@ -63,7 +63,9 @@ async def run_post_session(
     _check_open_positions(pm, result)
 
     # 4 + 5 + 6. Build report, save artifacts, send alert
-    report = await _build_and_save_report(db_session, settings, today, alert_service, result)
+    report = await _build_and_save_report(
+        db_session, settings, today, alert_service, result, broker=broker
+    )
 
     # 7. Update ledger
     if report is not None:
@@ -244,7 +246,14 @@ def _check_open_positions(pm, result: PostSessionResult):
         )
 
 
-async def _build_and_save_report(db_session, settings, today: str, alert_service, result: PostSessionResult):
+async def _build_and_save_report(
+    db_session,
+    settings,
+    today: str,
+    alert_service,
+    result: PostSessionResult,
+    broker=None,
+):
     if db_session is None:
         result.errors.append("No DB session — cannot build report")
         return None
@@ -259,12 +268,25 @@ async def _build_and_save_report(db_session, settings, today: str, alert_service
         if getattr(settings, "paper_eval_permissive_entry_mode", False):
             try:
                 from app.evaluation.orb_forward_performance import compute_orb_forward_performance
-                fwd_updated = await compute_orb_forward_performance(db_session, today)
+                fwd_updated = await compute_orb_forward_performance(
+                    db_session, today, broker=broker
+                )
                 logger.info("Post-session: ORB forward performance: %d rows updated", fwd_updated)
             except Exception as exc:
                 logger.warning("Post-session: ORB forward performance failed: %s", exc)
 
         report = await build_daily_report(db_session, today, settings)
+        try:
+            from app.evaluation.shadow_summary import read_events, summarize
+            shadow_path = Path(getattr(settings, "evaluation_output_dir", "./evaluation")) / "shadow_book.jsonl"
+            report.shadow_evaluation = summarize(
+                read_events(shadow_path, date=today), today,
+                model_version=report.shadow_model_version or "unrecorded",
+                context=report.session_context,
+            )
+        except Exception as exc:
+            logger.warning("Shadow evaluation unavailable: %s", exc)
+            report.shadow_evaluation = {"error": "Recorded shadow evidence could not be validated."}
 
         # Determine output dir
         output_dir = Path(getattr(settings, "evaluation_output_dir", "./evaluation")) / "reports"
@@ -297,6 +319,41 @@ async def _build_and_save_report(db_session, settings, today: str, alert_service
         return None
 
 
+def _ledger_file_for_settings(settings, report=None) -> str:
+    """Return a cohort-specific ledger path for scaled paper evaluation."""
+    ledger_file = getattr(settings, "evaluation_ledger_file", "./evaluation/ledger.json")
+    ledger_path = Path(ledger_file)
+    # Use captured session provenance, never a later settings value, to keep
+    # provider cohorts separate. Legacy reports retain their existing ledger.
+    if report is not None and report.session_context:
+        import re
+        def slug(value):
+            return re.sub(r"[^A-Za-z0-9_-]", "_", value)[:80]
+        ledger_path = ledger_path.with_name(
+            f"{ledger_path.stem}.options_{slug(report.options_data_provider)}"
+            f".{slug(report.evaluation_cohort)}{ledger_path.suffix}"
+        )
+    if getattr(settings, "paper_scaled_sizing_enabled", False) is not True:
+        return str(ledger_path) if report is not None and report.session_context else ledger_file
+    budget = float(getattr(settings, "paper_scaled_premium_budget_dollars", 250.0))
+    cap = int(getattr(settings.universe, "max_contracts_per_position", 1))
+    budget_slug = f"{budget:g}".replace(".", "_")
+    guardrail_suffix = ""
+    if getattr(settings, "paper_scaled_guardrails_enabled", False) is True:
+        cohort = str(getattr(
+            settings,
+            "paper_scaled_guardrail_cohort",
+            "guardrails_v2",
+        )).strip()
+        guardrail_suffix = f".{cohort}" if cohort else ".guardrails_v2"
+    return str(
+        ledger_path.with_name(
+            f"{ledger_path.stem}.paper_scaled_{budget_slug}_cap_{cap}"
+            f"{guardrail_suffix}{ledger_path.suffix}"
+        )
+    )
+
+
 async def _update_ledger(report, db_session, today: str, settings, result: PostSessionResult):
     try:
         from app.evaluation.ledger import EvaluationLedger
@@ -314,7 +371,9 @@ async def _update_ledger(report, db_session, today: str, settings, result: PostS
             except Exception as exc:
                 logger.warning("Post-session: could not load trade records for ledger: %s", exc)
 
-        ledger_file = getattr(settings, "evaluation_ledger_file", "./evaluation/ledger.json")
+        ledger_file = _ledger_file_for_settings(settings, report)
+        if getattr(settings, "paper_scaled_sizing_enabled", False) is True:
+            logger.info("Post-session: using separate scaled-sizing ledger %s", ledger_file)
         ledger = EvaluationLedger.load(ledger_file)
         ledger.add_session(report, trade_records=list(trade_records))
         ledger.save()

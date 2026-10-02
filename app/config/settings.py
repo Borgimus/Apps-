@@ -15,10 +15,10 @@ import os
 import warnings
 from functools import lru_cache
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 import yaml
-from pydantic import field_validator, model_validator  # noqa: F401 (model_validator used below)
+from pydantic import Field, field_validator, model_validator  # noqa: F401 (model_validator used below)
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -86,6 +86,7 @@ class PositionSettings(BaseSettings):
     stop_loss_pct: float = _yaml_get("position", "stop_loss_pct", default=0.50)
     take_profit_pct: float = _yaml_get("position", "take_profit_pct", default=1.00)
     trailing_stop_pct: float = _yaml_get("position", "trailing_stop_pct", default=0.25)
+    trailing_activation_pct: float = Field(default=0.25, ge=0)
     max_hold_minutes: int = _yaml_get("position", "max_hold_minutes", default=120)
     eod_exit_time: str = _yaml_get("position", "eod_exit_time", default="15:45")
     cooldown_after_loss_minutes: int = _yaml_get("position", "cooldown_after_loss_minutes", default=15)
@@ -104,10 +105,10 @@ class PositionSettings(BaseSettings):
 class UniverseSettings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="UNIVERSE_", env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    mode: str = _yaml_get("universe", "mode", default="manual")
+    mode: str = _yaml_get("universe", "mode", default="grouped")
     file: str = _yaml_get("universe", "file", default="./config/ticker_universe.yaml")
-    max_symbols_per_scan: int = _yaml_get("universe", "max_symbols_per_scan", default=10)
-    max_active_symbols: int = _yaml_get("universe", "max_active_symbols", default=3)
+    max_symbols_per_scan: int = _yaml_get("universe", "max_symbols_per_scan", default=40)
+    max_active_symbols: int = _yaml_get("universe", "max_active_symbols", default=6)
     max_symbols_traded_per_day: int = _yaml_get("universe", "max_symbols_traded_per_day", default=1)
     max_active_positions: int = _yaml_get("universe", "max_active_positions", default=1)
     min_scan_score: float = _yaml_get("universe", "min_scan_score", default=40.0)
@@ -125,7 +126,7 @@ class UniverseSettings(BaseSettings):
     # Group-based universe settings
     groups_enabled: str = _yaml_get(
         "universe", "groups_enabled",
-        default="core_etfs,mega_cap,liquid_growth",
+        default="core_etfs,mega_cap,liquid_growth,high_beta_liquid",
     )
     include_experimental: bool = _yaml_get(
         "universe", "include_experimental", default=False
@@ -190,6 +191,11 @@ class Settings(BaseSettings):
     alpaca_api_key: Optional[str] = None
     alpaca_secret_key: Optional[str] = None
     alpaca_base_url: str = "https://paper-api.alpaca.markets"
+    # None preserves provider auto-selection, which is unverified for fill evidence.
+    alpaca_options_feed: Optional[Literal["opra", "indicative"]] = None
+
+    options_data_provider: Literal["alpaca", "tradier"] = "alpaca"
+    tradier_market_data_token: Optional[str] = Field(default=None, repr=False)
 
     tradier_access_token: Optional[str] = None
     tradier_base_url: str = "https://sandbox.tradier.com/v1"
@@ -244,6 +250,37 @@ class Settings(BaseSettings):
     exit_order_timeout_secs: int = 120     # stale cancel threshold for exit orders
     fill_test_max_spread_pct: float = 0.20 # abort contract if spread/mid > this
 
+    # Paper-only scaled-sizing experiment. Disabled by default.
+    # Quantity is bounded by the ask-price premium budget and the universe cap.
+    paper_scaled_sizing_enabled: bool = False
+    paper_scaled_premium_budget_dollars: float = 250.0
+    # Guardrails introduced after the first seven scaled sessions. The cohort
+    # label keeps amended results separate from the original baseline ledger.
+    paper_scaled_guardrails_enabled: bool = True
+    paper_scaled_guardrail_cohort: str = "guardrails_v3_shadow_validation"
+    paper_scaled_daily_loss_limit_dollars: float = 250.0
+    paper_scaled_max_losing_trades_per_day: int = 2
+    paper_scaled_min_signal_quality: float = 3.0
+    paper_scaled_market_regime_confirmation_enabled: bool = True
+    paper_scaled_global_ranking_enabled: bool = True
+    paper_scaled_inverted_shadow_enabled: bool = True
+    # Seven-session response: suspend the losing production hypotheses while
+    # collecting stricter, fill-validated counterfactual evidence.
+    paper_scaled_blocked_symbols: str = "QQQ"
+    paper_scaled_shadow_only_strategies: str = "vwap_reclaim,orb"
+    paper_scaled_require_delta: bool = True
+    paper_scaled_min_dte: int = 2
+    # Eight calendar days keeps weekly-only symbols eligible on Thursdays and
+    # Fridays while still excluding the failed 0DTE/1DTE contracts.
+    paper_scaled_max_dte: int = 8
+    paper_scaled_max_signal_age_minutes: int = 10
+    paper_scaled_exit_variant_shadow_enabled: bool = True
+    paper_scaled_exit_variant_trigger_pct: float = 0.25
+    paper_scaled_exit_variant_partial_fraction: float = 0.50
+    paper_scaled_correlated_groups: str = (
+        "broad_index:SPY,QQQ,IWM,DIA"
+    )
+
     @model_validator(mode="after")
     def guard_eval_mode(self):
         if self.paper_evaluation_mode and self.live_trading_enabled:
@@ -259,6 +296,86 @@ class Settings(BaseSettings):
                 raise ValueError(
                     "paper_eval_permissive_entry_mode requires paper_evaluation_mode=true."
                 )
+        if self.paper_scaled_sizing_enabled:
+            if self.live_trading_enabled:
+                raise ValueError(
+                    "paper_scaled_sizing_enabled cannot be used with live_trading_enabled=true."
+                )
+            if not self.paper_evaluation_mode:
+                raise ValueError(
+                    "paper_scaled_sizing_enabled requires paper_evaluation_mode=true."
+                )
+            if self.realistic_fill_test_mode:
+                raise ValueError(
+                    "paper_scaled_sizing_enabled is incompatible with realistic_fill_test_mode."
+                )
+            if self.paper_scaled_premium_budget_dollars <= 0:
+                raise ValueError(
+                    "paper_scaled_premium_budget_dollars must be greater than zero."
+                )
+            if self.universe.max_contracts_per_position < 1:
+                raise ValueError("max_contracts_per_position must be at least one.")
+            if self.paper_scaled_guardrails_enabled:
+                if self.paper_scaled_daily_loss_limit_dollars <= 0:
+                    raise ValueError(
+                        "paper_scaled_daily_loss_limit_dollars must be greater than zero."
+                    )
+                if self.paper_scaled_max_losing_trades_per_day < 1:
+                    raise ValueError(
+                        "paper_scaled_max_losing_trades_per_day must be at least one."
+                    )
+                if not 0 <= self.paper_scaled_min_signal_quality <= 4:
+                    raise ValueError(
+                        "paper_scaled_min_signal_quality must be between zero and four."
+                    )
+                if not self.paper_scaled_guardrail_cohort.strip():
+                    raise ValueError("paper_scaled_guardrail_cohort cannot be blank.")
+                if self.paper_scaled_min_dte < 1:
+                    raise ValueError("paper_scaled_min_dte must be at least one.")
+                if self.paper_scaled_max_dte < self.paper_scaled_min_dte:
+                    raise ValueError(
+                        "paper_scaled_max_dte must be greater than or equal to paper_scaled_min_dte."
+                    )
+                if self.paper_scaled_max_signal_age_minutes < 1:
+                    raise ValueError(
+                        "paper_scaled_max_signal_age_minutes must be at least one."
+                    )
+                if not 0 < self.paper_scaled_exit_variant_trigger_pct < 1:
+                    raise ValueError(
+                        "paper_scaled_exit_variant_trigger_pct must be between zero and one."
+                    )
+                if not 0 < self.paper_scaled_exit_variant_partial_fraction < 1:
+                    raise ValueError(
+                        "paper_scaled_exit_variant_partial_fraction must be between zero and one."
+                    )
+                if self.paper_scaled_guardrail_cohort == "guardrails_v3_shadow_validation":
+                    required_groups = {
+                        "core_etfs",
+                        "mega_cap",
+                        "liquid_growth",
+                        "high_beta_liquid",
+                    }
+                    configured_groups = {
+                        group.strip()
+                        for group in self.universe.groups_enabled.split(",")
+                        if group.strip()
+                    }
+                    if self.universe.mode != "grouped":
+                        raise ValueError(
+                            "guardrails_v3_shadow_validation requires universe.mode=grouped."
+                        )
+                    if self.universe.max_symbols_per_scan < 38:
+                        raise ValueError(
+                            "guardrails_v3_shadow_validation requires at least 38 scanned symbols."
+                        )
+                    if self.universe.max_active_symbols < 6:
+                        raise ValueError(
+                            "guardrails_v3_shadow_validation requires at least 6 active shadow symbols."
+                        )
+                    if not required_groups.issubset(configured_groups):
+                        raise ValueError(
+                            "guardrails_v3_shadow_validation requires all four research groups."
+                        )
         return self
 
     @field_validator("live_trading_enabled", mode="before")

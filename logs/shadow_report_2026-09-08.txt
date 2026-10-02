@@ -1,0 +1,36 @@
+Shadow book report — 2026-09-08
+Model 2; excluded other-version events: 0; unfilled entries: 1; unpriced closes: 0
+All P&L is one-contract normalized diagnostic P&L. Portfolio constraints have not been replayed.
+(shadow results are design/capacity evidence only; NOT part of the live-readiness paper sample)
+
+strategy         raw  opps  exec blocked validN  validPnL  theoN  theoPnL
+orb                9     1     0       1      1    -50.00      0    +0.00
+orb:breakeven_25     1     1     0       1      1    -50.00      0    +0.00
+orb:inverted       1     1     0       1      1    -32.00      0    +0.00
+orb:partial_25_breakeven     1     1     0       1      0     +0.00      0    +0.00
+vwap_reclaim      26     3     0       3      3   -150.00      0    +0.00
+vwap_reclaim:breakeven_25     3     3     0       3      3   -150.00      0    +0.00
+vwap_reclaim:inverted     3     3     0       3      1   +167.00      0    +0.00
+vwap_reclaim:partial_25_breakeven     3     3     0       3      2    +16.00      0    +0.00
+
+orb blocked-opportunity reasons: strategy_shadow_only=1
+orb:breakeven_25 blocked-opportunity reasons: exit_policy_counterfactual=1
+orb:inverted blocked-opportunity reasons: inverted_direction_counterfactual=1
+orb:partial_25_breakeven blocked-opportunity reasons: exit_policy_counterfactual=1
+vwap_reclaim blocked-opportunity reasons: signal_quality_below_min=3
+vwap_reclaim:breakeven_25 blocked-opportunity reasons: exit_policy_counterfactual=3
+vwap_reclaim:inverted blocked-opportunity reasons: inverted_direction_counterfactual=3
+vwap_reclaim:partial_25_breakeven blocked-opportunity reasons: exit_policy_counterfactual=3
+
+Diagnostic block summary: 3/4 blocked opportunities were vwap_reclaim | fill-validated: 3 for -150.00 (2W) | theoretical: 0 for +0.00
+
+Inverted-direction comparison: fill-validated 2 for +135.00; theoretical 0 for +0.00
+
+Excursion and failure attribution
+(poll-sampled option-price extrema; attribution is diagnostic only)
+Fill-validated: coverage 4/4 (100%) | avg MFE +10.75 | avg MAE -85.25 | MFE giveback +243.00 | dominant entry_signal_failure
+Fill-validated attribution: entry_signal_failure=2, exit_giveback=1, worked=1
+Theoretical: no closed priceable opportunities
+
+Entry-filter-qualified baseline closes: 0, normalized P&L +0.00.
+No capacity-change or strategy-reactivation gate is satisfied by this diagnostic report. Replay position limits, daily entries, cooldown, loss gates and reconciliation before a portfolio comparison.

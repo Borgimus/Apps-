@@ -15,27 +15,16 @@ Also manages:
 from __future__ import annotations
 
 import logging
-import os
 from dataclasses import dataclass
 from datetime import datetime, time
 from typing import Dict, List, Optional
 from zoneinfo import ZoneInfo
 
 from ..config import Settings, get_settings
+from .exit_rules import exit_reason, trailing_activation_setting
 
 logger = logging.getLogger(__name__)
 ET = ZoneInfo("America/New_York")
-
-
-def _numeric_setting(settings: object, name: str, default: float) -> float:
-    """Read a real numeric setting without accepting MagicMock-like placeholders."""
-    value = getattr(settings, name, None)
-    if isinstance(value, (int, float, str)):
-        try:
-            return float(value)
-        except (TypeError, ValueError):
-            pass
-    return float(default)
 
 
 @dataclass
@@ -138,18 +127,7 @@ class PositionManager:
         """Open a new position using configured exit thresholds."""
         hour, minute = map(int, self._s.eod_exit_time.split(":"))
 
-        activation_default = _numeric_setting(
-            self._s,
-            "trailing_activation_pct",
-            0.25,
-        )
-        activation_pct = float(
-            os.getenv(
-                "POSITION_TRAILING_ACTIVATION_PCT",
-                str(activation_default),
-            )
-        )
-        activation_pct = max(0.0, activation_pct)
+        activation_pct = trailing_activation_setting(self._s)
 
         position = OpenPosition(
             option_symbol=option_symbol,
@@ -219,39 +197,16 @@ class PositionManager:
         if position.exit_pending:
             return None
 
-        if current_price <= position.entry_price * (
-            1.0 - position.stop_loss_pct
-        ):
-            return "stop_loss"
-
-        if current_price >= position.entry_price * (
-            1.0 + position.take_profit_pct
-        ):
-            return "take_profit"
-
-        trailing_level = position.trailing_stop_level
-        if (
-            position.trailing_stop_armed
-            and trailing_level is not None
-            and current_price <= trailing_level
-        ):
-            return "trailing_stop"
-
-        hold_minutes = (
-            now - position.entry_time
-        ).total_seconds() / 60.0
-        if hold_minutes >= position.max_hold_minutes:
-            return "max_hold"
-
-        now_et = (
-            now.astimezone(ET)
-            if now.tzinfo
-            else now.replace(tzinfo=ET)
+        return exit_reason(
+            entry_price=position.entry_price, current_price=current_price,
+            peak_price=position.peak_price, entry_time=position.entry_time,
+            now=now, stop_loss_pct=position.stop_loss_pct,
+            take_profit_pct=position.take_profit_pct,
+            trailing_stop_pct=position.trailing_stop_pct,
+            trailing_stop_armed=position.trailing_stop_armed,
+            max_hold_minutes=position.max_hold_minutes,
+            eod_exit_time=position.eod_exit_time,
         )
-        if now_et.time() >= position.eod_exit_time:
-            return "eod_exit"
-
-        return None
 
     def close(
         self,

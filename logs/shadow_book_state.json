@@ -1,26 +1,16 @@
 {
   "model_version": "4",
-  "seq": 6016,
+  "seq": 6027,
   "open": [],
   "episodes": {
-    "baseline|vwap_reclaim|SPY|short": {
-      "opportunity_id": "20261007-SPY-vwap_reclaim-6004",
-      "last_seen": "2026-10-07T09:45:19.889864-04:00",
-      "observations": 1
-    },
-    "inverted|vwap_reclaim|SPY|long": {
-      "opportunity_id": "20261007-SPY-vwap_reclaim-6005",
-      "last_seen": "2026-10-07T09:45:20.026645-04:00",
-      "observations": 1
-    },
     "baseline|vwap_reclaim|SPY|long": {
-      "opportunity_id": "20261007-SPY-vwap_reclaim-6006",
-      "last_seen": "2026-10-07T11:29:52.359430-04:00",
+      "opportunity_id": "20261008-SPY-vwap_reclaim-6017",
+      "last_seen": "2026-10-08T10:14:50.199739-04:00",
       "observations": 10
     },
     "inverted|vwap_reclaim|SPY|short": {
-      "opportunity_id": "20261007-SPY-vwap_reclaim-6007",
-      "last_seen": "2026-10-07T11:25:10.482829-04:00",
+      "opportunity_id": "20261008-SPY-vwap_reclaim-6018",
+      "last_seen": "2026-10-08T10:10:11.221074-04:00",
       "observations": 1
     }
   }

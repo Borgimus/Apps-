@@ -53,6 +53,9 @@ class RiskCheck(str, Enum):
     LIVE_TRADING_GUARD = "live_trading_guard"
     RECON_BLOCKED = "recon_blocked"
     EOD_ENTRY_CUTOFF = "eod_entry_cutoff"
+    EXPERIMENT_DAILY_LOSS = "experiment_daily_loss"
+    EXPERIMENT_LOSS_COUNT = "experiment_loss_count"
+    CORRELATED_STOP_LOCK = "correlated_stop_lock"
 
 
 @dataclass
@@ -103,10 +106,14 @@ class RiskManager:
         self._s = settings or get_settings()
         self._entries_today: int = 0     # confirmed filled entries
         self._pending_entries: int = 0   # placed but not yet filled/cancelled
+        self._filled_entries_by_strategy: Dict[str, int] = {}
+        self._pending_entries_by_strategy: Dict[str, int] = {}
         self._exits_today: int = 0       # closed positions (reporting only)
         self._daily_pnl: Decimal = Decimal("0")
         self._session_date: Optional[date] = None
         self._starting_equity: Optional[Decimal] = None
+        self._losing_exits_today: int = 0
+        self._correlated_stop_locks: set[Tuple[str, str]] = set()
         # RECON_BLOCKED: set when broker order state is unknown at recovery time.
         # Cleared by Reconciler after a successful broker.get_orders() round-trip.
         # Blocks new entries only; exits are never routed through check_order().
@@ -125,47 +132,108 @@ class RiskManager:
             self._session_date = today
             self._entries_today = 0
             self._pending_entries = 0
+            self._filled_entries_by_strategy = {}
+            self._pending_entries_by_strategy = {}
             self._exits_today = 0
             self._daily_pnl = Decimal("0")
             self._starting_equity = equity
+            self._losing_exits_today = 0
+            self._correlated_stop_locks = set()
 
     # ── Entry / exit recording ────────────────────────────────────────────────
 
-    def record_entry_pending(self):
-        """Call when an entry order is accepted by the broker (before fill confirmation)."""
+    @staticmethod
+    def _strategy_key(strategy_id: Optional[str]) -> str:
+        key = (strategy_id or "unknown").strip()
+        return key or "unknown"
+
+    @staticmethod
+    def _decrement_strategy_counter(counter: Dict[str, int], strategy_id: str) -> None:
+        """Decrement the matching bucket, falling back conservatively after recovery."""
+        candidates = [strategy_id, "unknown"]
+        candidates.extend(key for key in counter if key not in candidates)
+        for key in candidates:
+            if counter.get(key, 0) > 0:
+                counter[key] -= 1
+                if counter[key] == 0:
+                    counter.pop(key, None)
+                return
+
+    def record_entry_pending(self, strategy_id: Optional[str] = None):
+        """Reserve a daily entry and strategy slot when the broker accepts an order."""
+        key = self._strategy_key(strategy_id)
         self._pending_entries += 1
+        self._pending_entries_by_strategy[key] = (
+            self._pending_entries_by_strategy.get(key, 0) + 1
+        )
         logger.info(
-            "RiskManager: entry pending | entries=%d pending=%d exits=%d",
-            self._entries_today, self._pending_entries, self._exits_today,
+            "RiskManager: entry pending | strategy=%s entries=%d pending=%d exits=%d",
+            key, self._entries_today, self._pending_entries, self._exits_today,
         )
 
-    def record_entry_filled(self):
-        """Call when a pending entry order is confirmed filled by the broker."""
+    def record_entry_filled(self, strategy_id: Optional[str] = None):
+        """Convert a pending strategy reservation into a confirmed filled entry."""
+        key = self._strategy_key(strategy_id)
         self._pending_entries = max(0, self._pending_entries - 1)
+        self._decrement_strategy_counter(self._pending_entries_by_strategy, key)
         self._entries_today += 1
+        self._filled_entries_by_strategy[key] = (
+            self._filled_entries_by_strategy.get(key, 0) + 1
+        )
         logger.info(
-            "RiskManager: entry filled | entries=%d pending=%d exits=%d",
-            self._entries_today, self._pending_entries, self._exits_today,
+            "RiskManager: entry filled | strategy=%s entries=%d pending=%d exits=%d",
+            key, self._entries_today, self._pending_entries, self._exits_today,
         )
 
-    def record_entry_cancelled(self):
-        """Call when a pending entry order is cancelled or rejected without filling."""
+    def record_entry_cancelled(self, strategy_id: Optional[str] = None):
+        """Release a pending daily-entry and strategy reservation without a fill."""
+        key = self._strategy_key(strategy_id)
         self._pending_entries = max(0, self._pending_entries - 1)
+        self._decrement_strategy_counter(self._pending_entries_by_strategy, key)
         logger.info(
-            "RiskManager: entry cancelled | entries=%d pending=%d exits=%d",
-            self._entries_today, self._pending_entries, self._exits_today,
+            "RiskManager: entry cancelled | strategy=%s entries=%d pending=%d exits=%d",
+            key, self._entries_today, self._pending_entries, self._exits_today,
         )
 
-    def record_exit(self, pnl: Decimal = Decimal("0")):
+    def record_exit(
+        self,
+        pnl: Decimal = Decimal("0"),
+        *,
+        symbol: Optional[str] = None,
+        direction: Optional[str] = None,
+        reason: Optional[str] = None,
+    ):
         """
         Call when a position is closed (trailing_stop, stop_loss, take_profit, EOD).
         Never counts against the entry limit. Updates PnL for daily-loss tracking.
         """
         self._exits_today += 1
         self._daily_pnl += pnl
+        if pnl < 0:
+            self._losing_exits_today += 1
+        if (
+            pnl < 0
+            and reason == "stop_loss"
+            and symbol
+            and direction
+            and self._scaled_guardrails_active()
+        ):
+            group = self._correlation_group(symbol)
+            if group:
+                self._correlated_stop_locks.add((group, direction.lower()))
+                logger.warning(
+                    "RiskManager: correlated stop lock activated | "
+                    "group=%s direction=%s source=%s",
+                    group,
+                    direction.lower(),
+                    symbol.upper(),
+                )
         logger.info(
-            "RiskManager: exit recorded | entries=%d exits=%d daily_pnl=%.2f",
-            self._entries_today, self._exits_today, float(self._daily_pnl),
+            "RiskManager: exit recorded | entries=%d exits=%d losses=%d daily_pnl=%.2f",
+            self._entries_today,
+            self._exits_today,
+            self._losing_exits_today,
+            float(self._daily_pnl),
         )
 
     def record_trade(self, pnl: Decimal = Decimal("0")):
@@ -218,6 +286,8 @@ class RiskManager:
         entries: int,
         pnl: Decimal,
         pending: int,
+        losing_exits: int = 0,
+        stop_losses: Optional[List[Tuple[str, str]]] = None,
         recon_blocked: bool = False,
     ) -> None:
         """
@@ -237,12 +307,26 @@ class RiskManager:
         prev_pending = self._pending_entries
         self._entries_today = max(self._entries_today, entries)
         self._pending_entries = max(self._pending_entries, pending)
+        # Session recovery may not have complete historical strategy metadata.
+        # Unknown is treated as non-ORB, which preserves the reservation fail-closed.
+        self._filled_entries_by_strategy = (
+            {"unknown": self._entries_today} if self._entries_today else {}
+        )
+        self._pending_entries_by_strategy = (
+            {"unknown": self._pending_entries} if self._pending_entries else {}
+        )
         self._daily_pnl = pnl if isinstance(pnl, Decimal) else Decimal(str(pnl))
+        self._losing_exits_today = max(self._losing_exits_today, losing_exits)
+        for symbol, direction in stop_losses or []:
+            group = self._correlation_group(symbol)
+            if group and direction:
+                self._correlated_stop_locks.add((group, direction.lower()))
         logger.info(
             "RiskManager: counters restored from DB "
-            "| entries %d→%d | pending %d→%d | pnl %.2f",
+            "| entries %d→%d | pending %d→%d | losses=%d | pnl %.2f",
             prev_entries, self._entries_today,
             prev_pending, self._pending_entries,
+            self._losing_exits_today,
             float(self._daily_pnl),
         )
         if recon_blocked:
@@ -257,6 +341,7 @@ class RiskManager:
         contract: Optional[OptionContract] = None,
         earnings_calendar: Optional[Dict[str, List[date]]] = None,
         now: Optional[datetime] = None,
+        signal_direction: Optional[str] = None,
     ) -> RiskCheckResult:
         """
         Run all pre-trade risk checks.
@@ -280,6 +365,12 @@ class RiskManager:
         self._check_eod_entry_cutoff(result, now)
         self._check_max_trades_per_day(result)
         self._check_daily_loss(result, equity)
+        self._check_experiment_limits(result)
+        self._check_correlated_stop_lock(
+            result,
+            request.symbol,
+            signal_direction,
+        )
         self._check_risk_per_trade(result, request, equity, contract)
         if contract:
             self._check_liquidity(result, contract)
@@ -388,6 +479,70 @@ class RiskManager:
                     f"Daily loss limit reached: {loss_pct:.1%} >= {max_loss:.1%}",
                 )
 
+    def _scaled_guardrails_active(self) -> bool:
+        return (
+            getattr(self._s, "paper_scaled_sizing_enabled", False) is True
+            and getattr(self._s, "paper_scaled_guardrails_enabled", False) is True
+        )
+
+    def _check_experiment_limits(self, result: RiskCheckResult) -> None:
+        if not self._scaled_guardrails_active():
+            return
+        dollar_limit = Decimal(str(getattr(
+            self._s,
+            "paper_scaled_daily_loss_limit_dollars",
+            250.0,
+        )))
+        if -self._daily_pnl >= dollar_limit:
+            result.add_failure(
+                RiskCheck.EXPERIMENT_DAILY_LOSS,
+                f"Scaled experiment loss limit reached: "
+                f"${-self._daily_pnl:.2f} >= ${dollar_limit:.2f}",
+            )
+        loss_limit = int(getattr(
+            self._s,
+            "paper_scaled_max_losing_trades_per_day",
+            2,
+        ))
+        if self._losing_exits_today >= loss_limit:
+            result.add_failure(
+                RiskCheck.EXPERIMENT_LOSS_COUNT,
+                f"Scaled experiment losing-trade limit reached: "
+                f"{self._losing_exits_today}/{loss_limit}",
+            )
+
+    def _correlation_group(self, symbol: str) -> Optional[str]:
+        raw = str(getattr(self._s, "paper_scaled_correlated_groups", ""))
+        target = symbol.strip().upper()
+        for group_spec in raw.split(";"):
+            if ":" not in group_spec:
+                continue
+            name, symbols = group_spec.split(":", 1)
+            members = {
+                item.strip().upper()
+                for item in symbols.split(",")
+                if item.strip()
+            }
+            if target in members:
+                return name.strip() or "unnamed"
+        return None
+
+    def _check_correlated_stop_lock(
+        self,
+        result: RiskCheckResult,
+        symbol: str,
+        direction: Optional[str],
+    ) -> None:
+        if not self._scaled_guardrails_active() or not direction:
+            return
+        group = self._correlation_group(symbol)
+        if group and (group, direction.lower()) in self._correlated_stop_locks:
+            result.add_failure(
+                RiskCheck.CORRELATED_STOP_LOCK,
+                f"Correlated stop lock active for {group}/{direction.lower()} "
+                f"after an earlier same-direction stop",
+            )
+
     def _check_risk_per_trade(
         self,
         result: RiskCheckResult,
@@ -462,6 +617,19 @@ class RiskManager:
     # ── Utility ───────────────────────────────────────────────────────────────
 
     @property
+    def non_orb_entry_commitments(self) -> int:
+        """Filled plus pending non-ORB entries; cancellations release pending slots."""
+        filled = sum(
+            count for strategy, count in self._filled_entries_by_strategy.items()
+            if strategy != "orb"
+        )
+        pending = sum(
+            count for strategy, count in self._pending_entries_by_strategy.items()
+            if strategy != "orb"
+        )
+        return filled + pending
+
+    @property
     def entries_today(self) -> int:
         """Number of entry orders confirmed filled today."""
         return self._entries_today
@@ -475,6 +643,11 @@ class RiskManager:
     def exits_today(self) -> int:
         """Number of positions closed today (for reporting; never blocks entries)."""
         return self._exits_today
+
+    @property
+    def losing_exits_today(self) -> int:
+        """Number of losing exits recorded for the current session."""
+        return self._losing_exits_today
 
     @property
     def trades_today(self) -> int:

@@ -387,7 +387,7 @@ class FillTracker:
                 logger.warning("FillTracker: position already open for %s — updated entry price", pending.option_symbol)
 
             if risk is not None:
-                risk.record_entry_filled()
+                risk.record_entry_filled(pending.strategy_id)
             del self._pending[order_id]
             self._last_status.pop(order_id, None)
             return 1
@@ -427,7 +427,7 @@ class FillTracker:
             pm._positions.pop(pending.option_symbol, None)
 
         if risk is not None:
-            risk.record_entry_cancelled()
+            risk.record_entry_cancelled(pending.strategy_id)
 
         if journal and pending.journal_id:
             await journal.record_cancellation(

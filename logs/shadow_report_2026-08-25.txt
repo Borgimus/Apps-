@@ -1,0 +1,25 @@
+Shadow book report — 2026-08-25
+(shadow results are design/capacity evidence only; NOT part of the live-readiness paper sample)
+
+strategy         raw  opps  exec blocked validN  validPnL  theoN  theoPnL
+orb               44     2     1       1      1    -13.00      0    +0.00
+orb:inverted       2     2     0       2      2    -60.00      0    +0.00
+vwap_reclaim     119     5     1       4      4    -37.00      0    +0.00
+vwap_reclaim:inverted     5     5     0       5      4    -26.00      0    +0.00
+
+orb blocked-opportunity reasons: signal_quality_below_min=1
+orb:inverted blocked-opportunity reasons: inverted_direction_counterfactual=2
+vwap_reclaim blocked-opportunity reasons: signal_quality_below_min=4
+vwap_reclaim:inverted blocked-opportunity reasons: inverted_direction_counterfactual=5
+
+Slot-competition check: 4/5 blocked opportunities were vwap_reclaim | fill-validated: 4 for -37.00 (0W) | theoretical: 0 for +0.00
+
+Inverted-direction comparison: fill-validated 6 for -86.00; theoretical 0 for +0.00
+
+Excursion and failure attribution
+(poll-sampled option-price extrema; attribution is diagnostic only)
+Fill-validated: coverage 5/5 (100%) | avg MFE +0.80 | avg MAE -10.00 | MFE giveback +54.00 | dominant entry_signal_failure
+Fill-validated attribution: entry_signal_failure=3, mixed_entry_exit=2
+Theoretical: no closed priceable opportunities
+
+Baseline gate: >=10 unique capacity-blocked opportunities and >=5 sessions before evaluating cap changes (current blocked opps: 5)

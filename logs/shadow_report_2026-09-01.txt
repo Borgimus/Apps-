@@ -1,0 +1,33 @@
+Shadow book report — 2026-09-01
+(shadow results are design/capacity evidence only; NOT part of the live-readiness paper sample)
+
+strategy         raw  opps  exec blocked validN  validPnL  theoN  theoPnL
+orb               12     2     0       2      0     +0.00      0    +0.00
+orb:breakeven_25     2     2     0       2      0     +0.00      0    +0.00
+orb:inverted       2     2     0       2      1    -71.00      0    +0.00
+orb:partial_25_breakeven     2     2     0       2      0     +0.00      0    +0.00
+vwap_reclaim      77    11     0      11     11   -247.00      0    +0.00
+vwap_reclaim:breakeven_25    11    11     0      11     11   -247.00      0    +0.00
+vwap_reclaim:inverted    11    11     0      11      8     +7.00      0    +0.00
+vwap_reclaim:partial_25_breakeven    11    11     0      11     11   -190.50      0    +0.00
+
+orb blocked-opportunity reasons: market_regime_mismatch=1, strategy_shadow_only=1
+orb:breakeven_25 blocked-opportunity reasons: exit_policy_counterfactual=2
+orb:inverted blocked-opportunity reasons: inverted_direction_counterfactual=2
+orb:partial_25_breakeven blocked-opportunity reasons: exit_policy_counterfactual=2
+vwap_reclaim blocked-opportunity reasons: market_regime_mismatch=2, signal_quality_below_min=7, strategy_shadow_only=2
+vwap_reclaim:breakeven_25 blocked-opportunity reasons: exit_policy_counterfactual=11
+vwap_reclaim:inverted blocked-opportunity reasons: inverted_direction_counterfactual=11
+vwap_reclaim:partial_25_breakeven blocked-opportunity reasons: exit_policy_counterfactual=11
+
+Slot-competition check: 11/13 blocked opportunities were vwap_reclaim | fill-validated: 11 for -247.00 (2W) | theoretical: 0 for +0.00
+
+Inverted-direction comparison: fill-validated 9 for -64.00; theoretical 0 for +0.00
+
+Excursion and failure attribution
+(poll-sampled option-price extrema; attribution is diagnostic only)
+Fill-validated: coverage 11/11 (100%) | avg MFE +36.36 | avg MAE -42.36 | MFE giveback +647.00 | dominant entry_signal_failure
+Fill-validated attribution: entry_signal_failure=5, exit_asymmetry=2, mixed_entry_exit=2, worked=2
+Theoretical: no closed priceable opportunities
+
+Baseline gate: >=10 unique capacity-blocked opportunities and >=5 sessions before evaluating cap changes (current blocked opps: 13)

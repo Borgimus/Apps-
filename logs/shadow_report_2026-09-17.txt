@@ -1,0 +1,59 @@
+Model 4; excluded other-version events: 367; unpriced closes: 0
+# Shadow evaluation: 2026-09-17
+
+## Eligible shadow evidence
+
+First-eligible tracking: **unavailable**. Eligible entry anchors: **0**.
+
+These are simulated quote-touch outcomes. They exclude fees, queue uncertainty and exit slippage and add no broker-fill readiness evidence.
+
+| Independent exit policy | Priced / closed | Sized P&L |
+| --- | ---: | ---: |
+| baseline | 0 / 0 | unavailable |
+| breakeven_25 | 0 / 0 | unavailable |
+| partial_25_breakeven | 0 / 0 | unavailable |
+
+Matched comparisons use identical contract, entry time, limit price, quantity and fill time.
+
+| Variant | Complete matched pairs | Baseline P&L | Variant P&L | Difference |
+| --- | ---: | ---: | ---: | ---: |
+| breakeven_25 | 0 | unavailable | unavailable | unavailable |
+| partial_25_breakeven | 0 | unavailable | unavailable | unavailable |
+
+Partial exits require at least two contracts. Missing or unpriced pairs are excluded.
+
+### Chronological portfolio replay
+
+Each exit policy has an independent portfolio. Research portfolios assume strategy reactivation while applying the captured budget and risk rules. Actual permissions stay unchanged.
+
+| Scenario | Status | Admitted | Closed | Sized portfolio P&L |
+| --- | --- | ---: | ---: | ---: |
+| Current permissions | unavailable | n/a | n/a | unavailable |
+| baseline | unavailable | n/a | n/a | unavailable |
+| breakeven_25 | unavailable | n/a | n/a | unavailable |
+| partial_25_breakeven | unavailable | n/a | n/a | unavailable |
+
+Recorded events lack a complete first-eligible quote stream; no portfolio outcome is inferred.
+
+### Observation progress
+
+Completed scheduled sessions: 0/5. Eligible opportunities: 0/10.
+The checkpoint requests a review only. It never activates a strategy.
+
+### Entry-filter rejection breakdown
+
+Original-direction signal observations are unavailable; no rejection counts are inferred.
+
+### Diagnostic setups
+
+These include failed entry filters and oversized contracts. P&L is one-contract normalized; it does not establish an executable portfolio. Alternative exit policies must not be added together.
+
+| Diagnostic variant | Priced / closed | Normalized P&L |
+| --- | ---: | ---: |
+| baseline | 0 / 0 | unavailable |
+| breakeven_25 | 0 / 0 | unavailable |
+| partial_25_breakeven | 0 / 0 | unavailable |
+| inverted | 0 / 0 | unavailable |
+
+Oversized diagnostic closes: 0. Rejected diagnostic closes: 0. These subsets overlap.
+

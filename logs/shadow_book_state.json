@@ -1,41 +1,27 @@
 {
-  "seq": 705,
+  "model_version": "4",
+  "seq": 6049,
   "open": [],
   "episodes": {
-    "vwap_reclaim|SPY|short": {
-      "opportunity_id": "20260728-SPY-vwap_reclaim-459",
-      "last_seen": "2026-07-28T09:45:03.396381-04:00",
-      "observations": 8
+    "baseline|vwap_reclaim|SPY|long": {
+      "opportunity_id": "20261009-SPY-vwap_reclaim-6028",
+      "last_seen": "2026-10-09T10:24:54.386285-04:00",
+      "observations": 10
     },
-    "vwap_reclaim|QQQ|short": {
-      "opportunity_id": "20260728-QQQ-vwap_reclaim-460",
-      "last_seen": "2026-07-28T09:45:03.396381-04:00",
-      "observations": 8
+    "inverted|vwap_reclaim|SPY|short": {
+      "opportunity_id": "20261009-SPY-vwap_reclaim-6029",
+      "last_seen": "2026-10-09T10:20:14.375026-04:00",
+      "observations": 1
     },
-    "vwap_reclaim|AAPL|short": {
-      "opportunity_id": "20260728-AAPL-vwap_reclaim-475",
-      "last_seen": "2026-07-28T10:26:01.796647-04:00",
-      "observations": 40
+    "baseline|orb|SPY|long": {
+      "opportunity_id": "20261009-SPY-orb-6039",
+      "last_seen": "2026-10-09T11:49:47.895893-04:00",
+      "observations": 10
     },
-    "vwap_reclaim|XLE|short": {
-      "opportunity_id": "20260728-XLE-vwap_reclaim-515",
-      "last_seen": "2026-07-28T11:30:23.236403-04:00",
-      "observations": 145
-    },
-    "vwap_reclaim|IWM|long": {
-      "opportunity_id": "20260728-IWM-vwap_reclaim-553",
-      "last_seen": "2026-07-28T11:30:54.362734-04:00",
-      "observations": 17
-    },
-    "vwap_reclaim|IWM|short": {
-      "opportunity_id": "20260728-IWM-vwap_reclaim-599",
-      "last_seen": "2026-07-28T11:09:41.384390-04:00",
-      "observations": 5
-    },
-    "vwap_reclaim|AAPL|long": {
-      "opportunity_id": "20260728-AAPL-vwap_reclaim-638",
-      "last_seen": "2026-07-28T11:33:26.640333-04:00",
-      "observations": 24
+    "inverted|orb|SPY|short": {
+      "opportunity_id": "20261009-SPY-orb-6040",
+      "last_seen": "2026-10-09T11:45:12.503200-04:00",
+      "observations": 1
     }
   }
 }

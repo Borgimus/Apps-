@@ -82,3 +82,17 @@ All broker checks passed — session is eligible for Phase 3 cohort.
   }
 }
 [2026-10-12T12:35:07-04:00] broker EOD state clean: 0 positions, 0 open orders
+[agent/paper-scaled-sizing-250-10 b0e4be0] Record Phase 3 session raw artifacts (2026-10-12)
+ 17 files changed, 29471 insertions(+), 18 deletions(-)
+ create mode 100644 evaluation/reports/2026-10-12.json
+ create mode 100644 evaluation/reports/2026-10-12.md
+ create mode 100644 logs/automation_2026-10-12.log
+ create mode 100644 logs/preflight_2026-10-12.log
+ create mode 100644 logs/session_2026-10-12.exitcode
+ create mode 100644 logs/session_2026-10-12.json
+ create mode 100644 logs/session_2026-10-12.log
+ create mode 100644 logs/shadow_report_2026-10-12.txt
+To https://github.com/Borgimus/Apps-.git
+   d5d00a9..b0e4be0  agent/paper-scaled-sizing-250-10 -> agent/paper-scaled-sizing-250-10
+[2026-10-12T12:35:17-04:00] artifacts committed and pushed
+[2026-10-12T12:35:17-04:00] automatic EOD close-out complete

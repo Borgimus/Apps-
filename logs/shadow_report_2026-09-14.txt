@@ -1,0 +1,86 @@
+Model 4; excluded other-version events: 367; unpriced closes: 0
+# Shadow evaluation: 2026-09-14
+
+## Eligible shadow evidence
+
+First-eligible tracking: **available**. Eligible entry anchors: **2**.
+
+These are simulated quote-touch outcomes. They exclude fees, queue uncertainty and exit slippage and add no broker-fill readiness evidence.
+
+| Independent exit policy | Priced / closed | Sized P&L |
+| --- | ---: | ---: |
+| baseline | 2 / 2 | $-31.00 |
+| breakeven_25 | 2 / 2 | $-31.00 |
+| partial_25_breakeven | 1 / 1 | $-42.00 |
+
+Matched comparisons use identical contract, entry time, limit price, quantity and fill time.
+
+| Variant | Complete matched pairs | Baseline P&L | Variant P&L | Difference |
+| --- | ---: | ---: | ---: | ---: |
+| breakeven_25 | 2 | $-31.00 | $-31.00 | $+0.00 |
+| partial_25_breakeven | 1 | $-42.00 | $-42.00 | $+0.00 |
+
+Partial exits require at least two contracts. Missing or unpriced pairs are excluded.
+
+### Chronological portfolio replay
+
+Each exit policy has an independent portfolio. Research portfolios assume strategy reactivation while applying the captured budget and risk rules. Actual permissions stay unchanged.
+
+| Scenario | Status | Admitted | Closed | Sized portfolio P&L |
+| --- | --- | ---: | ---: | ---: |
+| Current permissions | complete | 0 | 0 | $+0.00 |
+| baseline | complete | 1 | 1 | $-42.00 |
+| breakeven_25 | complete | 1 | 1 | $-42.00 |
+| partial_25_breakeven | complete | 1 | 1 | $-42.00 |
+
+### Eligible baseline exit quotes
+
+| Contract | Quote age at exit | Final refresh | Priced |
+| --- | ---: | --- | --- |
+| NVDA260916C00220000 | 0.585s | not requested | yes |
+| IWM260916C00288000 | 1.201s | success | yes |
+
+### Observation progress
+
+Completed scheduled sessions: 3/5. Eligible opportunities: 4/10.
+The checkpoint requests a review only. It never activates a strategy.
+
+### Entry-filter rejection breakdown
+
+81 original-direction observations formed 15 unique shadow setups using the existing 60-minute episode rule. This denominator differs from the distinct signal timestamps in the trade summary.
+
+Initially passed filters: 2. Initially rejected: 13. Initial eligibility unrecorded: 0.
+Ever passed filters: 2. Eligible anchors recorded: 2. Became eligible after rejection: 0.
+
+| Initial blocker | Unique setups |
+| --- | ---: |
+| market_regime_mismatch | 3 |
+| premium_budget_or_price_invalid | 9 |
+| signal_quality_below_min | 9 |
+
+Setups with multiple initial blockers: 7. Reason counts overlap and must not be added together.
+
+| Initial blocker combination | Unique setups |
+| --- | ---: |
+| premium_budget_or_price_invalid, signal_quality_below_min | 4 |
+| premium_budget_or_price_invalid | 3 |
+| signal_quality_below_min | 3 |
+| market_regime_mismatch, premium_budget_or_price_invalid | 1 |
+| market_regime_mismatch, premium_budget_or_price_invalid, signal_quality_below_min | 1 |
+| market_regime_mismatch, signal_quality_below_min | 1 |
+
+Passing entry filters alone does not prove quote evidence, a fill, or portfolio admission.
+
+### Diagnostic setups
+
+These include failed entry filters and oversized contracts. P&L is one-contract normalized; it does not establish an executable portfolio. Alternative exit policies must not be added together.
+
+| Diagnostic variant | Priced / closed | Normalized P&L |
+| --- | ---: | ---: |
+| baseline | 14 / 14 | $-619.00 |
+| breakeven_25 | 14 / 14 | $-619.00 |
+| partial_25_breakeven | 3 / 3 | $+28.93 |
+| inverted | 13 / 13 | $-144.00 |
+
+Oversized diagnostic closes: 20. Rejected diagnostic closes: 39. These subsets overlap.
+

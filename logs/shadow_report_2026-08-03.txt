@@ -1,0 +1,9 @@
+Shadow book report — 2026-08-03
+(shadow results are design/capacity evidence only; NOT part of the live-readiness paper sample)
+
+strategy         raw  opps  exec blocked validN  validPnL  theoN  theoPnL
+orb                3     3     3       0      0     +0.00      0    +0.00
+vwap_reclaim       9     2     2       0      0     +0.00      0    +0.00
+
+
+Baseline gate: >=10 unique capacity-blocked opportunities and >=5 sessions before evaluating cap changes (current blocked opps: 0)

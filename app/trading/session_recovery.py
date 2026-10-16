@@ -266,6 +266,8 @@ class SessionRecovery:
                     entries=summary["entries"],
                     pnl=summary["pnl"],
                     pending=_confirmed_pending,
+                    losing_exits=summary.get("losing_exits", 0),
+                    stop_losses=summary.get("stop_losses", []),
                     recon_blocked=_recon_blocked,
                 )
             except Exception as exc:

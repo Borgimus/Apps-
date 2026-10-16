@@ -21,17 +21,29 @@ def get_broker(settings=None) -> BrokerInterface:
 
     logger.info("Creating broker adapter | broker=%s | live=%s", broker_name, is_live)
 
+    provider = getattr(settings, "options_data_provider", "alpaca")
+    if provider == "tradier" and (broker_name != "alpaca" or is_live):
+        raise ValueError("Tradier options data requires broker=alpaca and live trading disabled")
+
     if broker_name == "alpaca":
         from .alpaca_broker import AlpacaBroker
         if not settings.alpaca_api_key or not settings.alpaca_secret_key:
             raise ValueError(
                 "ALPACA_API_KEY and ALPACA_SECRET_KEY must be set to use the Alpaca broker."
             )
-        return AlpacaBroker(
+        adapter = AlpacaBroker
+        extra = {}
+        if provider == "tradier":
+            from .alpaca_tradier_data import AlpacaTradierDataBroker
+            adapter = AlpacaTradierDataBroker
+            extra["market_data_token"] = settings.tradier_market_data_token
+        return adapter(
             api_key=settings.alpaca_api_key,
             secret_key=settings.alpaca_secret_key,
             base_url=settings.alpaca_base_url,
             is_paper=not is_live,
+            options_feed=settings.alpaca_options_feed,
+            **extra,
         )
 
     if broker_name == "tradier":

@@ -1,6 +1,6 @@
 # Ticker universe for the scanning pipeline.
-# yfinance is used for research/screening only.
-# Alpaca remains execution source of truth.
+# Alpaca provides scanner price and volume data.
+# yfinance is retained only for best-effort earnings-calendar checks.
 #
 # mode: manual | grouped | off
 #   manual:  use flat `symbols:` list below (backward compatible)
@@ -69,7 +69,7 @@ groups:
     - DKNG
     - UBER
     - LYFT
-    - SQ
+    - XYZ
     - AFRM
 
   sector_leaders:
@@ -109,8 +109,8 @@ blacklist: []
 
 scan_config:
   max_symbols_per_scan: 40
-  max_active_symbols: 3
+  max_active_symbols: 6
   max_symbols_traded_per_day: 3
-  max_active_positions: 2
+  max_active_positions: 1
   min_scan_score: 40.0
-  scan_interval_minutes: 30
+  scan_interval_minutes: 5

@@ -55,6 +55,8 @@ def _make_risk_manager(
     settings.no_trade_close_buffer_minutes = 0
     settings.market_open = "09:30"
     settings.market_close = "16:00"
+    settings.position.eod_exit_time = "15:45"
+    settings.position.min_entry_minutes_before_eod = 30
 
     rm = RiskManager(settings)
     # Inject pre-loaded state

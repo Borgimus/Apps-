@@ -1,36 +1,36 @@
 {
   "model_version": "4",
-  "seq": 6179,
+  "seq": 6221,
   "open": [],
   "episodes": {
     "baseline|vwap_reclaim|SPY|short": {
-      "opportunity_id": "20261016-SPY-vwap_reclaim-6138",
-      "last_seen": "2026-10-16T11:09:34.692312-04:00",
-      "observations": 19
-    },
-    "inverted|vwap_reclaim|SPY|long": {
-      "opportunity_id": "20261016-SPY-vwap_reclaim-6139",
-      "last_seen": "2026-10-16T10:05:05.600152-04:00",
-      "observations": 1
-    },
-    "baseline|vwap_reclaim|SPY|long": {
-      "opportunity_id": "20261016-SPY-vwap_reclaim-6149",
-      "last_seen": "2026-10-16T10:54:58.401439-04:00",
+      "opportunity_id": "20261019-SPY-vwap_reclaim-6180",
+      "last_seen": "2026-10-19T09:44:46.780540-04:00",
       "observations": 10
     },
-    "inverted|vwap_reclaim|SPY|short": {
-      "opportunity_id": "20261016-SPY-vwap_reclaim-6150",
-      "last_seen": "2026-10-16T10:50:18.201710-04:00",
+    "inverted|vwap_reclaim|SPY|long": {
+      "opportunity_id": "20261019-SPY-vwap_reclaim-6181",
+      "last_seen": "2026-10-19T09:40:07.361094-04:00",
       "observations": 1
     },
     "baseline|orb|SPY|short": {
-      "opportunity_id": "20261016-SPY-orb-6169",
-      "last_seen": "2026-10-16T12:14:59.138792-04:00",
-      "observations": 10
+      "opportunity_id": "20261019-SPY-orb-6191",
+      "last_seen": "2026-10-19T10:04:35.964605-04:00",
+      "observations": 9
     },
     "inverted|orb|SPY|long": {
-      "opportunity_id": "20261016-SPY-orb-6170",
-      "last_seen": "2026-10-16T12:10:15.881369-04:00",
+      "opportunity_id": "20261019-SPY-orb-6192",
+      "last_seen": "2026-10-19T10:00:21.111695-04:00",
+      "observations": 1
+    },
+    "baseline|vwap_reclaim|SPY|long": {
+      "opportunity_id": "20261019-SPY-vwap_reclaim-6201",
+      "last_seen": "2026-10-19T10:59:57.985572-04:00",
+      "observations": 20
+    },
+    "inverted|vwap_reclaim|SPY|short": {
+      "opportunity_id": "20261019-SPY-vwap_reclaim-6202",
+      "last_seen": "2026-10-19T10:25:17.155769-04:00",
       "observations": 1
     }
   }

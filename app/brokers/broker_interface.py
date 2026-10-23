@@ -91,6 +91,8 @@ class OptionContract:
     gamma: Optional[float] = None
     theta: Optional[float] = None
     vega: Optional[float] = None
+    quote_timestamp: Optional[datetime] = None
+    quote_feed: Optional[str] = None
 
     @property
     def mid(self) -> Decimal:
@@ -137,7 +139,8 @@ class OptionQuote:
     open_interest: int
     implied_volatility: float
     delta: Optional[float]
-    timestamp: datetime
+    timestamp: Optional[datetime]
+    feed: Optional[str] = None
 
     @property
     def mid(self) -> Decimal:

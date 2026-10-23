@@ -205,18 +205,20 @@ class TestYFinanceScanner:
                 )
                 return results
 
-            results = asyncio.get_event_loop().run_until_complete(run())
+            results = asyncio.run(run())
         assert len(results) == 2
         assert results[0].symbol == "SPY"
         assert results[1].symbol == "QQQ"
 
     def test_scan_one_returns_error_metrics_on_exception(self):
+        import pandas as pd
+
         scanner = YFinanceScanner()
         with patch.object(
             scanner, "_compute_metrics", side_effect=ValueError("network error")
         ):
-            result = asyncio.get_event_loop().run_until_complete(
-                scanner._scan_one("BAD")
+            result = asyncio.run(
+                scanner._scan_one("BAD", None, pd.DataFrame(), _NOW, _TODAY)
             )
         assert result.symbol == "BAD"
         assert result.price == 0.0
@@ -461,7 +463,7 @@ class TestAlpacaConfirmer:
             metrics=_metrics(),
         )
         confirmer = AlpacaConfirmer(broker, settings)
-        result = asyncio.get_event_loop().run_until_complete(confirmer.confirm(candidate))
+        result = asyncio.run(confirmer.confirm(candidate))
         assert result is not None
         assert result.symbol == "SPY"
         assert result.contract is not None
@@ -477,7 +479,7 @@ class TestAlpacaConfirmer:
             metrics=_metrics(),
         )
         confirmer = AlpacaConfirmer(broker, settings)
-        result = asyncio.get_event_loop().run_until_complete(confirmer.confirm(candidate))
+        result = asyncio.run(confirmer.confirm(candidate))
         assert result is None
 
     def test_reject_neutral_signal(self):
@@ -491,7 +493,7 @@ class TestAlpacaConfirmer:
             metrics=_metrics(),
         )
         confirmer = AlpacaConfirmer(broker, settings)
-        result = asyncio.get_event_loop().run_until_complete(confirmer.confirm(candidate))
+        result = asyncio.run(confirmer.confirm(candidate))
         assert result is None
 
     def test_reject_on_broker_error(self):
@@ -507,7 +509,7 @@ class TestAlpacaConfirmer:
             metrics=_metrics(),
         )
         confirmer = AlpacaConfirmer(broker, settings)
-        result = asyncio.get_event_loop().run_until_complete(confirmer.confirm(candidate))
+        result = asyncio.run(confirmer.confirm(candidate))
         assert result is None
 
     def test_reject_stale_chain(self):
@@ -527,7 +529,7 @@ class TestAlpacaConfirmer:
             metrics=_metrics(),
         )
         confirmer = AlpacaConfirmer(broker, settings)
-        result = asyncio.get_event_loop().run_until_complete(confirmer.confirm(candidate))
+        result = asyncio.run(confirmer.confirm(candidate))
         assert result is None
 
     def test_confirm_all_filters_none_results(self):
@@ -551,7 +553,7 @@ class TestAlpacaConfirmer:
             ),
         ]
         confirmer = AlpacaConfirmer(broker, settings)
-        results = asyncio.get_event_loop().run_until_complete(confirmer.confirm_all(candidates))
+        results = asyncio.run(confirmer.confirm_all(candidates))
         assert len(results) >= 1
         assert all(r.symbol != "BAD" for r in results)
 
@@ -579,7 +581,7 @@ class TestAlpacaConfirmer:
             metrics=_metrics("QQQ", price=450.0),
         )
         confirmer = AlpacaConfirmer(broker, settings)
-        result = asyncio.get_event_loop().run_until_complete(confirmer.confirm(candidate))
+        result = asyncio.run(confirmer.confirm(candidate))
         assert result is not None
         assert result.expiration == today + timedelta(days=1)
 
@@ -592,9 +594,9 @@ class TestUniverseSettings:
     def test_universe_settings_defaults(self):
         from app.config.settings import UniverseSettings
         us = UniverseSettings()
-        assert us.mode in ("manual", "off")
-        assert us.max_symbols_per_scan >= 1
-        assert us.max_active_symbols >= 1
+        assert us.mode == "grouped"
+        assert us.max_symbols_per_scan == 40
+        assert us.max_active_symbols == 6
         assert us.max_symbols_traded_per_day >= 1
         assert us.max_active_positions >= 1
         assert us.min_scan_score >= 0
@@ -828,7 +830,7 @@ class TestConfirmerCostCap:
             metrics=_metrics("XLK", price=220.0),
         )
         confirmer = AlpacaConfirmer(broker, settings)
-        result = asyncio.get_event_loop().run_until_complete(confirmer.confirm(candidate))
+        result = asyncio.run(confirmer.confirm(candidate))
         assert result is not None, "Without cost cap, deep-ITM contract passes (baseline)"
 
     def test_confirmer_rejects_xlk_after_cost_cap_set(self):
@@ -847,7 +849,7 @@ class TestConfirmerCostCap:
         )
         confirmer = AlpacaConfirmer(broker, settings)
         confirmer.set_max_contract_cost(991.98)
-        result = asyncio.get_event_loop().run_until_complete(confirmer.confirm(candidate))
+        result = asyncio.run(confirmer.confirm(candidate))
         assert result is None, "Deep-ITM contract must be rejected after cost cap set"
 
     def test_confirmer_and_bridge_agree_on_xlk_rejection(self):
@@ -871,7 +873,7 @@ class TestConfirmerCostCap:
         )
         confirmer = AlpacaConfirmer(broker, settings)
         confirmer.set_max_contract_cost(max_cost)
-        confirmer_result = asyncio.get_event_loop().run_until_complete(confirmer.confirm(candidate))
+        confirmer_result = asyncio.run(confirmer.confirm(candidate))
 
         liq = LiquidityFilter({
             "min_open_interest": 100, "min_volume": 50, "max_spread_pct": 0.10,
@@ -970,7 +972,7 @@ class TestConfirmerCostCap:
         ]
         confirmer = AlpacaConfirmer(broker, settings)
         confirmer.set_max_contract_cost(max_cost)
-        results = asyncio.get_event_loop().run_until_complete(confirmer.confirm_all(candidates))
+        results = asyncio.run(confirmer.confirm_all(candidates))
 
         confirmed = [r.symbol for r in results]
         assert "XLK" not in confirmed, "XLK must be blocked by cost cap at Confirmer"

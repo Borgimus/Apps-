@@ -17,13 +17,17 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import date, datetime, timedelta
+from datetime import date, datetime
 from typing import List, Optional
 from zoneinfo import ZoneInfo
 
 from ..brokers.broker_interface import OptionContract
 from ..strategies.liquidity_filter import LiquidityFilter
 from ..strategies.strategy_base import Signal, SignalDirection
+from ..trading.entry_filters import (
+    liquidity_filter_params,
+    select_expiration_for_settings,
+)
 from .candidate_scorer import CandidateScore
 
 logger = logging.getLogger(__name__)
@@ -66,13 +70,7 @@ class AlpacaConfirmer:
     def __init__(self, broker, settings):
         self._broker = broker
         self._settings = settings
-        self._liq_filter = LiquidityFilter({
-            "min_open_interest": settings.risk.min_open_interest,
-            "min_volume":        settings.risk.min_volume,
-            "max_spread_pct":    settings.risk.max_spread_pct,
-            "delta_target_min":  settings.options.delta_target_min,
-            "delta_target_max":  settings.options.delta_target_max,
-        })
+        self._liq_filter = LiquidityFilter(liquidity_filter_params(settings))
 
     def set_max_contract_cost(self, max_cost: float) -> None:
         """Forward cost cap to internal liquidity filter (call after equity is known)."""
@@ -197,13 +195,4 @@ class AlpacaConfirmer:
         return [r for r in results if r is not None]
 
     def _pick_expiration(self, expirations: List[date], today: date) -> Optional[date]:
-        preferred_dte = list(self._settings.options.preferred_dte)
-        for dte in preferred_dte:
-            candidate = today + timedelta(days=dte)
-            if candidate in expirations:
-                return candidate
-        # Fall back to nearest available
-        future = [e for e in expirations if e >= today]
-        if future:
-            return min(future, key=lambda e: (e - today).days)
-        return None
+        return select_expiration_for_settings(expirations, today, self._settings)

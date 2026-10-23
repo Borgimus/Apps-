@@ -151,7 +151,7 @@ class Reconciler:
                     )
 
                     if risk is not None:
-                        risk.record_entry_filled()
+                        risk.record_entry_filled(strategy_id)
 
                     msg = (
                         f"Reconciled: added broker position {opt_sym} "

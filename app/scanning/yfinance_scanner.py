@@ -204,6 +204,9 @@ class YFinanceScanner:
     def __init__(self, orb_minutes: int = 15, max_intraday_data_age_seconds: int = 1200):
         self._orb_minutes = orb_minutes
         self._max_intraday_data_age_seconds = max_intraday_data_age_seconds
+        # Whole-universe bar fetches that failed after the HTTP call raised.
+        # The session runner folds this into its data-feed error count.
+        self.batch_fetch_failures = 0
 
     async def scan(self, symbols: List[str]) -> List[SymbolMetrics]:
         """
@@ -305,6 +308,7 @@ class YFinanceScanner:
                 )
         except Exception as exc:
             logger.error("AlpacaScanner: batch fetch failed: %s", exc)
+            self.batch_fetch_failures += 1
             for sym in symbols:
                 daily_cache[sym] = None
                 intra_cache[sym] = pd.DataFrame()
@@ -528,10 +532,22 @@ class YFinanceScanner:
         return round(float(rsi) if not np.isnan(rsi) else 50.0, 2)
 
     @staticmethod
+    def _bars_for_day(intra_df: Optional[pd.DataFrame], today: date) -> pd.DataFrame:
+        """Return the rows of ``intra_df`` stamped on ``today``.
+
+        A provider that has no bars in the requested window (e.g. the two-day
+        lookback on a Monday before the first print) returns an empty frame
+        whose index is a RangeIndex, not a DatetimeIndex. That is the ordinary
+        "no bars yet" case and must reduce to an empty result, never raise.
+        """
+        if intra_df is None or intra_df.empty or not isinstance(intra_df.index, pd.DatetimeIndex):
+            return pd.DataFrame(columns=["open", "high", "low", "close", "volume"])
+        return intra_df.loc[intra_df.index.date == today]
+
+    @staticmethod
     def _compute_rvol(daily_df: pd.DataFrame, intra_df: pd.DataFrame, today: date):
         avg_vol_20d = float(daily_df["volume"].tail(20).mean()) if len(daily_df) >= 20 else 0.0
-        today_mask = intra_df.index.date == today
-        today_bars = intra_df.loc[today_mask]
+        today_bars = YFinanceScanner._bars_for_day(intra_df, today)
         volume_today = int(today_bars["volume"].sum()) if not today_bars.empty else 0
 
         if today_bars.empty or avg_vol_20d <= 0:
@@ -610,8 +626,7 @@ class YFinanceScanner:
         latest_bar_close and latest_bar_ts_et are None when no bars exist for today.
         All ORB and VWAP comparisons use latest_bar_close — never an external price.
         """
-        today_mask = intra_df.index.date == today
-        today_bars = intra_df.loc[today_mask]
+        today_bars = self._bars_for_day(intra_df, today)
 
         if today_bars.empty:
             return None, None, None, "unknown", None, None, False, False

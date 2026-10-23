@@ -1,41 +1,27 @@
 {
-  "seq": 705,
+  "model_version": "4",
+  "seq": 6373,
   "open": [],
   "episodes": {
-    "vwap_reclaim|SPY|short": {
-      "opportunity_id": "20260728-SPY-vwap_reclaim-459",
-      "last_seen": "2026-07-28T09:45:03.396381-04:00",
-      "observations": 8
+    "baseline|vwap_reclaim|SPY|short": {
+      "opportunity_id": "20261023-SPY-vwap_reclaim-6334",
+      "last_seen": "2026-10-23T10:29:42.974811-04:00",
+      "observations": 18
     },
-    "vwap_reclaim|QQQ|short": {
-      "opportunity_id": "20260728-QQQ-vwap_reclaim-460",
-      "last_seen": "2026-07-28T09:45:03.396381-04:00",
-      "observations": 8
+    "inverted|vwap_reclaim|SPY|long": {
+      "opportunity_id": "20261023-SPY-vwap_reclaim-6335",
+      "last_seen": "2026-10-23T09:35:07.894290-04:00",
+      "observations": 1
     },
-    "vwap_reclaim|AAPL|short": {
-      "opportunity_id": "20260728-AAPL-vwap_reclaim-475",
-      "last_seen": "2026-07-28T10:26:01.796647-04:00",
-      "observations": 40
+    "baseline|vwap_reclaim|SPY|long": {
+      "opportunity_id": "20261023-SPY-vwap_reclaim-6344",
+      "last_seen": "2026-10-23T10:54:56.464597-04:00",
+      "observations": 20
     },
-    "vwap_reclaim|XLE|short": {
-      "opportunity_id": "20260728-XLE-vwap_reclaim-515",
-      "last_seen": "2026-07-28T11:30:23.236403-04:00",
-      "observations": 145
-    },
-    "vwap_reclaim|IWM|long": {
-      "opportunity_id": "20260728-IWM-vwap_reclaim-553",
-      "last_seen": "2026-07-28T11:30:54.362734-04:00",
-      "observations": 17
-    },
-    "vwap_reclaim|IWM|short": {
-      "opportunity_id": "20260728-IWM-vwap_reclaim-599",
-      "last_seen": "2026-07-28T11:09:41.384390-04:00",
-      "observations": 5
-    },
-    "vwap_reclaim|AAPL|long": {
-      "opportunity_id": "20260728-AAPL-vwap_reclaim-638",
-      "last_seen": "2026-07-28T11:33:26.640333-04:00",
-      "observations": 24
+    "inverted|vwap_reclaim|SPY|short": {
+      "opportunity_id": "20261023-SPY-vwap_reclaim-6345",
+      "last_seen": "2026-10-23T09:55:10.777917-04:00",
+      "observations": 1
     }
   }
 }

@@ -1,0 +1,7 @@
+=== PREFLIGHT 2026-09-16T09:20:01-04:00 ===
+From https://github.com/Borgimus/Apps-
+ * branch            agent/paper-scaled-sizing-250-10 -> FETCH_HEAD
+   da329df..501b8ef  agent/paper-scaled-sizing-250-10 -> origin/agent/paper-scaled-sizing-250-10
+FAIL: local code is not current
+local=da329df8a1ff86dc97e15ffcb9ca24d3a0e301d3
+remote=501b8efe134484e653e3bc49e6f843e1d608370b

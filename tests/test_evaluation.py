@@ -31,7 +31,7 @@ ET = ZoneInfo("America/New_York")
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def _run(coro):
-    return asyncio.get_event_loop().run_until_complete(coro)
+    return asyncio.run(coro)
 
 
 def _make_settings(
@@ -264,20 +264,14 @@ class TestPreSessionChecks:
     @pytest.mark.asyncio
     async def test_data_feed_freshness_advisory(self):
         from app.evaluation.pre_session import _check_data_feed_freshness
-        factory, engine = await _make_memory_session()
-        async with factory() as session:
-            r = await _check_data_feed_freshness(session)
-        await engine.dispose()
+        r = await _check_data_feed_freshness()
         assert r.required is False
 
     @pytest.mark.asyncio
-    async def test_data_feed_fresh_with_no_logs_passes(self):
+    async def test_data_feed_without_a_source_does_not_claim_freshness(self):
         from app.evaluation.pre_session import _check_data_feed_freshness
-        factory, engine = await _make_memory_session()
-        async with factory() as session:
-            r = await _check_data_feed_freshness(session)
-        await engine.dispose()
-        assert r.passed  # no logs → "first run of day"
+        r = await _check_data_feed_freshness()
+        assert not r.passed
 
 
 # ── pre_session: full run ─────────────────────────────────────────────────────
@@ -353,6 +347,41 @@ class TestDailyReportEmpty:
         await engine.dispose()
         assert isinstance(report.notes, list)
         assert len(report.notes) > 0
+
+    @pytest.mark.asyncio
+    async def test_bridge_rows_supply_signal_counts(self):
+        from app.api.models import DBSignalBridge
+        from app.evaluation.daily_report import build_daily_report
+
+        factory, engine = await _make_memory_session()
+        session_date = "2026-08-10"
+        async with factory() as session:
+            session.add_all([
+                DBSignalBridge(
+                    session_date=session_date,
+                    timestamp=datetime(2026, 8, 10, 10, 0),
+                    symbol="SPY",
+                    strategy_id="vwap_reclaim",
+                    signal_direction="long",
+                    final_decision="blocked",
+                    exact_block_reason="market_regime_mismatch",
+                ),
+                DBSignalBridge(
+                    session_date=session_date,
+                    timestamp=datetime(2026, 8, 10, 10, 5),
+                    symbol="QQQ",
+                    strategy_id="vwap_reclaim",
+                    signal_direction="short",
+                    final_decision="traded",
+                ),
+            ])
+            await session.commit()
+            report = await build_daily_report(session, session_date)
+        await engine.dispose()
+
+        assert report.total_signals == 2
+        stats = {item.strategy_id: item for item in report.by_strategy}
+        assert stats["vwap_reclaim"].signals == 2
 
 
 # ── daily_report: build with trades ──────────────────────────────────────────
@@ -532,6 +561,51 @@ class TestDailyReportWithTrades:
         all_text = " ".join(report.recommendations).lower()
         assert "reject" in all_text or "filter" in all_text or "criteria" in all_text
 
+    @pytest.mark.asyncio
+    async def test_excursion_diagnostics_expose_exit_asymmetry(self):
+        from app.api.models import DBTradeJournal
+        from app.evaluation.daily_report import build_daily_report, to_markdown
+
+        factory, engine = await _make_memory_session()
+        session_date = "2026-08-19"
+        async with factory() as session:
+            session.add(DBTradeJournal(
+                session_date=session_date,
+                strategy_id="vwap_reclaim",
+                signal_direction="LONG",
+                underlying_symbol="QQQ",
+                option_symbol="QQQ260819C00700000",
+                expiration=session_date,
+                status="closed",
+                fill_price=1.00,
+                exit_price=0.90,
+                realized_pnl=-20.0,
+                quantity=2,
+                filled_quantity=2,
+                entry_time=datetime(2026, 8, 19, 10, 0),
+                exit_time=datetime(2026, 8, 19, 10, 30),
+                peak_price=1.30,
+                trough_price=0.85,
+                mfe=60.0,
+                mae=-30.0,
+                delta=0.40,
+                spread_pct=0.05,
+                time_to_fill_secs=31.0,
+                exit_reason="trailing_stop",
+                is_paper=True,
+            ))
+            await session.commit()
+            report = await build_daily_report(session, session_date)
+        await engine.dispose()
+
+        assert report.dominant_failure_mode == "exit_asymmetry"
+        assert report.excursion_summary["trades_with_excursion_data"] == 1
+        assert report.trade_diagnostics[0]["mfe_dollars"] == pytest.approx(60.0)
+        assert report.trade_diagnostics[0]["mae_dollars"] == pytest.approx(-30.0)
+        assert report.trade_diagnostics[0]["primary_attribution"] == "exit_asymmetry"
+        assert "Trade Excursion and Failure Attribution" in to_markdown(report)
+        assert any("shadow mode" in item for item in report.recommendations)
+
 
 # ── daily_report: output formatters ──────────────────────────────────────────
 
@@ -664,7 +738,8 @@ class TestEvaluationLedger:
         ledger.add_session(self._make_report("2024-03-18", 100.0))
         ledger.add_session(self._make_report("2024-03-19", -40.0))
         c = ledger.compute_cumulative()
-        assert c["expectancy"] == pytest.approx(60.0 / 4, abs=0.01)
+        assert c["expectancy"] is None
+        assert c["trade_metrics_complete"] is False
 
     def test_cumulative_profit_factor(self):
         from app.evaluation.ledger import EvaluationLedger
@@ -675,7 +750,7 @@ class TestEvaluationLedger:
         ledger.add_session(self._make_report("2024-03-18", 150.0))
         ledger.add_session(self._make_report("2024-03-19", -50.0))
         c = ledger.compute_cumulative()
-        assert c["profit_factor"] == pytest.approx(3.0, abs=0.01)
+        assert c["profit_factor"] is None  # Session totals cannot establish trade PF
 
     def test_cumulative_max_drawdown(self):
         from app.evaluation.ledger import EvaluationLedger
@@ -692,7 +767,8 @@ class TestEvaluationLedger:
         ledger = EvaluationLedger()
         ledger.add_session(self._make_report("2024-03-18", 100.0, wins=3, losses=1))
         c = ledger.compute_cumulative()
-        assert c["win_rate"] == pytest.approx(3 / 4, abs=0.01)
+        assert c["win_rate"] is None
+        assert c["reported_total_trades"] == 4
 
     def test_cumulative_empty_returns_zero_structure(self):
         from app.evaluation.ledger import EvaluationLedger

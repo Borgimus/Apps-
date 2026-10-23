@@ -326,3 +326,61 @@ class TestComputeOrbForwardPerformance:
         ):
             result = await compute_orb_forward_performance(mock_db, "2026-06-02")
         assert result == 0
+
+
+class TestAlpacaForwardBars:
+    @pytest.mark.asyncio
+    async def test_fetch_bars_uses_broker_market_data(self):
+        from app.evaluation.orb_forward_performance import _fetch_bars
+
+        bars = [
+            (datetime(2026, 6, 2, 13, 30, tzinfo=ZoneInfo("UTC")), 100.0),
+            (datetime(2026, 6, 2, 13, 35, tzinfo=ZoneInfo("UTC")), 101.0),
+        ]
+        broker = MagicMock()
+        broker.get_stock_bars = AsyncMock(return_value=bars)
+
+        result = await _fetch_bars("SPY", "2026-06-02", broker=broker)
+
+        assert result == bars
+        broker.get_stock_bars.assert_awaited_once()
+        kwargs = broker.get_stock_bars.await_args.kwargs
+        assert kwargs["timeframe"] == "5Min"
+        assert kwargs["start"].tzinfo is not None
+        assert kwargs["end"] - kwargs["start"] == timedelta(days=1)
+
+    @pytest.mark.asyncio
+    async def test_fetch_bars_fails_closed_without_alpaca_source(self):
+        from app.evaluation.orb_forward_performance import _fetch_bars
+
+        assert await _fetch_bars("SPY", "2026-06-02", broker=None) == []
+
+    @pytest.mark.asyncio
+    async def test_alpaca_broker_stock_bars_paginates(self):
+        from app.brokers.alpaca_broker import AlpacaBroker
+
+        first = MagicMock()
+        first.raise_for_status = MagicMock()
+        first.json.return_value = {
+            "bars": {"SPY": [{"t": "2026-06-02T13:30:00Z", "c": 100.5}]},
+            "next_page_token": "next",
+        }
+        second = MagicMock()
+        second.raise_for_status = MagicMock()
+        second.json.return_value = {
+            "bars": {"SPY": [{"t": "2026-06-02T13:35:00Z", "c": 101.25}]},
+            "next_page_token": None,
+        }
+        broker = AlpacaBroker.__new__(AlpacaBroker)
+        broker._data_client = MagicMock()
+        broker._data_client.get = AsyncMock(side_effect=[first, second])
+
+        bars = await broker.get_stock_bars(
+            "SPY",
+            start=datetime(2026, 6, 2, 4, 0, tzinfo=ZoneInfo("UTC")),
+            end=datetime(2026, 6, 3, 4, 0, tzinfo=ZoneInfo("UTC")),
+        )
+
+        assert [price for _, price in bars] == [100.5, 101.25]
+        assert all(ts.tzinfo is not None for ts, _ in bars)
+        assert broker._data_client.get.await_count == 2

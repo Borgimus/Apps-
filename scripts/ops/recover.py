@@ -118,7 +118,7 @@ def database_path(value, old):
     raise ValueError('Recovery supports the existing SQLite deployment only')
 
 
-def install_release(root, source, release, backup):
+def install_release(root, source, release, backup, *, venv_target=None):
     """Install or advance reviewed source without resetting local edits."""
     if not root.exists():
         command('git', 'clone', '--quiet', '--no-hardlinks', str(source), str(root))
@@ -127,7 +127,18 @@ def install_release(root, source, release, backup):
     actual = command('git', 'rev-parse', 'HEAD', cwd=root).stdout.strip()
     if command('git', 'branch', '--show-current', cwd=root).stdout.strip() != BRANCH:
         raise ValueError('Existing recovery checkout is on an unexpected branch')
-    if command('git', 'status', '--porcelain', '--untracked-files=all', cwd=root).stdout.strip():
+    changes = command('git', 'status', '--porcelain', '--untracked-files=all', cwd=root).stdout.splitlines()
+    if '?? .venv' in changes:
+        # Older releases ignored .venv/ directories but missed our symlink.
+        # Recognize only the exact link this installer creates, before the
+        # updated ignore rule can be fast-forwarded into the checkout.
+        link = root / '.venv'
+        expected = venv_target or Path('/root/trader/.venv')
+        if (not link.is_symlink() or not expected.is_dir()
+                or link.resolve() != expected.resolve()):
+            raise ValueError('Untracked .venv is not the expected host environment symlink')
+        changes.remove('?? .venv')
+    if changes:
         raise ValueError('Recovery checkout has source changes; preserve them before upgrading')
     if actual == release:
         return

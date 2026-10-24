@@ -103,7 +103,7 @@ def make_release(tmp_path):
     source = tmp_path/'source'; source.mkdir()
     git(source,'init','-b',r.BRANCH)
     git(source,'config','user.name','Test');git(source,'config','user.email','test@example.test')
-    (source/'.gitignore').write_text('KILL_SWITCH\n.env\nlogs/\n')
+    (source/'.gitignore').write_text('KILL_SWITCH\n.env\nlogs/\n.venv/\n')
     (source/'code.txt').write_text('original')
     git(source,'add','.');git(source,'commit','-m','original')
     root = tmp_path/'installed'
@@ -147,3 +147,39 @@ def test_retry_refuses_to_overwrite_operator_changes_or_unrelated_code(tmp_path,
     assert (root/'.env').read_text()=='private host configuration'
     if condition=='dirty':assert (root/'code.txt').read_text()=='operator edit'
     if condition=='untracked':assert (root/'operator.py').read_text()=='preserve me'
+
+
+def test_retry_accepts_its_expected_venv_symlink_before_ignore_rule_upgrade(tmp_path,monkeypatch):
+    source,root,old,new,backup=make_release(tmp_path)
+    expected=tmp_path/'original-venv';expected.mkdir()
+    (root/'.venv').symlink_to(expected,target_is_directory=True)
+    assert git(root,'status','--porcelain')=='?? .venv'
+    with (source/'.gitignore').open('a') as f:f.write('.venv\n')
+    git(source,'add','.gitignore');git(source,'commit','-m','ignore environment symlink')
+    new=git(source,'rev-parse','HEAD')
+    monkeypatch.setattr(r,'COMMAND_LOG_DIR',None)
+    r.install_release(root,source,new,backup,venv_target=expected)
+    assert git(root,'status','--porcelain')==''
+    assert (root/'.venv').is_symlink() and (root/'.venv').resolve()==expected
+    assert (root/'KILL_SWITCH').exists()
+    assert (root/'.env').read_text()=='private host configuration'
+
+
+@pytest.mark.parametrize('kind',['wrong_target','broken_link','regular_file','other_source'])
+def test_retry_does_not_hide_other_files_as_its_environment_link(tmp_path,monkeypatch,kind):
+    source,root,old,new,backup=make_release(tmp_path)
+    expected=tmp_path/'original-venv';expected.mkdir()
+    if kind=='regular_file':(root/'.venv').write_text('preserve me')
+    elif kind=='wrong_target':
+        other=tmp_path/'different-venv';other.mkdir()
+        (root/'.venv').symlink_to(other,target_is_directory=True)
+    elif kind=='broken_link':(root/'.venv').symlink_to(tmp_path/'missing')
+    else:
+        (root/'.venv').symlink_to(expected,target_is_directory=True)
+        (root/'operator.py').write_text('preserve me')
+    monkeypatch.setattr(r,'COMMAND_LOG_DIR',None)
+    with pytest.raises(ValueError):r.install_release(root,source,new,backup,venv_target=expected)
+    assert git(root,'rev-parse','HEAD')==old
+    assert (root/'KILL_SWITCH').exists()
+    if kind=='regular_file':assert (root/'.venv').read_text()=='preserve me'
+    if kind=='other_source':assert (root/'operator.py').read_text()=='preserve me'

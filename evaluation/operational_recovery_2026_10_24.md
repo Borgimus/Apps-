@@ -90,3 +90,11 @@ The pipeline test now uses explicit paper settings and its own temporary kill-sw
 The installer now supports retrying a failed checkout with a reviewed descendant release through a fast-forward. It refuses source edits, untracked source files, unexpected branches and unrelated history. Real Git regression tests verify the upgrade preserves the active kill switch and host environment. Failure details are saved to private backup logs, and failed test identifiers are shown directly in the console.
 
 Validation with the repository `KILL_SWITCH` active throughout: **1,067 passed, 2 skipped in 21.99 seconds**. The kill switch remained present. Original backup `/root/trader-backups/recovery-20261024T115347-0400` is retained; the next attempt makes a separate backup. Host deployment and broker-data checks remain pending.
+
+## Host retry amendment: virtual-environment symlink
+
+The subsequent source-change guard stopped on the single untracked path `?? .venv`. The installer itself creates this symlink to reuse `/root/trader/.venv`. The old `.gitignore` entry `.venv/` ignores a directory but does not ignore a symlink.
+
+The new release adds the exact `.venv` ignore entry. Before upgrading an older checkout, the installer recognizes only an untracked `.venv` symlink resolving to the existing host environment directory. A regular file, broken symlink, different target, or any other source change still blocks the upgrade. Nothing deletes or replaces the virtual environment.
+
+Real Git regression tests reproduce the old ignore rule, the installed environment symlink, the fast-forward repair and preservation of the active kill switch and host configuration. Full suite with the repository kill switch active: **1,072 passed, 2 skipped in 21.63 seconds**. The kill switch remains present. Host completion is still pending.

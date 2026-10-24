@@ -64,6 +64,11 @@ def archive(root: Path, evidence: Path, day: str) -> Path:
             f"preflight_{day}.log", f"automation_{day}.log", f"session_{day}.log",
             f"session_{day}.json", f"session_{day}.exitcode", f"shadow_report_{day}.txt",
             f"AUTOMATION_FAILURE_{day}.txt", f"watchdog_{day}.log")]
+        # Free IEX research is a distinct evidence stream, with no options P&L.
+        files += [(evidence / "equity_research" / "reports" / f"{day}.{ext}",
+                   f"equity_research/{day}.{ext}") for ext in ("json", "md")]
+        files += [(evidence / "equity_research" / "events" / f"{day}.jsonl",
+                   f"equity_research/{day}.events.jsonl")]
         missing = []
         for source, relative in files:
             if not source.exists():

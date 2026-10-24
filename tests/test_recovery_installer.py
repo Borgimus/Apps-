@@ -53,7 +53,7 @@ def test_recovery_installs_schedule_only_after_checks(tmp_path,monkeypatch,fail_
     monkeypatch.setattr(r,'Path',mapped)
     monkeypatch.setattr(r.os,'geteuid',lambda:0)
     monkeypatch.setattr(r,'datetime',SimpleNamespace(now=lambda tz:datetime(2026,10,24,14,0,tzinfo=tz)))
-    monkeypatch.setattr(sys,'argv',['recover.py','--release','b'*40,'--source',str(source)])
+    monkeypatch.setattr(sys,'argv',['recover.py','--release','b'*40,'--source',str(source),'--mode','options'])
     def fake(*args,check=True,cwd=None,env=None,input=None):
         calls.append(args);rc=0;out=''
         if args[0]=='timedatectl':out='America/New_York\n'

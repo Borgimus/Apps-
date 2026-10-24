@@ -71,7 +71,7 @@ def replace_cron(original, jobs):
     return '\n'.join(result + [BEGIN, *jobs, END, ''])
 
 
-def settings_env(original):
+def settings_env(original, *, mode='options'):
     """Explicit recovery policy: preserve research thresholds, suspend entries."""
     values = {k: str(v) for k, v in original.items() if v is not None}
     values.update(BROKER='alpaca', LIVE_TRADING_ENABLED='false', PAPER_EVALUATION_MODE='true',
@@ -86,6 +86,9 @@ def settings_env(original):
         KILL_SWITCH_FILE='/root/trader-release/KILL_SWITCH',
         EVALUATION_OUTPUT_DIR='/root/trader-evidence', EVALUATION_LEDGER_FILE='/root/trader-evidence/ledger.json',
         MARKET_DATA_COMPARISON_FILE='/root/trader-evidence/market_data_comparisons.jsonl')
+    values['TRADER_RUN_MODE']=mode
+    if mode=='equity_research':
+        values['ALPACA_OPTIONS_FEED']='indicative'
     return values
 
 
@@ -200,12 +203,57 @@ def restart_dashboard(root, env):
     return False
 
 
+def finish_equity_recovery(root, env, cron, backup, held, release):
+    """Install the no-subscription observer while broker trading stays disarmed."""
+    python=str(root/'.venv/bin/python')
+    print('RECOVERY_STEP free_iex_data_verification',flush=True)
+    result=command(python,'scripts/equity_research.py','check',cwd=root,env=env)
+    print(result.stdout.strip(),flush=True)
+    alert_ready=False
+    if env.get('OPS_NTFY_URL'):
+        alert=command(python,'scripts/session_ops.py','test-alert','--message',
+            'Free IEX stock-signal research is installed. Broker trading remains disarmed.',cwd=root,env=env,check=False)
+        alert_ready=alert.returncode==0
+    print('ALERT_SERVER_ACCEPTED' if alert_ready else 'ALERT_DELIVERY_UNVERIFIED: local status and incident logs remain available',flush=True)
+    # The real research preflight takes these locks itself. Parent handoff
+    # occurs only after the old schedule is paused and kill switches are set.
+    for handle in held:handle.close()
+    command(python,'scripts/equity_research.py','preflight',cwd=root,env=env)
+    ready=json.loads((root/'logs/equity_research_ready.json').read_text())
+    if (ready.get('code_sha')!=release or ready.get('orders_enabled') is not False
+            or ready.get('date')!=str(datetime.now(ET).date())):
+        raise ValueError('Free research preflight identity is invalid')
+    if not (root/'KILL_SWITCH').exists() or Path('/root/.session_armed').exists():
+        raise ValueError('Free research preflight must leave broker trading disarmed')
+    for name,operation in (('preflight_session.sh','preflight'),('start_session.sh','run'),('auto_close_session.sh','finish')):
+        path=Path('/root')/name
+        path.write_text(f'#!/usr/bin/env bash\nexport TRADER_ROOT=/root/trader-release\nexec bash /root/trader-release/scripts/ops/research.sh {operation} "$@"\n')
+        path.chmod(0o700)
+    dashboard_ready=restart_dashboard(root,env)
+    schedule=replace_cron(cron,['CRON_TZ=America/New_York',
+        '20 9 * * 1-5 /root/preflight_session.sh',
+        '30 9 * * 1-5 /root/start_session.sh',
+        '35,40,50 12 * * 1-5 /root/auto_close_session.sh',
+        '* * * * * TRADER_ROOT=/root/trader-release /bin/bash /root/trader-release/scripts/ops/research.sh watchdog'])
+    command('crontab','-',input=schedule)
+    status={'release':release,'mode':'equity_research','installed_at':datetime.now(ET).isoformat(),
+        'new_subscription_cost':0,'feed':'iex','broker_entry_strategies':[],
+        'broker_trading_disarmed':True,'options_pnl':None,'preflight_passed':True,
+        'alert_server_accepted':alert_ready,'dashboard_local_ready':dashboard_ready,'backup':str(backup),
+        'research_page':'/equity-research','next_session_data_freshness':'not yet verified'}
+    Path('/root/trader-recovery-status.json').write_text(json.dumps(status,indent=2)+'\n')
+    print('FREE_RESEARCH_INSTALLED: IEX stock-signal observations scheduled; no options data or order placement.',flush=True)
+    print('Research dashboard: /equity-research',flush=True)
+
+
 def main():
     global COMMAND_LOG_DIR
     COMMAND_LOG_DIR = None
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--release', required=True)
     parser.add_argument('--source', type=Path, required=True)
+    parser.add_argument('--mode',choices=['equity_research','options'],default='equity_research',
+                        help='Default uses free IEX research and never enables order placement')
     args = parser.parse_args()
     if os.geteuid() != 0 or not re.fullmatch('[0-9a-f]{40}', args.release):
         raise ValueError('Run as root with the exact reviewed release SHA')
@@ -270,7 +318,7 @@ def main():
     # Reuse the host's locked dependency environment. No new software plan/account.
     if not (root / '.venv').exists(): (root / '.venv').symlink_to(old / '.venv', target_is_directory=True)
     python = str(root / '.venv/bin/python')
-    values = settings_env(config)
+    values = settings_env(config,mode=args.mode)
     values['DATABASE_URL'] = 'sqlite+aiosqlite:///' + str(database)
     import secrets
     if len(values.get('DASHBOARD_CONTROL_TOKEN', '')) < 16:
@@ -299,7 +347,7 @@ def main():
         raise ValueError(f'Release tests failed; details: {backup / "tests.log"}')
     print(checks.stdout.splitlines()[-1], flush=True)
     write_env(root / '.env', values)
-    write_env(ops, {k: values[k] for k in ('TRADER_ROOT','TRADER_CODE_BRANCH','TRADER_BASELINE_PATH','TRADER_EVIDENCE_DIR','TRADER_ARTIFACT_CHECKOUT','OPS_NTFY_URL','OPS_NTFY_TOKEN') if k in values})
+    write_env(ops, {k: values[k] for k in ('TRADER_RUN_MODE','TRADER_ROOT','TRADER_CODE_BRANCH','TRADER_BASELINE_PATH','TRADER_EVIDENCE_DIR','TRADER_ARTIFACT_CHECKOUT','OPS_NTFY_URL','OPS_NTFY_TOKEN') if k in values})
     print('RECOVERY_STEP evidence_migration', flush=True)
     with session_lock_handoff(held[1]):
         command(python, 'scripts/session_ops.py', 'migrate', '--source-evaluation', str(backup / 'evaluation'), cwd=root, env=env)
@@ -307,6 +355,9 @@ def main():
     print('RECOVERY_STEP paper_account_verification', flush=True)
     command(python, 'scripts/session_ops.py', 'verify-flat', cwd=root, env=env)
     print('PAPER_ACCOUNT_VERIFIED_FLAT', flush=True)
+    if args.mode=='equity_research':
+        finish_equity_recovery(root,env,cron,backup,held,args.release)
+        return
     print('RECOVERY_STEP options_data_verification', flush=True)
     canary = command(python, 'scripts/session_ops.py', 'check-options-data', cwd=root, env=env, check=False)
     (backup / 'options-canary.log').write_text(canary.stdout + canary.stderr)

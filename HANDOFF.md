@@ -1,3 +1,9 @@
+# Current recovery default: free equity research
+
+The October 24 recovery now defaults to zero-subscription IEX stock-signal research. Broker trading stays disarmed, and no OPRA or Tradier access is required. See [the current protocol and runbook](evaluation/free_equity_research_2026_10_24.md). The dedicated private dashboard page is `/equity-research`.
+
+The options-mode instructions below describe the suspended options experiment. They do not apply to the default free observer.
+
 # Project Handoff
 
 **Updated:** 2026-10-01. Replaces the 2026-07-10 Phase 2 handoff, which described

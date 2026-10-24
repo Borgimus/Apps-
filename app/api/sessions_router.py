@@ -9,6 +9,7 @@ Endpoints:
 """
 
 from __future__ import annotations
+import os
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -27,6 +28,8 @@ async def sessions_start():
     Refuses if: runner already active, LIVE_TRADING_ENABLED=true,
     or broker has unreconciled open orders.
     """
+    if os.getenv('TRADER_RUN_MODE')=='equity_research':
+        raise HTTPException(409,'Free research runs through its observer schedule; broker session starts are disabled')
     try:
         return await _supervisor.start()
     except RuntimeError as exc:
@@ -71,6 +74,8 @@ async def sessions_restart():
 
     Refuses if broker has unreconciled open orders after the stop.
     """
+    if os.getenv('TRADER_RUN_MODE')=='equity_research':
+        raise HTTPException(409,'Free research runs through its observer schedule; broker session restarts are disabled')
     try:
         return await _supervisor.restart()
     except RuntimeError as exc:

@@ -1,3 +1,7 @@
+## Current recovery decision: zero new data-subscription cost
+
+The latest release defaults to free IEX equity-signal research. The user declined a paid data plan while profitability is unproven. See [the free research protocol](free_equity_research_2026_10_24.md). Broker orders remain disabled; the options-cohort rollout below is suspended.
+
 # Day trading app: operational audit and recovery
 
 Prepared October 24, 2026 for Bronson Phillips. Times are Eastern.

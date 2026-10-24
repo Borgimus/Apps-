@@ -1,6 +1,7 @@
 """Recovery keeps cron paused on failed gates and leaves the old code intact."""
 import importlib.util
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 import shutil
@@ -72,7 +73,19 @@ def test_recovery_installs_schedule_only_after_checks(tmp_path,monkeypatch,fail_
             operation=args[2]
             if operation==fail_at:rc=1
             if operation=='migrate':
-                shutil.copytree(Path(args[-1]),base/'trader-evidence')
+                # Exercise the real child CLI and kernel flock. A fake copy
+                # hid the installer holding the child's session lock.
+                real_root=Path(__file__).resolve().parents[1]
+                child_env={**os.environ,'PYTHONPATH':str(real_root),
+                    'TRADER_OPS_ENV':str(tmp_path/'no-ops.env'),
+                    'TRADER_LOCK_DIR':str(base),
+                    'TRADER_EVIDENCE_DIR':str(base/'trader-evidence')}
+                child=subprocess.run([sys.executable,str(real_root/'scripts/session_ops.py'),
+                    'migrate','--source-evaluation',str(args[-1])],env=child_env,
+                    text=True,capture_output=True,timeout=20)
+                if fail_at!='migrate':
+                    rc=child.returncode
+                    out=child.stdout+child.stderr
         elif args[0]=='bash' and fail_at=='preflight':rc=1
         result=subprocess.CompletedProcess(args,rc,stdout=out,stderr='')
         if rc and check:raise RuntimeError('simulated gate failure')
@@ -183,3 +196,35 @@ def test_retry_does_not_hide_other_files_as_its_environment_link(tmp_path,monkey
     assert (root/'KILL_SWITCH').exists()
     if kind=='regular_file':assert (root/'.venv').read_text()=='preserve me'
     if kind=='other_source':assert (root/'operator.py').read_text()=='preserve me'
+
+
+@pytest.mark.parametrize('child_fails',[False,True])
+def test_session_lock_handoff_keeps_launch_gates_locked_and_reacquires_on_error(tmp_path,child_fails):
+    import fcntl
+    names=['.eod_close.lock','.session.lock','.session-preflight.lock']
+    handles=[(tmp_path/name).open('a') for name in names]
+    for handle in handles:fcntl.flock(handle,fcntl.LOCK_EX|fcntl.LOCK_NB)
+    switch=tmp_path/'KILL_SWITCH';switch.touch()
+    probe='''import fcntl,json,sys
+from pathlib import Path
+free={}
+for name in ('.eod_close.lock','.session.lock','.session-preflight.lock'):
+ with (Path(sys.argv[1])/name).open('a') as f:
+  try:fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB);free[name]=True
+  except BlockingIOError:free[name]=False
+print(json.dumps(free))
+'''
+    def available():
+        return json.loads(subprocess.check_output([sys.executable,'-c',probe,str(tmp_path)],text=True))
+    try:
+        try:
+            with r.session_lock_handoff(handles[1]):
+                assert available()=={names[0]:False,names[1]:True,names[2]:False}
+                assert switch.exists()
+                if child_fails:raise ValueError('migration failed')
+        except ValueError:
+            assert child_fails
+        assert available()==dict.fromkeys(names,False)
+        assert switch.exists()
+    finally:
+        for handle in handles:handle.close()

@@ -22,6 +22,7 @@ import sqlite3
 import subprocess
 import sys
 import time
+from contextlib import contextmanager
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -116,6 +117,20 @@ def database_path(value, old):
         p = Path(raw)
         return p if p.is_absolute() else (old / p).resolve()
     raise ValueError('Recovery supports the existing SQLite deployment only')
+
+
+@contextmanager
+def session_lock_handoff(handle):
+    """Let the migration child acquire its session lock while launch gates stay held.
+
+    The installer retains the exclusive EOD and preflight locks, paused cron
+    and active kill switches. Reacquisition failure stops recovery.
+    """
+    fcntl.flock(handle, fcntl.LOCK_UN)
+    try:
+        yield
+    finally:
+        fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
 
 
 def install_release(root, source, release, backup, *, venv_target=None):
@@ -285,17 +300,26 @@ def main():
     print(checks.stdout.splitlines()[-1], flush=True)
     write_env(root / '.env', values)
     write_env(ops, {k: values[k] for k in ('TRADER_ROOT','TRADER_CODE_BRANCH','TRADER_BASELINE_PATH','TRADER_EVIDENCE_DIR','TRADER_ARTIFACT_CHECKOUT','OPS_NTFY_URL','OPS_NTFY_TOKEN') if k in values})
-    command(python, 'scripts/session_ops.py', 'migrate', '--source-evaluation', str(backup / 'evaluation'), cwd=root, env=env)
+    print('RECOVERY_STEP evidence_migration', flush=True)
+    with session_lock_handoff(held[1]):
+        command(python, 'scripts/session_ops.py', 'migrate', '--source-evaluation', str(backup / 'evaluation'), cwd=root, env=env)
+    print('EVIDENCE_MIGRATION_COMPLETE', flush=True)
+    print('RECOVERY_STEP paper_account_verification', flush=True)
     command(python, 'scripts/session_ops.py', 'verify-flat', cwd=root, env=env)
     print('PAPER_ACCOUNT_VERIFIED_FLAT', flush=True)
+    print('RECOVERY_STEP options_data_verification', flush=True)
     canary = command(python, 'scripts/session_ops.py', 'check-options-data', cwd=root, env=env, check=False)
     (backup / 'options-canary.log').write_text(canary.stdout + canary.stderr)
     if canary.returncode:
+        for line in canary.stderr.splitlines():
+            if re.fullmatch(r'OPERATIONS_FAILED command=[a-z-]+ type=[A-Za-z]+(?: http_status=[0-9]{3})?', line):
+                print(line, flush=True)
         print('ACTION_REQUIRED: Alpaca OPRA data access failed. Check the account data subscription and API keys. No subscription was purchased. Fix access and rerun the same command.', flush=True)
         raise ValueError('Options provider unavailable; schedule remains paused')
     print(canary.stdout.strip(), flush=True)
     if not url:
         raise ValueError('Set OPS_NTFY_URL to your existing private HTTPS topic in /root/trader-ops.env, then rerun')
+    print('RECOVERY_STEP notification_verification', flush=True)
     command(python, 'scripts/session_ops.py', 'check-config', cwd=root, env=env)
     command(python, 'scripts/session_ops.py', 'test-alert', '--message', 'Trader recovery checks passed. Paper observations will resume on the next market session.', cwd=root, env=env)
     print('ALERT_ACCEPTED_BY_SERVER: confirm receipt on your phone', flush=True)
@@ -305,6 +329,7 @@ def main():
         p.chmod(0o700)
     # Our locks must be released before check-only preflight acquires them.
     for handle in held: handle.close()
+    print('RECOVERY_STEP check_only_preflight', flush=True)
     command('bash','/root/preflight_session.sh','--check-only',cwd=root,env=env)
     if not (root/'KILL_SWITCH').exists() or Path('/root/.session_armed').exists():
         raise ValueError('Check-only preflight failed to retain disarmed state')

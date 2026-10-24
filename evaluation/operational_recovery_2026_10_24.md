@@ -98,3 +98,13 @@ The subsequent source-change guard stopped on the single untracked path `?? .ven
 The new release adds the exact `.venv` ignore entry. Before upgrading an older checkout, the installer recognizes only an untracked `.venv` symlink resolving to the existing host environment directory. A regular file, broken symlink, different target, or any other source change still blocks the upgrade. Nothing deletes or replaces the virtual environment.
 
 Real Git regression tests reproduce the old ignore rule, the installed environment symlink, the fast-forward repair and preservation of the active kill switch and host configuration. Full suite with the repository kill switch active: **1,072 passed, 2 skipped in 21.63 seconds**. The kill switch remains present. Host completion is still pending.
+
+## Host retry amendment: migration lock handoff
+
+The host passed all 1,072 tests, then migration exited 75 because the installer held `.session.lock` and its `session_ops.py migrate` child independently required the same exclusive lock. The previous installer tests replaced that child with a file copy and missed the kernel-lock interaction.
+
+The installer now hands off its session lock while the real migration child runs and reacquires it afterward, including failure paths. It retains the exclusive EOD and preflight locks throughout that handoff; cron stays paused and the kill switches remain active. Reacquisition failure stops recovery.
+
+The installer integration test now invokes the actual migration CLI as a subprocess. A separate real-process probe verifies that only the session lock becomes available during handoff, the other launch gates remain locked, and all three locks are held afterward even when migration raises an error. The pre-fix integration test reproduced the failure; the corrected test passes. Named console steps and safe options HTTP-status output identify subsequent host checks directly.
+
+Validation: **1,074 passed, 2 skipped in 55.60 seconds** with the repository kill switch active. Python compilation and whitespace checks pass. Broker-account verification, OPRA entitlement, notifications and final host installation remain unverified.

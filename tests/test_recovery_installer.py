@@ -65,6 +65,7 @@ def test_recovery_installs_schedule_only_after_checks(tmp_path,monkeypatch,fail_
             if args[1]=='clone':shutil.copytree(source,Path(args[-1]))
         elif '-m' in args and 'pytest' in args:
             assert not (base/'trader-release/.env').exists()
+            assert (base/'trader-release/KILL_SWITCH').is_file()
             assert 'ALPACA_API_KEY' not in env
             out='1060 passed, 2 skipped\n'
         elif 'scripts/session_ops.py' in args:
@@ -92,3 +93,57 @@ def test_recovery_installs_schedule_only_after_checks(tmp_path,monkeypatch,fail_
     with sqlite3.connect(backup/'trading.db') as db:
         assert db.execute('select x from audit').fetchone()==(42,)
     assert (old/'KILL_SWITCH').exists()
+
+
+def git(repo, *args):
+    return subprocess.check_output(['git', '-C', str(repo), *args], text=True).strip()
+
+
+def make_release(tmp_path):
+    source = tmp_path/'source'; source.mkdir()
+    git(source,'init','-b',r.BRANCH)
+    git(source,'config','user.name','Test');git(source,'config','user.email','test@example.test')
+    (source/'.gitignore').write_text('KILL_SWITCH\n.env\nlogs/\n')
+    (source/'code.txt').write_text('original')
+    git(source,'add','.');git(source,'commit','-m','original')
+    root = tmp_path/'installed'
+    subprocess.run(['git','clone','--quiet',str(source),str(root)],check=True)
+    old = git(root,'rev-parse','HEAD')
+    (root/'KILL_SWITCH').touch()
+    (root/'.env').write_text('private host configuration')
+    (source/'code.txt').write_text('repaired')
+    git(source,'add','code.txt');git(source,'commit','-m','repair')
+    new = git(source,'rev-parse','HEAD')
+    backup = tmp_path/'backup';backup.mkdir()
+    return source,root,old,new,backup
+
+
+def test_retry_advances_failed_release_without_disarming_or_changing_host_env(tmp_path,monkeypatch):
+    source,root,old,new,backup = make_release(tmp_path)
+    monkeypatch.setattr(r,'COMMAND_LOG_DIR',None)
+    r.install_release(root,source,new,backup)
+    assert git(root,'rev-parse','HEAD')==new
+    assert (backup/'prior-release-head.txt').read_text().strip()==old
+    assert (root/'KILL_SWITCH').exists()
+    assert (root/'.env').read_text()=='private host configuration'
+    r.install_release(root,source,new,backup)
+    assert (root/'KILL_SWITCH').exists()
+
+
+@pytest.mark.parametrize('condition',['dirty','untracked','wrong_branch','unrelated'])
+def test_retry_refuses_to_overwrite_operator_changes_or_unrelated_code(tmp_path,monkeypatch,condition):
+    source,root,old,new,backup = make_release(tmp_path)
+    monkeypatch.setattr(r,'COMMAND_LOG_DIR',None)
+    if condition=='dirty': (root/'code.txt').write_text('operator edit')
+    elif condition=='untracked': (root/'operator.py').write_text('preserve me')
+    elif condition=='wrong_branch': git(root,'switch','-c','operator-work')
+    else:
+        git(source,'checkout','--orphan','unrelated')
+        git(source,'commit','-m','unrelated history')
+        new=git(source,'rev-parse','HEAD')
+    with pytest.raises(ValueError):r.install_release(root,source,new,backup)
+    assert git(root,'rev-parse','HEAD')==old
+    assert (root/'KILL_SWITCH').exists()
+    assert (root/'.env').read_text()=='private host configuration'
+    if condition=='dirty':assert (root/'code.txt').read_text()=='operator edit'
+    if condition=='untracked':assert (root/'operator.py').read_text()=='preserve me'

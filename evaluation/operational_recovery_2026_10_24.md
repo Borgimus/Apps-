@@ -80,3 +80,13 @@ A successful installer writes `/root/trader-recovery-status.json`. Its success m
 The pre-existing repairs integrated on current history passed **1,046 tests, 2 skipped** locally. Additional regression tests exercise native snapshot shapes without fabricated `dailyBar`, actual option volume, malformed/forbidden/old-session bar responses, pagination, metadata/quote interleaving, empty market-hours canary, cron preservation, database backup and paused-on-failure deployment behavior. Final local suite: **1,061 passed, 2 skipped in 22.04 seconds**. Shell syntax, Python compilation, whitespace checks and preservation of all historical session artifacts also passed.
 
 The local runtime is Python 3.12.14 with the pinned dependencies from the previous audit environment. GitHub CI targets Python 3.11. Broker methods are mocked in tests; no order, subscription, server deployment or external alert was sent during local validation.
+
+## Host retry amendment: active kill-switch test isolation
+
+The first host attempt stopped at the required test gate: 1 failed, 1,060 passed, 2 skipped. The installer had correctly created `KILL_SWITCH` before testing. The valid-order pipeline test constructed `RiskManager()` with default settings, so it read that operator file and rejected its simulated order. Initial CI ran without that file and missed the deployment condition.
+
+The pipeline test now uses explicit paper settings and its own temporary kill-switch path. It runs with and without a separate operator switch and checks that the operator file is preserved. CI runs the entire suite with the repository kill switch active and verifies the file still exists afterward. No runtime risk check was weakened or bypassed.
+
+The installer now supports retrying a failed checkout with a reviewed descendant release through a fast-forward. It refuses source edits, untracked source files, unexpected branches and unrelated history. Real Git regression tests verify the upgrade preserves the active kill switch and host environment. Failure details are saved to private backup logs, and failed test identifiers are shown directly in the console.
+
+Validation with the repository `KILL_SWITCH` active throughout: **1,067 passed, 2 skipped in 21.99 seconds**. The kill switch remained present. Original backup `/root/trader-backups/recovery-20261024T115347-0400` is retained; the next attempt makes a separate backup. Host deployment and broker-data checks remain pending.

@@ -32,6 +32,7 @@ END = '# END PHASE3 SESSION AUTOMATION'
 ET = ZoneInfo('America/New_York')
 JOB_TOKENS = ('preflight_session.sh', 'start_session.sh', 'auto_close_session.sh',
               'eod_close.sh', 'scripts/ops/', 'scripts/session_runner.py', 'keepalive.sh')
+COMMAND_LOG_DIR = None
 
 
 def command(*args, check=True, cwd=None, env=None, input=None):
@@ -39,7 +40,16 @@ def command(*args, check=True, cwd=None, env=None, input=None):
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=300)
     if check and result.returncode:
         # Never echo subprocess stderr: Git and HTTP errors may contain secrets.
-        raise RuntimeError(f'{Path(str(args[0])).name} failed (exit {result.returncode})')
+        detail = ''
+        if COMMAND_LOG_DIR is not None:
+            path = COMMAND_LOG_DIR / ('command-failure-' + str(time.time_ns()) + '.log')
+            path.write_text(result.stdout + result.stderr)
+            path.chmod(0o600)
+            detail = f'; details: {path}'
+            for line in (result.stdout + result.stderr).splitlines():
+                if re.fullmatch(r'OPERATIONS_FAILED command=[a-z-]+ type=[A-Za-z]+(?: http_status=[0-9]{3})?', line):
+                    print(line, flush=True)
+        raise RuntimeError(f'{Path(str(args[0])).name} failed (exit {result.returncode}){detail}')
     return result
 
 
@@ -108,6 +118,29 @@ def database_path(value, old):
     raise ValueError('Recovery supports the existing SQLite deployment only')
 
 
+def install_release(root, source, release, backup):
+    """Install or advance reviewed source without resetting local edits."""
+    if not root.exists():
+        command('git', 'clone', '--quiet', '--no-hardlinks', str(source), str(root))
+        command('git', 'checkout', '-B', BRANCH, release, cwd=root)
+        return
+    actual = command('git', 'rev-parse', 'HEAD', cwd=root).stdout.strip()
+    if command('git', 'branch', '--show-current', cwd=root).stdout.strip() != BRANCH:
+        raise ValueError('Existing recovery checkout is on an unexpected branch')
+    if command('git', 'status', '--porcelain', '--untracked-files=all', cwd=root).stdout.strip():
+        raise ValueError('Recovery checkout has source changes; preserve them before upgrading')
+    if actual == release:
+        return
+    ancestor = command('git', 'merge-base', '--is-ancestor', actual, release, cwd=source, check=False)
+    if ancestor.returncode:
+        raise ValueError('Replacement release is not a descendant of the installed recovery')
+    (backup / 'prior-release-head.txt').write_text(actual + '\n')
+    command('git', 'fetch', str(source), release, cwd=root)
+    command('git', 'merge', '--ff-only', 'FETCH_HEAD', cwd=root)
+    if command('git', 'rev-parse', 'HEAD', cwd=root).stdout.strip() != release:
+        raise ValueError('Recovery checkout does not match the requested release')
+
+
 def restart_dashboard(root, env):
     """Replace only dashboards owned by these trader checkouts, on loopback."""
     found = command('pgrep', '-f', r'[m]ain[.]py[[:space:]]+dashboard', check=False)
@@ -142,6 +175,8 @@ def restart_dashboard(root, env):
 
 
 def main():
+    global COMMAND_LOG_DIR
+    COMMAND_LOG_DIR = None
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--release', required=True)
     parser.add_argument('--source', type=Path, required=True)
@@ -177,6 +212,7 @@ def main():
     paused = replace_cron(cron, ['# Paused until recovery checks pass'])
     backup = Path('/root/trader-backups') / ('recovery-' + now.strftime('%Y%m%dT%H%M%S%z'))
     backup.mkdir(parents=True, mode=0o700)
+    COMMAND_LOG_DIR = backup
     (backup / 'crontab.txt').write_text(cron)
     (backup / 'original-head.txt').write_text(command('git', 'rev-parse', 'HEAD', cwd=old).stdout)
     scripts = []
@@ -199,13 +235,9 @@ def main():
     Path('/root/.session_armed').unlink(missing_ok=True)
     print(f'BACKUP_COMPLETE {backup}\nOLD_TRADING_CRON_PAUSED', flush=True)
 
-    if root.exists():
-        actual = command('git', 'rev-parse', 'HEAD', cwd=root).stdout.strip()
-        if actual != args.release:
-            raise ValueError('Existing recovery checkout has a different release; preserve it for review')
-    else:
-        command('git', 'clone', '--quiet', '--no-hardlinks', str(args.source), str(root))
-        command('git', 'checkout', '-B', BRANCH, args.release, cwd=root)
+    # Retries may advance a failed release to a reviewed descendant. The old
+    # checkout, database, environment and active kill switches remain intact.
+    install_release(root, args.source, args.release, backup)
     command('git', 'remote', 'set-url', 'origin', PUBLIC_REMOTE, cwd=root)
     command('git', 'config', 'branch.' + BRANCH + '.remote', 'origin', cwd=root)
     command('git', 'config', 'branch.' + BRANCH + '.merge', 'refs/heads/' + BRANCH, cwd=root)
@@ -233,7 +265,12 @@ def main():
     finally:
         if saved_env.exists(): saved_env.replace(root / '.env')
     (backup / 'tests.log').write_text(checks.stdout + checks.stderr)
-    if checks.returncode: raise ValueError('Release tests failed; see tests.log in the backup')
+    if checks.returncode:
+        for line in (checks.stdout + checks.stderr).splitlines():
+            match = re.match(r'^(FAILED|ERROR) ([A-Za-z0-9_./:]+)', line)
+            if match:
+                print(f'TEST_GATE_{match[1]} {match[2]}', flush=True)
+        raise ValueError(f'Release tests failed; details: {backup / "tests.log"}')
     print(checks.stdout.splitlines()[-1], flush=True)
     write_env(root / '.env', values)
     write_env(ops, {k: values[k] for k in ('TRADER_ROOT','TRADER_CODE_BRANCH','TRADER_BASELINE_PATH','TRADER_EVIDENCE_DIR','TRADER_ARTIFACT_CHECKOUT','OPS_NTFY_URL','OPS_NTFY_TOKEN') if k in values})

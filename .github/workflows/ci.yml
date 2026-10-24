@@ -32,4 +32,6 @@ jobs:
 
       - name: Run test suite
         run: |
+          touch KILL_SWITCH
           python -m pytest tests/ -q --tb=short -p no:warnings
+          test -f KILL_SWITCH

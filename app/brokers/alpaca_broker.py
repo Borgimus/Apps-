@@ -15,13 +15,13 @@ LIVE_TRADING_ENABLED=true is explicitly set and you accept the risk.
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from typing import List, Optional
 from zoneinfo import ZoneInfo
 
 import httpx
-from app.trading.quote_evidence import parse_quote_timestamp
+from app.trading.quote_evidence import parse_quote_timestamp, quote_is_fresh, valid_quote
 
 from .broker_interface import (
     AccountInfo,
@@ -45,8 +45,7 @@ class AlpacaBroker(BrokerInterface):
     """
     Alpaca Markets adapter.
 
-    Currently a *placeholder* with method stubs.  Fill in each method body
-    using the alpaca-py SDK once you have API credentials.
+    HTTP adapter for paper execution and explicitly selected market data.
 
     Reference docs:
       https://docs.alpaca.markets/reference/
@@ -242,29 +241,51 @@ class AlpacaBroker(BrokerInterface):
             underlying_price = Decimal("0")
 
         # Enrich with live quotes from the snapshot endpoint
+        contracts_raw = [c for c in contracts_raw if c.get("tradable", True) is not False]
         all_symbols = [c["symbol"] for c in contracts_raw]
         snapshots = await self._fetch_snapshots(all_symbols)
+        # Options snapshots contain quote/trade/Greeks, not dailyBar. Obtain
+        # today's traded volume from bars or every native contract fails the
+        # volume >= 50 gate. Never substitute prior-session metadata volume.
+        # https://docs.alpaca.markets/us/reference/optionsnapshots
+        # https://docs.alpaca.markets/us/reference/optionbars
+        quoted = [s for s in all_symbols if snapshots.get(s)]
+        volumes = await self._fetch_option_volumes(quoted)
 
+        # Aware UTC: a naive stamp is read as host-local time by staleness checks,
+        # which on an Eastern-time host makes every chain look four hours newer.
+        now = datetime.now(timezone.utc)
         chain = OptionChain(
             symbol=symbol,
             expiration=expiration,
             underlying_price=underlying_price,
-            fetched_at=datetime.utcnow(),
+            fetched_at=now,
         )
         for c in contracts_raw:
-            snap = snapshots.get(c["symbol"], {})
-            greeks = snap.get("greeks", {})
-            latest_quote = snap.get("latestQuote", {})
+            snap = snapshots.get(c["symbol"])
+            # A contract without a valid, fresh quote is omitted rather than
+            # listed at zero: "the feed returned nothing" must not look like an
+            # illiquid market. Same rule as the Tradier adapter.
+            if not snap:
+                continue
+            greeks = snap.get("greeks") or {}
+            latest_quote = snap.get("latestQuote") or {}
+            try:
+                bid_f, ask_f = float(latest_quote.get("bp")), float(latest_quote.get("ap"))
+            except (TypeError, ValueError):
+                continue
+            if not valid_quote(bid_f, ask_f) or not quote_is_fresh(latest_quote.get("t"), now):
+                continue
             contract = OptionContract(
                 symbol=symbol,
                 option_symbol=c["symbol"],
                 expiration=expiration,
                 strike=Decimal(str(c["strike_price"])),
                 option_type=c["type"],
-                bid=Decimal(str(latest_quote.get("bp") or c.get("bid_price") or 0)),
-                ask=Decimal(str(latest_quote.get("ap") or c.get("ask_price") or 0)),
+                bid=Decimal(str(latest_quote["bp"])),
+                ask=Decimal(str(latest_quote["ap"])),
                 last=Decimal(str(snap.get("latestTrade", {}).get("p") or c.get("close_price") or 0)),
-                volume=int(snap.get("dailyBar", {}).get("v") or c.get("volume") or 0),
+                volume=volumes.get(c["symbol"], 0),
                 open_interest=int(c.get("open_interest") or 0),
                 implied_volatility=float(snap.get("impliedVolatility") or c.get("implied_volatility") or 0),
                 delta=greeks.get("delta") or c.get("delta"),
@@ -316,13 +337,67 @@ class AlpacaBroker(BrokerInterface):
         chunk_size = 100
         for i in range(0, len(symbols), chunk_size):
             chunk = symbols[i : i + chunk_size]
-            resp = await self._data_client.get(
-                "/v1beta1/options/snapshots",
-                params=self._snapshot_params(",".join(chunk)),
-            )
-            if resp.status_code == 200:
-                snapshots.update(resp.json().get("snapshots", {}))
+            params = self._snapshot_params(",".join(chunk))
+            seen = set()
+            for _ in range(100):
+                resp = await self._data_client.get("/v1beta1/options/snapshots", params=params)
+                resp.raise_for_status()
+                payload = resp.json()
+                snapshots.update(payload.get("snapshots") or {})
+                token = payload.get("next_page_token")
+                if not token:
+                    break
+                if token in seen:
+                    raise RuntimeError("Alpaca snapshot pagination token repeated")
+                seen.add(token)
+                params["page_token"] = token
+            else:
+                raise RuntimeError("Alpaca snapshot pagination limit exceeded")
         return snapshots
+
+    async def _fetch_option_volumes(self, symbols: List[str]) -> dict[str, int]:
+        """Current ET day's actual volume, including incomplete daily bars.
+
+        Empty bars mean zero trades. HTTP/schema/pagination failures propagate
+        through provider health instead of becoming illiquidity rejections.
+        """
+        now = datetime.now(timezone.utc)
+        day_start = now.astimezone(ZoneInfo("America/New_York")).replace(
+            hour=0, minute=0, second=0, microsecond=0)
+        volumes = {}
+        for offset in range(0, len(symbols), 100):
+            chunk = symbols[offset:offset + 100]
+            params = {"symbols": ",".join(chunk), "timeframe": "1Day",
+                      "start": day_start.isoformat(), "end": now.isoformat(), "limit": 10000}
+            seen = set()
+            for _ in range(100):
+                response = await self._data_client.get("/v1beta1/options/bars", params=params)
+                response.raise_for_status()
+                payload = response.json()
+                bars = payload.get("bars")
+                if not isinstance(bars, dict):
+                    raise ValueError("Alpaca option bars response lacks a bars mapping")
+                for symbol, rows in bars.items():
+                    if symbol not in chunk or not isinstance(rows, list):
+                        raise ValueError("Unexpected symbol or rows in option bars")
+                    for bar in rows:
+                        stamp = parse_quote_timestamp(bar.get("t"))
+                        if stamp is None or stamp.astimezone(ZoneInfo("America/New_York")).date() != day_start.date():
+                            raise ValueError("Option volume bar is from a different session")
+                        volume = bar.get("v")
+                        if not isinstance(volume, (int, float)) or isinstance(volume, bool) or not float(volume).is_integer() or volume < 0:
+                            raise ValueError("Invalid option bar volume")
+                        volumes[symbol] = volumes.get(symbol, 0) + int(volume)
+                token = payload.get("next_page_token")
+                if not token:
+                    break
+                if token in seen:
+                    raise RuntimeError("Alpaca option bars pagination token repeated")
+                seen.add(token)
+                params["page_token"] = token
+            else:
+                raise RuntimeError("Alpaca option bars pagination limit exceeded")
+        return volumes
 
     # ── Orders ────────────────────────────────────────────────────────────────
 

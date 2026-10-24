@@ -66,6 +66,7 @@ env/
 *.sqlite3
 
 # Logs (project-level)
+# Rotated trading.jsonl files are host runtime data, never code artifacts.
 logs/
 
 # Generated cohort-specific evaluation ledgers (runtime state)

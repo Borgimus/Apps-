@@ -27,7 +27,11 @@ from app.trading.entry_filters import (
     scaled_entry_block_reason,
     select_allowed_expiration,
 )
-from scripts.session_runner import _market_regime_from_bars, _rank_active_symbols
+from scripts.session_runner import (
+    _completed_market_regime,
+    _market_regime_from_bars,
+    _rank_active_symbols,
+)
 
 ET = ZoneInfo("America/New_York")
 SAFE_NOW = datetime(2026, 8, 10, 10, 30, tzinfo=ET)
@@ -183,6 +187,18 @@ def _bars(closes: list[float]) -> pd.DataFrame:
 def test_market_regime_requires_vwap_and_ema_alignment():
     assert _market_regime_from_bars(_bars([100, 101, 102, 103, 104])) == "long"
     assert _market_regime_from_bars(_bars([104, 103, 102, 101, 100])) == "short"
+
+
+def test_market_regime_ignores_the_still_forming_bar():
+    """Completed bars say long; a half-formed 09:55 candle says short. Signals
+    use completed bars, so the regime that gates them must too."""
+    bars = _bars([100, 101, 102, 103, 104, 95])  # last bar starts 09:55 ET
+    bars.iloc[-1, bars.columns.get_loc("volume")] = 20000.0
+    now = datetime(2026, 8, 10, 9, 57, tzinfo=ET)
+    assert _market_regime_from_bars(bars) == "short"
+    assert _completed_market_regime(bars, now) == "long"
+    # Once that bar completes it is part of the snapshot.
+    assert _completed_market_regime(bars, datetime(2026, 8, 10, 10, 0, 5, tzinfo=ET)) == "short"
 
 
 def test_health_drawdown_is_dollars_even_when_session_never_has_a_profit():

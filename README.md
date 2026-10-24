@@ -1,6 +1,6 @@
 # Options Trading Research System
 
-A modular Python system for researching, backtesting, and paper-trading day-trading options strategies.
+A modular Python system for researching and paper-trading day-trading options strategies.
 
 > ⚠️ **DISCLAIMER**: This software is for educational and research purposes only. Options trading involves significant risk of loss. Paper trading results do not guarantee live performance. Always verify strategies extensively before risking real capital.
 
@@ -14,7 +14,6 @@ A modular Python system for researching, backtesting, and paper-trading day-trad
 | `app/brokers/` | Broker adapter pattern — Alpaca, Tradier, IBKR, local paper |
 | `app/strategies/` | 4 plug-in strategies + IV crush and liquidity filters |
 | `app/risk/` | Pre-trade risk manager with hard-coded guardrails |
-| `app/backtesting/` | Vectorised backtester with P&L reports |
 | `app/api/` | FastAPI dashboard + WebSocket signal stream |
 | `scripts/session_runner.py` | Hardened unattended trading loop |
 | `main.py` | CLI entry point |
@@ -91,59 +90,7 @@ All 59 tests should pass.  Coverage includes:
 - ORB strategy with 5-minute intraday bars (13 tests in `test_intraday_orb.py`)
 - Risk sizing, session buffers, kill switch, daily loss guardrails
 - Broker interface (PaperBroker), paper order placement end-to-end
-- Strategy signal generation for ORB, RSI, VWAP, MA Compression
-
-### Integration test (real Alpaca paper account)
-
-Requires Alpaca API credentials in `.env`.
-
-```bash
-python scripts/integration_test.py
-```
-
-This fetches live SPY bars, runs all strategies, risk-checks a live option
-contract selected from the Alpaca chain, places a paper limit order, then
-immediately cancels it.
-
-### Dashboard (standalone)
-
-Starts the FastAPI dashboard without the trading loop.  Broker-dependent
-endpoints (`/account`, `/positions`) return 503; all others work fully.
-
-```bash
-uvicorn app.api.dashboard_api:app --reload
-# Open: http://127.0.0.1:8000/health
-# Docs: http://127.0.0.1:8000/docs
-```
-
-To start the dashboard with a live broker connection and the trading loop
-running in the background, use `python scripts/session_runner.py` (which
-starts the trading loop) and `python main.py dashboard` (which starts the
-API) in separate processes, or run them together via `docker-compose up`.
-
-
-### Kill switch
-
-To halt all order submissions immediately:
-
-```bash
-touch ./KILL_SWITCH          # activate
-rm ./KILL_SWITCH             # deactivate
-
-# Or via the dashboard API:
-curl -X POST http://127.0.0.1:8000/kill-switch/activate
-curl -X DELETE http://127.0.0.1:8000/kill-switch
-```
-
-### Backtests
-
-```bash
-python main.py backtest --symbol SPY QQQ --start 2023-01-01 --end 2024-12-31
-```
-
-Reports are saved to `./backtest_results/`.
-
-> ⚠️ Backtest results use **synthetic options pricing** (Black-Scholes) because yfinance does not provide historical options data. Results are clearly marked as `[APPROXIMATE]`.
+- Strategy signal generation for ORB, RSI, VWAP
 
 ### 5. Dashboard API
 
@@ -157,8 +104,7 @@ Reports are saved to `./backtest_results/`.
 | `GET /signals` | Recent strategy signals |
 | `GET /risk` | Risk counters and recent events |
 | `POST /kill-switch/activate` | Halt all new orders immediately |
-| `DELETE /kill-switch` | Re-enable trading |
-| `POST /backtest/run` | Trigger a backtest via API |
+| `DELETE /kill-switch` | Re-enable trading (requires `DASHBOARD_CONTROL_TOKEN`) |
 | `WS /ws/signals` | Real-time signal stream |
 
 ---
@@ -198,7 +144,6 @@ Set `BROKER=paper` in `.env`. Uses yfinance for quote simulation. Useful for off
 | `orb` | Opening Range Breakout | LONG/SHORT on SPY/QQQ breakout |
 | `vwap_reclaim` | VWAP Reclaim/Rejection | LONG on reclaim, SHORT on rejection |
 | `rsi_trend` | RSI + Trend Filter | Oversold bounce / overbought fade |
-| `ma_compression` | MA Compression Breakout | Breakout after EMA(8)/EMA(21) squeeze |
 
 Plus two filters applied to all signals:
 - **IV Crush Filter** — blocks trades near earnings events
@@ -453,7 +398,6 @@ if settings.live_trading_enabled:
 │   ├── brokers/         # Broker adapters (Alpaca, Tradier, IBKR, Paper)
 │   ├── strategies/      # Strategy plug-ins + filters
 │   ├── risk/            # Pre-trade risk manager
-│   ├── backtesting/     # Backtest engine + report generator
 │   ├── api/             # FastAPI dashboard + SQLAlchemy models
 │   ├── trading/         # FillTracker, PositionManager, TradeJournal,
 │   │                    # PendingOrderStore, Reconciler, SessionRecovery,
@@ -461,7 +405,7 @@ if settings.live_trading_enabled:
 │   └── utils/           # Logging setup, alert service
 ├── scripts/
 │   ├── session_runner.py  # Hardened unattended trading loop
-│   └── integration_test.py
+│   └── ops/               # VPS preflight, launcher, close-out, watchdog, installer
 ├── tests/               # pytest unit tests
 ├── main.py              # CLI entry point
 ├── Dockerfile

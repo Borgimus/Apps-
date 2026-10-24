@@ -66,6 +66,7 @@ class PushNotifier:
         pending_orders: int,
         scanner_standby: bool,
         session_date: str,
+        data_health: Optional[dict] = None,
     ) -> None:
         """Call once per cycle to update live_status.json and emit heartbeat events."""
         snapshot = {
@@ -81,6 +82,8 @@ class PushNotifier:
             "active_symbols": active_symbols,
             "scanner_standby": scanner_standby,
         }
+        if data_health is not None:
+            snapshot["data_health"] = data_health
         self._write_status(snapshot)
 
         if cycle % self._interval == 0:

@@ -49,8 +49,33 @@ def test_file_review_aggregates_only_requested_shadow_day(tmp_path: Path):
     review = eod_review.file_review("2026-07-22", tmp_path)
 
     assert review["realized_pnl"] == -10
-    assert review["shadow_pnl"] == 17
+    # No constrained replay in the report: the dashboard shows nothing rather
+    # than a sum of unrelated closes.
+    assert review["shadow_pnl"] is None
     assert len(review["shadow_trades"]) == 2
+
+
+def test_shadow_pnl_is_the_constrained_replay_not_a_sum_of_closes(tmp_path: Path):
+    """2026-09-18 displayed +$205 by summing 13 closes across diagnostic,
+    eligible, inverted and alternative-exit variants; the constrained baseline
+    portfolio made +$14."""
+    reports = tmp_path / "evaluation" / "reports"
+    reports.mkdir(parents=True)
+    (tmp_path / "logs").mkdir()
+    (reports / "2026-09-18.json").write_text(json.dumps({"shadow_evaluation": {
+        "research_portfolios": {"baseline": {"portfolio_pnl": 14.0}}}}), encoding="utf-8")
+    closes = [("eligible", "baseline", 14), ("eligible", "breakeven_25", 14),
+              ("diagnostic", "baseline", 60), ("diagnostic", "inverted", 117)]
+    (tmp_path / "evaluation" / "shadow_book.jsonl").write_text("\n".join(
+        json.dumps({"event": "shadow_close", "ts": "2026-09-18T11:00:00-04:00",
+                    "channel": c, "variant": v, "shadow_pnl": p}) for c, v, p in closes
+    ), encoding="utf-8")
+
+    review = eod_review.file_review("2026-09-18", tmp_path)
+
+    assert review["shadow_pnl"] == 14.0
+    assert [(t["channel"], t["variant"]) for t in review["shadow_trades"]] == [
+        ("eligible", "baseline"), ("diagnostic", "baseline")]
 
 
 def test_render_is_accessible_printable_and_escapes_values():

@@ -172,7 +172,10 @@ def main():
                 lock(stack,locks/'.session-preflight.lock')
                 ready.unlink(missing_ok=True)
                 # No source changes or silently advanced software releases.
-                changes=subprocess.check_output(['git','status','--porcelain','--untracked-files=all'],cwd=ROOT,text=True)
+                # Historical runtime logs are still tracked in this legacy
+                # repository. Their writes are evidence, not source edits.
+                changes=subprocess.check_output(['git','status','--porcelain','--untracked-files=all',
+                    '--','.',':(top,exclude)logs/'],cwd=ROOT,text=True)
                 if changes.strip():raise ValueError('Research source checkout is dirty')
                 asyncio.run(verify_flat())
                 result=asyncio.run(check_data())

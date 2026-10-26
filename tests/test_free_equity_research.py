@@ -136,6 +136,38 @@ def test_zero_cost_settings_preserve_risk_controls_and_do_not_require_opra():
     assert config['TRADIER_MARKET_DATA_MODE']=='off'
 
 
+@pytest.mark.parametrize('change',['runtime_logs','source_edit','source_delete','untracked_source'])
+def test_preflight_accepts_legacy_log_writes_but_blocks_source_changes(tmp_path,monkeypatch,change):
+    spec=importlib.util.spec_from_file_location('free_preflight',Path(__file__).resolve().parents[1]/'scripts/equity_research.py')
+    cli=importlib.util.module_from_spec(spec);spec.loader.exec_module(cli)
+    root=tmp_path/'code';(root/'logs').mkdir(parents=True)
+    def git(*args):
+        return subprocess.run(['git',*args],cwd=root,check=True,capture_output=True,text=True).stdout
+    git('init');git('config','user.name','Test');git('config','user.email','test@example.test')
+    (root/'.gitignore').write_text('logs/\nKILL_SWITCH\n')
+    (root/'strategy.py').write_text('original source\n')
+    for name in ('api.log','dashboard.log','trading.jsonl','trading.log'):
+        (root/'logs'/name).write_text('historical evidence\n')
+        git('add','-f','logs/'+name)
+    git('add','.');git('commit','-m','legacy checkout')
+    for path in (root/'logs').iterdir():path.write_text('new runtime evidence\n')
+    if change=='source_edit':(root/'strategy.py').write_text('operator edit\n')
+    elif change=='source_delete':(root/'strategy.py').unlink()
+    elif change=='untracked_source':(root/'operator.py').write_text('preserve this\n')
+    monkeypatch.setattr(cli,'ROOT',root)
+    monkeypatch.setattr(cli,'configured',lambda:(tmp_path/'evidence',tmp_path/'locks'))
+    monkeypatch.setattr(cli,'verify_flat',AsyncMock())
+    monkeypatch.setattr(cli,'check_data',AsyncMock(return_value={'feed':'iex'}))
+    monkeypatch.setattr(cli,'calendar',lambda *args,**kwargs:True)
+    monkeypatch.setattr(cli,'notify',lambda *args:True)
+    monkeypatch.setattr(sys,'argv',['equity_research.py','preflight'])
+    assert cli.main()==(0 if change=='runtime_logs' else 1)
+    assert (root/'logs/equity_research_ready.json').exists()==(change=='runtime_logs')
+    assert (root/'KILL_SWITCH').exists()
+    for name in ('api.log','dashboard.log','trading.jsonl','trading.log'):
+        assert (root/'logs'/name).read_text()=='new runtime evidence\n'
+
+
 def test_free_dashboard_preserves_unavailable_options_results(tmp_path,monkeypatch):
     from app.api import equity_research as api
     monkeypatch.setenv('TRADER_EVIDENCE_DIR',str(tmp_path))

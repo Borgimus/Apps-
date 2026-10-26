@@ -118,6 +118,9 @@ def make_release(tmp_path):
     git(source,'config','user.name','Test');git(source,'config','user.email','test@example.test')
     (source/'.gitignore').write_text('KILL_SWITCH\n.env\nlogs/\n.venv/\n')
     (source/'code.txt').write_text('original')
+    (source/'logs').mkdir()
+    (source/'logs/dashboard.log').write_text('legacy tracked log\n')
+    git(source,'add','-f','logs/dashboard.log')
     git(source,'add','.');git(source,'commit','-m','original')
     root = tmp_path/'installed'
     subprocess.run(['git','clone','--quiet',str(source),str(root)],check=True)
@@ -140,6 +143,18 @@ def test_retry_advances_failed_release_without_disarming_or_changing_host_env(tm
     assert (root/'KILL_SWITCH').exists()
     assert (root/'.env').read_text()=='private host configuration'
     r.install_release(root,source,new,backup)
+    assert (root/'KILL_SWITCH').exists()
+
+
+def test_retry_preserves_tracked_runtime_log_writes(tmp_path,monkeypatch):
+    source,root,old,new,backup=make_release(tmp_path)
+    monkeypatch.setattr(r,'COMMAND_LOG_DIR',None)
+    log=root/'logs/dashboard.log'
+    log.write_text('current dashboard evidence\n')
+    assert 'logs/dashboard.log' in git(root,'status','--porcelain')
+    r.install_release(root,source,new,backup)
+    assert git(root,'rev-parse','HEAD')==new
+    assert log.read_text()=='current dashboard evidence\n'
     assert (root/'KILL_SWITCH').exists()
 
 

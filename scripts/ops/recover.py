@@ -145,7 +145,10 @@ def install_release(root, source, release, backup, *, venv_target=None):
     actual = command('git', 'rev-parse', 'HEAD', cwd=root).stdout.strip()
     if command('git', 'branch', '--show-current', cwd=root).stdout.strip() != BRANCH:
         raise ValueError('Existing recovery checkout is on an unexpected branch')
-    changes = command('git', 'status', '--porcelain', '--untracked-files=all', cwd=root).stdout.splitlines()
+    # Legacy tracked logs remain in place; dashboard writes must not block
+    # source upgrades. Real source/configuration edits are still refused.
+    changes = command('git', 'status', '--porcelain', '--untracked-files=all',
+                      '--', '.', ':(top,exclude)logs/', cwd=root).stdout.splitlines()
     if '?? .venv' in changes:
         # Older releases ignored .venv/ directories but missed our symlink.
         # Recognize only the exact link this installer creates, before the
@@ -298,6 +301,8 @@ def main():
     if (old / '.env').exists(): shutil.copy2(old / '.env', backup / 'original.env')
     for name in ('logs', 'evaluation'):
         if (old / name).is_dir(): shutil.copytree(old / name, backup / name, symlinks=True)
+    if (root / 'logs').is_dir():
+        shutil.copytree(root / 'logs', backup / 'release-logs', symlinks=True)
     database = database_path(config.get('DATABASE_URL'), old)
     if database.exists():
         with sqlite3.connect(str(database)) as src, sqlite3.connect(str(backup / 'trading.db')) as dst:

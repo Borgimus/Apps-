@@ -2,6 +2,8 @@
 
 October 26 startup repair: legacy tracked files under `logs/` are runtime evidence and are excluded from the free observer's source-cleanliness check and recovery upgrade guard. Source/configuration changes elsewhere still block startup. Recovery preserves release logs in its backup before upgrading. After a missed 09:30 start, rerun recovery and start the observer explicitly during its 09:30-12:30 Eastern window.
 
+Daytime recovery is allowed only for an existing free-research installation with Alpaca selected, live trading explicitly disabled, the kill switch present, and no armed marker. Recovery acquires the launch locks and refuses either an active options runner or an active free observer. Options-mode maintenance retains its off-hours restriction. Backup, release tests, account-flat verification and free-data preflight still run before the schedule is restored.
+
 The October 24 recovery now defaults to zero-subscription IEX stock-signal research. Broker trading stays disarmed, and no OPRA or Tradier access is required. See [the current protocol and runbook](evaluation/free_equity_research_2026_10_24.md). The dedicated private dashboard page is `/equity-research`.
 
 The options-mode instructions below describe the suspended options experiment. They do not apply to the default free observer.

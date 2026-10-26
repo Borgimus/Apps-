@@ -249,6 +249,22 @@ def finish_equity_recovery(root, env, cron, backup, held, release):
     print('Research dashboard: /equity-research',flush=True)
 
 
+def validate_maintenance_window(now, mode, runtime, root):
+    """Permit recovery of an already-disarmed free observer during market hours.
+
+    The caller must hold the launch locks and reject active runner processes.
+    Existing backup, tests, flat-account and data gates still apply.
+    """
+    if now.weekday() >= 5 or not 9 <= now.hour < 13:
+        return
+    if (mode != 'equity_research' or runtime.get('TRADER_RUN_MODE') != 'equity_research'
+            or runtime.get('BROKER') != 'alpaca'
+            or str(runtime.get('LIVE_TRADING_ENABLED', 'true')).lower() != 'false'
+            or not (root / 'KILL_SWITCH').is_file()
+            or (root.parent / '.session_armed').exists()):
+        raise ValueError('Daytime recovery requires an existing disarmed free-research installation; otherwise run outside 09:00-13:00 Eastern')
+
+
 def main():
     global COMMAND_LOG_DIR
     COMMAND_LOG_DIR = None
@@ -261,8 +277,6 @@ def main():
     if os.geteuid() != 0 or not re.fullmatch('[0-9a-f]{40}', args.release):
         raise ValueError('Run as root with the exact reviewed release SHA')
     now = datetime.now(ET)
-    if now.weekday() < 5 and 9 <= now.hour < 13:
-        raise ValueError('Run outside 09:00-13:00 Eastern, when the scheduled runner is stopped')
     timezone = command('timedatectl', 'show', '-p', 'Timezone', '--value').stdout.strip()
     if timezone != 'America/New_York':
         raise ValueError('Server timezone must be America/New_York for the Debian cron schedule')
@@ -280,9 +294,11 @@ def main():
         handle = (Path('/root') / name).open('a')
         fcntl.flock(handle, fcntl.LOCK_EX | fcntl.LOCK_NB)
         held.append(handle)
-    pids = command('pgrep', '-af', r'[s]cripts/session_runner[.]py([[:space:]]|$)', check=False)
+    pids = command('pgrep', '-af',
+        r'[s]cripts/session_runner[.]py([[:space:]]|$)|[s]cripts/equity_research[.]py[[:space:]]+run([[:space:]]|$)', check=False)
     if pids.returncode != 1:
         raise ValueError('A runner is active or process detection failed; no installation attempted')
+    validate_maintenance_window(now,args.mode,dict(dotenv_values(root / '.env')),root)
     cron_result = command('crontab', '-l', check=False)
     if cron_result.returncode not in (0, 1): raise ValueError('Could not read crontab')
     cron = cron_result.stdout

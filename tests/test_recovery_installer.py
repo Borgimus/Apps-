@@ -33,6 +33,26 @@ def test_recovery_policy_preserves_thresholds_and_blocks_all_broker_entries():
     assert values['ALPACA_API_KEY']=='PKprivate'
 
 
+@pytest.mark.parametrize('condition',['disarmed_free','options','wrong_mode','live','missing_live','wrong_broker','no_switch','armed'])
+def test_daytime_recovery_requires_existing_disarmed_free_installation(tmp_path,condition):
+    root=tmp_path/'trader-release';root.mkdir();(root/'KILL_SWITCH').touch()
+    runtime={'TRADER_RUN_MODE':'equity_research','BROKER':'alpaca','LIVE_TRADING_ENABLED':'false'}
+    mode='equity_research'
+    if condition=='options':mode='options'
+    elif condition=='wrong_mode':runtime['TRADER_RUN_MODE']='options'
+    elif condition=='live':runtime['LIVE_TRADING_ENABLED']='true'
+    elif condition=='missing_live':runtime.pop('LIVE_TRADING_ENABLED')
+    elif condition=='wrong_broker':runtime['BROKER']='tradier'
+    elif condition=='no_switch':(root/'KILL_SWITCH').unlink()
+    elif condition=='armed':(tmp_path/'.session_armed').touch()
+    now=datetime(2026,10,26,9,45,tzinfo=r.ET)
+    if condition=='disarmed_free':r.validate_maintenance_window(now,mode,runtime,root)
+    else:
+        with pytest.raises(ValueError,match='Daytime recovery'):r.validate_maintenance_window(now,mode,runtime,root)
+    # Existing off-hours options maintenance remains available.
+    r.validate_maintenance_window(now.replace(hour=14),mode,runtime,root)
+
+
 @pytest.mark.parametrize('fail_at',[None,'verify-flat','check-options-data','test-alert','preflight'])
 def test_recovery_installs_schedule_only_after_checks(tmp_path,monkeypatch,fail_at):
     base=tmp_path/'root';old=base/'trader';source=tmp_path/'source'

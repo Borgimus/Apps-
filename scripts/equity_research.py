@@ -88,6 +88,18 @@ def watchdog_problem(report, now):
     except (KeyError,TypeError,ValueError):
         return 'Equity-research heartbeat is missing'
     if now.time()>=time(9,40) and report.get('data_status')!='ok':
+        # Cron can inspect the 09:39 snapshot before the observer's next
+        # cycle. Its outside-window label is expected even with healthy bars.
+        # Accept it only within the existing heartbeat limit and with all
+        # normal data-health checks satisfied. Later/degraded snapshots fail.
+        coverage=report.get('coverage_fraction')
+        healthy_warmup=(report.get('data_status')=='outside_active_window'
+            and ts.astimezone(ET).time()<time(9,40)
+            and report.get('request_failures')==0 and report.get('signal_errors')==0
+            and isinstance(coverage,(int,float)) and .8<=coverage<=1
+            and isinstance(report.get('fresh_symbols'),list)
+            and 'SPY' in report['fresh_symbols'])
+        if healthy_warmup:return None
         return 'Equity research reports missing, stale or failed IEX data'
     return None
 

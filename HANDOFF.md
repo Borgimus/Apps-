@@ -1,5 +1,7 @@
 # Current recovery default: free equity research
 
+October 27 watchdog repair: a healthy pre-09:40 report can still carry `outside_active_window` when the 09:40 cron check reads it. The watchdog now accepts that transitional snapshot only within its existing 180-second heartbeat limit, with SPY fresh, at least 80% fresh-symbol coverage, and zero recorded request or strategy failures. It continues rejecting stale, failed and post-boundary incorrectly labelled reports. Install this repair after the current session ends; preserve today's source identity and evidence.
+
 October 26 startup repair: legacy tracked files under `logs/` are runtime evidence and are excluded from the free observer's source-cleanliness check and recovery upgrade guard. Source/configuration changes elsewhere still block startup. Recovery preserves release logs in its backup before upgrading. After a missed 09:30 start, rerun recovery and start the observer explicitly during its 09:30-12:30 Eastern window.
 
 Daytime recovery is allowed only for an existing free-research installation with Alpaca selected, live trading explicitly disabled, the kill switch present, and no armed marker. Recovery acquires the launch locks and refuses either an active options runner or an active free observer. Options-mode maintenance retains its off-hours restriction. Backup, release tests, account-flat verification and free-data preflight still run before the schedule is restored.

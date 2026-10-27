@@ -268,6 +268,44 @@ def test_free_watchdog_rejects_stale_heartbeat_and_unverified_provenance():
     assert cli.watchdog_problem(report,DAY+timedelta(minutes=4))
 
 
+@pytest.mark.parametrize('condition',['healthy','no_spy','low_coverage','data_failure','signal_failure',
+    'degraded','stale','post_boundary','unknown_coverage','wrong_date'])
+def test_watchdog_0940_transition_accepts_only_healthy_recent_warmup(condition):
+    spec=importlib.util.spec_from_file_location('boundary_watchdog',Path(__file__).resolve().parents[1]/'scripts/equity_research.py')
+    cli=importlib.util.module_from_spec(spec);spec.loader.exec_module(cli)
+    now=DAY.replace(hour=9,minute=40,second=0)
+    previous=now-timedelta(seconds=30)
+    report={'date':str(now.date()),'research_status':'running','last_cycle_at':previous.isoformat(),
+        'protocol':cli.PROTOCOL,'feed':'iex','broker_entries_enabled':False,
+        'data_status':'outside_active_window','request_failures':0,'signal_errors':0,
+        'coverage_fraction':1.0,'fresh_symbols':['SPY','QQQ']}
+    if condition=='no_spy':report['fresh_symbols']=['QQQ']
+    elif condition=='low_coverage':report['coverage_fraction']=.79
+    elif condition=='data_failure':report['request_failures']=1
+    elif condition=='signal_failure':report['signal_errors']=1
+    elif condition=='degraded':report['data_status']='degraded'
+    elif condition=='stale':report['last_cycle_at']=(now-timedelta(minutes=4)).isoformat()
+    elif condition=='post_boundary':report['last_cycle_at']=now.isoformat()
+    elif condition=='unknown_coverage':report['coverage_fraction']=None
+    elif condition=='wrong_date':report['date']=str((now-timedelta(days=1)).date())
+    assert (cli.watchdog_problem(report,now) is None)==(condition=='healthy')
+
+
+def test_watchdog_handles_real_observer_report_across_warmup_boundary(tmp_path):
+    spec=importlib.util.spec_from_file_location('real_boundary',Path(__file__).resolve().parents[1]/'scripts/equity_research.py')
+    cli=importlib.util.module_from_spec(spec);spec.loader.exec_module(cli)
+    o=Observer(tmp_path,tmp_path/'evidence',['SPY'],str(DAY.date()),code_sha='abc')
+    o.strategies=[]
+    previous=DAY.replace(hour=9,minute=39,second=30)
+    report=o.cycle({'SPY':[bar(previous.replace(minute=30,second=0))]},previous)
+    assert report['data_status']=='outside_active_window'
+    assert cli.watchdog_problem(report,previous.replace(minute=40,second=0)) is None
+    later=previous.replace(minute=46,second=0)
+    report=o.cycle({'SPY':[]},later)
+    assert report['data_status']=='degraded'
+    assert cli.watchdog_problem(report,later)
+
+
 @pytest.mark.asyncio
 async def test_signal_discovery_timestamp_is_after_http_response(monkeypatch):
     spec=importlib.util.spec_from_file_location('free_collection',Path(__file__).resolve().parents[1]/'scripts/equity_research.py')

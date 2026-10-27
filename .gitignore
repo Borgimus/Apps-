@@ -57,6 +57,8 @@ dist/
 .eggs/
 venv/
 .venv/
+# Also ignore the symlink to the existing host environment.
+.venv
 env/
 .python-version
 
@@ -66,6 +68,7 @@ env/
 *.sqlite3
 
 # Logs (project-level)
+# Rotated trading.jsonl files are host runtime data, never code artifacts.
 logs/
 
 # Generated cohort-specific evaluation ledgers (runtime state)

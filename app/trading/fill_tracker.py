@@ -516,4 +516,4 @@ class FillTracker:
                 filled_qty, f"{avg_fill_price:.4f}" if avg_fill_price else "—",
             )
         except Exception as exc:
-            logger.debug("Telemetry write failed (non-fatal): %s", exc)
+            logger.warning("Telemetry write failed (non-fatal): %s", exc)

@@ -219,8 +219,8 @@ async def _close_orphaned_positions(broker, orphaned_symbols, broker_positions, 
                             "Post-session orphan close: filled %s @ %.2f", symbol, fill_price,
                         )
                         break
-                except Exception:
-                    pass
+                except Exception as exc:
+                    logger.warning("Post-session orphan close: status poll failed for %s: %s", symbol, exc)
             else:
                 logger.warning(
                     "Post-session orphan close: order for %s not filled within 30s", symbol,

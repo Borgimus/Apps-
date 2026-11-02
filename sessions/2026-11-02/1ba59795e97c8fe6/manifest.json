@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-02",
+  "snapshot_code_commit": "b410e9d5ffbc62f1b19b22be82a1d0d8cf3489cd",
+  "files_sha256": {
+    "equity_research/2026-11-02.events.jsonl": "e39556bfeec82aba4cbadbff19f0fb8b4a25f946bc41e07745f792cc3ba9e032",
+    "equity_research/2026-11-02.json": "49ecde1d8e20f9b91d08450fea3392462ae437b5d865ea7bcf738ad9c230c4e2",
+    "equity_research/2026-11-02.md": "f6db92e51691ee1df1a43e890b5faa28b29db9dda8d2f88b3ea89cf78b1f1412",
+    "ledgers/ledger.json": "c4eb48b6e8c67d55a552af69cb37c0d6e9234091642d1092d562d6df54f58b71",
+    "ledgers/ledger.options_tradier.guardrails_v3_tradier_options_2026_09_08.paper_scaled_250_cap_10.guardrails_v3_shadow_validation.json": "1bdaf96b15995df99b29a1a3f44184ed53f84cff24474d9a0f06e90c3d4e9fc9",
+    "ledgers/ledger.paper_scaled_250_cap_10.guardrails_v2.json": "8c0858d63d8a2957fbf77fe0cffc1a718af386238aa0a8b663d775eddee8c5f5",
+    "ledgers/ledger.paper_scaled_250_cap_10.guardrails_v3_shadow_validation.json": "7430d7d98b8aad50f94d89b401067740b0b619a89ca7287e2970cc3383096f5c",
+    "ledgers/ledger.paper_scaled_250_cap_10.json": "73044a59888002032d4cb2825dfbb2296b0fd676463c6a09d1aa47fce05cb60c",
+    "market_data_comparisons.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shadow_book.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "missing_files": [
+    "reports/2026-11-02.json",
+    "reports/2026-11-02.md",
+    "logs/preflight_2026-11-02.log",
+    "logs/automation_2026-11-02.log",
+    "logs/session_2026-11-02.log",
+    "logs/session_2026-11-02.json",
+    "logs/session_2026-11-02.exitcode",
+    "logs/shadow_report_2026-11-02.txt",
+    "logs/AUTOMATION_FAILURE_2026-11-02.txt",
+    "logs/watchdog_2026-11-02.log"
+  ],
+  "note": "Snapshot commit is not proof of session execution. See report/session context."
+}

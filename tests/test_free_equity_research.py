@@ -158,6 +158,7 @@ def test_preflight_accepts_legacy_log_writes_but_blocks_source_changes(tmp_path,
     monkeypatch.setattr(cli,'configured',lambda:(tmp_path/'evidence',tmp_path/'locks'))
     monkeypatch.setattr(cli,'verify_flat',AsyncMock())
     monkeypatch.setattr(cli,'check_data',AsyncMock(return_value={'feed':'iex'}))
+    monkeypatch.setattr(cli,'frozen_baseline',lambda root:{'baseline_sha256':'test-baseline'})
     monkeypatch.setattr(cli,'calendar',lambda *args,**kwargs:True)
     monkeypatch.setattr(cli,'notify',lambda *args:True)
     monkeypatch.setattr(sys,'argv',['equity_research.py','preflight'])
@@ -205,6 +206,8 @@ def test_free_install_keeps_broker_disarmed_and_hands_off_locks_before_preflight
     monkeypatch.setattr(r,'restart_dashboard',lambda root,env:True)
     def fake(*args,check=True,cwd=None,env=None,input=None):
         if args[0]=='crontab':state['cron']=input
+        elif 'scripts/research_review.py' in args:
+            operations.append('review')
         else:
             assert 'scripts/equity_research.py' in args
             op=args[2];operations.append(op)
@@ -226,7 +229,7 @@ for name in ('.eod_close.lock','.session.lock','.session-preflight.lock'):
             assert state['cron']==original
         else:
             r.finish_equity_recovery(root,{},original,backup,held,'b'*40)
-            assert operations==['check','preflight']
+            assert operations==['check','preflight','review']
             assert 'research.sh watchdog' in state['cron']
             assert 'session_runner.py' not in state['cron']
             status=json.loads((base/'trader-recovery-status.json').read_text())

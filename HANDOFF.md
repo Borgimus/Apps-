@@ -1,4 +1,18 @@
-# Current recovery default: free equity research
+# Current operating state - November 3, 2026
+
+The VPS runs free IEX equity research with broker orders disabled. The latest verified deployed release is `b410e9d5ffbc62f1b19b22be82a1d0d8cf3489cd`; this cumulative-review update still needs installation on the host. The maintained code branch is `agent/operational-recovery-2026-10-24`. PR #32 targets the older operational branch and must pass review/CI before merge.
+
+The immutable `session-artifacts` archive through November 2 contains **five full valid sessions, one partial session, 844 full-session collection cycles and 260 eligible signals**. Every full session completed at 12:30 Eastern with zero recorded request or strategy errors. October 26 is a separate late-start partial session. These are equity research observations; they do not advance options readiness.
+
+The new constrained replay produces 15 closed long-only price proxies across those five full sessions. Net hypothetical results are **-$10.68 / -$16.46 / -$28.03** under assumed round-trip costs of **5 / 10 / 20 bps**. There is no measured broker P&L or demonstrated profitable edge. The replay was declared after these five sessions and is retrospective on them.
+
+Strategy settings and source fingerprints are frozen. The cumulative dashboard is `/equity-research/review`, with detailed JSON at `/api/equity-research/review`. End-of-day processing rebuilds the review and includes it in the immutable archive. Identical inputs rebuild identically across publication retries. Daily evidence still publishes if cumulative review fails.
+
+Next checkpoints are 10 and 20 full sessions. The first 20 full sessions form development; the following 10 form a disjoint frozen holdout. Checkpoints never enable orders. See the [portfolio review contract](evaluation/equity_portfolio_review_2026_11_03.md), [verified five-session review](evaluation/reviews/equity_research_2026_11_02.md), and [collection protocol](evaluation/free_equity_research_2026_10_24.md).
+
+Install a pinned reviewed release after 13:00 Eastern, with no observer running. Recovery performs backups, release tests, paper-flat verification, a free-data probe, research preflight and an offline rebuild of the cumulative review. Preserve the current session's source identity; do not update during collection. No paid subscription, deposit or order activation is part of installation.
+
+## Recovery history
 
 October 27 watchdog repair: a healthy pre-09:40 report can still carry `outside_active_window` when the 09:40 cron check reads it. The watchdog now accepts that transitional snapshot only within its existing 180-second heartbeat limit, with SPY fresh, at least 80% fresh-symbol coverage, and zero recorded request or strategy failures. It continues rejecting stale, failed and post-boundary incorrectly labelled reports. Install this repair after the current session ends; preserve today's source identity and evidence.
 
@@ -10,9 +24,9 @@ The October 24 recovery now defaults to zero-subscription IEX stock-signal resea
 
 The options-mode instructions below describe the suspended options experiment. They do not apply to the default free observer.
 
-# Project Handoff
+# Historical suspended options experiment
 
-**Updated:** 2026-10-01. Replaces the 2026-07-10 Phase 2 handoff, which described
+**Historical document updated:** 2026-10-01. Replaces the 2026-07-10 Phase 2 handoff, which described
 a state that ended months ago.
 
 ## What this is

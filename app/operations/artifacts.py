@@ -69,6 +69,12 @@ def archive(root: Path, evidence: Path, day: str) -> Path:
                    f"equity_research/{day}.{ext}") for ext in ("json", "md")]
         files += [(evidence / "equity_research" / "events" / f"{day}.jsonl",
                    f"equity_research/{day}.events.jsonl")]
+        review_root = evidence / 'equity_research' / 'review'
+        review_path = review_root / 'latest.json'
+        if review_path.exists():
+            review = json.loads(review_path.read_text())
+            if review.get('as_of_session') == day:
+                files += [(review_root / f'latest.{ext}', f'equity_research/review.{ext}') for ext in ('json', 'md')]
         missing = []
         for source, relative in files:
             if not source.exists():

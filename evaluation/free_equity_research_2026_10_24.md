@@ -49,6 +49,6 @@ Reports, append-only raw observations and restart state live under `/root/trader
 
 ## Validation and remaining proof
 
-Local full suite with the broker kill switch active: **1,095 passed, 2 skipped in 44.47 seconds**. New regression tests cover IEX-only GET requests, pagination, forming/future/invalid bars, stale canaries, causal discovery, delayed-entry proxies, missing horizons, signal deduplication, revision preservation, same-day source boundaries, absent options P&L, watchdog validation, free installer lock handoff and archived research evidence.
+The free collector, source-guard repairs and watchdog boundary fix were deployed through `b410e9d5ffbc62f1b19b22be82a1d0d8cf3489cd`. That release passed **1,119 tests, 2 skipped** on the VPS. The October 28 installation verified the paper account flat and free IEX access. The immutable archive through November 2 contains five full valid sessions and one partial; GitHub publication worked for all six dates. Both October 29-30 and November 2 used the watchdog repair.
 
-The host has already verified the existing Alpaca paper account is flat. This release still requires the host's IEX canary and dedicated research preflight to pass. Future market-day coverage, alert receipt, Tailscale access and GitHub artifact writes are unverified until exercised. No strategy profitability is claimed.
+November 3 adds a [frozen cumulative portfolio-review contract](equity_portfolio_review_2026_11_03.md), independent raw-evidence validation and 10/20-session checkpoints with a separate holdout. Collection thresholds remain unchanged. The new review feature requires installation on the VPS; its dashboard and next scheduled end-of-day rebuild/publication must then be checked. No stock or options profitability is claimed.

@@ -20,6 +20,8 @@ from dotenv import load_dotenv
 from app.operations.monitor import ET, calendar, notify, read_json, write_json, verify_flat
 from app.operations.artifacts import publish
 from app.research.equity_observer import EquityData, Observer, data_canary, universe, PROTOCOL
+from app.research.baseline import frozen_baseline, baseline_identity
+from app.research.portfolio_review import build_review
 
 STOP=False
 
@@ -112,7 +114,8 @@ async def run_loop(evidence, *, once=False):
     if not time(9,30)<=now.time()<time(12,30):
         raise ValueError('Observer runs only 09:30-12:30 Eastern')
     symbols=universe(ROOT)
-    observer=Observer(ROOT,evidence,symbols,str(now.date()),code_sha=identity())
+    baseline=frozen_baseline(ROOT)
+    observer=Observer(ROOT,evidence,symbols,str(now.date()),code_sha=identity(),baseline=baseline_identity(baseline))
     data=client()
     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
     deadline=now.replace(hour=12,minute=30,second=0,microsecond=0)
@@ -189,10 +192,12 @@ def main():
                 changes=subprocess.check_output(['git','status','--porcelain','--untracked-files=all',
                     '--','.',':(top,exclude)logs/'],cwd=ROOT,text=True)
                 if changes.strip():raise ValueError('Research source checkout is dirty')
+                baseline=frozen_baseline(ROOT)
                 asyncio.run(verify_flat())
                 result=asyncio.run(check_data())
                 scheduled=calendar(ROOT,now=now,refresh=True)
-                write_json(ready,{'date':day,'code_sha':identity(),'market_day':scheduled,'data':result,'orders_enabled':False})
+                write_json(ready,{'date':day,'code_sha':identity(),'market_day':scheduled,'data':result,
+                    'orders_enabled':False,'baseline_sha256':baseline['baseline_sha256']})
                 print('EQUITY_PREFLIGHT_READY: free IEX; broker trading stays disarmed')
                 return 0
             if args.command=='run':
@@ -202,6 +207,8 @@ def main():
                     print('MARKET_CLOSED: research remains disarmed');return 0
                 if marker.get('date')!=day or marker.get('code_sha')!=identity() or marker.get('market_day') is not True:
                     raise ValueError('No matching successful research preflight')
+                if marker.get('baseline_sha256')!=frozen_baseline(ROOT)['baseline_sha256']:
+                    raise ValueError('Research baseline differs from preflight')
                 ready.unlink(missing_ok=True)
                 fcntl.flock(eod,fcntl.LOCK_UN)
                 return asyncio.run(run_loop(evidence,once=args.once))
@@ -215,13 +222,24 @@ def main():
                         return 1
                     return 0
                 checkout=Path(os.getenv('TRADER_ARTIFACT_CHECKOUT','/root/trader-artifacts'))
+                review_ok=True
+                try:
+                    cumulative=build_review(ROOT,evidence)
+                    review_ok=cumulative['invalid_sessions']==0
+                    print(f"RESEARCH_REVIEW_COMPLETE full_sessions={cumulative['full_valid_sessions']} stage={cumulative['stage']}")
+                    if not review_ok:
+                        notify(ROOT,'equity_research_review_failed',f'{day}: cumulative evidence validation needs review; daily evidence remains available.')
+                except Exception as exc:
+                    review_ok=False
+                    notify(ROOT,'equity_research_review_failed',f'{day}: cumulative research review failed ({type(exc).__name__}); daily evidence remains available.')
+                # Publish daily evidence even if cumulative analysis needs repair.
                 try:
                     snapshot=publish(ROOT,evidence,checkout,day)
                     print('RESEARCH_ARTIFACTS_PUBLISHED '+snapshot.name)
                 except Exception as exc:
                     notify(ROOT,'equity_research_upload_failed',f'{day}: research upload failed ({type(exc).__name__}); local evidence is preserved.')
                     print('UPLOAD_PENDING: local research is preserved');return 1
-                return 0
+                return 0 if review_ok else 1
     except BlockingIOError:
         print('RESEARCH_BUSY: an existing session or operation holds a lock',file=sys.stderr)
         return 75

@@ -1,0 +1,103 @@
+{
+  "protocol": "iex_equity_signal_screen_v1_2026_10_24",
+  "declared_on": "2026-11-03",
+  "strategy_parameters": {
+    "orb": {
+      "range_minutes": 15,
+      "min_range_pts": 0.5,
+      "volume_confirmation": true,
+      "confirmation_bars": 2
+    },
+    "vwap_reclaim": {
+      "proximity_pct": 0.002,
+      "confirmation_bars": 2
+    }
+  },
+  "symbols": [
+    "SPY",
+    "QQQ",
+    "IWM",
+    "DIA",
+    "XLK",
+    "XLF",
+    "XLE",
+    "XLY",
+    "SMH",
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "AMZN",
+    "META",
+    "GOOGL",
+    "TSLA",
+    "AMD",
+    "ARM",
+    "AVGO",
+    "COIN",
+    "MSTR",
+    "PLTR",
+    "SHOP",
+    "SNOW",
+    "NET",
+    "CRWD",
+    "DDOG",
+    "RIVN",
+    "SOFI",
+    "HOOD",
+    "MARA",
+    "RIOT",
+    "ROKU",
+    "DKNG",
+    "UBER",
+    "LYFT",
+    "XYZ",
+    "AFRM"
+  ],
+  "bar_minutes": 5,
+  "horizons_minutes": [
+    5,
+    15,
+    30
+  ],
+  "files_sha256": {
+    "app/strategies/opening_range_breakout.py": "aa38453f10b7cd3041020e1b71eb26a7746bee8c8327b8d3fb73cc762959dec0",
+    "app/strategies/vwap_strategy.py": "53d4f5d9de51f9a81c1039073829b470e1bc32de49f6b0414c380c190a8ef62f",
+    "app/strategies/strategy_base.py": "ae359b518717f4b7c3afffd0a3a2c34e2deccbfe0d857c4c0edba6040a1ed7d1",
+    "config/ticker_universe.yaml": "92a841bb277eacb605145e96097fb7a123be7a43b107f355265e0540b288f31f",
+    "app/research/equity_observer.py": "f6644ce7a35d09860e83bdac2fee358fcccb313c1160e815efb5cff9267e841a",
+    "app/research/baseline.py": "e7c1db5c90dc8a9ef68d68ced5ef34326b393ecf82b5a9e3cf762e2e8c3b5f56"
+  },
+  "verified_legacy_source_commits": [
+    "afa03d0d7d8a0166283c3fcdc892a2f3c48e8788",
+    "b410e9d5ffbc62f1b19b22be82a1d0d8cf3489cd"
+  ],
+  "legacy_source_files_sha256": {
+    "afa03d0d7d8a0166283c3fcdc892a2f3c48e8788": {
+      "app/strategies/opening_range_breakout.py": "aa38453f10b7cd3041020e1b71eb26a7746bee8c8327b8d3fb73cc762959dec0",
+      "app/strategies/vwap_strategy.py": "53d4f5d9de51f9a81c1039073829b470e1bc32de49f6b0414c380c190a8ef62f",
+      "app/strategies/strategy_base.py": "ae359b518717f4b7c3afffd0a3a2c34e2deccbfe0d857c4c0edba6040a1ed7d1",
+      "config/ticker_universe.yaml": "92a841bb277eacb605145e96097fb7a123be7a43b107f355265e0540b288f31f",
+      "app/research/equity_observer.py": "47483590398caf6eb2bfed8c131eeb6e7db8a21b3ee49473f215136f8f633790"
+    },
+    "b410e9d5ffbc62f1b19b22be82a1d0d8cf3489cd": {
+      "app/strategies/opening_range_breakout.py": "aa38453f10b7cd3041020e1b71eb26a7746bee8c8327b8d3fb73cc762959dec0",
+      "app/strategies/vwap_strategy.py": "53d4f5d9de51f9a81c1039073829b470e1bc32de49f6b0414c380c190a8ef62f",
+      "app/strategies/strategy_base.py": "ae359b518717f4b7c3afffd0a3a2c34e2deccbfe0d857c4c0edba6040a1ed7d1",
+      "config/ticker_universe.yaml": "92a841bb277eacb605145e96097fb7a123be7a43b107f355265e0540b288f31f",
+      "app/research/equity_observer.py": "47483590398caf6eb2bfed8c131eeb6e7db8a21b3ee49473f215136f8f633790"
+    }
+  },
+  "note": "Legacy mapping verified against both deployed source commits. Collection parameters and strategy files are unchanged. New analysis policy is separately versioned.",
+  "verified_legacy_strategy_parameters": {
+    "orb": {
+      "range_minutes": 15,
+      "min_range_pts": 0.5,
+      "volume_confirmation": true,
+      "confirmation_bars": 2
+    },
+    "vwap_reclaim": {
+      "proximity_pct": 0.002,
+      "confirmation_bars": 2
+    }
+  }
+}

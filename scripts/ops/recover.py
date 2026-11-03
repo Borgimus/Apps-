@@ -228,6 +228,13 @@ def finish_equity_recovery(root, env, cron, backup, held, release):
         raise ValueError('Free research preflight identity is invalid')
     if not (root/'KILL_SWITCH').exists() or Path('/root/.session_armed').exists():
         raise ValueError('Free research preflight must leave broker trading disarmed')
+    print('RECOVERY_STEP cumulative_research_review',flush=True)
+    cumulative=command(python,'scripts/research_review.py',cwd=root,env=env,check=False)
+    print(cumulative.stdout.strip(),flush=True)
+    if cumulative.returncode:
+        # Historical evidence errors must remain visible, but must not stop
+        # collection of new, independently labelled observations.
+        print('RESEARCH_REVIEW_NEEDS_ATTENTION: daily collection remains scheduled; inspect the cumulative review',flush=True)
     for name,operation in (('preflight_session.sh','preflight'),('start_session.sh','run'),('auto_close_session.sh','finish')):
         path=Path('/root')/name
         path.write_text(f'#!/usr/bin/env bash\nexport TRADER_ROOT=/root/trader-release\nexec bash /root/trader-release/scripts/ops/research.sh {operation} "$@"\n')
@@ -244,6 +251,7 @@ def finish_equity_recovery(root, env, cron, backup, held, release):
         'broker_trading_disarmed':True,'options_pnl':None,'preflight_passed':True,
         'alert_server_accepted':alert_ready,'dashboard_local_ready':dashboard_ready,'backup':str(backup),
         'research_page':'/equity-research','next_session_data_freshness':'not yet verified'}
+    status.update(research_review_page='/equity-research/review',research_review_ready=cumulative.returncode==0)
     Path('/root/trader-recovery-status.json').write_text(json.dumps(status,indent=2)+'\n')
     print('FREE_RESEARCH_INSTALLED: IEX stock-signal observations scheduled; no options data or order placement.',flush=True)
     print('Research dashboard: /equity-research',flush=True)

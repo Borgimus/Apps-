@@ -1,5 +1,7 @@
 # Options Trading Research System
 
+**Current deployed mode: free IEX equity research, with broker orders disabled.** The options experiment is suspended. Start with [HANDOFF.md](HANDOFF.md) for verified session counts and deployment state, and the [frozen portfolio-review contract](evaluation/equity_portfolio_review_2026_11_03.md) for evaluation rules. The cumulative review page is `/equity-research/review` after installing the November 3 update.
+
 A modular Python system for researching and paper-trading day-trading options strategies.
 
 > ⚠️ **DISCLAIMER**: This software is for educational and research purposes only. Options trading involves significant risk of loss. Paper trading results do not guarantee live performance. Always verify strategies extensively before risking real capital.

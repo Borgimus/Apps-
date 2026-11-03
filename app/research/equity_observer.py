@@ -18,6 +18,7 @@ import yaml
 
 from app.operations.monitor import read_json, write_json
 from app.strategies import OpeningRangeBreakoutStrategy, VWAPReclaimStrategy
+from app.research.baseline import STRATEGY_PARAMETERS
 
 ET = ZoneInfo('America/New_York')
 PROTOCOL = 'iex_equity_signal_screen_v1_2026_10_24'
@@ -137,8 +138,9 @@ def outcomes(signal, rows, *, now):
 
 
 class Observer:
-    def __init__(self, root, evidence, symbols, day, *, code_sha):
+    def __init__(self, root, evidence, symbols, day, *, code_sha, baseline=None):
         self.root=root;self.symbols=symbols;self.day=day;self.code_sha=code_sha
+        self.baseline=baseline
         self.directory=evidence/'equity_research'
         self.state_file=self.directory/'state'/f'{day}.json'
         self.events=self.directory/'events'/f'{day}.jsonl'
@@ -146,9 +148,8 @@ class Observer:
             'code_sha':code_sha,'cycles':0,'request_failures':0,'signal_errors':0,'started_at':None,'last_data_at':None}
         if self.state.get('protocol')!=PROTOCOL or self.state.get('date')!=day or self.state.get('code_sha')!=code_sha:
             raise ValueError('Incompatible research state')
-        self.strategies=[OpeningRangeBreakoutStrategy({'range_minutes':15,'min_range_pts':.5,
-            'volume_confirmation':True,'confirmation_bars':2}),
-            VWAPReclaimStrategy({'proximity_pct':.002,'confirmation_bars':2})]
+        self.strategies=[OpeningRangeBreakoutStrategy(dict(STRATEGY_PARAMETERS['orb'])),
+            VWAPReclaimStrategy(dict(STRATEGY_PARAMETERS['vwap_reclaim']))]
 
     def event(self, event, now, **values):
         self.events.parent.mkdir(parents=True,exist_ok=True)
@@ -251,6 +252,7 @@ class Observer:
                 'Forward returns use a future bar-open proxy. No fills, spread, fees, short availability or options outcomes are established.',
                 'Cost sensitivity subtracts assumed round-trip basis points; it is not an execution-cost model.',
                 'Signals overlap and are not independent trades. This is a screening experiment; positive gross movement does not establish profitability.']}
+        if self.baseline is not None:report['baseline']=self.baseline
         destination=self.directory/'reports'/f'{self.day}.json'
         write_json(destination,report)
         md=['# Free IEX stock-signal research',f'Date: {self.day}',f'Data status: {report["data_status"]}',

@@ -26,6 +26,7 @@ from app.brokers.broker_interface import (
     OrderType,
 )
 from app.brokers.paper_broker import PaperBroker
+from app.config import Settings
 from app.risk import RiskManager
 from app.strategies import (
     IVCrushFilter,
@@ -61,10 +62,22 @@ def _make_liquid_contract(oi: int = 500, vol: int = 200, spread: float = 0.05):
 class TestFullOrderPipeline:
 
     @pytest.mark.asyncio
-    async def test_valid_signal_places_order(self):
+    @pytest.mark.parametrize("operator_kill_switch", [False, True])
+    async def test_valid_signal_places_order(self, tmp_path, monkeypatch, operator_kill_switch):
+        # The installer intentionally keeps the operator's kill switch active.
+        # Test the simulated pipeline against its own settings and file path.
+        monkeypatch.chdir(tmp_path)
+        operator_switch = tmp_path / "KILL_SWITCH"
+        if operator_kill_switch:
+            operator_switch.touch()
         contract = _make_liquid_contract()
         broker = PaperBroker(starting_equity=float(EQUITY))
-        rm = RiskManager()
+        settings = Settings(
+            _env_file=None, broker="paper", live_trading_enabled=False,
+            database_url="sqlite+aiosqlite:///:memory:",
+            kill_switch_file=str(tmp_path / "isolated-test-kill-switch"),
+        )
+        rm = RiskManager(settings)
         rm.start_session(EQUITY)
 
         signal = Signal(
@@ -89,6 +102,7 @@ class TestFullOrderPipeline:
 
         order_result = await broker.place_option_order(req)
         assert order_result.status == OrderStatus.FILLED
+        assert operator_switch.exists() is operator_kill_switch
 
     @pytest.mark.asyncio
     async def test_kill_switch_blocks_pipeline(self, tmp_path):

@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 from collections import defaultdict
+import logging
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -126,11 +127,15 @@ class DailyReport:
     trades_by_group: Dict[str, int] = field(default_factory=dict)
     pnl_by_group: Dict[str, float] = field(default_factory=dict)
     liquidity_rejections: int = 0    # underlying price/volume rejections by CandidateScorer
+    data_fetch_rejections: int = 0   # candidates rejected because their data failed or was stale
 
     # Per-symbol P&L
     pnl_by_symbol: Dict[str, float] = field(default_factory=dict)
     win_rate_by_symbol: Dict[str, float] = field(default_factory=dict)
     expectancy_by_symbol: Dict[str, float] = field(default_factory=dict)
+
+    # Report sections whose query failed; their figures are unavailable, not zero.
+    section_errors: List[str] = field(default_factory=list)
 
     # System health
     api_errors: int = 0
@@ -189,6 +194,12 @@ class DailyReport:
 
 
 # ── Builder ───────────────────────────────────────────────────────────────────
+
+
+def _section_failed(report: "DailyReport", name: str, exc: Exception) -> None:
+    """A failed query makes its section unavailable; it must never read as zero."""
+    report.section_errors.append(name)
+    logging.getLogger(__name__).warning("Daily report section %s unavailable: %s", name, exc)
 
 
 async def build_daily_report(db_session, session_date: str, settings=None) -> DailyReport:
@@ -487,6 +498,8 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
 
     # ── Scan pipeline metrics ─────────────────────────────────────────────────
     _liquidity_rejection_codes = {"price_too_low", "insufficient_underlying_volume"}
+    _data_fetch_rejection_codes = {"data_fetch_error", "scanner_data_stale"}
+    scan_rows = []
     try:
         from app.api.models import DBScanResult
         import json as _json
@@ -528,23 +541,22 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
                     report.rejected_by_group[grp] = report.rejected_by_group.get(grp, 0) + 1
                     try:
                         rr = set(_json.loads(r.rejected_reasons or "[]"))
-                        if rr & _liquidity_rejection_codes:
-                            report.liquidity_rejections += 1
-                    except Exception:
-                        pass
-    except Exception:
-        pass  # DBScanResult table may not exist in older DBs
+                    except (ValueError, TypeError):
+                        rr = {"unparseable_rejection_reasons"}
+                    if rr & _liquidity_rejection_codes:
+                        report.liquidity_rejections += 1
+                    if rr & _data_fetch_rejection_codes:
+                        report.data_fetch_rejections += 1
+    except Exception as exc:
+        _section_failed(report, "scan_pipeline", exc)
 
     # ── Group-level trade / PnL breakdown ─────────────────────────────────────
     # Join trade journal with scan results via underlying_symbol to get per-group stats.
     # (scan_rows already loaded above; if it's empty this is a no-op)
     _sym_to_group: Dict[str, str] = {}
-    try:
-        for r in scan_rows:  # type: ignore[name-defined]
-            if r.universe_group:
-                _sym_to_group[r.symbol] = r.universe_group
-    except Exception:
-        pass
+    for r in scan_rows:
+        if r.universe_group:
+            _sym_to_group[r.symbol] = r.universe_group
 
     for t in closed:
         sym = t.underlying_symbol or ""
@@ -698,8 +710,8 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
             if fwd_30:
                 report.orb_avg_fwd_pct_30m = round(sum(fwd_30) / len(fwd_30), 4)
 
-    except Exception:
-        pass  # DBSignalBridge may not exist in older DBs
+    except Exception as exc:
+        _section_failed(report, "signal_bridge", exc)
 
     # ── Per-strategy PnL (for ORB vs VWAP comparison) ────────────────────────
     try:
@@ -719,8 +731,8 @@ async def build_daily_report(db_session, session_date: str, settings=None) -> Da
             strat_pnl[sid] = strat_pnl.get(sid, 0.0) + float(t.realized_pnl or 0)
         report.pnl_by_strategy = strat_pnl
         report.orb_actual_pnl = strat_pnl.get("orb")
-    except Exception:
-        pass
+    except Exception as exc:
+        _section_failed(report, "pnl_by_strategy", exc)
 
     # ── Sample-size warning ────────────────────────────────────────────────────
     if report.trades_filled < 30:
@@ -799,6 +811,13 @@ def _generate_notes(r: DailyReport):
     if r.api_errors > 0:
         notes.append(f"{r.api_errors} API error(s) recorded during session")
         recs.append("Investigate API errors in logs — persistent errors may affect fill accuracy")
+
+    if r.section_errors:
+        notes.append("Report sections unavailable (query failed): " + ", ".join(r.section_errors))
+        recs.append("Figures in those sections are unknown, not zero — check the report log")
+
+    if r.data_fetch_rejections > 0:
+        notes.append(f"{r.data_fetch_rejections} scan candidate(s) rejected for failed or stale data")
 
     if r.data_feed_errors > 0:
         notes.append(f"{r.data_feed_errors} market-data fetch(es) failed after retries")
@@ -958,6 +977,7 @@ def _scan_pipeline_section(r: DailyReport) -> str:
 
     liquidity_row = (
         f"| Liquidity rejections | {r.liquidity_rejections} |\n"
+        f"| Data-fetch rejections | {r.data_fetch_rejections} |\n"
         if r.liquidity_rejections > 0 else ""
     )
     return (
@@ -1279,6 +1299,7 @@ def to_markdown(report: DailyReport) -> str:
 |---|---|
 | API errors | {r.api_errors} |
 | Data feed errors | {r.data_feed_errors} |
+| Unavailable report sections | {", ".join(r.section_errors) or "none"} |
 | Kill switch events | {r.kill_switch_events} |
 | Scanner standby | {"YES — " + r.standby_reason if r.scanner_standby_activated and r.standby_reason else ("YES" if r.scanner_standby_activated else (f"recovered after {r.scanner_standby_event_count} event(s)" if r.scanner_standby_recovered else "no"))} |
 | Exit spread warnings | {r.exit_spread_warning_count} |

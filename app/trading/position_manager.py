@@ -59,6 +59,10 @@ class OpenPosition:
     confirmed_fill_qty: int = 0
     confirmed_fill_value: float = 0.0
 
+    # Set when monitoring could not obtain a usable exit quote; cleared on the
+    # next valid quote. Price extrema are never updated while unpriced.
+    unpriced_since: Optional[datetime] = None
+
     def __post_init__(self) -> None:
         if self.current_price == 0.0:
             self.current_price = self.entry_price

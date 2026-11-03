@@ -107,6 +107,24 @@ class CandidateScorer:
         if self._min_underlying_avg_volume > 0 and m.avg_volume_20d < self._min_underlying_avg_volume:
             rejections.append("insufficient_underlying_volume")
 
+        # Metrics from a failed fetch are sentinels (rsi=50, rvol=0, ...). Scoring
+        # them awarded points for data that does not exist, and the rejections
+        # they cascade into (low volume, small ATR) describe nothing real.
+        if m.errors:
+            data_rejections = ["data_fetch_error"]
+            if getattr(m, "is_data_stale", False):
+                data_rejections.append("scanner_data_stale")
+            return CandidateScore(
+                symbol=m.symbol,
+                score=0.0,
+                signal_type="NEUTRAL",
+                reason_codes=["metrics_unavailable"],
+                rejected_reasons=data_rejections,
+                is_rejected=True,
+                metrics=m,
+                universe_group=m.universe_group,
+            )
+
         # ── Signal direction ───────────────────────────────────────────────────
         signal_type = self._determine_signal(m)
 

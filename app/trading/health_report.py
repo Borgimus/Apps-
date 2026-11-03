@@ -38,6 +38,7 @@ class HealthReporter:
         api_errors: int = 0,
         reconciliation_warnings: Optional[List[str]] = None,
         data_feed_errors: int = 0,
+        data_health: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Build the full health report for a session date.
@@ -48,12 +49,18 @@ class HealthReporter:
         api_errors         : count of broker API failures recorded by session runner
         reconciliation_warnings : list of reconciler / recovery warning strings
         data_feed_errors   : count of market-data fetches that failed after retries
+        data_health        : runner verdict on whether the session received usable
+                             data. Absent means unverified, never healthy.
         """
         report: Dict[str, Any] = {
             "session_date": session_date,
             "generated_at": datetime.now(tz=ET).isoformat(),
             "api_errors": api_errors,
             "data_feed_errors": data_feed_errors,
+            "data_health": data_health or {
+                "status": "unverified",
+                "reasons": ["data_health_not_supplied"],
+            },
             "reconciliation_warnings": reconciliation_warnings or [],
         }
 

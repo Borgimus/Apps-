@@ -717,7 +717,9 @@ class TestHealthReport:
 
     @pytest.mark.asyncio
     async def test_empty_session_report(self, db_session: AsyncSession):
-        """Report for a session with no trades should return zeros, not crash."""
+        """An empty session reports zeros without crashing, and zeros alone are
+        never presented as a healthy session: without a data-health verdict the
+        report says the session is unverified."""
         reporter = HealthReporter(db_session)
         report = await reporter.generate("2024-01-16")
 
@@ -725,6 +727,14 @@ class TestHealthReport:
         assert report["trades"]["win_rate"] == 0.0
         assert report["realized_pnl"] == 0.0
         assert report["orders"]["submitted"] == 0
+        assert report["data_health"]["status"] == "unverified"
+
+    @pytest.mark.asyncio
+    async def test_degraded_data_health_is_reported(self, db_session: AsyncSession):
+        reporter = HealthReporter(db_session)
+        verdict = {"status": "degraded", "reasons": ["options_provider_authorization_rejected"]}
+        report = await reporter.generate("2024-01-16", data_health=verdict)
+        assert report["data_health"] == verdict
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

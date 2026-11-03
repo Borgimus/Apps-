@@ -53,6 +53,10 @@ def rejection_breakdown(events):
             "eligible_anchors": sum(r["eligible_anchor_recorded"] for r in rows),
             "became_eligible_after_rejection": sum(r["became_eligible_after_rejection"] for r in rows),
             "initial_multiple_blockers": sum(len(r["initial_reasons"]) > 1 for r in rejected),
+            "sole_initial_blockers": dict(sorted(Counter(
+                r["initial_reasons"][0] for r in rejected
+                if len(r["initial_reasons"]) == 1
+                and r["initial_reasons"][0] != "unrecorded_rejection_reason").items())),
             "initial_rejections_by_reason": dict(sorted(Counter(
                 reason for r in rejected for reason in r["initial_reasons"]).items())),
             "initial_rejection_combinations": [

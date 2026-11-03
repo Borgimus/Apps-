@@ -2,12 +2,39 @@
 
 import hashlib
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ET = ZoneInfo("America/New_York")
 ROOT = Path(__file__).resolve().parents[2]
+
+
+_SECRET_MARKERS = ("key", "secret", "token", "password", "webhook", "smtp_user")
+
+
+def effective_settings(settings) -> dict:
+    """Every setting this session ran with, secrets redacted.
+
+    The cohort's values have lived in an un-versioned host .env while
+    config.yaml said otherwise; recording what actually ran makes a session
+    reproducible from its own evidence.
+    """
+    def scrub(value, name=""):
+        if isinstance(value, dict):
+            return {k: scrub(v, k) for k, v in sorted(value.items())}
+        if any(marker in name.lower() for marker in _SECRET_MARKERS):
+            return "<set>" if value else None
+        if isinstance(value, (str, int, float, bool)) or value is None:
+            return value
+        if isinstance(value, (list, tuple)):
+            return [scrub(v) for v in value]
+        return str(value)
+    try:
+        return scrub(settings.model_dump())
+    except Exception:  # a settings stand-in without pydantic; record the gap
+        return {"unavailable": True}
 
 
 def capture_session_context(settings, started_at: datetime, strategy_ids=(), *,
@@ -20,20 +47,19 @@ def capture_session_context(settings, started_at: datetime, strategy_ids=(), *,
         raise ValueError("Session start time must include a timezone")
 
     provider = settings.options_data_provider
-    adapter_hash = None
-    if provider == "tradier":
-        adapter_hash = hashlib.sha256(
-            (ROOT / "app/brokers/alpaca_tradier_data.py").read_bytes()
-        ).hexdigest()[:8]
+    adapter_file = "alpaca_tradier_data.py" if provider == "tradier" else "alpaca_broker.py"
+    adapter_hash = hashlib.sha256(
+        (ROOT / "app/brokers" / adapter_file).read_bytes()
+    ).hexdigest()[:8]
     guardrails = scaled_guardrails_active(settings)
     base = (settings.paper_scaled_guardrail_cohort if guardrails else
             ("paper_scaled" if settings.paper_scaled_sizing_enabled else "one_contract"))
     cohort = f"{base}.options_{provider}"
-    baseline = Path(baseline_path) if baseline_path is not None else ROOT / "evaluation/phase3_tracking.json"
+    baseline = Path(baseline_path or os.getenv("TRADER_BASELINE_PATH") or ROOT / "evaluation/phase3_tracking.json")
     try:
         fingerprint = json.loads(baseline.read_text())["phase3_fingerprint"]
-        amendment = fingerprint.get("_tradier_data_amendment", {})
-        if (guardrails and provider == "tradier"
+        amendment = fingerprint.get(f"_{provider}_data_amendment", {})
+        if (guardrails
                 and fingerprint.get("options_data_provider") == provider
                 and fingerprint.get("options_data_adapter_hash") == adapter_hash
                 and isinstance(amendment.get("cohort"), str)):
@@ -45,8 +71,9 @@ def capture_session_context(settings, started_at: datetime, strategy_ids=(), *,
     hour, minute = map(int, settings.market_open.split(":"))
     scheduled = started_at.replace(hour=hour, minute=minute, second=0, microsecond=0)
     delay = max(0.0, (started_at - scheduled).total_seconds())
-    diagnostic = [sid for sid in strategy_ids if sid == "rsi_trend"
-                  and settings.paper_eval_permissive_entry_mode]
+    # rsi_trend is diagnostic-only in every entry mode (see the runner's
+    # DIAGNOSTIC_ONLY_STRATEGIES); the context must not report it as enabled.
+    diagnostic = [sid for sid in strategy_ids if sid == "rsi_trend"]
     shadow_only = [sid for sid in strategy_ids
                    if scaled_entry_block_reason(settings, "", sid) == "strategy_shadow_only"]
     enabled = sorted(set(strategy_ids) - set(diagnostic) - set(shadow_only))
@@ -67,6 +94,7 @@ def capture_session_context(settings, started_at: datetime, strategy_ids=(), *,
         "replay_policy": replay_policy,
         "replay_policy_hash": policy_hash(replay_policy),
         "observation_review_targets": {"scheduled_sessions": 5, "eligible_opportunities": 10},
+        "effective_settings": effective_settings(settings),
     }
 
 

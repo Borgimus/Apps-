@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-03",
+  "snapshot_code_commit": "3a067f1e18278fd8edfce932ae679a47e6eb4aec",
+  "files_sha256": {
+    "equity_research/2026-11-03.events.jsonl": "a4f4e6b708237245a015125534223e8786cc10c40d70c48a7e283479f46b6c8d",
+    "equity_research/2026-11-03.json": "923f995b7ff5ec9111c62b1597a167ceb6cd531ff71d83656f78ac644059cd58",
+    "equity_research/2026-11-03.md": "cf42c6be73fca98319d7e52a951752686e577733c426d058b292c1aa1e4fb998",
+    "equity_research/review.json": "9f9679c3d569e9eb3055f8151035a6437514a9052d0e8a232c503e8194e4ffa3",
+    "equity_research/review.md": "875492aaf90921b574102a14d6e13f8b857ba739ec22c8b66d287bf2806c1303",
+    "ledgers/ledger.json": "c4eb48b6e8c67d55a552af69cb37c0d6e9234091642d1092d562d6df54f58b71",
+    "ledgers/ledger.options_tradier.guardrails_v3_tradier_options_2026_09_08.paper_scaled_250_cap_10.guardrails_v3_shadow_validation.json": "1bdaf96b15995df99b29a1a3f44184ed53f84cff24474d9a0f06e90c3d4e9fc9",
+    "ledgers/ledger.paper_scaled_250_cap_10.guardrails_v2.json": "8c0858d63d8a2957fbf77fe0cffc1a718af386238aa0a8b663d775eddee8c5f5",
+    "ledgers/ledger.paper_scaled_250_cap_10.guardrails_v3_shadow_validation.json": "7430d7d98b8aad50f94d89b401067740b0b619a89ca7287e2970cc3383096f5c",
+    "ledgers/ledger.paper_scaled_250_cap_10.json": "73044a59888002032d4cb2825dfbb2296b0fd676463c6a09d1aa47fce05cb60c",
+    "logs/session_2026-11-03.log": "324d6efa9e81642b9f72af25bb6e4e34981452e1dc781b50101d5e48260eb6db",
+    "market_data_comparisons.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shadow_book.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "missing_files": [
+    "reports/2026-11-03.json",
+    "reports/2026-11-03.md",
+    "logs/preflight_2026-11-03.log",
+    "logs/automation_2026-11-03.log",
+    "logs/session_2026-11-03.json",
+    "logs/session_2026-11-03.exitcode",
+    "logs/shadow_report_2026-11-03.txt",
+    "logs/AUTOMATION_FAILURE_2026-11-03.txt",
+    "logs/watchdog_2026-11-03.log"
+  ],
+  "note": "Snapshot commit is not proof of session execution. See report/session context."
+}

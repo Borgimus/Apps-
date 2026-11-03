@@ -115,6 +115,11 @@
       "inputs_sha256": {
         "report_sha256": "b2aba7fcb3bab7fa43cb9e4dbeead26cfe68ec0d09bb73ee1fdd007b87261376",
         "events_sha256": "7971f7c6d54222b8d5775b4f457ca10065ffd2ce79d02bec4e2fd9ee3b665299"
+      },
+      "coverage_checkpoints": {
+        "checked": 24,
+        "healthy": 24,
+        "failed": []
       }
     },
     {
@@ -128,6 +133,11 @@
       "inputs_sha256": {
         "report_sha256": "d032789b8ef15c174ab3432bd1ad14c211809d289895299e465ef5e9d0ae45fb",
         "events_sha256": "ebbb60d3ff2f3322744c033bd310758e21949fe1e0be6f42c5619ec8921a182f"
+      },
+      "coverage_checkpoints": {
+        "checked": 35,
+        "healthy": 35,
+        "failed": []
       }
     },
     {
@@ -141,6 +151,11 @@
       "inputs_sha256": {
         "report_sha256": "c43ac3d96e7aa80dc7757a6eaa520685224ad17e179c6e16e7c54150ecfeea82",
         "events_sha256": "c07ff9b85b3530ce2adec4eb3e84709f0bfcfe329125c1b8b344a4a21a71e86d"
+      },
+      "coverage_checkpoints": {
+        "checked": 35,
+        "healthy": 35,
+        "failed": []
       }
     },
     {
@@ -154,6 +169,11 @@
       "inputs_sha256": {
         "report_sha256": "05d3d8c64b6e953895e1b02d250db85df283a13a86f92eee45b2bf654db788bc",
         "events_sha256": "f215942c6333bd352b6d54f50f39dd6b52b8910904f538bf9d5c656569993a4d"
+      },
+      "coverage_checkpoints": {
+        "checked": 35,
+        "healthy": 35,
+        "failed": []
       }
     },
     {
@@ -167,6 +187,11 @@
       "inputs_sha256": {
         "report_sha256": "9fc5e4b7b520f782c26642037dcd7ba3a666b7390f9f4aa185e124c9e273cbb2",
         "events_sha256": "f4f33e88da4cbb2e1b7a02b23d04071736f2409aa04b8e50a41174a79a13bfaa"
+      },
+      "coverage_checkpoints": {
+        "checked": 35,
+        "healthy": 35,
+        "failed": []
       }
     },
     {
@@ -180,6 +205,11 @@
       "inputs_sha256": {
         "report_sha256": "49ecde1d8e20f9b91d08450fea3392462ae437b5d865ea7bcf738ad9c230c4e2",
         "events_sha256": "e39556bfeec82aba4cbadbff19f0fb8b4a25f946bc41e07745f792cc3ba9e032"
+      },
+      "coverage_checkpoints": {
+        "checked": 35,
+        "healthy": 35,
+        "failed": []
       }
     }
   ],

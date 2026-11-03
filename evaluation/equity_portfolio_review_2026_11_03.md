@@ -8,7 +8,7 @@ The ORB and VWAP parameters, strategy files, observer implementation and 38-symb
 
 The offline review reads daily JSON reports and append-only raw events. It verifies source/date/protocol identity, event ordering, completed bars, first-observed prices, signal discovery and eligibility, actual bar availability, final symbol freshness, and every reported forward outcome. Input SHA-256 hashes are recorded. Missing values remain unavailable. Malformed evidence is labelled invalid and blocks a positive readiness screen.
 
-A full valid session starts between 09:30 and the first completed-bar boundary at 09:35 Eastern, finishes at/after 12:30 with `scheduled_end`, has zero recorded request or strategy errors, has SPY and at least 80% of symbols fresh at completion, and passes raw-evidence validation. Late/early/interrupted runs remain separate partial sessions. Running sessions do not advance completed counts.
+A full valid session starts between 09:30 and the first completed-bar boundary at 09:35 Eastern, finishes at/after 12:30 with `scheduled_end`, has zero recorded request or strategy errors, and passes raw-evidence validation. SPY and at least 80% of symbols must be fresh at completion and at all 35 five-minute checkpoints from 09:40 through 12:30, using only bars received by each checkpoint. A final backfill cannot hide an earlier collection gap. Late/early/interrupted runs remain separate partial sessions. Running sessions do not advance completed counts.
 
 ## Primary portfolio proxy
 

@@ -174,6 +174,20 @@ def test_partial_and_in_progress_sessions_are_separate_from_full_count(tmp_path)
     assert p.load_session(path,evidence,baseline).category=='in_progress'
 
 
+def test_a_final_data_backfill_cannot_hide_a_stalled_collection(tmp_path):
+    path,evidence,baseline=fixture_day(tmp_path,specs=[])
+    report=json.loads(path.read_text())
+    events_path=evidence/'equity_research/events'/f'{path.stem}.jsonl'
+    events=[json.loads(line) for line in events_path.read_text().splitlines()]
+    for event in events:
+        if event['event']=='completed_bar':event['observed_at']=report['last_cycle_at']
+    events_path.write_text(''.join(json.dumps(e)+'\n' for e in events))
+    result=p.load_session(path,evidence,baseline)
+    assert result.category=='invalid'
+    assert result.reasons==['in_session_data_coverage_gap']
+    assert result.quality['checked']==35 and result.quality['healthy']==0
+
+
 def test_baseline_and_policy_refuse_silent_changes(tmp_path):
     baseline=frozen_baseline(ROOT)
     assert baseline['strategy_parameters']==STRATEGY_PARAMETERS

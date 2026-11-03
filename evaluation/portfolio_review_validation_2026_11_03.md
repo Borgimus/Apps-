@@ -6,7 +6,7 @@ The implementation preserves collection strategy settings and broker order-disab
 
 Source artifact commit: `e36897527075f5737cc109dab6beefee0a797b73` on `session-artifacts`.
 
-All six archived daily reports and all six raw event streams were extracted with their manifest SHA-256 hashes checked. The new independent validator reproduced **five full valid sessions, one late-start partial session, 844 full-session cycles and 260 eligible signals**, with no invalid sessions. It independently checked every reported forward outcome against the first-observed raw bars, including unavailable outcomes. No original report or event file was rewritten.
+All six archived daily reports and all six raw event streams were extracted with their manifest SHA-256 hashes checked. The new independent validator reproduced **five full valid sessions, one late-start partial session, 844 full-session cycles and 260 eligible signals**, with no invalid sessions. All 35 causal coverage checkpoints passed on every full session. It independently checked every reported forward outcome against the first-observed raw bars, including unavailable outcomes. No original report or event file was rewritten.
 
 The declared one-position, long-only, three-entry daily portfolio proxy selected 15 entries across the five full sessions. All selected outcomes were resolvable. Hypothetical net totals were -$10.682367, -$16.464735 and -$28.029470 under 5/10/20 bps round-trip assumptions. These are retrospective proxy results. Actual broker and options P&L remain unavailable.
 
@@ -14,7 +14,7 @@ The saved [Markdown review](reviews/equity_research_2026_11_02.md) and [detailed
 
 ## Checks completed
 
-- Full local suite: **1,141 passed, 2 skipped in 28.48 seconds**. The repository kill switch remained present.
+- Final full local suite: **1,142 passed, 2 skipped in 27.09 seconds**, including the coverage-gap regression. The repository kill switch remained present.
 - Regression checks cover chronological slot reservation, exit-evidence availability, whole-share cash limits, deterministic simultaneous signals, unverified shorts, the three-entry cap, losses known at admission, unresolved positions, cohort/source drift, raw/report disagreement, malformed/forming/revised bars, false freshness, partial sessions, disjoint holdout data, checkpoint gates, outlier removal, idempotent rebuilds and immutable archive inclusion.
 - A cumulative-analysis failure still permits publication of daily evidence and leaves orders disabled.
 - The offline replay was exercised with network connections prohibited in a regression test.

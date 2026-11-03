@@ -57,6 +57,7 @@ class Session:
     bars: dict = field(default_factory=lambda: defaultdict(dict))
     available: dict = field(default_factory=dict)
     inputs: dict = field(default_factory=dict)
+    quality: dict = field(default_factory=dict)
 
 
 def required_times(signal, minutes=30):
@@ -71,6 +72,27 @@ def forward_bps(session, signal, minutes):
         return None
     sign = 1 if signal['direction'] == 'long' else -1
     return round(sign * (bars[times[-1]]['close'] / bars[times[0]]['open'] - 1) * 10000, 4)
+
+
+def coverage_checkpoints(session, start, end):
+    """Use only bars already received at each active-window checkpoint."""
+    cutoff = start.replace(hour=9, minute=40, second=0, microsecond=0)
+    finish = min(end, start.replace(hour=12, minute=30, second=0, microsecond=0))
+    checks, failed = 0, []
+    while cutoff <= finish:
+        if cutoff >= start:
+            fresh = set()
+            for symbol in session.report['symbols']:
+                known = [ts for ts in session.bars[symbol]
+                    if session.available[(symbol, ts)] <= cutoff and ts + STEP <= cutoff]
+                if known and 0 <= (cutoff - max(known) - STEP).total_seconds() <= 600:
+                    fresh.add(symbol)
+            coverage = len(fresh) / len(session.report['symbols'])
+            checks += 1
+            if 'SPY' not in fresh or coverage < .8:
+                failed.append({'at': cutoff.isoformat(), 'coverage_fraction': coverage, 'spy_fresh': 'SPY' in fresh})
+        cutoff += STEP
+    return {'checked': checks, 'healthy': checks - len(failed), 'failed': failed}
 
 
 def load_session(path, evidence, baseline):
@@ -207,6 +229,10 @@ def load_session(path, evidence, baseline):
         session.reasons.append('started_after_first_bar_window')
     else:
         session.category = 'full_valid'
+    session.quality = coverage_checkpoints(session, start, end)
+    if session.category == 'full_valid' and (session.quality['checked'] != 35 or session.quality['failed']):
+        session.category = 'invalid'
+        session.reasons.append('in_session_data_coverage_gap')
     return session
 
 
@@ -392,7 +418,7 @@ def build_review(root: Path, evidence: Path, *, now=None):
     daily = [{'date': s.report['date'], 'category': s.category, 'reasons': s.reasons,
         'code_sha': s.report['code_sha'], 'session_start': s.report.get('session_start'),
         'cycles': s.report.get('cycles'), 'eligible_signals': sum(x['prospective'] for x in s.report['signals']),
-        'inputs_sha256': s.inputs} for s in sessions] + invalid
+        'inputs_sha256': s.inputs, 'coverage_checkpoints': s.quality} for s in sessions] + invalid
     daily.sort(key=lambda d: d['date'])
     # Identical inputs/policy must produce identical archives across EOD retries.
     input_time = max((stamp(s.report['generated_at']) for s in sessions),

@@ -85,8 +85,10 @@ def cumulative_review_page():
         for label,key in [('Development','development_screen'),('Holdout','holdout_screen')]
         for k,v in report.get(key,{}).get('checks',{}).items()])
     body+='<h2>Session audit</h2>'
-    body+=table(['Date','Classification','Eligible signals','Review notes'],
-        [(r['date'],r['category'],r.get('eligible_signals'),', '.join(r.get('reasons',[]))) for r in report.get('sessions',[])])
+    body+=table(['Date','Classification','Eligible signals','Healthy coverage checkpoints','Review notes'],
+        [(r['date'],r['category'],r.get('eligible_signals'),
+          str(r['coverage_checkpoints']['healthy'])+'/'+str(r['coverage_checkpoints']['checked']) if r.get('coverage_checkpoints') else None,
+          ', '.join(r.get('reasons',[]))) for r in report.get('sessions',[])])
     body+='<h2>Limits</h2><ul>'+''.join('<li>'+escape(t)+'</li>' for t in report.get('limitations',[]))+'</ul>'
     body+='<p><a href="/equity-research">Latest daily report</a> · <a href="/api/equity-research/review">Full review JSON, costs, input hashes and selected proxies</a></p>'
     return '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cumulative research review</title><style>body{font:16px system-ui;background:#101722;color:#eef3f8;max-width:1100px;margin:24px auto;padding:20px}p,li{line-height:1.6;color:#c3cdd9}.card{padding:20px;border:1px solid #334155;border-radius:12px;margin:20px 0;overflow:auto}table{border-collapse:collapse;width:100%;font-size:14px}td,th{padding:10px;text-align:left;border-bottom:1px solid #334155}a{color:#8dc5ff}</style></head><body>'+body+'</body></html>'

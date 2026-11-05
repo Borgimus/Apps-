@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-05",
+  "snapshot_code_commit": "3a067f1e18278fd8edfce932ae679a47e6eb4aec",
+  "files_sha256": {
+    "equity_research/2026-11-05.events.jsonl": "b0f376f2a2ec42dfa75a3bdd7985c387696c28adb5b60301875fc8f6a2284153",
+    "equity_research/2026-11-05.json": "aeed756b990ee0a492639a974829dd27bb01312571e9d80f7edd0f0b0a472e6d",
+    "equity_research/2026-11-05.md": "a73bd69a33c6d5fac1a647cf1598c5b5602e765c31f7fb74b007af730d4837eb",
+    "equity_research/review.json": "f5ea1fe45d3112d0fe41998819b8c203bd44ce32d51ed112168898b37c76a41f",
+    "equity_research/review.md": "db9a31734c1d8db5a20e799005a271a092e3d27d58b986d6e89e06e3c5a5ab37",
+    "ledgers/ledger.json": "c4eb48b6e8c67d55a552af69cb37c0d6e9234091642d1092d562d6df54f58b71",
+    "ledgers/ledger.options_tradier.guardrails_v3_tradier_options_2026_09_08.paper_scaled_250_cap_10.guardrails_v3_shadow_validation.json": "1bdaf96b15995df99b29a1a3f44184ed53f84cff24474d9a0f06e90c3d4e9fc9",
+    "ledgers/ledger.paper_scaled_250_cap_10.guardrails_v2.json": "8c0858d63d8a2957fbf77fe0cffc1a718af386238aa0a8b663d775eddee8c5f5",
+    "ledgers/ledger.paper_scaled_250_cap_10.guardrails_v3_shadow_validation.json": "7430d7d98b8aad50f94d89b401067740b0b619a89ca7287e2970cc3383096f5c",
+    "ledgers/ledger.paper_scaled_250_cap_10.json": "73044a59888002032d4cb2825dfbb2296b0fd676463c6a09d1aa47fce05cb60c",
+    "market_data_comparisons.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "shadow_book.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "missing_files": [
+    "reports/2026-11-05.json",
+    "reports/2026-11-05.md",
+    "logs/preflight_2026-11-05.log",
+    "logs/automation_2026-11-05.log",
+    "logs/session_2026-11-05.log",
+    "logs/session_2026-11-05.json",
+    "logs/session_2026-11-05.exitcode",
+    "logs/shadow_report_2026-11-05.txt",
+    "logs/AUTOMATION_FAILURE_2026-11-05.txt",
+    "logs/watchdog_2026-11-05.log"
+  ],
+  "note": "Snapshot commit is not proof of session execution. See report/session context."
+}

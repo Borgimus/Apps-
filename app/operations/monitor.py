@@ -231,7 +231,8 @@ async def options_data_canary(symbol: str = "SPY", *, now=None) -> dict:
         await broker.close()
 
 
-def watchdog(root: Path, *, now=None, query=None, sender=None) -> bool:
+def retry_notifications(root: Path, *, now=None, sender=None) -> bool:
+    """Retry recorded delivery failures without re-sending accepted alerts."""
     now = (now or datetime.now(ET)).astimezone(ET)
     # Retry unsent preflight/start/publication alerts, including previous days.
     delivered = True
@@ -243,6 +244,12 @@ def watchdog(root: Path, *, now=None, query=None, sender=None) -> bool:
                                     event_date=record["date"], sender=sender)
             except (ValueError, KeyError):
                 delivered = False
+    return delivered
+
+
+def watchdog(root: Path, *, now=None, query=None, sender=None) -> bool:
+    now = (now or datetime.now(ET)).astimezone(ET)
+    delivered = retry_notifications(root, now=now, sender=sender)
     if now.weekday() >= 5 or not time(9, 35) <= now.time() < time(12, 30):
         return delivered
     try:

@@ -17,7 +17,7 @@ from datetime import datetime, time, timedelta
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from dotenv import load_dotenv
-from app.operations.monitor import ET, calendar, notify, read_json, write_json, verify_flat
+from app.operations.monitor import ET, calendar, notify, read_json, write_json, verify_flat, retry_notifications
 from app.operations.artifacts import publish
 from app.research.equity_observer import EquityData, Observer, data_canary, universe, PROTOCOL
 from app.research.baseline import frozen_baseline, baseline_identity
@@ -64,6 +64,26 @@ async def collect_cycle(observer, data, symbols, start, requested_at):
 
 def current_report(evidence, day):
     return read_json(evidence/'equity_research/reports'/f'{day}.json')
+
+
+def notify_session_finished(report):
+    """Report collection results, independently of review or upload success."""
+    complete=(report.get('session_complete') is True
+        and report.get('termination')=='scheduled_end')
+    clean=(complete and report.get('request_failures')==0
+        and report.get('signal_errors')==0 and report.get('data_status')!='degraded'
+        and report.get('coverage_fraction',0)>=.8 and 'SPY' in report.get('fresh_symbols',[]))
+    status='completed on schedule' if clean else 'finished with issues' if complete else 'interrupted'
+    eligible=sum(s.get('prospective') is True for s in report.get('signals',[]))
+    lines=[f"{report['date']}: IEX research {status}.",
+        f"{report.get('cycles',0)} cycles; {len(report.get('fresh_symbols',[]))}/{len(report.get('symbols',[]))} symbols fresh; {eligible} eligible signals.",
+        f"Data failures: {report.get('request_failures','unknown')}; signal errors: {report.get('signal_errors','unknown')}."]
+    for row in report.get('summary',[]):
+        if row.get('horizon_minutes')==30 and row.get('observations',0)>0 and row.get('mean_gross_bps') is not None:
+            lines.append(f"{row['strategy']} 30-min mean: {row['mean_gross_bps']/100:+.2f}% ({row['observations']} observations).")
+    lines.append('Stock-signal movement before costs, not trading profit. Orders disabled.')
+    return notify(ROOT,'equity_research_completed' if clean else 'equity_research_incomplete',
+        '\n'.join(lines),event_date=report['date'])
 
 
 def ensure_disarmed():
@@ -119,21 +139,28 @@ async def run_loop(evidence, *, once=False):
     data=client()
     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)
     deadline=now.replace(hour=12,minute=30,second=0,microsecond=0)
+    start_notified=False
     try:
         while not STOP and datetime.now(ET)<deadline:
             now=datetime.now(ET)
             # Prior sessions supply causal strategy warm-up. Subsequent
             # requests refresh today's bars only; first-observed values persist.
             start=(now-timedelta(days=7)).replace(hour=9,minute=30,second=0,microsecond=0) if not observer.state['bars'] else now.replace(hour=9,minute=30,second=0,microsecond=0)
+            cycle_ok=True
             try:
                 report=await collect_cycle(observer,data,symbols,start,now)
             except Exception as exc:
+                cycle_ok=False
                 now=datetime.now(ET)
                 report=observer.failure(now,exc)
                 notify(ROOT,'equity_research_data_failed',f'{now.date()}: IEX equity research encountered {type(exc).__name__}. No orders are enabled.')
                 if getattr(getattr(exc,'response',None),'status_code',None) in (401,403):
                     break # credentials rejected: stop hammering the provider
             write_json(ROOT/'logs/equity_research_status.json',report)
+            if not start_notified and cycle_ok:
+                notify(ROOT,'equity_research_started',
+                    f'{now.date()}: IEX research started; first data request completed. Monitoring {len(symbols)} symbols until 12:30 Eastern. Orders disabled.')
+                start_notified=True
             if once:break
             for _ in range(60):
                 if STOP or datetime.now(ET)>=deadline:break
@@ -174,12 +201,13 @@ def main():
                 print('FREE_IEX_DATA_READY '+json.dumps(asyncio.run(check_data())))
                 return 0
             if args.command=='watchdog':
-                if now.weekday()>=5 or not time(9,35)<=now.time()<time(12,30) or not calendar(ROOT,now=now):return 0
+                delivered=retry_notifications(ROOT,now=now)
+                if now.weekday()>=5 or not time(9,35)<=now.time()<time(12,30) or not calendar(ROOT,now=now):return 0 if delivered else 1
                 issue=watchdog_problem(current_report(evidence,day),now)
                 if issue:
                     notify(ROOT,'equity_research_unhealthy',f'{day}: {issue}. Options and orders remain disabled.')
                     print('RESEARCH_UNHEALTHY '+issue);return 1
-                return 0
+                return 0 if delivered else 1
             eod=lock(stack,locks/'.eod_close.lock',shared=args.command!='finish')
             lock(stack,locks/'.session.lock')
             ensure_disarmed()
@@ -221,6 +249,10 @@ def main():
                         notify(ROOT,'equity_research_report_missing',f'{day}: research report is missing. No orders are enabled.')
                         return 1
                     return 0
+                if (report.get('date')!=day or report.get('protocol')!=PROTOCOL
+                        or report.get('feed')!='iex' or report.get('broker_entries_enabled') is not False):
+                    raise ValueError('Research report identity or order-disable state is invalid')
+                notify_session_finished(report)
                 checkout=Path(os.getenv('TRADER_ARTIFACT_CHECKOUT','/root/trader-artifacts'))
                 review_ok=True
                 try:

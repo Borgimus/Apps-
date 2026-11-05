@@ -301,7 +301,9 @@ def test_finish_archives_daily_evidence_even_when_cumulative_review_fails(tmp_pa
     monkeypatch.setattr(cli,'ROOT',root)
     monkeypatch.setattr(cli,'configured',lambda:(tmp_path/'evidence',tmp_path/'locks'))
     monkeypatch.setattr(cli,'verify_flat',AsyncMock())
-    monkeypatch.setattr(cli,'current_report',lambda *a:{'date':'2026-11-02'})
+    monkeypatch.setattr(cli,'current_report',lambda *a:{
+        'date':str(cli.datetime.now(cli.ET).date()),'protocol':cli.PROTOCOL,
+        'feed':'iex','broker_entries_enabled':False})
     monkeypatch.setattr(cli,'build_review',Mock(side_effect=ValueError('broken analysis')))
     monkeypatch.setattr(cli,'notify',Mock())
     publisher=Mock(return_value=tmp_path/'snapshot');monkeypatch.setattr(cli,'publish',publisher)

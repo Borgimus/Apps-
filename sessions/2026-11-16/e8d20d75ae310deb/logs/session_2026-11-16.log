@@ -1,0 +1,2 @@
+2026-11-16T08:52:57 | INFO     | root | Logging configured | level=INFO | dir=logs | handlers=7 | session_redirected=False
+2026-11-16T08:52:58 | INFO     | app.api.dashboard_api | Dashboard API started | live_trading=False

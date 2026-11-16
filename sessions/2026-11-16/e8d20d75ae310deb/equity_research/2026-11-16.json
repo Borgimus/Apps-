@@ -1,0 +1,1426 @@
+{
+  "protocol": "iex_equity_signal_screen_v1_2026_10_24",
+  "date": "2026-11-16",
+  "generated_at": "2026-11-16T12:30:05.919109-05:00",
+  "code_sha": "81f4e69f2d9d52ab23678c263870c081f711ee7e",
+  "mode": "equity_research",
+  "feed": "iex",
+  "data_status": "outside_active_window",
+  "research_status": "completed",
+  "symbols": [
+    "SPY",
+    "QQQ",
+    "IWM",
+    "DIA",
+    "XLK",
+    "XLF",
+    "XLE",
+    "XLY",
+    "SMH",
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "AMZN",
+    "META",
+    "GOOGL",
+    "TSLA",
+    "AMD",
+    "ARM",
+    "AVGO",
+    "COIN",
+    "MSTR",
+    "PLTR",
+    "SHOP",
+    "SNOW",
+    "NET",
+    "CRWD",
+    "DDOG",
+    "RIVN",
+    "SOFI",
+    "HOOD",
+    "MARA",
+    "RIOT",
+    "ROKU",
+    "DKNG",
+    "UBER",
+    "LYFT",
+    "XYZ",
+    "AFRM"
+  ],
+  "fresh_symbols": [
+    "SPY",
+    "QQQ",
+    "IWM",
+    "DIA",
+    "XLK",
+    "XLF",
+    "XLE",
+    "XLY",
+    "SMH",
+    "AAPL",
+    "MSFT",
+    "NVDA",
+    "AMZN",
+    "META",
+    "GOOGL",
+    "TSLA",
+    "AMD",
+    "ARM",
+    "AVGO",
+    "COIN",
+    "MSTR",
+    "PLTR",
+    "SHOP",
+    "SNOW",
+    "NET",
+    "CRWD",
+    "DDOG",
+    "RIVN",
+    "SOFI",
+    "HOOD",
+    "MARA",
+    "RIOT",
+    "DKNG",
+    "UBER",
+    "LYFT",
+    "XYZ",
+    "AFRM"
+  ],
+  "coverage_fraction": 0.9736842105263158,
+  "cycles": 174,
+  "request_failures": 0,
+  "signal_errors": 0,
+  "last_data_at": "2026-11-16T12:30:00.159508-05:00",
+  "last_cycle_at": "2026-11-16T12:30:00.159508-05:00",
+  "session_start": "2026-11-16T09:30:11.279134-05:00",
+  "broker_entries_enabled": false,
+  "counts_toward_options_readiness": false,
+  "options_pnl": null,
+  "broker_realized_pnl": null,
+  "signals": [
+    {
+      "id": "SPY|vwap_reclaim|long|2026-11-16T09:50:00-05:00",
+      "symbol": "SPY",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T09:50:00-05:00",
+      "observed_at": "2026-11-16T09:50:59.546065-05:00",
+      "signal_lag_seconds": 59.546065,
+      "entry_bar": "2026-11-16T09:55:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -9.769,
+        "15": -31.1806,
+        "30": -44.5628
+      }
+    },
+    {
+      "id": "AAPL|vwap_reclaim|short|2026-11-16T09:50:00-05:00",
+      "symbol": "AAPL",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T09:50:00-05:00",
+      "observed_at": "2026-11-16T09:50:59.546065-05:00",
+      "signal_lag_seconds": 59.546065,
+      "entry_bar": "2026-11-16T09:55:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 37.2935,
+        "15": 41.6561,
+        "30": 42.782
+      }
+    },
+    {
+      "id": "AMZN|vwap_reclaim|long|2026-11-16T09:50:00-05:00",
+      "symbol": "AMZN",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T09:50:00-05:00",
+      "observed_at": "2026-11-16T09:50:59.546065-05:00",
+      "signal_lag_seconds": 59.546065,
+      "entry_bar": "2026-11-16T09:55:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -16.6142,
+        "15": -75.2411,
+        "30": -88.6088
+      }
+    },
+    {
+      "id": "DIA|vwap_reclaim|short|2026-11-16T09:55:00-05:00",
+      "symbol": "DIA",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T09:55:00-05:00",
+      "observed_at": "2026-11-16T09:55:12.067820-05:00",
+      "signal_lag_seconds": 12.06782,
+      "entry_bar": "2026-11-16T10:00:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 2.593,
+        "15": 8.9316,
+        "30": 20.4562
+      }
+    },
+    {
+      "id": "XLF|vwap_reclaim|short|2026-11-16T09:55:00-05:00",
+      "symbol": "XLF",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T09:55:00-05:00",
+      "observed_at": "2026-11-16T09:55:12.067820-05:00",
+      "signal_lag_seconds": 12.06782,
+      "entry_bar": "2026-11-16T10:00:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -6.8376,
+        "15": -3.4188,
+        "30": 9.4017
+      }
+    },
+    {
+      "id": "XLY|vwap_reclaim|short|2026-11-16T09:55:00-05:00",
+      "symbol": "XLY",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T09:55:00-05:00",
+      "observed_at": "2026-11-16T09:55:12.067820-05:00",
+      "signal_lag_seconds": 12.06782,
+      "entry_bar": "2026-11-16T10:00:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 4.6296,
+        "15": 18.5185,
+        "30": 21.8855
+      }
+    },
+    {
+      "id": "SOFI|vwap_reclaim|short|2026-11-16T09:55:00-05:00",
+      "symbol": "SOFI",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T09:55:00-05:00",
+      "observed_at": "2026-11-16T09:55:12.067820-05:00",
+      "signal_lag_seconds": 12.06782,
+      "entry_bar": "2026-11-16T10:00:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 26.6312,
+        "15": 86.5513,
+        "30": 123.1691
+      }
+    },
+    {
+      "id": "UBER|orb|long|2026-11-16T09:55:00-05:00",
+      "symbol": "UBER",
+      "strategy": "orb",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T09:55:00-05:00",
+      "observed_at": "2026-11-16T09:55:12.067820-05:00",
+      "signal_lag_seconds": 12.06782,
+      "entry_bar": "2026-11-16T10:00:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -28.49,
+        "15": -18.5185,
+        "30": -24.2165
+      }
+    },
+    {
+      "id": "IWM|vwap_reclaim|short|2026-11-16T10:00:00-05:00",
+      "symbol": "IWM",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:00:00-05:00",
+      "observed_at": "2026-11-16T10:00:24.557932-05:00",
+      "signal_lag_seconds": 24.557932,
+      "entry_bar": "2026-11-16T10:05:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -10.0166,
+        "15": -3.096,
+        "30": -0.5464
+      }
+    },
+    {
+      "id": "DKNG|orb|short|2026-11-16T10:00:00-05:00",
+      "symbol": "DKNG",
+      "strategy": "orb",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:00:00-05:00",
+      "observed_at": "2026-11-16T10:00:24.557932-05:00",
+      "signal_lag_seconds": 24.557932,
+      "entry_bar": "2026-11-16T10:05:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 8.3542,
+        "15": -80.7574,
+        "30": -25.0627
+      }
+    },
+    {
+      "id": "SPY|vwap_reclaim|short|2026-11-16T10:05:00-05:00",
+      "symbol": "SPY",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:05:00-05:00",
+      "observed_at": "2026-11-16T10:05:36.770387-05:00",
+      "signal_lag_seconds": 36.770387,
+      "entry_bar": "2026-11-16T10:10:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -0.4027,
+        "15": 13.0219,
+        "30": 2.0808
+      }
+    },
+    {
+      "id": "QQQ|vwap_reclaim|short|2026-11-16T10:05:00-05:00",
+      "symbol": "QQQ",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:05:00-05:00",
+      "observed_at": "2026-11-16T10:05:36.770387-05:00",
+      "signal_lag_seconds": 36.770387,
+      "entry_bar": "2026-11-16T10:10:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -3.6073,
+        "15": 14.805,
+        "30": 3.8328
+      }
+    },
+    {
+      "id": "SMH|vwap_reclaim|short|2026-11-16T10:05:00-05:00",
+      "symbol": "SMH",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:05:00-05:00",
+      "observed_at": "2026-11-16T10:05:36.770387-05:00",
+      "signal_lag_seconds": 36.770387,
+      "entry_bar": "2026-11-16T10:10:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -23.5504,
+        "15": -7.3125,
+        "30": 26.3464
+      }
+    },
+    {
+      "id": "MSFT|vwap_reclaim|short|2026-11-16T10:05:00-05:00",
+      "symbol": "MSFT",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:05:00-05:00",
+      "observed_at": "2026-11-16T10:05:36.770387-05:00",
+      "signal_lag_seconds": 36.770387,
+      "entry_bar": "2026-11-16T10:10:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 31.6899,
+        "15": 70.4861,
+        "30": -9.8911
+      }
+    },
+    {
+      "id": "NVDA|vwap_reclaim|short|2026-11-16T10:05:00-05:00",
+      "symbol": "NVDA",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:05:00-05:00",
+      "observed_at": "2026-11-16T10:05:36.770387-05:00",
+      "signal_lag_seconds": 36.770387,
+      "entry_bar": "2026-11-16T10:10:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -56.8789,
+        "15": -41.1665,
+        "30": 28.9108
+      }
+    },
+    {
+      "id": "PLTR|vwap_reclaim|short|2026-11-16T10:05:00-05:00",
+      "symbol": "PLTR",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:05:00-05:00",
+      "observed_at": "2026-11-16T10:05:36.770387-05:00",
+      "signal_lag_seconds": 36.770387,
+      "entry_bar": "2026-11-16T10:10:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 79.1168,
+        "15": 137.6878,
+        "30": 93.5296
+      }
+    },
+    {
+      "id": "DDOG|vwap_reclaim|short|2026-11-16T10:05:00-05:00",
+      "symbol": "DDOG",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:05:00-05:00",
+      "observed_at": "2026-11-16T10:05:36.770387-05:00",
+      "signal_lag_seconds": 36.770387,
+      "entry_bar": "2026-11-16T10:10:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 5.6699,
+        "15": 107.4446,
+        "30": 70.3067
+      }
+    },
+    {
+      "id": "XLK|vwap_reclaim|short|2026-11-16T10:10:00-05:00",
+      "symbol": "XLK",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:10:00-05:00",
+      "observed_at": "2026-11-16T10:10:47.949142-05:00",
+      "signal_lag_seconds": 47.949142,
+      "entry_bar": "2026-11-16T10:15:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 3.3187,
+        "15": 33.7899,
+        "30": 6.0339
+      }
+    },
+    {
+      "id": "AMZN|vwap_reclaim|short|2026-11-16T10:10:00-05:00",
+      "symbol": "AMZN",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:10:00-05:00",
+      "observed_at": "2026-11-16T10:10:47.949142-05:00",
+      "signal_lag_seconds": 47.949142,
+      "entry_bar": "2026-11-16T10:15:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -1.5411,
+        "15": 5.0085,
+        "30": -48.5437
+      }
+    },
+    {
+      "id": "MSTR|vwap_reclaim|short|2026-11-16T10:10:00-05:00",
+      "symbol": "MSTR",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:10:00-05:00",
+      "observed_at": "2026-11-16T10:10:47.949142-05:00",
+      "signal_lag_seconds": 47.949142,
+      "entry_bar": "2026-11-16T10:15:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -22.3627,
+        "15": -66.1157,
+        "30": -37.9193
+      }
+    },
+    {
+      "id": "SPY|orb|short|2026-11-16T10:15:00-05:00",
+      "symbol": "SPY",
+      "strategy": "orb",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:15:00-05:00",
+      "observed_at": "2026-11-16T10:15:58.642240-05:00",
+      "signal_lag_seconds": 58.64224,
+      "entry_bar": "2026-11-16T10:20:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 9.9373,
+        "15": 3.2229,
+        "30": -15.9802
+      }
+    },
+    {
+      "id": "IWM|orb|short|2026-11-16T10:15:00-05:00",
+      "symbol": "IWM",
+      "strategy": "orb",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:15:00-05:00",
+      "observed_at": "2026-11-16T10:15:58.642240-05:00",
+      "signal_lag_seconds": 58.64224,
+      "entry_bar": "2026-11-16T10:20:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 2.5509,
+        "15": -5.4663,
+        "30": -23.3228
+      }
+    },
+    {
+      "id": "DIA|orb|short|2026-11-16T10:15:00-05:00",
+      "symbol": "DIA",
+      "strategy": "orb",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:15:00-05:00",
+      "observed_at": "2026-11-16T10:15:58.642240-05:00",
+      "signal_lag_seconds": 58.64224,
+      "entry_bar": "2026-11-16T10:20:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 7.2158,
+        "15": -8.2742,
+        "30": -9.0439
+      }
+    },
+    {
+      "id": "META|orb|short|2026-11-16T10:15:00-05:00",
+      "symbol": "META",
+      "strategy": "orb",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:15:00-05:00",
+      "observed_at": "2026-11-16T10:15:58.642240-05:00",
+      "signal_lag_seconds": 58.64224,
+      "entry_bar": "2026-11-16T10:20:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 51.312,
+        "15": 18.8918,
+        "30": -66.1213
+      }
+    },
+    {
+      "id": "DDOG|orb|short|2026-11-16T10:15:00-05:00",
+      "symbol": "DDOG",
+      "strategy": "orb",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:15:00-05:00",
+      "observed_at": "2026-11-16T10:15:58.642240-05:00",
+      "signal_lag_seconds": 58.64224,
+      "entry_bar": "2026-11-16T10:20:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 37.1163,
+        "15": 5.9957,
+        "30": 26.5525
+      }
+    },
+    {
+      "id": "SHOP|orb|short|2026-11-16T10:20:00-05:00",
+      "symbol": "SHOP",
+      "strategy": "orb",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:20:00-05:00",
+      "observed_at": "2026-11-16T10:20:10.189486-05:00",
+      "signal_lag_seconds": 10.189486,
+      "entry_bar": "2026-11-16T10:25:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -25.0159,
+        "15": -33.1196,
+        "30": -153.6185
+      }
+    },
+    {
+      "id": "PLTR|orb|short|2026-11-16T10:25:00-05:00",
+      "symbol": "PLTR",
+      "strategy": "orb",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:25:00-05:00",
+      "observed_at": "2026-11-16T10:25:21.568881-05:00",
+      "signal_lag_seconds": 21.568881,
+      "entry_bar": "2026-11-16T10:30:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -11.7903,
+        "15": -44.0583,
+        "30": -168.1663
+      }
+    },
+    {
+      "id": "RIOT|orb|short|2026-11-16T10:30:00-05:00",
+      "symbol": "RIOT",
+      "strategy": "orb",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:30:00-05:00",
+      "observed_at": "2026-11-16T10:30:32.997765-05:00",
+      "signal_lag_seconds": 32.997765,
+      "entry_bar": "2026-11-16T10:35:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -9.0416,
+        "15": -168.7764,
+        "30": -81.3743
+      }
+    },
+    {
+      "id": "AFRM|orb|short|2026-11-16T10:30:00-05:00",
+      "symbol": "AFRM",
+      "strategy": "orb",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:30:00-05:00",
+      "observed_at": "2026-11-16T10:30:32.997765-05:00",
+      "signal_lag_seconds": 32.997765,
+      "entry_bar": "2026-11-16T10:35:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -7.9745,
+        "15": -35.0877,
+        "30": -57.4163
+      }
+    },
+    {
+      "id": "XYZ|vwap_reclaim|short|2026-11-16T10:35:00-05:00",
+      "symbol": "XYZ",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:35:00-05:00",
+      "observed_at": "2026-11-16T10:35:45.110763-05:00",
+      "signal_lag_seconds": 45.110763,
+      "entry_bar": "2026-11-16T10:40:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -24.635,
+        "15": -60.6862,
+        "30": -31.2444
+      }
+    },
+    {
+      "id": "SNOW|orb|short|2026-11-16T10:40:00-05:00",
+      "symbol": "SNOW",
+      "strategy": "orb",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:40:00-05:00",
+      "observed_at": "2026-11-16T10:40:55.937038-05:00",
+      "signal_lag_seconds": 55.937038,
+      "entry_bar": "2026-11-16T10:45:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -32.2027,
+        "15": -97.6814,
+        "30": -69.0568
+      }
+    },
+    {
+      "id": "NET|orb|short|2026-11-16T10:40:00-05:00",
+      "symbol": "NET",
+      "strategy": "orb",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T10:40:00-05:00",
+      "observed_at": "2026-11-16T10:40:55.937038-05:00",
+      "signal_lag_seconds": 55.937038,
+      "entry_bar": "2026-11-16T10:45:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -8.5637,
+        "15": -63.7139,
+        "30": -60.631
+      }
+    },
+    {
+      "id": "UBER|vwap_reclaim|long|2026-11-16T10:45:00-05:00",
+      "symbol": "UBER",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T10:45:00-05:00",
+      "observed_at": "2026-11-16T10:45:08.034925-05:00",
+      "signal_lag_seconds": 8.034925,
+      "entry_bar": "2026-11-16T10:50:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 26.256,
+        "15": 29.8041,
+        "30": 7.0962
+      }
+    },
+    {
+      "id": "MSFT|vwap_reclaim|long|2026-11-16T10:50:00-05:00",
+      "symbol": "MSFT",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T10:50:00-05:00",
+      "observed_at": "2026-11-16T10:50:20.981797-05:00",
+      "signal_lag_seconds": 20.981797,
+      "entry_bar": "2026-11-16T10:55:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 29.6002,
+        "15": 19.3834,
+        "30": 29.1228
+      }
+    },
+    {
+      "id": "XLE|vwap_reclaim|long|2026-11-16T10:55:00-05:00",
+      "symbol": "XLE",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T10:55:00-05:00",
+      "observed_at": "2026-11-16T10:55:33.306137-05:00",
+      "signal_lag_seconds": 33.306137,
+      "entry_bar": "2026-11-16T11:00:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 4.6787,
+        "15": 7.7979,
+        "30": 1.5596
+      }
+    },
+    {
+      "id": "AVGO|vwap_reclaim|long|2026-11-16T10:55:00-05:00",
+      "symbol": "AVGO",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T10:55:00-05:00",
+      "observed_at": "2026-11-16T10:55:33.306137-05:00",
+      "signal_lag_seconds": 33.306137,
+      "entry_bar": "2026-11-16T11:00:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 24.9242,
+        "15": -2.102,
+        "30": 97.5947
+      }
+    },
+    {
+      "id": "AAPL|vwap_reclaim|long|2026-11-16T11:00:00-05:00",
+      "symbol": "AAPL",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:00:00-05:00",
+      "observed_at": "2026-11-16T11:00:46.197827-05:00",
+      "signal_lag_seconds": 46.197827,
+      "entry_bar": "2026-11-16T11:05:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -2.8148,
+        "15": -4.5037,
+        "30": -20.5483
+      }
+    },
+    {
+      "id": "AMZN|vwap_reclaim|long|2026-11-16T11:00:00-05:00",
+      "symbol": "AMZN",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:00:00-05:00",
+      "observed_at": "2026-11-16T11:00:46.197827-05:00",
+      "signal_lag_seconds": 46.197827,
+      "entry_bar": "2026-11-16T11:05:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 5.1624,
+        "15": -1.7208,
+        "30": 2.1032
+      }
+    },
+    {
+      "id": "META|vwap_reclaim|long|2026-11-16T11:00:00-05:00",
+      "symbol": "META",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:00:00-05:00",
+      "observed_at": "2026-11-16T11:00:46.197827-05:00",
+      "signal_lag_seconds": 46.197827,
+      "entry_bar": "2026-11-16T11:05:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 13.2832,
+        "15": 10.7379,
+        "30": 36.0316
+      }
+    },
+    {
+      "id": "QQQ|vwap_reclaim|long|2026-11-16T11:05:00-05:00",
+      "symbol": "QQQ",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:05:00-05:00",
+      "observed_at": "2026-11-16T11:05:58.381449-05:00",
+      "signal_lag_seconds": 58.381449,
+      "entry_bar": "2026-11-16T11:10:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -23.2828,
+        "15": 19.9139,
+        "30": 6.5132
+      }
+    },
+    {
+      "id": "XLK|vwap_reclaim|long|2026-11-16T11:05:00-05:00",
+      "symbol": "XLK",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:05:00-05:00",
+      "observed_at": "2026-11-16T11:05:58.381449-05:00",
+      "signal_lag_seconds": 58.381449,
+      "entry_bar": "2026-11-16T11:10:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -30.0481,
+        "15": 33.0529,
+        "30": 15.625
+      }
+    },
+    {
+      "id": "IWM|vwap_reclaim|short|2026-11-16T11:10:00-05:00",
+      "symbol": "IWM",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:10:00-05:00",
+      "observed_at": "2026-11-16T11:10:10.687624-05:00",
+      "signal_lag_seconds": 10.687624,
+      "entry_bar": "2026-11-16T11:15:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -7.6493,
+        "15": -17.4841,
+        "30": 0.7285
+      }
+    },
+    {
+      "id": "XLF|vwap_reclaim|short|2026-11-16T11:10:00-05:00",
+      "symbol": "XLF",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:10:00-05:00",
+      "observed_at": "2026-11-16T11:10:10.687624-05:00",
+      "signal_lag_seconds": 10.687624,
+      "entry_bar": "2026-11-16T11:15:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -6.8417,
+        "15": -4.2761,
+        "30": 1.7104
+      }
+    },
+    {
+      "id": "XLY|vwap_reclaim|short|2026-11-16T11:10:00-05:00",
+      "symbol": "XLY",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:10:00-05:00",
+      "observed_at": "2026-11-16T11:10:10.687624-05:00",
+      "signal_lag_seconds": 10.687624,
+      "entry_bar": "2026-11-16T11:15:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -13.9029,
+        "15": -17.2733,
+        "30": -2.9491
+      }
+    },
+    {
+      "id": "SPY|vwap_reclaim|short|2026-11-16T11:15:00-05:00",
+      "symbol": "SPY",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:15:00-05:00",
+      "observed_at": "2026-11-16T11:15:22.990361-05:00",
+      "signal_lag_seconds": 22.990361,
+      "entry_bar": "2026-11-16T11:20:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -7.6395,
+        "15": -5.227,
+        "30": 13.4027
+      }
+    },
+    {
+      "id": "XYZ|vwap_reclaim|short|2026-11-16T11:15:00-05:00",
+      "symbol": "XYZ",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:15:00-05:00",
+      "observed_at": "2026-11-16T11:15:22.990361-05:00",
+      "signal_lag_seconds": 22.990361,
+      "entry_bar": "2026-11-16T11:20:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -3.5885,
+        "15": -8.3732,
+        "30": -17.9426
+      }
+    },
+    {
+      "id": "GOOGL|vwap_reclaim|short|2026-11-16T11:20:00-05:00",
+      "symbol": "GOOGL",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:20:00-05:00",
+      "observed_at": "2026-11-16T11:20:35.479159-05:00",
+      "signal_lag_seconds": 35.479159,
+      "entry_bar": "2026-11-16T11:25:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 0.5197,
+        "15": 2.0789,
+        "30": 13.6861
+      }
+    },
+    {
+      "id": "QQQ|vwap_reclaim|long|2026-11-16T11:30:00-05:00",
+      "symbol": "QQQ",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:30:00-05:00",
+      "observed_at": "2026-11-16T11:31:00.025419-05:00",
+      "signal_lag_seconds": 60.025419,
+      "entry_bar": "2026-11-16T11:35:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -16.5815,
+        "15": -33.163,
+        "30": -36.1507
+      }
+    },
+    {
+      "id": "SMH|vwap_reclaim|long|2026-11-16T11:30:00-05:00",
+      "symbol": "SMH",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:30:00-05:00",
+      "observed_at": "2026-11-16T11:31:00.025419-05:00",
+      "signal_lag_seconds": 60.025419,
+      "entry_bar": "2026-11-16T11:35:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -24.0198,
+        "15": -32.6287,
+        "30": -47.5082
+      }
+    },
+    {
+      "id": "AAPL|vwap_reclaim|long|2026-11-16T11:30:00-05:00",
+      "symbol": "AAPL",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:30:00-05:00",
+      "observed_at": "2026-11-16T11:31:00.025419-05:00",
+      "signal_lag_seconds": 60.025419,
+      "entry_bar": "2026-11-16T11:35:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -12.4115,
+        "15": -24.2588,
+        "30": -23.9768
+      }
+    },
+    {
+      "id": "META|vwap_reclaim|long|2026-11-16T11:30:00-05:00",
+      "symbol": "META",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:30:00-05:00",
+      "observed_at": "2026-11-16T11:31:00.025419-05:00",
+      "signal_lag_seconds": 60.025419,
+      "entry_bar": "2026-11-16T11:35:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -13.6362,
+        "15": -28.2237,
+        "30": -38.5301
+      }
+    },
+    {
+      "id": "SNOW|vwap_reclaim|long|2026-11-16T11:30:00-05:00",
+      "symbol": "SNOW",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:30:00-05:00",
+      "observed_at": "2026-11-16T11:31:00.025419-05:00",
+      "signal_lag_seconds": 60.025419,
+      "entry_bar": "2026-11-16T11:35:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 1.7625,
+        "15": -6.3452,
+        "30": -36.4848
+      }
+    },
+    {
+      "id": "NET|vwap_reclaim|long|2026-11-16T11:30:00-05:00",
+      "symbol": "NET",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:30:00-05:00",
+      "observed_at": "2026-11-16T11:31:00.025419-05:00",
+      "signal_lag_seconds": 60.025419,
+      "entry_bar": "2026-11-16T11:35:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -16.9219,
+        "15": -31.1363,
+        "30": -28.9365
+      }
+    },
+    {
+      "id": "SOFI|vwap_reclaim|long|2026-11-16T11:30:00-05:00",
+      "symbol": "SOFI",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:30:00-05:00",
+      "observed_at": "2026-11-16T11:31:00.025419-05:00",
+      "signal_lag_seconds": 60.025419,
+      "entry_bar": "2026-11-16T11:35:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -6.6756,
+        "15": -10.0134,
+        "30": -40.0534
+      }
+    },
+    {
+      "id": "SPY|vwap_reclaim|long|2026-11-16T11:35:00-05:00",
+      "symbol": "SPY",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:35:00-05:00",
+      "observed_at": "2026-11-16T11:35:12.414193-05:00",
+      "signal_lag_seconds": 12.414193,
+      "entry_bar": "2026-11-16T11:40:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -4.4231,
+        "15": -18.4967,
+        "30": -22.7858
+      }
+    },
+    {
+      "id": "GOOGL|vwap_reclaim|long|2026-11-16T11:35:00-05:00",
+      "symbol": "GOOGL",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:35:00-05:00",
+      "observed_at": "2026-11-16T11:35:12.414193-05:00",
+      "signal_lag_seconds": 12.414193,
+      "entry_bar": "2026-11-16T11:40:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -5.5455,
+        "15": -10.3979,
+        "30": -15.4235
+      }
+    },
+    {
+      "id": "XLE|vwap_reclaim|short|2026-11-16T11:45:00-05:00",
+      "symbol": "XLE",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:45:00-05:00",
+      "observed_at": "2026-11-16T11:45:38.902598-05:00",
+      "signal_lag_seconds": 38.902598,
+      "entry_bar": "2026-11-16T11:50:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 16.396,
+        "15": 12.4922,
+        "30": -3.123
+      }
+    },
+    {
+      "id": "AAPL|vwap_reclaim|short|2026-11-16T11:45:00-05:00",
+      "symbol": "AAPL",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:45:00-05:00",
+      "observed_at": "2026-11-16T11:45:38.902598-05:00",
+      "signal_lag_seconds": 38.902598,
+      "entry_bar": "2026-11-16T11:50:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 2.2623,
+        "15": -1.1312,
+        "30": 5.9386
+      }
+    },
+    {
+      "id": "MSTR|vwap_reclaim|short|2026-11-16T11:45:00-05:00",
+      "symbol": "MSTR",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:45:00-05:00",
+      "observed_at": "2026-11-16T11:45:38.902598-05:00",
+      "signal_lag_seconds": 38.902598,
+      "entry_bar": "2026-11-16T11:50:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 18.2956,
+        "15": 6.259,
+        "30": 16.3698
+      }
+    },
+    {
+      "id": "DDOG|vwap_reclaim|short|2026-11-16T11:45:00-05:00",
+      "symbol": "DDOG",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:45:00-05:00",
+      "observed_at": "2026-11-16T11:45:38.902598-05:00",
+      "signal_lag_seconds": 38.902598,
+      "entry_bar": "2026-11-16T11:50:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 12.859,
+        "15": 24.8607,
+        "30": 42.2918
+      }
+    },
+    {
+      "id": "AFRM|vwap_reclaim|long|2026-11-16T11:45:00-05:00",
+      "symbol": "AFRM",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:45:00-05:00",
+      "observed_at": "2026-11-16T11:45:38.902598-05:00",
+      "signal_lag_seconds": 38.902598,
+      "entry_bar": "2026-11-16T11:50:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -14.2113,
+        "15": 8.6847,
+        "30": 8.6847
+      }
+    },
+    {
+      "id": "SPY|vwap_reclaim|short|2026-11-16T11:50:00-05:00",
+      "symbol": "SPY",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:50:00-05:00",
+      "observed_at": "2026-11-16T11:50:52.261837-05:00",
+      "signal_lag_seconds": 52.261837,
+      "entry_bar": "2026-11-16T11:55:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -10.8107,
+        "15": 3.4245,
+        "30": 12.4893
+      }
+    },
+    {
+      "id": "NVDA|vwap_reclaim|short|2026-11-16T11:50:00-05:00",
+      "symbol": "NVDA",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:50:00-05:00",
+      "observed_at": "2026-11-16T11:50:52.261837-05:00",
+      "signal_lag_seconds": 52.261837,
+      "entry_bar": "2026-11-16T11:55:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -15.1043,
+        "15": 30.5233,
+        "30": 105.7302
+      }
+    },
+    {
+      "id": "AMZN|vwap_reclaim|short|2026-11-16T11:50:00-05:00",
+      "symbol": "AMZN",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:50:00-05:00",
+      "observed_at": "2026-11-16T11:50:52.261837-05:00",
+      "signal_lag_seconds": 52.261837,
+      "entry_bar": "2026-11-16T11:55:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -11.9183,
+        "15": 33.448,
+        "30": 72.4707
+      }
+    },
+    {
+      "id": "ARM|vwap_reclaim|short|2026-11-16T11:50:00-05:00",
+      "symbol": "ARM",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:50:00-05:00",
+      "observed_at": "2026-11-16T11:50:52.261837-05:00",
+      "signal_lag_seconds": 52.261837,
+      "entry_bar": "2026-11-16T11:55:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": -50.6785,
+        "15": -22.5238,
+        "30": 33.5041
+      }
+    },
+    {
+      "id": "XYZ|vwap_reclaim|long|2026-11-16T11:50:00-05:00",
+      "symbol": "XYZ",
+      "strategy": "vwap_reclaim",
+      "direction": "long",
+      "confirmed_at": "2026-11-16T11:50:00-05:00",
+      "observed_at": "2026-11-16T11:50:52.261837-05:00",
+      "signal_lag_seconds": 52.261837,
+      "entry_bar": "2026-11-16T11:55:00-05:00",
+      "prospective": true,
+      "exclusion_reason": null,
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 11.3433,
+        "15": -10.7463,
+        "30": -20.2985
+      }
+    },
+    {
+      "id": "GOOGL|vwap_reclaim|short|2026-11-16T11:55:00-05:00",
+      "symbol": "GOOGL",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:55:00-05:00",
+      "observed_at": "2026-11-16T11:55:05.834616-05:00",
+      "signal_lag_seconds": 5.834616,
+      "entry_bar": "2026-11-16T12:00:00-05:00",
+      "prospective": false,
+      "exclusion_reason": "late_discovery_or_entry_cutoff",
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 17.1568,
+        "15": 12.1311,
+        "30": 61.1753
+      }
+    },
+    {
+      "id": "NET|vwap_reclaim|short|2026-11-16T11:55:00-05:00",
+      "symbol": "NET",
+      "strategy": "vwap_reclaim",
+      "direction": "short",
+      "confirmed_at": "2026-11-16T11:55:00-05:00",
+      "observed_at": "2026-11-16T11:55:05.834616-05:00",
+      "signal_lag_seconds": 5.834616,
+      "entry_bar": "2026-11-16T12:00:00-05:00",
+      "prospective": false,
+      "exclusion_reason": "late_discovery_or_entry_cutoff",
+      "entry_proxy": "next five-minute bar open; no fill assumed",
+      "gross_forward_bps": {
+        "5": 11.1883,
+        "15": -17.6301,
+        "30": 32.3784
+      }
+    }
+  ],
+  "summary": [
+    {
+      "strategy": "orb",
+      "horizon_minutes": 5,
+      "observations": 13,
+      "mean_gross_bps": -0.5071,
+      "median_gross_bps": -7.9745,
+      "positive_fraction": 0.46153846153846156,
+      "cost_sensitivity_bps": {
+        "5": -5.5071,
+        "10": -10.5071,
+        "20": -20.5071
+      }
+    },
+    {
+      "strategy": "orb",
+      "horizon_minutes": 15,
+      "observations": 13,
+      "mean_gross_bps": -40.5649,
+      "median_gross_bps": -33.1196,
+      "positive_fraction": 0.23076923076923078,
+      "cost_sensitivity_bps": {
+        "5": -45.5649,
+        "10": -50.5649,
+        "20": -60.5649
+      }
+    },
+    {
+      "strategy": "orb",
+      "horizon_minutes": 30,
+      "observations": 13,
+      "mean_gross_bps": -55.9583,
+      "median_gross_bps": -57.4163,
+      "positive_fraction": 0.07692307692307693,
+      "cost_sensitivity_bps": {
+        "5": -60.9583,
+        "10": -65.9583,
+        "20": -75.9583
+      }
+    },
+    {
+      "strategy": "vwap_reclaim",
+      "horizon_minutes": 5,
+      "observations": 53,
+      "mean_gross_bps": -2.2007,
+      "median_gross_bps": -4.4231,
+      "positive_fraction": 0.39622641509433965,
+      "cost_sensitivity_bps": {
+        "5": -7.2007,
+        "10": -12.2007,
+        "20": -22.2007
+      }
+    },
+    {
+      "strategy": "vwap_reclaim",
+      "horizon_minutes": 15,
+      "observations": 53,
+      "mean_gross_bps": 3.8136,
+      "median_gross_bps": -1.7208,
+      "positive_fraction": 0.4716981132075472,
+      "cost_sensitivity_bps": {
+        "5": -1.1864,
+        "10": -6.1864,
+        "20": -16.1864
+      }
+    },
+    {
+      "strategy": "vwap_reclaim",
+      "horizon_minutes": 30,
+      "observations": 53,
+      "mean_gross_bps": 6.7049,
+      "median_gross_bps": 3.8328,
+      "positive_fraction": 0.6037735849056604,
+      "cost_sensitivity_bps": {
+        "5": 1.7049,
+        "10": -3.2951,
+        "20": -13.2951
+      }
+    }
+  ],
+  "limitations": [
+    "IEX covers one exchange; volumes and signals can differ from consolidated data.",
+    "Forward returns use a future bar-open proxy. No fills, spread, fees, short availability or options outcomes are established.",
+    "Cost sensitivity subtracts assumed round-trip basis points; it is not an execution-cost model.",
+    "Signals overlap and are not independent trades. This is a screening experiment; positive gross movement does not establish profitability."
+  ],
+  "baseline": {
+    "protocol": "iex_equity_signal_screen_v1_2026_10_24",
+    "baseline_sha256": "196056acd3e5cf4c03233f318823bd3895c3bce4c9f68bd405333df04f478aff",
+    "files_sha256": {
+      "app/strategies/opening_range_breakout.py": "aa38453f10b7cd3041020e1b71eb26a7746bee8c8327b8d3fb73cc762959dec0",
+      "app/strategies/vwap_strategy.py": "53d4f5d9de51f9a81c1039073829b470e1bc32de49f6b0414c380c190a8ef62f",
+      "app/strategies/strategy_base.py": "ae359b518717f4b7c3afffd0a3a2c34e2deccbfe0d857c4c0edba6040a1ed7d1",
+      "config/ticker_universe.yaml": "92a841bb277eacb605145e96097fb7a123be7a43b107f355265e0540b288f31f",
+      "app/research/equity_observer.py": "f6644ce7a35d09860e83bdac2fee358fcccb313c1160e815efb5cff9267e841a",
+      "app/research/baseline.py": "e7c1db5c90dc8a9ef68d68ced5ef34326b393ecf82b5a9e3cf762e2e8c3b5f56"
+    }
+  },
+  "termination": "scheduled_end",
+  "session_complete": true
+}

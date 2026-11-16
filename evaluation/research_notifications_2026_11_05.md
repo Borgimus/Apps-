@@ -18,3 +18,7 @@ command. After an after-hours upgrade, /root/auto_close_session.sh can send toda
 existing report without restarting collection. The frozen research baseline,
 strategy parameters, data provider, entry cutoff and order-disable policy are
 unchanged.
+
+The finish command defers before 12:30 Eastern. An accidental morning invocation
+preserves the research preflight marker and does not send a missing-report alert.
+At or after 12:30, missing reports still trigger the normal failure alert.

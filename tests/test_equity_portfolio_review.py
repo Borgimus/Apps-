@@ -297,6 +297,7 @@ def test_cumulative_dashboard_is_read_only_and_escapes_evidence(tmp_path,monkeyp
 def test_finish_archives_daily_evidence_even_when_cumulative_review_fails(tmp_path,monkeypatch):
     spec=importlib.util.spec_from_file_location('review_finish',ROOT/'scripts/equity_research.py')
     cli=importlib.util.module_from_spec(spec);spec.loader.exec_module(cli)
+    monkeypatch.setattr(cli,'datetime',SimpleNamespace(now=lambda tz:datetime(2026,11,16,13,0,tzinfo=tz)))
     root=tmp_path/'code';root.mkdir()
     monkeypatch.setattr(cli,'ROOT',root)
     monkeypatch.setattr(cli,'configured',lambda:(tmp_path/'evidence',tmp_path/'locks'))

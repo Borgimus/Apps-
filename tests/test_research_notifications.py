@@ -117,3 +117,32 @@ def test_finish_rejects_foreign_report_before_sending_summary(cli,report,monkeyp
     monkeypatch.setattr('sys.argv',['equity_research.py','finish'])
     assert cli.main()==1
     assert len(sent)==1 and 'free research finish failed' in sent[0]
+
+
+@pytest.mark.parametrize('hour,minute',[(9,2),(9,25),(10,30),(12,29)])
+def test_early_finish_preserves_preflight_and_does_not_send_missing_report_alert(cli,monkeypatch,hour,minute,capsys):
+    now=NOW.replace(hour=hour,minute=minute)
+    monkeypatch.setattr(cli,'datetime',SimpleNamespace(now=lambda tz:now))
+    ready=cli.ROOT/'logs/equity_research_ready.json'
+    ready.parent.mkdir()
+    marker=json.dumps({'date':str(now.date()),'orders_enabled':False,'market_day':True})
+    ready.write_text(marker)
+    sent=[]
+    monkeypatch.setattr(cli,'notify',lambda *a,**k:sent.append((a,k)))
+    monkeypatch.setattr('sys.argv',['equity_research.py','finish'])
+    assert cli.main()==0
+    assert ready.read_text()==marker
+    cli.verify_flat.assert_not_awaited()
+    assert not sent
+    assert 'RESEARCH_NOT_DUE' in capsys.readouterr().out
+
+
+def test_finish_still_alerts_for_missing_report_at_scheduled_end(cli,monkeypatch):
+    monkeypatch.setattr(cli,'datetime',SimpleNamespace(now=lambda tz:NOW.replace(hour=12,minute=30)))
+    sent=[]
+    monkeypatch.setattr(cli,'notify',lambda *a,**k:sent.append((a,k)))
+    monkeypatch.setattr(cli,'current_report',lambda *a:{})
+    monkeypatch.setattr('sys.argv',['equity_research.py','finish'])
+    assert cli.main()==1
+    assert sent[0][0][1]=='equity_research_report_missing'
+    assert (cli.ROOT/'KILL_SWITCH').exists()

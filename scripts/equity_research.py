@@ -208,6 +208,9 @@ def main():
                     notify(ROOT,'equity_research_unhealthy',f'{day}: {issue}. Options and orders remain disabled.')
                     print('RESEARCH_UNHEALTHY '+issue);return 1
                 return 0 if delivered else 1
+            if args.command=='finish' and now.time()<time(12,30):
+                print('RESEARCH_NOT_DUE: collection ends at 12:30 Eastern; preflight readiness is preserved')
+                return 0
             eod=lock(stack,locks/'.eod_close.lock',shared=args.command!='finish')
             lock(stack,locks/'.session.lock')
             ensure_disarmed()

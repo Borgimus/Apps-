@@ -342,6 +342,7 @@ class RiskManager:
         earnings_calendar: Optional[Dict[str, List[date]]] = None,
         now: Optional[datetime] = None,
         signal_direction: Optional[str] = None,
+        earnings_status: Optional[str] = None,
     ) -> RiskCheckResult:
         """
         Run all pre-trade risk checks.
@@ -353,6 +354,9 @@ class RiskManager:
         contract          : option contract details (for liquidity checks).
         earnings_calendar : {symbol: [earnings_date, ...]} for blackout check.
         now               : override current datetime (useful for testing).
+        earnings_status   : scanner result for today: "clear", "earnings" or
+                            "unknown". "unknown" blocks unless earnings trades
+                            are explicitly allowed.
         """
         result = RiskCheckResult(passed=True, approved_quantity=request.quantity)
         now = now or datetime.now(tz=ET)
@@ -374,7 +378,9 @@ class RiskManager:
         self._check_risk_per_trade(result, request, equity, contract)
         if contract:
             self._check_liquidity(result, contract)
-        self._check_earnings_blackout(result, request.symbol, earnings_calendar, now.date())
+        self._check_earnings_blackout(
+            result, request.symbol, earnings_calendar, now.date(), earnings_status,
+        )
 
         if not result.passed:
             logger.warning(
@@ -601,8 +607,22 @@ class RiskManager:
         symbol: str,
         earnings_calendar: Optional[Dict[str, List[date]]],
         today: date,
+        earnings_status: Optional[str] = None,
     ):
-        if self._s.risk.allow_earnings_trades or not earnings_calendar:
+        if self._s.risk.allow_earnings_trades:
+            return
+        if earnings_status == "earnings":
+            result.add_failure(
+                RiskCheck.EARNINGS_BLACKOUT, f"{symbol} reports earnings today",
+            )
+            return
+        if earnings_status == "unknown":
+            result.add_failure(
+                RiskCheck.EARNINGS_BLACKOUT,
+                f"{symbol} earnings status unknown; blackout cannot be verified",
+            )
+            return
+        if not earnings_calendar:
             return
 
         blackout = self._s.risk.earnings_blackout_days

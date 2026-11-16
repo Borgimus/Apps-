@@ -25,6 +25,7 @@ import argparse
 import asyncio
 import hashlib
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -162,7 +163,8 @@ def capture() -> dict:
 
     return {
         "options_data_provider": provider,
-        "options_data_adapter_hash": _broker_adapter_version("app/brokers/alpaca_tradier_data.py") if provider == "tradier" else None,
+        "options_data_adapter_hash": _broker_adapter_version(
+            "app/brokers/alpaca_tradier_data.py" if provider == "tradier" else "app/brokers/alpaca_broker.py"),
         "commit_sha": _git_sha(),
         "working_tree_dirty": bool(source_changes),
         "source_changes": source_changes,
@@ -186,9 +188,9 @@ def _static_issues(baseline: dict, current: dict) -> list[str]:
 
     if baseline.get("options_data_provider", "alpaca") != current.get("options_data_provider", "alpaca"):
         issues.append("Options data provider changed: declare a new cohort baseline before starting")
-    if current.get("options_data_provider") == "tradier":
+    if baseline.get("options_data_adapter_hash") or current.get("options_data_provider") == "tradier":
         if not baseline.get("options_data_adapter_hash") or baseline.get("options_data_adapter_hash") != current.get("options_data_adapter_hash"):
-            issues.append("Tradier options adapter hash missing or changed in baseline")
+            issues.append("Options adapter hash missing or changed in baseline")
 
     identifier = baseline.get("paper_account_identifier", "")
     if not identifier or "RECORD_" in identifier:
@@ -362,7 +364,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--baseline",
-        default=str(
+        default=os.getenv("TRADER_BASELINE_PATH") or str(
             _REPO_ROOT / "evaluation" / "phase3_tracking.json"
         ),
         help=(

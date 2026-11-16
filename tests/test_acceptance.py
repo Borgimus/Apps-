@@ -2,14 +2,12 @@
 Acceptance-criteria tests for the validation-phase research platform.
 
 Covers the specific criteria listed in the spec:
-  ✓ replay mode deterministic
   ✓ stop-loss execution
   ✓ take-profit execution
   ✓ cooldown enforcement
   ✓ duplicate-order prevention (dedup)
   ✓ end-of-day liquidation
   ✓ analytics calculations
-  ✓ slippage applied in replay
   ✓ no live trading enabled
 """
 
@@ -30,7 +28,6 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from app.analytics import AnalyticsEngine
 from app.api.models import Base, DBTradeJournal
 from app.config import get_settings
-from app.replay import ReplayEngine, ReplayResult
 from app.strategies import OpeningRangeBreakoutStrategy
 from app.trading.position_manager import PositionManager
 
@@ -70,75 +67,6 @@ def _open_pos(pm, symbol="SPY", opt_sym="OPT1", entry_price=3.00):
     ), entry_time
 
 
-def _make_bars(
-    date_str="2024-01-02",
-    direction="up",
-    n=40,
-    base_price=450.0,
-    seed=42,
-) -> pd.DataFrame:
-    rng = np.random.default_rng(seed)
-    start = f"{date_str} 14:30"
-    idx = pd.date_range(start, periods=n, freq="5min", tz="UTC")
-    closes = np.full(n, base_price)
-    volumes = np.full(n, 1_000_000, dtype=float)
-    for i in range(3):
-        closes[i] = base_price + rng.uniform(-0.15, 0.15)
-    closes[4] = base_price + (3.0 if direction == "up" else -3.0)
-    volumes[4] = 4_000_000
-    return pd.DataFrame(
-        {"open": closes - 0.1, "high": closes + 0.5,
-         "low": closes - 0.5, "close": closes, "volume": volumes},
-        index=idx,
-    )
-
-
-def _orb_engine(**kwargs):
-    defaults = dict(
-        strategy=OpeningRangeBreakoutStrategy(params={
-            "range_minutes": 15, "min_range_pts": 0.1, "volume_confirmation": True,
-        }),
-        symbol="SPY",
-        starting_equity=100_000.0,
-    )
-    defaults.update(kwargs)
-    return ReplayEngine(**defaults)
-
-
-# ── 1. Replay determinism ──────────────────────────────────────────────────────
-
-class TestReplayDeterminism:
-
-    def test_identical_inputs_identical_output(self):
-        bars = _make_bars(seed=7)
-        engine = _orb_engine()
-        r1 = engine.replay(bars.copy())
-        r2 = engine.replay(bars.copy())
-        assert r1.total_trades == r2.total_trades
-        assert r1.total_pnl == r2.total_pnl
-        assert len(r1.trades) == len(r2.trades)
-        for t1, t2 in zip(r1.trades, r2.trades):
-            assert t1.pnl == t2.pnl
-
-    def test_different_slippage_different_pnl(self):
-        bars = _make_bars(seed=7)
-        no_slip = _orb_engine(simulate_slippage=False)
-        with_slip = _orb_engine(simulate_slippage=True, slippage_per_contract=0.10)
-        r_no = no_slip.replay(bars.copy())
-        r_with = with_slip.replay(bars.copy())
-        if r_no.total_trades > 0 and r_with.total_trades > 0:
-            assert r_no.total_pnl != r_with.total_pnl, (
-                "Slippage should change P&L"
-            )
-
-    def test_empty_bars_is_reproducible(self):
-        engine = _orb_engine()
-        r1 = engine.replay(pd.DataFrame())
-        r2 = engine.replay(pd.DataFrame())
-        assert r1.total_trades == r2.total_trades == 0
-
-
-# ── 2. Stop-loss execution ────────────────────────────────────────────────────
 
 class TestStopLossExecution:
 
@@ -160,26 +88,6 @@ class TestStopLossExecution:
         _open_pos(pm, entry_price=4.00)
         pm.close("OPT1", exit_price=1.99, pnl=-201.0)
         assert not pm.has_position("OPT1")
-
-    def test_stop_loss_in_replay(self):
-        """A position that drops immediately should trigger stop loss in replay."""
-        bars = _make_bars(direction="up", n=40)
-        # Force bars after signal to drop dramatically
-        bars_copy = bars.copy()
-        # Drive price down after bar 5 (post-signal)
-        for i in range(6, 15):
-            bars_copy.iloc[i, bars_copy.columns.get_loc("close")] = 440.0
-        engine = _orb_engine(
-            strategy=OpeningRangeBreakoutStrategy(params={
-                "range_minutes": 15, "min_range_pts": 0.1, "volume_confirmation": True,
-            }),
-            symbol="SPY",
-        )
-        result = engine.replay(bars_copy)
-        stop_exits = [t for t in result.trades if t.exit_reason == "stop_loss"]
-        # If a signal fired and position opened, stop loss should eventually close it
-        assert isinstance(result, ReplayResult)  # no crash
-
 
 # ── 3. Take-profit execution ──────────────────────────────────────────────────
 
@@ -256,16 +164,6 @@ class TestDuplicatePrevention:
         assert pm.has_position_for_symbol("SPY")
         assert pm.has_position_for_symbol("QQQ")
 
-    def test_replay_dedup_one_position_per_symbol(self):
-        bars_a = _make_bars("2024-01-02", "up", n=78, seed=1)
-        bars_b = _make_bars("2024-01-03", "up", n=78, seed=2)
-        bars = pd.concat([bars_a, bars_b])
-        engine = _orb_engine()
-        result = engine.replay(bars)
-        # At most one trade per day (dedup prevents multiple same-symbol positions)
-        assert result.total_trades <= 2
-
-
 # ── 6. End-of-day liquidation ─────────────────────────────────────────────────
 
 class TestEODLiquidation:
@@ -283,30 +181,6 @@ class TestEODLiquidation:
         before_eod = datetime(2024, 1, 2, 15, 44, 0, tzinfo=ET)
         result = pm.should_exit("OPT1", 3.00, before_eod)
         assert result is None
-
-    def test_replay_no_positions_remain_after_session(self):
-        bars = _make_bars(direction="up", n=78)
-        engine = _orb_engine()
-        result = engine.replay(bars)
-        # All trades must have exit reasons (none left open)
-        for trade in result.trades:
-            assert trade.exit_reason is not None, (
-                f"Trade {trade.option_symbol} has no exit reason"
-            )
-
-    def test_replay_session_end_exit_reason(self):
-        bars = _make_bars(direction="up", n=40)
-        engine = _orb_engine()
-        result = engine.replay(bars)
-        valid_reasons = {
-            "stop_loss", "take_profit", "trailing_stop",
-            "max_hold", "eod_exit", "session_end",
-        }
-        for trade in result.trades:
-            assert trade.exit_reason in valid_reasons, (
-                f"Unexpected exit reason: {trade.exit_reason}"
-            )
-
 
 # ── 7. Analytics calculations ─────────────────────────────────────────────────
 

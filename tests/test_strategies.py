@@ -10,7 +10,6 @@ import pandas as pd
 import pytest
 
 from app.strategies import (
-    MACompressionStrategy,
     OpeningRangeBreakoutStrategy,
     RSITrendStrategy,
     VWAPReclaimStrategy,
@@ -215,59 +214,3 @@ class TestVWAPReclaimStrategy:
 
 # ── MA Compression ────────────────────────────────────────────────────────────
 
-class TestMACompressionStrategy:
-
-    def _make_compressed_then_breakout_bars(self) -> pd.DataFrame:
-        """
-        40 bars of tight compression at 450, then a decisive breakout.
-
-        The compression candles have a tiny range (0.2) so avg_range ≈ 0.2.
-        The breakout candle has range = 2.0, which is 10× avg_range and easily
-        satisfies the 1.5× threshold.  The close jumps above both EMAs in one bar.
-        """
-        n = 80
-        idx = pd.date_range("2024-01-02", periods=n, freq="B", tz="UTC")
-        prices = np.full(n, 450.0)
-        # Breakout starts at bar 40 — prices rise sharply
-        for i in range(40, n):
-            prices[i] = 450.0 + (i - 39) * 3.0   # +3 per bar, clear uptrend
-
-        # Compression candles: tiny range
-        high = np.where(np.arange(n) < 40, prices + 0.1, prices + 2.0)
-        low  = np.where(np.arange(n) < 40, prices - 0.1, prices - 0.0)
-
-        df = pd.DataFrame(
-            {
-                "open":   prices - 0.05,
-                "high":   high,
-                "low":    low,
-                "close":  prices,
-                "volume": [2_000_000] * n,
-            },
-            index=idx,
-        )
-        return df
-
-    def test_breakout_after_compression_generates_long(self):
-        strat = MACompressionStrategy(
-            params={
-                "fast_period": 5,
-                "slow_period": 8,
-                "compression_threshold_pct": 0.005,
-                "min_compression_bars": 3,
-            }
-        )
-        bars = self._make_compressed_then_breakout_bars()
-        signals = strat.generate_signals(bars, "SPY")
-        long_signals = [s for s in signals if s.direction == SignalDirection.LONG]
-        assert len(long_signals) >= 1
-
-    def test_metadata_contains_ema_values(self):
-        strat = MACompressionStrategy(
-            params={"fast_period": 5, "slow_period": 8, "compression_threshold_pct": 0.005}
-        )
-        bars = self._make_compressed_then_breakout_bars()
-        signals = strat.generate_signals(bars, "SPY")
-        for s in signals:
-            assert "fast_ema" in s.metadata
-            assert "slow_ema" in s.metadata

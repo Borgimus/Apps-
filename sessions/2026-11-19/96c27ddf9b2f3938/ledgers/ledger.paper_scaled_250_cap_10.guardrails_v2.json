@@ -1,0 +1,1188 @@
+{
+  "version": "2",
+  "created_at": "2026-08-11T16:30:05.052050",
+  "last_updated": "2026-08-26T16:30:24.654695",
+  "phase3_start_date": "2026-07-12",
+  "sessions": [
+    {
+      "date": "2026-08-11",
+      "total_trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "realized_pnl": -84.00000000000001,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 84.00000000000001,
+      "slippage_total": -0.030000000000000027,
+      "spread_cost_total": 1.5000000000000013,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 1,
+      "trades_filled": 1,
+      "trades_cancelled": 0,
+      "trades_rejected": 0,
+      "by_strategy": {
+        "orb": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -84.00000000000001
+        },
+        "rsi_trend": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "vwap_reclaim": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        }
+      },
+      "by_entry_hour": {
+        "09:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -84.0
+        }
+      },
+      "by_delta_bucket": {
+        "target (0.40-0.50)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -84.0
+        }
+      },
+      "by_spread_bucket": {
+        "tight (<5%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -84.0
+        }
+      },
+      "reject_reasons": {},
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 84.0
+    },
+    {
+      "date": "2026-08-12",
+      "total_trades": 2,
+      "wins": 2,
+      "losses": 0,
+      "realized_pnl": 42.99999999999997,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 0.0,
+      "slippage_total": -0.029999999999999916,
+      "spread_cost_total": 6.000000000000005,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 2,
+      "trades_filled": 2,
+      "trades_cancelled": 0,
+      "trades_rejected": 0,
+      "by_strategy": {
+        "orb": {
+          "trades": 2,
+          "wins": 2,
+          "losses": 0,
+          "pnl": 42.99999999999997
+        },
+        "rsi_trend": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "vwap_reclaim": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        }
+      },
+      "by_entry_hour": {
+        "09:00": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 20.0
+        },
+        "11:00": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 23.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 2,
+          "wins": 2,
+          "losses": 0,
+          "pnl": 43.0
+        }
+      },
+      "by_spread_bucket": {
+        "tight (<5%)": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 20.0
+        },
+        "moderate (5-10%)": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 23.0
+        }
+      },
+      "reject_reasons": {},
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 0,
+      "gross_wins": 43.0,
+      "gross_losses": 0.0
+    },
+    {
+      "date": "2026-08-13",
+      "total_trades": 3,
+      "wins": 1,
+      "losses": 1,
+      "realized_pnl": -3.00000000000003,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 13.00000000000001,
+      "slippage_total": -0.06999999999999981,
+      "spread_cost_total": 11.0,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 3,
+      "trades_filled": 3,
+      "trades_cancelled": 0,
+      "trades_rejected": 10,
+      "by_strategy": {
+        "orb": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -13.00000000000001
+        },
+        "rsi_trend": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "vwap_reclaim": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 9.99999999999998
+        }
+      },
+      "by_entry_hour": {
+        "09:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "10:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -13.0
+        },
+        "11:00": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 10.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 10.0
+        },
+        "target (0.40-0.50)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -13.0
+        }
+      },
+      "by_spread_bucket": {
+        "moderate (5-10%)": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 10.0
+        },
+        "tight (<5%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -13.0
+        }
+      },
+      "reject_reasons": {
+        "cooldown_after_loss": 6,
+        "liquidity_filter_no_contract": 4
+      },
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 1,
+      "gross_wins": 10.0,
+      "gross_losses": 13.0
+    },
+    {
+      "date": "2026-08-14",
+      "total_trades": 3,
+      "wins": 2,
+      "losses": 1,
+      "realized_pnl": 6.000000000000028,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 39.99999999999999,
+      "slippage_total": -0.04999999999999982,
+      "spread_cost_total": 13.950000000000006,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 3,
+      "trades_filled": 3,
+      "trades_cancelled": 0,
+      "trades_rejected": 0,
+      "by_strategy": {
+        "orb": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "pnl": -30.999999999999986
+        },
+        "rsi_trend": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "vwap_reclaim": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 37.000000000000014
+        }
+      },
+      "by_entry_hour": {
+        "09:00": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 9.0
+        },
+        "10:00": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 37.0
+        },
+        "11:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -40.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 3,
+          "wins": 2,
+          "losses": 1,
+          "pnl": 6.0
+        }
+      },
+      "by_spread_bucket": {
+        "tight (<5%)": {
+          "trades": 2,
+          "wins": 2,
+          "losses": 0,
+          "pnl": 46.0
+        },
+        "moderate (5-10%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -40.0
+        }
+      },
+      "reject_reasons": {},
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 0,
+      "gross_wins": 46.0,
+      "gross_losses": 40.0
+    },
+    {
+      "date": "2026-08-17",
+      "total_trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "realized_pnl": -107.99999999999997,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 107.99999999999997,
+      "slippage_total": -0.020000000000000018,
+      "spread_cost_total": 3.0000000000000027,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 1,
+      "trades_filled": 1,
+      "trades_cancelled": 0,
+      "trades_rejected": 0,
+      "by_strategy": {
+        "orb": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "rsi_trend": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "vwap_reclaim": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -107.99999999999997
+        }
+      },
+      "by_entry_hour": {
+        "11:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -108.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -108.0
+        }
+      },
+      "by_spread_bucket": {
+        "tight (<5%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -108.0
+        }
+      },
+      "reject_reasons": {},
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 108.0
+    },
+    {
+      "date": "2026-08-18",
+      "total_trades": 1,
+      "wins": 0,
+      "losses": 1,
+      "realized_pnl": -30.0,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 30.0,
+      "slippage_total": -0.020000000000000004,
+      "spread_cost_total": 4.999999999999997,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 2,
+      "trades_filled": 1,
+      "trades_cancelled": 1,
+      "trades_rejected": 150,
+      "by_strategy": {
+        "orb": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0
+        },
+        "rsi_trend": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "vwap_reclaim": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -30.0
+        }
+      },
+      "by_entry_hour": {
+        "09:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -30.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -30.0
+        }
+      },
+      "by_spread_bucket": {
+        "moderate (5-10%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -30.0
+        }
+      },
+      "reject_reasons": {
+        "Correlated stop lock active for broad_index/short after an earli": 150
+      },
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 30.0
+    },
+    {
+      "date": "2026-08-19",
+      "total_trades": 2,
+      "wins": 0,
+      "losses": 2,
+      "realized_pnl": -170.0,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 170.0,
+      "slippage_total": -0.04000000000000001,
+      "spread_cost_total": 10.000000000000009,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 2,
+      "trades_filled": 2,
+      "trades_cancelled": 0,
+      "trades_rejected": 123,
+      "by_strategy": {
+        "orb": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -80.00000000000001
+        },
+        "rsi_trend": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "vwap_reclaim": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -90.0
+        }
+      },
+      "by_entry_hour": {
+        "09:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -90.0
+        },
+        "10:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -80.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -170.0
+        }
+      },
+      "by_spread_bucket": {
+        "tight (<5%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -90.0
+        },
+        "moderate (5-10%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -80.0
+        }
+      },
+      "reject_reasons": {
+        "cooldown_after_loss": 19,
+        "liquidity_filter_no_contract": 4,
+        "Scaled experiment losing-trade limit reached": 65,
+        "Only 19 min before EOD exit (12": 1,
+        "Only 18 min before EOD exit (12": 2,
+        "Only 17 min before EOD exit (12": 2,
+        "Only 16 min before EOD exit (12": 1,
+        "Only 15 min before EOD exit (12": 2,
+        "Only 14 min before EOD exit (12": 2,
+        "Only 13 min before EOD exit (12": 2,
+        "Only 12 min before EOD exit (12": 2,
+        "Only 11 min before EOD exit (12": 2,
+        "Only 10 min before EOD exit (12": 2,
+        "Only 9 min before EOD exit (12": 1,
+        "Only 8 min before EOD exit (12": 2,
+        "Only 7 min before EOD exit (12": 2,
+        "Only 6 min before EOD exit (12": 2,
+        "Only 5 min before EOD exit (12": 2,
+        "Only 4 min before EOD exit (12": 2,
+        "Only 3 min before EOD exit (12": 2,
+        "Only 2 min before EOD exit (12": 2,
+        "Only 1 min before EOD exit (12": 2
+      },
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 170.0
+    },
+    {
+      "date": "2026-08-20",
+      "total_trades": 2,
+      "wins": 1,
+      "losses": 1,
+      "realized_pnl": -40.0,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 60.0,
+      "slippage_total": -0.039999999999999994,
+      "spread_cost_total": 9.999999999999995,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 2,
+      "trades_filled": 2,
+      "trades_cancelled": 0,
+      "trades_rejected": 0,
+      "by_strategy": {
+        "orb": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 20.000000000000004
+        },
+        "rsi_trend": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "vwap_reclaim": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -60.0
+        }
+      },
+      "by_entry_hour": {
+        "10:00": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "pnl": -40.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "pnl": -40.0
+        }
+      },
+      "by_spread_bucket": {
+        "moderate (5-10%)": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "pnl": -40.0
+        }
+      },
+      "reject_reasons": {},
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 0,
+      "gross_wins": 20.0,
+      "gross_losses": 60.0
+    },
+    {
+      "date": "2026-08-21",
+      "total_trades": 2,
+      "wins": 0,
+      "losses": 2,
+      "realized_pnl": -178.0,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 178.0,
+      "slippage_total": -0.04000000000000001,
+      "spread_cost_total": 14.00000000000001,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 2,
+      "trades_filled": 2,
+      "trades_cancelled": 0,
+      "trades_rejected": 272,
+      "by_strategy": {
+        "orb": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -70.00000000000001
+        },
+        "rsi_trend": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "vwap_reclaim": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -107.99999999999999
+        }
+      },
+      "by_entry_hour": {
+        "10:00": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -178.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -178.0
+        }
+      },
+      "by_spread_bucket": {
+        "moderate (5-10%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -108.0
+        },
+        "tight (<5%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -70.0
+        }
+      },
+      "reject_reasons": {
+        "paper_scaled_budget_below_one_contract": 1,
+        "cooldown_after_loss": 95,
+        "Scaled experiment losing-trade limit reached": 167,
+        "Only 30 min before EOD exit (12": 1,
+        "Only 29 min before EOD exit (12": 2,
+        "Only 28 min before EOD exit (12": 2,
+        "Only 27 min before EOD exit (12": 1,
+        "Only 26 min before EOD exit (12": 2,
+        "Only 25 min before EOD exit (12": 1
+      },
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 178.0
+    },
+    {
+      "date": "2026-08-24",
+      "total_trades": 2,
+      "wins": 0,
+      "losses": 2,
+      "realized_pnl": -95.99999999999997,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 95.99999999999997,
+      "slippage_total": -0.05000000000000002,
+      "spread_cost_total": 6.999999999999992,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 2,
+      "trades_filled": 2,
+      "trades_cancelled": 0,
+      "trades_rejected": 0,
+      "by_strategy": {
+        "rsi_trend": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "vwap_reclaim": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -95.99999999999997
+        }
+      },
+      "by_entry_hour": {
+        "09:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -80.0
+        },
+        "11:00": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -16.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -96.0
+        }
+      },
+      "by_spread_bucket": {
+        "tight (<5%)": {
+          "trades": 2,
+          "wins": 0,
+          "losses": 2,
+          "pnl": -96.0
+        }
+      },
+      "reject_reasons": {},
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 0,
+      "gross_wins": 0.0,
+      "gross_losses": 96.0
+    },
+    {
+      "date": "2026-08-25",
+      "total_trades": 2,
+      "wins": 1,
+      "losses": 1,
+      "realized_pnl": -6.000000000000005,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 20.000000000000018,
+      "slippage_total": -0.060000000000000026,
+      "spread_cost_total": 7.000000000000006,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 2,
+      "trades_filled": 2,
+      "trades_cancelled": 0,
+      "trades_rejected": 0,
+      "by_strategy": {
+        "orb": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 14.000000000000012
+        },
+        "rsi_trend": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "vwap_reclaim": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -20.000000000000018
+        }
+      },
+      "by_entry_hour": {
+        "10:00": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "pnl": -6.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -20.0
+        },
+        "mid (0.30-0.40)": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 14.0
+        }
+      },
+      "by_spread_bucket": {
+        "moderate (5-10%)": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -20.0
+        },
+        "tight (<5%)": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 14.0
+        }
+      },
+      "reject_reasons": {},
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 0,
+      "gross_wins": 14.0,
+      "gross_losses": 20.0
+    },
+    {
+      "date": "2026-08-26",
+      "total_trades": 2,
+      "wins": 1,
+      "losses": 1,
+      "realized_pnl": -60.00000000000002,
+      "unrealized_pnl": 0,
+      "max_drawdown_session": 105.00000000000001,
+      "slippage_total": -0.030000000000000027,
+      "spread_cost_total": 8.000000000000007,
+      "api_errors": 0,
+      "kill_switch_events": 0,
+      "trades_submitted": 2,
+      "trades_filled": 2,
+      "trades_cancelled": 0,
+      "trades_rejected": 0,
+      "by_strategy": {
+        "orb": {
+          "trades": 1,
+          "wins": 0,
+          "losses": 1,
+          "pnl": -105.00000000000001
+        },
+        "rsi_trend": {
+          "trades": 0,
+          "wins": 0,
+          "losses": 0,
+          "pnl": 0.0
+        },
+        "vwap_reclaim": {
+          "trades": 1,
+          "wins": 1,
+          "losses": 0,
+          "pnl": 44.99999999999999
+        }
+      },
+      "by_entry_hour": {
+        "09:00": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "pnl": -60.0
+        }
+      },
+      "by_delta_bucket": {
+        "unknown": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "pnl": -60.0
+        }
+      },
+      "by_spread_bucket": {
+        "tight (<5%)": {
+          "trades": 2,
+          "wins": 1,
+          "losses": 1,
+          "pnl": -60.0
+        }
+      },
+      "reject_reasons": {},
+      "data_clean": false,
+      "notes": null,
+      "phase": "phase3",
+      "contamination_flags": [],
+      "breakevens": 0,
+      "gross_wins": 45.0,
+      "gross_losses": 105.0
+    }
+  ],
+  "cumulative": {
+    "trading_days": 12,
+    "total_trades": 23,
+    "total_pnl": -726.0,
+    "expectancy": -31.57,
+    "win_rate": 0.3478,
+    "profit_factor": 0.2,
+    "max_drawdown": 726.0,
+    "pnl_by_strategy": {
+      "orb": {
+        "trades": 11,
+        "wins": 5,
+        "losses": 6,
+        "pnl": -306.0
+      },
+      "rsi_trend": {
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "pnl": 0.0
+      },
+      "vwap_reclaim": {
+        "trades": 11,
+        "wins": 3,
+        "losses": 8,
+        "pnl": -420.0
+      }
+    },
+    "pnl_by_entry_hour": {
+      "09:00": {
+        "trades": 9,
+        "wins": 3,
+        "losses": 5,
+        "pnl": -315.0
+      },
+      "11:00": {
+        "trades": 5,
+        "wins": 2,
+        "losses": 3,
+        "pnl": -131.0
+      },
+      "10:00": {
+        "trades": 9,
+        "wins": 3,
+        "losses": 6,
+        "pnl": -280.0
+      }
+    },
+    "pnl_by_delta_bucket": {
+      "target (0.40-0.50)": {
+        "trades": 2,
+        "wins": 0,
+        "losses": 2,
+        "pnl": -97.0
+      },
+      "unknown": {
+        "trades": 20,
+        "wins": 7,
+        "losses": 12,
+        "pnl": -643.0
+      },
+      "mid (0.30-0.40)": {
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "pnl": 14.0
+      }
+    },
+    "pnl_by_spread_bucket": {
+      "tight (<5%)": {
+        "trades": 13,
+        "wins": 5,
+        "losses": 8,
+        "pnl": -441.0
+      },
+      "moderate (5-10%)": {
+        "trades": 10,
+        "wins": 3,
+        "losses": 6,
+        "pnl": -285.0
+      }
+    },
+    "reject_counts_by_reason": {
+      "cooldown_after_loss": 120,
+      "liquidity_filter_no_contract": 8,
+      "Correlated stop lock active for broad_index/short after an earli": 150,
+      "Scaled experiment losing-trade limit reached": 232,
+      "Only 19 min before EOD exit (12": 1,
+      "Only 18 min before EOD exit (12": 2,
+      "Only 17 min before EOD exit (12": 2,
+      "Only 16 min before EOD exit (12": 1,
+      "Only 15 min before EOD exit (12": 2,
+      "Only 14 min before EOD exit (12": 2,
+      "Only 13 min before EOD exit (12": 2,
+      "Only 12 min before EOD exit (12": 2,
+      "Only 11 min before EOD exit (12": 2,
+      "Only 10 min before EOD exit (12": 2,
+      "Only 9 min before EOD exit (12": 1,
+      "Only 8 min before EOD exit (12": 2,
+      "Only 7 min before EOD exit (12": 2,
+      "Only 6 min before EOD exit (12": 2,
+      "Only 5 min before EOD exit (12": 2,
+      "Only 4 min before EOD exit (12": 2,
+      "Only 3 min before EOD exit (12": 2,
+      "Only 2 min before EOD exit (12": 2,
+      "Only 1 min before EOD exit (12": 2,
+      "paper_scaled_budget_below_one_contract": 1,
+      "Only 30 min before EOD exit (12": 1,
+      "Only 29 min before EOD exit (12": 2,
+      "Only 28 min before EOD exit (12": 2,
+      "Only 27 min before EOD exit (12": 1,
+      "Only 26 min before EOD exit (12": 2,
+      "Only 25 min before EOD exit (12": 1
+    }
+  },
+  "phase3_cumulative": {
+    "trading_days": 12,
+    "total_trades": 23,
+    "total_pnl": -726.0,
+    "expectancy": -31.57,
+    "win_rate": 0.3478,
+    "profit_factor": 0.2,
+    "max_drawdown": 726.0,
+    "pnl_by_strategy": {
+      "orb": {
+        "trades": 11,
+        "wins": 5,
+        "losses": 6,
+        "pnl": -306.0
+      },
+      "rsi_trend": {
+        "trades": 0,
+        "wins": 0,
+        "losses": 0,
+        "pnl": 0.0
+      },
+      "vwap_reclaim": {
+        "trades": 11,
+        "wins": 3,
+        "losses": 8,
+        "pnl": -420.0
+      }
+    },
+    "pnl_by_entry_hour": {
+      "09:00": {
+        "trades": 9,
+        "wins": 3,
+        "losses": 5,
+        "pnl": -315.0
+      },
+      "11:00": {
+        "trades": 5,
+        "wins": 2,
+        "losses": 3,
+        "pnl": -131.0
+      },
+      "10:00": {
+        "trades": 9,
+        "wins": 3,
+        "losses": 6,
+        "pnl": -280.0
+      }
+    },
+    "pnl_by_delta_bucket": {
+      "target (0.40-0.50)": {
+        "trades": 2,
+        "wins": 0,
+        "losses": 2,
+        "pnl": -97.0
+      },
+      "unknown": {
+        "trades": 20,
+        "wins": 7,
+        "losses": 12,
+        "pnl": -643.0
+      },
+      "mid (0.30-0.40)": {
+        "trades": 1,
+        "wins": 1,
+        "losses": 0,
+        "pnl": 14.0
+      }
+    },
+    "pnl_by_spread_bucket": {
+      "tight (<5%)": {
+        "trades": 13,
+        "wins": 5,
+        "losses": 8,
+        "pnl": -441.0
+      },
+      "moderate (5-10%)": {
+        "trades": 10,
+        "wins": 3,
+        "losses": 6,
+        "pnl": -285.0
+      }
+    },
+    "reject_counts_by_reason": {
+      "cooldown_after_loss": 120,
+      "liquidity_filter_no_contract": 8,
+      "Correlated stop lock active for broad_index/short after an earli": 150,
+      "Scaled experiment losing-trade limit reached": 232,
+      "Only 19 min before EOD exit (12": 1,
+      "Only 18 min before EOD exit (12": 2,
+      "Only 17 min before EOD exit (12": 2,
+      "Only 16 min before EOD exit (12": 1,
+      "Only 15 min before EOD exit (12": 2,
+      "Only 14 min before EOD exit (12": 2,
+      "Only 13 min before EOD exit (12": 2,
+      "Only 12 min before EOD exit (12": 2,
+      "Only 11 min before EOD exit (12": 2,
+      "Only 10 min before EOD exit (12": 2,
+      "Only 9 min before EOD exit (12": 1,
+      "Only 8 min before EOD exit (12": 2,
+      "Only 7 min before EOD exit (12": 2,
+      "Only 6 min before EOD exit (12": 2,
+      "Only 5 min before EOD exit (12": 2,
+      "Only 4 min before EOD exit (12": 2,
+      "Only 3 min before EOD exit (12": 2,
+      "Only 2 min before EOD exit (12": 2,
+      "Only 1 min before EOD exit (12": 2,
+      "paper_scaled_budget_below_one_contract": 1,
+      "Only 30 min before EOD exit (12": 1,
+      "Only 29 min before EOD exit (12": 2,
+      "Only 28 min before EOD exit (12": 2,
+      "Only 27 min before EOD exit (12": 1,
+      "Only 26 min before EOD exit (12": 2,
+      "Only 25 min before EOD exit (12": 1
+    }
+  }
+}

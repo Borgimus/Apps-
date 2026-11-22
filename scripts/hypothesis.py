@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import httpx
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 
 from app.hypotheses.registry import REGISTRY, load_registry, register, sha, transition, verify_registration
 from app.research.history.bars import AlpacaHistory, cache_root
@@ -39,8 +39,10 @@ def rule_for(root, h):
 
 
 def history(cache):
-    load_dotenv(ROOT / ".env", override=False)
-    return AlpacaHistory(os.getenv("ALPACA_API_KEY"), os.getenv("ALPACA_SECRET_KEY"), cache)
+    path = Path(os.getenv("TRADER_RESEARCH_ENV", str(ROOT / ".env")))
+    config = dotenv_values(path, interpolate=False)
+    return AlpacaHistory(os.getenv("ALPACA_API_KEY") or config.get("ALPACA_API_KEY"),
+                         os.getenv("ALPACA_SECRET_KEY") or config.get("ALPACA_SECRET_KEY"), cache)
 
 
 def historical_screen(root, h, feed, cache):

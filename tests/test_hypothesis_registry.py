@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
-from pathlib import Path
-import shutil
+import json
 
 import pytest
 
@@ -18,7 +17,8 @@ def test_dashboard_registry_only_exposes_read_routes():
 def test_registry_status_history_and_required_blocker(tmp_path):
     path = tmp_path / REGISTRY
     path.parent.mkdir(parents=True)
-    shutil.copyfile(Path(".") / REGISTRY, path)
+    path.write_text(json.dumps({"schema": 1, "hypotheses": {
+        "S1": {"name": "Fixture", "status": "registered", "transitions": []}}}))
     options = {"commit": "a" * 40, "path": path.relative_to(tmp_path),
                "now": datetime(2026, 11, 22, tzinfo=timezone.utc)}
     transition(tmp_path, "S1", "screening", **options)

@@ -59,6 +59,6 @@ border-bottom:1px solid #ccd5df;vertical-align:top}thead{background:#eef4fa}</st
 <h1>Strategy research</h1><p>Prices and volatility proxies. Broker entries disabled.</p>
 <p><a href="/equity-research/review">Frozen equity review</a></p>
 <section><table><thead><tr><th scope="col">ID</th><th scope="col">Hypothesis</th>
-<th scope="col">Status</th><th scope="col">Independent days or months</th>
+<th scope="col">Status</th><th scope="col">Candidate dates or months</th>
 <th scope="col">Incremental bps</th><th scope="col">t-statistic</th><th scope="col">Reason</th>
 </tr></thead><tbody>""" + "".join(rendered) + "</tbody></table></section></html>"

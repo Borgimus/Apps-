@@ -1,0 +1,1164 @@
+{
+  "VIX": {
+    "annual_cluster_statistics": {
+      "2000": {
+        "mean_bps": 68.5353899385888,
+        "n": 252,
+        "se_bps": 118.44899633416131,
+        "t": 0.5786067595308348
+      },
+      "2001": {
+        "mean_bps": 528.2797708765281,
+        "n": 248,
+        "se_bps": 165.63317685039578,
+        "t": 3.1894562485732205
+      },
+      "2002": {
+        "mean_bps": 199.50014079609647,
+        "n": 252,
+        "se_bps": 149.37620806531137,
+        "t": 1.335554994868189
+      },
+      "2003": {
+        "mean_bps": 675.4324679867821,
+        "n": 252,
+        "se_bps": 48.593695994687984,
+        "t": 13.89959035140313
+      },
+      "2004": {
+        "mean_bps": 447.1788533620027,
+        "n": 252,
+        "se_bps": 41.42825061875932,
+        "t": 10.79405590830122
+      },
+      "2005": {
+        "mean_bps": 269.6781236106187,
+        "n": 252,
+        "se_bps": 48.51612664790762,
+        "t": 5.558525427384859
+      },
+      "2006": {
+        "mean_bps": 338.02931100849526,
+        "n": 251,
+        "se_bps": 57.06007139541137,
+        "t": 5.924095479412224
+      },
+      "2007": {
+        "mean_bps": 194.92743912770925,
+        "n": 251,
+        "se_bps": 114.6265541463842,
+        "t": 1.700543478597259
+      },
+      "2008": {
+        "mean_bps": -197.21201115812198,
+        "n": 253,
+        "se_bps": 443.08460978189726,
+        "t": -0.4450888313525425
+      },
+      "2009": {
+        "mean_bps": 794.1214805994371,
+        "n": 252,
+        "se_bps": 67.87919617094056,
+        "t": 11.699040728172392
+      },
+      "2010": {
+        "mean_bps": 619.8943886962862,
+        "n": 252,
+        "se_bps": 148.4225221174104,
+        "t": 4.176552047848341
+      },
+      "2011": {
+        "mean_bps": 349.99515390724457,
+        "n": 252,
+        "se_bps": 203.7122165087547,
+        "t": 1.71808622921838
+      },
+      "2012": {
+        "mean_bps": 527.0165210508794,
+        "n": 250,
+        "se_bps": 63.657440515090855,
+        "t": 8.278946133970672
+      },
+      "2013": {
+        "mean_bps": 342.0678966498475,
+        "n": 252,
+        "se_bps": 55.767355389703965,
+        "t": 6.1338375158632985
+      },
+      "2014": {
+        "mean_bps": 323.49497967462867,
+        "n": 252,
+        "se_bps": 78.04286817378936,
+        "t": 4.1450934242223845
+      },
+      "2015": {
+        "mean_bps": 194.3479839891816,
+        "n": 252,
+        "se_bps": 130.55077914355513,
+        "t": 1.4886773197689946
+      },
+      "2016": {
+        "mean_bps": 457.7600917002306,
+        "n": 252,
+        "se_bps": 63.53284129678993,
+        "t": 7.2050939696185035
+      },
+      "2017": {
+        "mean_bps": 426.920433357869,
+        "n": 251,
+        "se_bps": 30.63353226582061,
+        "t": 13.936376309897696
+      },
+      "2018": {
+        "mean_bps": 77.6226874872358,
+        "n": 251,
+        "se_bps": 150.5527921560229,
+        "t": 0.5155845094310361
+      },
+      "2019": {
+        "mean_bps": 413.8881767951996,
+        "n": 252,
+        "se_bps": 94.43709880058404,
+        "t": 4.382686275328907
+      },
+      "2020": {
+        "mean_bps": 273.2993475901136,
+        "n": 253,
+        "se_bps": 498.81773933611265,
+        "t": 0.5478942027078941
+      },
+      "2021": {
+        "mean_bps": 694.8217601297047,
+        "n": 252,
+        "se_bps": 59.70761101553536,
+        "t": 11.637071862562355
+      },
+      "2022": {
+        "mean_bps": 182.57835252673516,
+        "n": 251,
+        "se_bps": 104.66411439763475,
+        "t": 1.744421701530789
+      },
+      "2023": {
+        "mean_bps": 432.84518318125487,
+        "n": 250,
+        "se_bps": 40.211422683921455,
+        "t": 10.764234495844587
+      },
+      "2024": {
+        "mean_bps": 324.4302472329793,
+        "n": 252,
+        "se_bps": 87.30524698953364,
+        "t": 3.716045236913112
+      },
+      "2025": {
+        "mean_bps": 323.4809705460266,
+        "n": 250,
+        "se_bps": 226.3130487921266,
+        "t": 1.4293518304512383
+      },
+      "2026": {
+        "mean_bps": 480.4731028471939,
+        "n": 203,
+        "se_bps": 80.23111285514183,
+        "t": 5.9886132168538335
+      }
+    },
+    "annual_max_contribution": 0.08231905944625026,
+    "annual_total_spread_bps": {
+      "2000": 17270.918264524378,
+      "2001": 131013.38317737897,
+      "2002": 50274.035480616294,
+      "2003": 170208.9819326691,
+      "2004": 112689.07104722469,
+      "2005": 67958.88714987593,
+      "2006": 84845.35706313232,
+      "2007": 48926.78722105502,
+      "2008": -49894.638823004854,
+      "2009": 200118.6131110581,
+      "2010": 156213.38595146412,
+      "2011": 88198.77878462561,
+      "2012": 131754.13026271985,
+      "2013": 86201.10995576157,
+      "2014": 81520.73487800642,
+      "2015": 48975.69196527376,
+      "2016": 115355.54310845808,
+      "2017": 107157.02877282513,
+      "2018": 19483.294559296184,
+      "2019": 104299.8205523903,
+      "2020": 69144.73494029873,
+      "2021": 175095.08355268557,
+      "2022": 45827.16648421052,
+      "2023": 108211.29579531372,
+      "2024": 81756.42230271077,
+      "2025": 80870.24263650666,
+      "2026": 97536.03987798038
+    },
+    "implied_above_realized_fraction": 0.8315040047463661,
+    "mean_spread_vol_points": 3.6057726194082727,
+    "spread_quantiles_vol_points": {
+      "p01": -26.88594467169169,
+      "p05": -6.73047581188907,
+      "p50": 4.454822650615264,
+      "p95": 11.757798177671543,
+      "p99": 16.26844836200831
+    },
+    "stats": {
+      "all": {
+        "block_bootstrap_ci_bps": [
+          287.4335853280452,
+          423.86683902271153
+        ],
+        "candidate_days": 6742,
+        "control_days": 6742,
+        "mean_bps": 360.57726194082727,
+        "n": 6742,
+        "se_bps": 34.47222100433056,
+        "t": 10.459937057595736
+      },
+      "development": {
+        "block_bootstrap_ci_bps": [
+          276.1851457866057,
+          419.7575804288307
+        ],
+        "candidate_days": 4734,
+        "control_days": 4734,
+        "mean_bps": 354.44753713765914,
+        "n": 4734,
+        "se_bps": 37.27315882473035,
+        "t": 9.509457966907997
+      },
+      "first_half": {
+        "block_bootstrap_ci_bps": [
+          268.1404500511643,
+          459.8493506586137
+        ],
+        "candidate_days": 3381,
+        "control_days": 3381,
+        "mean_bps": 364.34257475109973,
+        "n": 3381,
+        "se_bps": 49.187052942360744,
+        "t": 7.407286124217489
+      },
+      "holdout": {
+        "block_bootstrap_ci_bps": [
+          218.68799990856635,
+          504.8809906348242
+        ],
+        "candidate_days": 2008,
+        "control_days": 2008,
+        "mean_bps": 375.02851553554717,
+        "n": 2008,
+        "se_bps": 75.3090346998576,
+        "t": 4.979860876323997
+      },
+      "second_half": {
+        "block_bootstrap_ci_bps": [
+          258.8034238522885,
+          444.9625736138803
+        ],
+        "candidate_days": 3361,
+        "control_days": 3361,
+        "mean_bps": 356.7895432227281,
+        "n": 3361,
+        "se_bps": 48.31868351102301,
+        "t": 7.384090734618902
+      }
+    },
+    "unavailable_index_closes": 0,
+    "unmatured_horizons": 21,
+    "worst_one_percent": [
+      {
+        "date": "2020-02-20",
+        "implied_vol_points": 15.5600004196167,
+        "realized_vol_points": 84.44796724061132,
+        "spread_vol_points": -68.88796682099462
+      },
+      {
+        "date": "2020-02-19",
+        "implied_vol_points": 14.380000114440918,
+        "realized_vol_points": 83.07009387529587,
+        "spread_vol_points": -68.69009376085495
+      },
+      {
+        "date": "2020-02-18",
+        "implied_vol_points": 14.829999923706055,
+        "realized_vol_points": 83.08327011100928,
+        "spread_vol_points": -68.25327018730323
+      },
+      {
+        "date": "2020-02-21",
+        "implied_vol_points": 17.079999923706055,
+        "realized_vol_points": 84.84753153046431,
+        "spread_vol_points": -67.76753160675825
+      },
+      {
+        "date": "2020-02-14",
+        "implied_vol_points": 13.680000305175781,
+        "realized_vol_points": 81.11504130369394,
+        "spread_vol_points": -67.43504099851816
+      },
+      {
+        "date": "2020-02-13",
+        "implied_vol_points": 14.149999618530273,
+        "realized_vol_points": 79.04514413468476,
+        "spread_vol_points": -64.89514451615449
+      },
+      {
+        "date": "2020-02-24",
+        "implied_vol_points": 25.030000686645508,
+        "realized_vol_points": 89.24834652679216,
+        "spread_vol_points": -64.21834584014665
+      },
+      {
+        "date": "2020-02-26",
+        "implied_vol_points": 27.559999465942383,
+        "realized_vol_points": 90.90083093641354,
+        "spread_vol_points": -63.34083147047116
+      },
+      {
+        "date": "2020-02-25",
+        "implied_vol_points": 27.850000381469727,
+        "realized_vol_points": 88.75888376105199,
+        "spread_vol_points": -60.908883379582264
+      },
+      {
+        "date": "2020-03-04",
+        "implied_vol_points": 31.989999771118164,
+        "realized_vol_points": 89.79602981439983,
+        "spread_vol_points": -57.806030043281666
+      },
+      {
+        "date": "2020-03-02",
+        "implied_vol_points": 33.41999816894531,
+        "realized_vol_points": 89.7280224557632,
+        "spread_vol_points": -56.30802428681788
+      },
+      {
+        "date": "2020-02-12",
+        "implied_vol_points": 13.739999771118164,
+        "realized_vol_points": 68.09334918635552,
+        "spread_vol_points": -54.35334941523736
+      },
+      {
+        "date": "2008-09-25",
+        "implied_vol_points": 32.81999969482422,
+        "realized_vol_points": 86.62108354231061,
+        "spread_vol_points": -53.801083847486396
+      },
+      {
+        "date": "2020-03-03",
+        "implied_vol_points": 36.81999969482422,
+        "realized_vol_points": 90.57762575382537,
+        "spread_vol_points": -53.757626059001154
+      },
+      {
+        "date": "2008-09-26",
+        "implied_vol_points": 34.7400016784668,
+        "realized_vol_points": 87.5212167399304,
+        "spread_vol_points": -52.7812150614636
+      },
+      {
+        "date": "2008-09-16",
+        "implied_vol_points": 30.299999237060547,
+        "realized_vol_points": 82.20899602444884,
+        "spread_vol_points": -51.90899678738829
+      },
+      {
+        "date": "2008-10-01",
+        "implied_vol_points": 39.810001373291016,
+        "realized_vol_points": 90.96308825339638,
+        "spread_vol_points": -51.15308688010536
+      },
+      {
+        "date": "2020-02-27",
+        "implied_vol_points": 39.15999984741211,
+        "realized_vol_points": 90.10714336944352,
+        "spread_vol_points": -50.94714352203141
+      },
+      {
+        "date": "2008-09-30",
+        "implied_vol_points": 39.38999938964844,
+        "realized_vol_points": 90.19719540729805,
+        "spread_vol_points": -50.807196017649616
+      },
+      {
+        "date": "2020-02-28",
+        "implied_vol_points": 40.11000061035156,
+        "realized_vol_points": 90.77300844051958,
+        "spread_vol_points": -50.66300783016801
+      },
+      {
+        "date": "2008-09-19",
+        "implied_vol_points": 32.06999969482422,
+        "realized_vol_points": 82.65825971698374,
+        "spread_vol_points": -50.58826002215952
+      },
+      {
+        "date": "2008-09-12",
+        "implied_vol_points": 25.65999984741211,
+        "realized_vol_points": 75.90174404783538,
+        "spread_vol_points": -50.24174420042327
+      },
+      {
+        "date": "2020-03-06",
+        "implied_vol_points": 41.939998626708984,
+        "realized_vol_points": 91.78985544533204,
+        "spread_vol_points": -49.84985681862305
+      },
+      {
+        "date": "2008-09-24",
+        "implied_vol_points": 35.189998626708984,
+        "realized_vol_points": 84.89439746523037,
+        "spread_vol_points": -49.704398838521385
+      },
+      {
+        "date": "2020-03-05",
+        "implied_vol_points": 39.619998931884766,
+        "realized_vol_points": 89.17184010024417,
+        "spread_vol_points": -49.5518411683594
+      },
+      {
+        "date": "2008-09-22",
+        "implied_vol_points": 33.849998474121094,
+        "realized_vol_points": 82.94398273988678,
+        "spread_vol_points": -49.093984265765684
+      },
+      {
+        "date": "2008-09-23",
+        "implied_vol_points": 35.720001220703125,
+        "realized_vol_points": 84.80783688308983,
+        "spread_vol_points": -49.08783566238671
+      },
+      {
+        "date": "2008-09-18",
+        "implied_vol_points": 33.099998474121094,
+        "realized_vol_points": 81.27680069680304,
+        "spread_vol_points": -48.17680222268194
+      },
+      {
+        "date": "2020-02-11",
+        "implied_vol_points": 15.180000305175781,
+        "realized_vol_points": 61.92108229663537,
+        "spread_vol_points": -46.74108199145959
+      },
+      {
+        "date": "2008-09-17",
+        "implied_vol_points": 36.220001220703125,
+        "realized_vol_points": 81.87926446624655,
+        "spread_vol_points": -45.65926324554343
+      },
+      {
+        "date": "2008-10-03",
+        "implied_vol_points": 45.13999938964844,
+        "realized_vol_points": 89.9605859329528,
+        "spread_vol_points": -44.82058654330436
+      },
+      {
+        "date": "2008-10-02",
+        "implied_vol_points": 45.2599983215332,
+        "realized_vol_points": 90.07817198660938,
+        "spread_vol_points": -44.81817366507617
+      },
+      {
+        "date": "2008-09-29",
+        "implied_vol_points": 46.720001220703125,
+        "realized_vol_points": 91.24994949552854,
+        "spread_vol_points": -44.529948274825415
+      },
+      {
+        "date": "2008-09-15",
+        "implied_vol_points": 31.700000762939453,
+        "realized_vol_points": 74.17894838689924,
+        "spread_vol_points": -42.47894762395978
+      },
+      {
+        "date": "2020-03-10",
+        "implied_vol_points": 47.29999923706055,
+        "realized_vol_points": 86.35669323356066,
+        "spread_vol_points": -39.056693996500115
+      },
+      {
+        "date": "2008-10-06",
+        "implied_vol_points": 52.04999923706055,
+        "realized_vol_points": 88.87619963025793,
+        "spread_vol_points": -36.82620039319738
+      },
+      {
+        "date": "2020-02-10",
+        "implied_vol_points": 15.039999961853027,
+        "realized_vol_points": 51.194614419194,
+        "spread_vol_points": -36.15461445734097
+      },
+      {
+        "date": "2008-09-11",
+        "implied_vol_points": 24.389999389648438,
+        "realized_vol_points": 59.64808891642315,
+        "spread_vol_points": -35.25808952677471
+      },
+      {
+        "date": "2008-10-07",
+        "implied_vol_points": 53.68000030517578,
+        "realized_vol_points": 88.70324777210175,
+        "spread_vol_points": -35.023247466925966
+      },
+      {
+        "date": "2008-09-10",
+        "implied_vol_points": 24.520000457763672,
+        "realized_vol_points": 59.247810217093374,
+        "spread_vol_points": -34.7278097593297
+      },
+      {
+        "date": "2025-03-25",
+        "implied_vol_points": 17.149999618530273,
+        "realized_vol_points": 51.28192932639507,
+        "spread_vol_points": -34.1319297078648
+      },
+      {
+        "date": "2025-03-24",
+        "implied_vol_points": 17.479999542236328,
+        "realized_vol_points": 50.7785294628571,
+        "spread_vol_points": -33.29852992062077
+      },
+      {
+        "date": "2008-10-08",
+        "implied_vol_points": 57.529998779296875,
+        "realized_vol_points": 90.44390914925692,
+        "spread_vol_points": -32.91391036996005
+      },
+      {
+        "date": "2020-03-09",
+        "implied_vol_points": 54.459999084472656,
+        "realized_vol_points": 87.36184257584084,
+        "spread_vol_points": -32.90184349136818
+      },
+      {
+        "date": "2025-03-26",
+        "implied_vol_points": 18.329999923706055,
+        "realized_vol_points": 51.1736940999083,
+        "spread_vol_points": -32.84369417620225
+      },
+      {
+        "date": "2020-02-07",
+        "implied_vol_points": 15.470000267028809,
+        "realized_vol_points": 48.247347144958304,
+        "spread_vol_points": -32.777346877929496
+      },
+      {
+        "date": "2025-03-27",
+        "implied_vol_points": 18.690000534057617,
+        "realized_vol_points": 51.16557225773698,
+        "spread_vol_points": -32.475571723679366
+      },
+      {
+        "date": "2025-03-21",
+        "implied_vol_points": 19.280000686645508,
+        "realized_vol_points": 50.87134965296204,
+        "spread_vol_points": -31.59134896631653
+      },
+      {
+        "date": "2008-09-08",
+        "implied_vol_points": 22.639999389648438,
+        "realized_vol_points": 53.98304022081918,
+        "spread_vol_points": -31.34304083117074
+      },
+      {
+        "date": "2020-03-11",
+        "implied_vol_points": 53.900001525878906,
+        "realized_vol_points": 84.76514466861344,
+        "spread_vol_points": -30.86514314273454
+      },
+      {
+        "date": "2025-03-20",
+        "implied_vol_points": 19.799999237060547,
+        "realized_vol_points": 50.08731830791492,
+        "spread_vol_points": -30.287319070854373
+      },
+      {
+        "date": "2020-02-06",
+        "implied_vol_points": 14.960000038146973,
+        "realized_vol_points": 45.00892711017779,
+        "spread_vol_points": -30.048927072030814
+      },
+      {
+        "date": "2025-03-19",
+        "implied_vol_points": 19.899999618530273,
+        "realized_vol_points": 49.39739982614231,
+        "spread_vol_points": -29.49740020761204
+      },
+      {
+        "date": "2025-04-02",
+        "implied_vol_points": 21.510000228881836,
+        "realized_vol_points": 50.93073150104416,
+        "spread_vol_points": -29.42073127216232
+      },
+      {
+        "date": "2025-03-28",
+        "implied_vol_points": 21.649999618530273,
+        "realized_vol_points": 50.72458078440072,
+        "spread_vol_points": -29.07458116587045
+      },
+      {
+        "date": "2008-09-05",
+        "implied_vol_points": 23.059999465942383,
+        "realized_vol_points": 52.08066529844786,
+        "spread_vol_points": -29.02066583250548
+      },
+      {
+        "date": "2025-04-01",
+        "implied_vol_points": 21.770000457763672,
+        "realized_vol_points": 50.72140136971265,
+        "spread_vol_points": -28.95140091194898
+      },
+      {
+        "date": "2025-03-17",
+        "implied_vol_points": 20.510000228881836,
+        "realized_vol_points": 49.06601975698538,
+        "spread_vol_points": -28.556019528103548
+      },
+      {
+        "date": "2025-03-31",
+        "implied_vol_points": 22.280000686645508,
+        "realized_vol_points": 50.67179332770716,
+        "spread_vol_points": -28.39179264106165
+      },
+      {
+        "date": "2008-09-03",
+        "implied_vol_points": 21.43000030517578,
+        "realized_vol_points": 49.75545745804943,
+        "spread_vol_points": -28.325457152873646
+      },
+      {
+        "date": "2008-09-09",
+        "implied_vol_points": 25.469999313354492,
+        "realized_vol_points": 53.69642376700244,
+        "spread_vol_points": -28.22642445364795
+      },
+      {
+        "date": "2025-03-18",
+        "implied_vol_points": 21.700000762939453,
+        "realized_vol_points": 49.537250289041815,
+        "spread_vol_points": -27.83724952610236
+      },
+      {
+        "date": "2011-07-22",
+        "implied_vol_points": 17.520000457763672,
+        "realized_vol_points": 45.02189380194359,
+        "spread_vol_points": -27.50189334417992
+      },
+      {
+        "date": "2008-08-29",
+        "implied_vol_points": 20.649999618530273,
+        "realized_vol_points": 48.129914104128005,
+        "spread_vol_points": -27.47991448559773
+      },
+      {
+        "date": "2011-07-21",
+        "implied_vol_points": 17.559999465942383,
+        "realized_vol_points": 45.02164060444736,
+        "spread_vol_points": -27.46164113850498
+      },
+      {
+        "date": "2025-03-14",
+        "implied_vol_points": 21.770000457763672,
+        "realized_vol_points": 49.128516341742085,
+        "spread_vol_points": -27.358515883978413
+      },
+      {
+        "date": "2011-07-25",
+        "implied_vol_points": 19.350000381469727,
+        "realized_vol_points": 46.35778692825043,
+        "spread_vol_points": -27.0077865467807
+      },
+      {
+        "date": "2008-11-04",
+        "implied_vol_points": 47.72999954223633,
+        "realized_vol_points": 74.70630589211228,
+        "spread_vol_points": -26.976306349875955
+      }
+    ]
+  },
+  "VIX9D_diagnostic": {
+    "annual_cluster_statistics": {
+      "2011": {
+        "mean_bps": 474.58066312654694,
+        "n": 252,
+        "se_bps": 96.92860814211993,
+        "t": 4.896187742948925
+      },
+      "2012": {
+        "mean_bps": 524.0738105960844,
+        "n": 250,
+        "se_bps": 49.38875629389916,
+        "t": 10.61119675655452
+      },
+      "2013": {
+        "mean_bps": 382.63342671474527,
+        "n": 252,
+        "se_bps": 44.419583950157985,
+        "t": 8.614070477204107
+      },
+      "2014": {
+        "mean_bps": 356.07221187348443,
+        "n": 252,
+        "se_bps": 48.96227523385309,
+        "t": 7.272378789033316
+      },
+      "2015": {
+        "mean_bps": 267.8755576469496,
+        "n": 252,
+        "se_bps": 66.96118338961587,
+        "t": 4.000460327714143
+      },
+      "2016": {
+        "mean_bps": 410.5737303335049,
+        "n": 252,
+        "se_bps": 48.00246990861063,
+        "t": 8.553179265883081
+      },
+      "2017": {
+        "mean_bps": 371.8196720701985,
+        "n": 251,
+        "se_bps": 31.129401812046563,
+        "t": 11.944324350181072
+      },
+      "2018": {
+        "mean_bps": 224.67427398992183,
+        "n": 251,
+        "se_bps": 79.25409091164484,
+        "t": 2.83486027541968
+      },
+      "2019": {
+        "mean_bps": 375.41926304202184,
+        "n": 252,
+        "se_bps": 49.13420351293487,
+        "t": 7.64069092812689
+      },
+      "2020": {
+        "mean_bps": 444.52425868046583,
+        "n": 253,
+        "se_bps": 190.7735832415516,
+        "t": 2.3301143225769523
+      },
+      "2021": {
+        "mean_bps": 563.8677079392291,
+        "n": 252,
+        "se_bps": 51.80266928741121,
+        "t": 10.884916080497362
+      },
+      "2022": {
+        "mean_bps": 239.04944636446805,
+        "n": 251,
+        "se_bps": 73.05475353972616,
+        "t": 3.2721956447977925
+      },
+      "2023": {
+        "mean_bps": 388.1639750573002,
+        "n": 250,
+        "se_bps": 37.25990138341858,
+        "t": 10.417740268900474
+      },
+      "2024": {
+        "mean_bps": 311.3333135926012,
+        "n": 252,
+        "se_bps": 50.75955042436519,
+        "t": 6.133492337693313
+      },
+      "2025": {
+        "mean_bps": 342.5421616733925,
+        "n": 250,
+        "se_bps": 113.08612456180154,
+        "t": 3.029037939010752
+      },
+      "2026": {
+        "mean_bps": 378.0269895490917,
+        "n": 219,
+        "se_bps": 66.27316592875808,
+        "t": 5.704073198426356
+      }
+    },
+    "annual_max_contribution": 0.09406862260004545,
+    "annual_total_spread_bps": {
+      "2011": 119594.32710788984,
+      "2012": 131018.45264902111,
+      "2013": 96423.6235321158,
+      "2014": 89730.19739211809,
+      "2015": 67504.6405270313,
+      "2016": 103464.58004404325,
+      "2017": 93326.73768961981,
+      "2018": 56393.24277147038,
+      "2019": 94605.6542865895,
+      "2020": 112464.63744615785,
+      "2021": 142094.66240068577,
+      "2022": 60001.41103748148,
+      "2023": 97040.99376432506,
+      "2024": 78455.9950253355,
+      "2025": 85635.54041834813,
+      "2026": 82787.91071125108
+    },
+    "implied_above_realized_fraction": 0.8243547982961664,
+    "mean_spread_vol_points": 3.78487248008891,
+    "spread_quantiles_vol_points": {
+      "p01": -18.842763566696703,
+      "p05": -5.749401250958851,
+      "p50": 4.574232474967851,
+      "p95": 11.782901319675625,
+      "p99": 17.324230983581806
+    },
+    "stats": {
+      "all": {
+        "block_bootstrap_ci_bps": [
+          339.8533969973008,
+          413.8118902280897
+        ],
+        "candidate_days": 3991,
+        "control_days": 3991,
+        "mean_bps": 378.487248008891,
+        "n": 3991,
+        "se_bps": 19.968159670139833,
+        "t": 18.95453833809616
+      },
+      "development": {
+        "block_bootstrap_ci_bps": [
+          340.4090490591614,
+          423.5782423560227
+        ],
+        "candidate_days": 1967,
+        "control_days": 1967,
+        "mean_bps": 383.39911436353043,
+        "n": 1967,
+        "se_bps": 22.294197418576523,
+        "t": 17.197260218215575
+      },
+      "first_half": {
+        "block_bootstrap_ci_bps": [
+          362.935312073859,
+          545.3752479955256
+        ],
+        "candidate_days": 614,
+        "control_days": 614,
+        "mean_bps": 464.0607305698323,
+        "n": 614,
+        "se_bps": 47.23306167725069,
+        "t": 9.824913187733124
+      },
+      "holdout": {
+        "block_bootstrap_ci_bps": [
+          306.33892887465663,
+          430.7896681682311
+        ],
+        "candidate_days": 2024,
+        "control_days": 2024,
+        "mean_bps": 373.71370990633386,
+        "n": 2024,
+        "se_bps": 32.89375166631025,
+        "t": 11.36123704275092
+      },
+      "second_half": {
+        "block_bootstrap_ci_bps": [
+          320.2047519387099,
+          402.5026838434444
+        ],
+        "candidate_days": 3377,
+        "control_days": 3377,
+        "mean_bps": 362.9284329978107,
+        "n": 3377,
+        "se_bps": 21.915605718851303,
+        "t": 16.560273882169177
+      }
+    },
+    "unavailable_index_closes": 2767,
+    "unmatured_horizons": 5,
+    "worst_one_percent": [
+      {
+        "date": "2020-03-10",
+        "implied_vol_points": 57.38999938964844,
+        "realized_vol_points": 133.8274511896495,
+        "spread_vol_points": -76.43745180000107
+      },
+      {
+        "date": "2020-03-06",
+        "implied_vol_points": 48.54999923706055,
+        "realized_vol_points": 119.84439429370993,
+        "spread_vol_points": -71.29439505664938
+      },
+      {
+        "date": "2025-04-02",
+        "implied_vol_points": 24.290000915527344,
+        "realized_vol_points": 90.96584561242737,
+        "spread_vol_points": -66.67584469690003
+      },
+      {
+        "date": "2020-03-11",
+        "implied_vol_points": 68.20999908447266,
+        "realized_vol_points": 134.2075736395837,
+        "spread_vol_points": -65.99757455511104
+      },
+      {
+        "date": "2020-03-09",
+        "implied_vol_points": 70.30000305175781,
+        "realized_vol_points": 133.41265698943914,
+        "spread_vol_points": -63.11265393768133
+      },
+      {
+        "date": "2020-03-05",
+        "implied_vol_points": 48.630001068115234,
+        "realized_vol_points": 105.4110937861091,
+        "spread_vol_points": -56.78109271799387
+      },
+      {
+        "date": "2025-04-03",
+        "implied_vol_points": 34.099998474121094,
+        "realized_vol_points": 89.43996168975947,
+        "spread_vol_points": -55.33996321563838
+      },
+      {
+        "date": "2011-08-03",
+        "implied_vol_points": 24.700000762939453,
+        "realized_vol_points": 74.27415959414961,
+        "spread_vol_points": -49.574158831210156
+      },
+      {
+        "date": "2020-03-04",
+        "implied_vol_points": 37.060001373291016,
+        "realized_vol_points": 81.1788867059276,
+        "spread_vol_points": -44.11888533263658
+      },
+      {
+        "date": "2011-08-02",
+        "implied_vol_points": 27.780000686645508,
+        "realized_vol_points": 67.10024158190683,
+        "spread_vol_points": -39.32024089526132
+      },
+      {
+        "date": "2011-08-05",
+        "implied_vol_points": 37.58000183105469,
+        "realized_vol_points": 73.14249240263149,
+        "spread_vol_points": -35.5624905715768
+      },
+      {
+        "date": "2015-08-19",
+        "implied_vol_points": 14.34000015258789,
+        "realized_vol_points": 49.1326510433476,
+        "spread_vol_points": -34.79265089075971
+      },
+      {
+        "date": "2011-08-01",
+        "implied_vol_points": 26.850000381469727,
+        "realized_vol_points": 61.635026755822395,
+        "spread_vol_points": -34.78502637435267
+      },
+      {
+        "date": "2025-03-28",
+        "implied_vol_points": 22.690000534057617,
+        "realized_vol_points": 56.28514526165402,
+        "spread_vol_points": -33.595144727596406
+      },
+      {
+        "date": "2011-08-04",
+        "implied_vol_points": 39.88999938964844,
+        "realized_vol_points": 72.99490761893468,
+        "spread_vol_points": -33.10490822928624
+      },
+      {
+        "date": "2020-02-20",
+        "implied_vol_points": 13.859999656677246,
+        "realized_vol_points": 46.643611510105714,
+        "spread_vol_points": -32.78361185342847
+      },
+      {
+        "date": "2025-04-01",
+        "implied_vol_points": 24.459999084472656,
+        "realized_vol_points": 57.17218548260372,
+        "spread_vol_points": -32.71218639813107
+      },
+      {
+        "date": "2020-03-13",
+        "implied_vol_points": 69.87000274658203,
+        "realized_vol_points": 102.48512042110542,
+        "spread_vol_points": -32.61511767452339
+      },
+      {
+        "date": "2018-02-01",
+        "implied_vol_points": 13.859999656677246,
+        "realized_vol_points": 45.90697640209107,
+        "spread_vol_points": -32.04697674541382
+      },
+      {
+        "date": "2020-03-03",
+        "implied_vol_points": 47.34000015258789,
+        "realized_vol_points": 78.64857937105792,
+        "spread_vol_points": -31.30857921847003
+      },
+      {
+        "date": "2025-03-31",
+        "implied_vol_points": 25.139999389648438,
+        "realized_vol_points": 56.09865908501517,
+        "spread_vol_points": -30.958659695366734
+      },
+      {
+        "date": "2020-03-02",
+        "implied_vol_points": 42.16999816894531,
+        "realized_vol_points": 72.99409089915734,
+        "spread_vol_points": -30.82409273021203
+      },
+      {
+        "date": "2020-02-21",
+        "implied_vol_points": 15.770000457763672,
+        "realized_vol_points": 46.1579792128378,
+        "spread_vol_points": -30.38797875507413
+      },
+      {
+        "date": "2015-08-17",
+        "implied_vol_points": 11.289999961853027,
+        "realized_vol_points": 40.79212312695749,
+        "spread_vol_points": -29.502123165104464
+      },
+      {
+        "date": "2015-08-18",
+        "implied_vol_points": 12.140000343322754,
+        "realized_vol_points": 41.597809328414506,
+        "spread_vol_points": -29.457808985091752
+      },
+      {
+        "date": "2015-08-20",
+        "implied_vol_points": 20.8799991607666,
+        "realized_vol_points": 49.90465427055555,
+        "spread_vol_points": -29.024655109788945
+      },
+      {
+        "date": "2018-02-02",
+        "implied_vol_points": 18.860000610351562,
+        "realized_vol_points": 44.444484340540306,
+        "spread_vol_points": -25.584483730188744
+      },
+      {
+        "date": "2020-06-04",
+        "implied_vol_points": 23.559999465942383,
+        "realized_vol_points": 47.079584840744616,
+        "spread_vol_points": -23.519585374802233
+      },
+      {
+        "date": "2018-01-31",
+        "implied_vol_points": 13.859999656677246,
+        "realized_vol_points": 37.03344049116218,
+        "spread_vol_points": -23.173440834484936
+      },
+      {
+        "date": "2025-04-04",
+        "implied_vol_points": 57.16999816894531,
+        "realized_vol_points": 79.51694341889959,
+        "spread_vol_points": -22.346945249954274
+      },
+      {
+        "date": "2020-02-26",
+        "implied_vol_points": 34.84000015258789,
+        "realized_vol_points": 57.08580498842623,
+        "spread_vol_points": -22.245804835838342
+      },
+      {
+        "date": "2026-11-04",
+        "implied_vol_points": 15.1899995803833,
+        "realized_vol_points": 37.4006580709484,
+        "spread_vol_points": -22.210658490565102
+      },
+      {
+        "date": "2020-06-05",
+        "implied_vol_points": 22.6299991607666,
+        "realized_vol_points": 44.32986361657251,
+        "spread_vol_points": -21.69986445580591
+      },
+      {
+        "date": "2020-02-19",
+        "implied_vol_points": 11.880000114440918,
+        "realized_vol_points": 33.465582672610644,
+        "spread_vol_points": -21.585582558169726
+      },
+      {
+        "date": "2026-10-29",
+        "implied_vol_points": 15.869999885559082,
+        "realized_vol_points": 36.571799098308446,
+        "spread_vol_points": -20.701799212749364
+      },
+      {
+        "date": "2018-01-30",
+        "implied_vol_points": 16.200000762939453,
+        "realized_vol_points": 36.833250749675486,
+        "spread_vol_points": -20.633249986736033
+      },
+      {
+        "date": "2020-02-18",
+        "implied_vol_points": 13.020000457763672,
+        "realized_vol_points": 33.53460608849575,
+        "spread_vol_points": -20.514605630732078
+      },
+      {
+        "date": "2018-01-29",
+        "implied_vol_points": 14.90999984741211,
+        "realized_vol_points": 34.90580779948044,
+        "spread_vol_points": -19.995807952068333
+      },
+      {
+        "date": "2025-03-27",
+        "implied_vol_points": 20.030000686645508,
+        "realized_vol_points": 39.27346052330313,
+        "spread_vol_points": -19.24345983665762
+      },
+      {
+        "date": "2018-10-09",
+        "implied_vol_points": 14.399999618530273,
+        "realized_vol_points": 33.45817954106741,
+        "spread_vol_points": -19.058179922537136
+      }
+    ]
+  },
+  "broker_entries_enabled": false,
+  "checks": {
+    "at_least_100_observations": true,
+    "positive_temporal_splits": true,
+    "primary_t_at_least_three": true,
+    "year_contribution_at_most_40_percent": true
+  },
+  "code_commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+  "feed": "yfinance daily",
+  "id": "V1",
+  "independence_unit": "session date; overlapping windows adjusted with 21-lag HAC",
+  "informational_screen_passed": true,
+  "input_counts": {
+    "SPY": 6763,
+    "^VIX": 6765,
+    "^VIX9D": 3996
+  },
+  "input_coverage": {
+    "SPY": [
+      "2000-01-03",
+      "2026-11-20"
+    ],
+    "^VIX": [
+      "2000-01-03",
+      "2026-11-20"
+    ],
+    "^VIX9D": [
+      "2011-01-03",
+      "2026-11-20"
+    ]
+  },
+  "option_returns": null,
+  "option_stage": "blocked_pending_owner_opra",
+  "phase": "historical_screen",
+  "preregistration_commit": "7ce9abe263ed543c766a0d06d6011291b74c03a5",
+  "primary": {
+    "block_bootstrap_ci_bps": [
+      287.4335853280452,
+      423.86683902271153
+    ],
+    "candidate_days": 6742,
+    "control_days": 6742,
+    "mean_bps": 360.57726194082727,
+    "n": 6742,
+    "se_bps": 34.47222100433056,
+    "t": 10.459937057595736
+  },
+  "reason": "Free information screen passed; short-dated SPY stage requires owner-approved OPRA data",
+  "status": "blocked"
+}

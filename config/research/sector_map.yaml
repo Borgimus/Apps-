@@ -1,0 +1,9 @@
+# Proposed fixed panel from the owner-approved handoff. No point-in-time
+# membership claim is made for this fixed, survivorship-exposed research panel.
+sectors:
+  SMH: [NVDA, AMD, AVGO, ARM]
+  XLK: [AAPL, MSFT, SNOW, NET, CRWD, DDOG, PLTR, SHOP]
+  XLY: [AMZN, TSLA, RIVN, ROKU, DKNG, UBER, LYFT]
+  XLF: [COIN, HOOD, SOFI, AFRM, XYZ]
+  QQQ: [META, GOOGL, MSTR, MARA, RIOT]
+weak_proxy: [QQQ]

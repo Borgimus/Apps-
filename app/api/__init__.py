@@ -1,6 +1,7 @@
 from .dashboard_api import create_app as _create_app
 from .eod_review import router as _eod_review_router
 from .equity_research import router as _equity_research_router
+from .hypotheses import router as _hypotheses_router
 
 
 def create_app(*args, **kwargs):
@@ -8,6 +9,7 @@ def create_app(*args, **kwargs):
     app = _create_app(*args, **kwargs)
     app.include_router(_eod_review_router)
     app.include_router(_equity_research_router)
+    app.include_router(_hypotheses_router)
     return app
 
 

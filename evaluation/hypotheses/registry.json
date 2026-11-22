@@ -1,0 +1,77 @@
+{
+  "hypotheses": {
+    "O1": {
+      "evidence": "evaluation/free_equity_research_2026_10_24.md",
+      "name": "Frozen IEX observer",
+      "reason": "Existing operational protocol",
+      "status": "forward",
+      "transitions": []
+    },
+    "P1": {
+      "evidence": "evaluation/one_contract_cohort_freeze.md",
+      "name": "ORB options and underlying",
+      "reason": "Original cohort review and direction-adjusted evidence",
+      "status": "killed",
+      "transitions": []
+    },
+    "P2": {
+      "evidence": "evaluation/one_contract_cohort_freeze.md",
+      "name": "VWAP reclaim/rejection options",
+      "reason": "Shared historical options cohorts; no separate attribution of their pooled loss",
+      "status": "killed",
+      "transitions": []
+    },
+    "P3": {
+      "evidence": "HANDOFF.md",
+      "name": "RSI trend",
+      "reason": "Never validated",
+      "status": "diagnostic_only",
+      "transitions": []
+    },
+    "P4": {
+      "evidence": "claude/spy-dow-divergence-strategy-fs4sef:leadlag/FINDINGS.md",
+      "name": "ES lead versus SPY",
+      "reason": "Lead consumed inside about 100 ms; execution tests lost",
+      "status": "killed",
+      "transitions": []
+    },
+    "P5": {
+      "evidence": "claude/spy-dow-divergence-strategy-fs4sef:ureversal/FINDINGS.md",
+      "name": "DIA leads SPY U-reversal",
+      "reason": "Consolidated trades contradicted the direction of the lead",
+      "status": "killed",
+      "transitions": []
+    },
+    "R1": {
+      "name": "Monthly sector ETF rotation",
+      "preregistration": "evaluation/hypotheses/R1/preregistration.md",
+      "status": "registered",
+      "transitions": []
+    },
+    "S1": {
+      "name": "Sector-relative reversal",
+      "preregistration": "evaluation/hypotheses/S1/preregistration.md",
+      "status": "registered",
+      "transitions": []
+    },
+    "S2": {
+      "name": "Failed opening-range breakdown",
+      "preregistration": "evaluation/hypotheses/S2/preregistration.md",
+      "status": "registered",
+      "transitions": []
+    },
+    "S3": {
+      "name": "Sector-confirmed relative strength",
+      "preregistration": "evaluation/hypotheses/S3/preregistration.md",
+      "status": "registered",
+      "transitions": []
+    },
+    "V1": {
+      "name": "Implied versus realized volatility",
+      "preregistration": "evaluation/hypotheses/V1/preregistration.md",
+      "status": "registered",
+      "transitions": []
+    }
+  },
+  "schema": 1
+}

@@ -10,15 +10,18 @@ from app.research.replay.engine import HypothesisSignal
 from .sector import session_start
 
 
+def closes_by_symbol(session):
+    closes = defaultdict(dict)
+    for bar in session.current():
+        closes[bar.symbol][bar.start] = bar.close
+    return closes
+
+
 def fit_beta(prior, symbol, sector):
     paired = []
     session_count = 0
-    for session in list(prior)[-20:]:
-        closes = {s: {} for s in (symbol, sector)}
-        for bar in session.current():
-            if bar.symbol in closes:
-                closes[bar.symbol][bar.start] = bar.close
-        stock, peer = closes[symbol], closes[sector]
+    for closes in prior:
+        stock, peer = closes.get(symbol, {}), closes.get(sector, {})
         times = sorted(set(stock) & set(peer))
         samples = [(stock[t] / stock[t - INTERVAL] - 1, peer[t] / peer[t - INTERVAL] - 1)
                    for t in times if t - INTERVAL in stock and t - INTERVAL in peer]
@@ -45,9 +48,18 @@ class SectorReversal:
         self.mapping = mapping
         self.symbols = tuple(dict.fromkeys((*mapping, *mapping.values())))
         self._trigger_drawdowns = defaultdict(list)
+        self._closes = {}
 
     def prepare(self, prior):
-        fits = {symbol: fit_beta(prior, symbol, sector) for symbol, sector in self.mapping.items()}
+        # Cache each prior session once and discard dates outside the rolling window.
+        current = {}
+        for session in prior[-20:]:
+            current[session.day] = self._closes.get(session.day)
+            if current[session.day] is None:
+                current[session.day] = closes_by_symbol(session)
+        self._closes = current
+        fits = {symbol: fit_beta(current.values(), symbol, sector)
+                for symbol, sector in self.mapping.items()}
         thresholds = {symbol: median(values) for symbol, values in self._trigger_drawdowns.items()}
         return ReversalDay(self.mapping, fits, thresholds)
 

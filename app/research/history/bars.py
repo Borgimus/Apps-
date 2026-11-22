@@ -148,3 +148,19 @@ class AlpacaHistory:
                     first = stop
             panel[symbol] = rows
         return panel
+
+
+    def morning_panels(self, symbols: list[str], start: date, end: date, *, feed: str):
+        """Stream one calendar year at a time using the existing history cache."""
+        if start >= end:
+            raise ValueError("Invalid history range")
+        first = start
+        while first < end:
+            stop = min(end, date(first.year + 1, 1, 1))
+            panel = {}
+            for symbol in symbols:
+                result = self.bars([symbol], first, stop, feed=feed)
+                panel[symbol] = [row for row in result[symbol]
+                                 if time(9, 30) <= stamp(row["t"]).time() < time(12, 30)]
+            yield panel
+            first = stop

@@ -1,7 +1,8 @@
 """Orchestrates registered intraday arms without sharing their order slots."""
 from collections import Counter, defaultdict, deque
 from datetime import timedelta, time
-from math import floor
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from statistics import mean
 
 import numpy as np
@@ -13,8 +14,9 @@ from app.strategies import OpeningRangeBreakoutStrategy, VWAPReclaimStrategy
 from .controls import retime
 from .costs import net_bps
 from .engine import HypothesisSignal, outcome, run
-from .portfolio import policy_session, scenarios
+from .portfolio import SizedSessions, policy_session, scenarios
 from .sources import index_current
+from .spool import SessionSpool
 from .stats import split_statistics, yearly_concentration
 
 EXITS = ("30m", "60m", "12:30")
@@ -106,11 +108,15 @@ def matched_timing(candidate, sessions_by_date):
             yield retime(signal, day, "same_clock_non_signal_day")
 
 
-def study(root, source, rule, *, archive=False):
+def study(root, source, rule, *, archive=False, scratch_dir=None, progress=None):
+    with TemporaryDirectory(prefix="hypothesis-replay-", dir=scratch_dir) as directory:
+        return _study(root, source, rule, SessionSpool(Path(directory)), archive=archive, progress=progress)
+
+
+def _study(root, source, rule, spool, *, archive, progress):
     prior = deque(maxlen=20)
     markets, spy_days, signals, arms = [], [], [], defaultdict(list)
-    standalone, combined, baseline = [], [], []
-    indices = {}
+    symbols_by_date = {}
     for session in source.sessions():
         markets.append(session.day)
         index = index_current(session)
@@ -120,7 +126,9 @@ def study(root, source, rule, *, archive=False):
             return {"id": rule.id, "status": "blocked",
                     "reason": f"Archive contains a data or strategy failure on {session.day}",
                     "primary": None, "unresolved": session.failure_count, "checks": {}}
-        indices[session.day] = index
+        symbols_by_date[session.day] = frozenset(index)
+        if progress and len(markets) % 250 == 0:
+            progress(f"{rule.id}: processed {len(markets)} sessions through {session.day}")
         if not archive:
             session.recorded_signals = historical_frozen(session, prior)
         found = run(session, rule.prepare(tuple(prior)))
@@ -134,13 +142,22 @@ def study(root, source, rule, *, archive=False):
         for signal in found:
             name = "sector_etf" if signal.hypothesis_id.startswith("sector_etf.") else signal.hypothesis_id
             arms[name].append({**record(signal, index), "day": signal.day})
-        standalone.append(policy_session(session, primary))
-        combined.append(policy_session(session, primary, shared=True))
-        baseline.append(policy_session(session, (), shared=True))
+        spool.put(session, primary)
         prior.append(session)
     if rule.id in {"S1", "S2"}:
-        for signal in matched_timing(signals, indices):
-            arms["same_clock_non_signal_day"].append({**record(signal, indices[signal.day]), "day": signal.day})
+        by_day = defaultdict(list)
+        for signal in matched_timing(signals, symbols_by_date):
+            by_day[signal.day].append(signal)
+        for day, controls in by_day.items():
+            loaded, _ = spool.get(day)
+            index = index_current(loaded)
+            for signal in controls:
+                arms["same_clock_non_signal_day"].append({**record(signal, index), "day": day})
+
+    def policy_sessions(with_candidates, shared):
+        for day in markets:
+            loaded, primary = spool.get(day)
+            yield policy_session(loaded, primary if with_candidates else (), shared=shared)
     candidate, control = arms[rule.id], arms[rule.control]
     own, benchmark = daily(candidate, 10), daily(control, 10)
     missing = sum(r["outcomes"]["30m"] is None for r in candidate + control)
@@ -183,6 +200,6 @@ def study(root, source, rule, *, archive=False):
             "frozen_reference_scope": "full archived universe" if archive else "historical candidate input panel",
             "observed_triggers_by_symbol": dict(Counter(s.symbol for s in signals)),
             "arms": forecast,
-            "portfolio": {"standalone": compact(scenarios(root, standalone)),
-                          "shared": compact(scenarios(root, combined)),
-                          "frozen_reference": compact(scenarios(root, baseline))}}
+            "portfolio": {"standalone": compact(scenarios(root, SizedSessions(len(markets), lambda: policy_sessions(True, False)))),
+                          "shared": compact(scenarios(root, SizedSessions(len(markets), lambda: policy_sessions(True, True)))),
+                          "frozen_reference": compact(scenarios(root, SizedSessions(len(markets), lambda: policy_sessions(False, True))))}}

@@ -1,5 +1,7 @@
 """Adapt research signals to the immutable equity portfolio policy and evaluator."""
 from collections import defaultdict
+from collections.abc import Callable, Iterator
+from dataclasses import dataclass
 
 from app.research.equity_observer import ET, next_entry_bar, stamp
 from app.research.portfolio_review import Session as PolicySession, load_policy, replay
@@ -29,6 +31,21 @@ def policy_session(session, signals, *, shared=False):
     report = {"date": session.day.isoformat(), "symbols": symbols, "signals": events,
               "generated_at": generated.isoformat()}
     return PolicySession(report, "research", bars=bars, available=availability)
+
+
+
+@dataclass(frozen=True)
+class SizedSessions:
+    """Provide the frozen evaluator a count and a fresh lazy pass over sessions."""
+
+    count: int
+    factory: Callable[[], Iterator[PolicySession]]
+
+    def __len__(self):
+        return self.count
+
+    def __iter__(self):
+        return self.factory()
 
 
 def scenarios(root, sessions):

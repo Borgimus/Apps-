@@ -6,7 +6,7 @@ import pytest
 
 from app.research.equity_observer import ET
 from app.research.replay.engine import HypothesisSignal, LookAheadError, outcome, run
-from app.research.replay.portfolio import policy_session, scenarios
+from app.research.replay.portfolio import SizedSessions, policy_session, scenarios
 from app.research.replay.sources import HistoricalSource, index_current
 from app.research.replay.stats import comparison, split_statistics
 
@@ -72,3 +72,37 @@ def test_reusing_frozen_policy_preserves_day_gate_and_missing_bar():
     assert report["closed_proxies"] == 1
     assert report["unresolved"] == 1
     assert report["proxy_net_pnl_dollars"] is None
+
+
+def test_disk_spool_keeps_frozen_portfolio_outputs_and_availability(tmp_path):
+    from dataclasses import replace
+    from app.research.replay.spool import SessionSpool
+
+    first = fixture(date(2026, 11, 19))
+    second = fixture(date(2026, 11, 20), moves=(-35, 0))
+    second.recorded_signals = (
+        {**policy_session(second, run(second, signal)).report["signals"][0], "strategy": "orb"},
+    )
+    spool = SessionSpool(tmp_path)
+    expected = []
+    for session in (first, second):
+        signals = run(session, signal)
+        spool.put(session, signals)
+        expected.append(policy_session(session, signals, shared=True))
+
+    def streamed():
+        for session in (first, second):
+            reloaded, signals = spool.get(session.day)
+            assert reloaded == replace(session, failure_count=0, code_sha="")
+            yield policy_session(reloaded, signals, shared=True)
+
+    assert scenarios(Path("."), SizedSessions(len(expected), streamed)) == scenarios(Path("."), expected)
+
+
+def test_disjoint_panel_source_maintains_one_session_clock():
+    first = {"SPY": [row(ts(date(2025, 12, 31), 9, 30), 101)]}
+    second = {"SPY": [row(ts(date(2026, 1, 2), 9, 30), 101)]}
+    sessions = list(HistoricalSource(iter([first, second])).sessions())
+    assert [s.day for s in sessions] == [date(2025, 12, 31), date(2026, 1, 2)]
+    with pytest.raises(ValueError, match="ordered, disjoint"):
+        list(HistoricalSource(iter([second, first])).sessions())

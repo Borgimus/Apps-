@@ -52,8 +52,9 @@ def historical_screen(root, h, feed, cache):
         rule = rule_for(root, h)
         with history(cache) as source:
             symbols = list(dict.fromkeys(("SPY", *rule.symbols)))
-            panel = source.bars(symbols, date(2016, 1, 1), date(2026, 11, 21), feed=feed)
-        data = study(root, HistoricalSource(panel), rule)
+            panels = source.morning_panels(symbols, date(2016, 1, 1), date(2026, 11, 21), feed=feed)
+            data = study(root, HistoricalSource(panels), rule, scratch_dir=cache,
+                         progress=lambda message: print(message, file=sys.stderr, flush=True))
         return {**data, "feed": feed, "availability_model": "bar close + 60 seconds",
                 "coverage_note": "IEX volume reflects one venue" if feed == "iex" else "SIP historical bars"}
     if h == "R1":

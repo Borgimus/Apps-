@@ -1,5 +1,7 @@
 # Current operating state - November 3, 2026
 
+**Next workstream (2026-11-22):** the owner has asked for every strategy in the Strategy Hypothesis Catalog to be built and integrated as testable research. The implementing agent starts at [evaluation/strategy_research_program_handoff.md](evaluation/strategy_research_program_handoff.md). It changes no frozen file and enables no orders.
+
 The VPS runs free IEX equity research with broker orders disabled. The latest verified deployed release is `b410e9d5ffbc62f1b19b22be82a1d0d8cf3489cd`; this cumulative-review update still needs installation on the host. The maintained code branch is `agent/operational-recovery-2026-10-24`. PR #32 targets the older operational branch and must pass review/CI before merge.
 
 The immutable `session-artifacts` archive through November 2 contains **five full valid sessions, one partial session, 844 full-session collection cycles and 260 eligible signals**. Every full session completed at 12:30 Eastern with zero recorded request or strategy errors. October 26 is a separate late-start partial session. These are equity research observations; they do not advance options readiness.

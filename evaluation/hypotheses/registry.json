@@ -51,8 +51,31 @@
     "S1": {
       "name": "Sector-relative reversal",
       "preregistration": "evaluation/hypotheses/S1/preregistration.md",
-      "status": "registered",
-      "transitions": []
+      "reason": "Historical bars require an existing Alpaca key pair or a matching local cache",
+      "report_path": "evaluation/hypotheses/S1/attempts/01/report.json",
+      "status": "blocked",
+      "transitions": [
+        {
+          "at": "2026-11-22T17:11:57+00:00",
+          "commit": "7ce9abe263ed543c766a0d06d6011291b74c03a5",
+          "path": "evaluation/hypotheses/S1/preregistration.md",
+          "status": "registered"
+        },
+        {
+          "at": "2026-11-22T17:12:57.349200+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/S1/attempts/01/report.json",
+          "reason": null,
+          "status": "screening"
+        },
+        {
+          "at": "2026-11-22T17:12:57.350947+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/S1/attempts/01/report.json",
+          "reason": "Historical bars require an existing Alpaca key pair or a matching local cache",
+          "status": "blocked"
+        }
+      ]
     },
     "S2": {
       "name": "Failed opening-range breakdown",

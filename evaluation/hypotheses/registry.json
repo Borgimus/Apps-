@@ -45,8 +45,31 @@
     "R1": {
       "name": "Monthly sector ETF rotation",
       "preregistration": "evaluation/hypotheses/R1/preregistration.md",
-      "status": "registered",
-      "transitions": []
+      "reason": "Monthly screening gates failed",
+      "report_path": "evaluation/hypotheses/R1/attempts/01/report.json",
+      "status": "killed",
+      "transitions": [
+        {
+          "at": "2026-11-22T17:11:57+00:00",
+          "commit": "7ce9abe263ed543c766a0d06d6011291b74c03a5",
+          "path": "evaluation/hypotheses/R1/preregistration.md",
+          "status": "registered"
+        },
+        {
+          "at": "2026-11-22T17:13:47.268168+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/R1/attempts/01/report.json",
+          "reason": null,
+          "status": "screening"
+        },
+        {
+          "at": "2026-11-22T17:13:47.270422+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/R1/attempts/01/report.json",
+          "reason": "Monthly screening gates failed",
+          "status": "killed"
+        }
+      ]
     },
     "S1": {
       "name": "Sector-relative reversal",

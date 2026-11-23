@@ -88,10 +88,15 @@ def run(session: Session, rule):
     return found
 
 
-def outcome(signal, bars, exit_id):
+def holding_window(signal, exit_id):
     entry = utc(next_entry_bar(signal.decided_at))
     end = (utc(datetime.combine(signal.day, time(12, 30), ET)) if exit_id == "12:30"
            else entry + INTERVAL * (int(exit_id[:-1]) // 5))
+    return entry, end
+
+
+def outcome(signal, bars, exit_id):
+    entry, end = holding_window(signal, exit_id)
     path = []
     cursor = entry
     while cursor < end:

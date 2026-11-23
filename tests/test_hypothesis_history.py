@@ -44,3 +44,24 @@ def test_daily_index_close_and_equity_adjustment(tmp_path):
     data = daily_closes(["SPY", "^VIX"], *dates, tmp_path, downloader=downloader)
     assert daily_closes(["SPY", "^VIX"], *dates, tmp_path, downloader=downloader) == data
     assert calls == [("SPY", True), ("^VIX", False)]
+
+
+def test_morning_panels_keep_year_boundaries_and_reuse_full_session_cache(tmp_path):
+    calls = []
+
+    def respond(request):
+        calls.append(request)
+        year = request.url.params["start"][:4]
+        rows = [{"t": f"{year}-01-03T{at}:00Z", "o": 10, "h": 12, "l": 9, "c": 11, "v": 3}
+                for at in ("14:30", "17:30")]
+        return httpx.Response(200, json={"bars": {"SPY": rows}})
+
+    dates = date(2022, 1, 1), date(2024, 1, 1)
+    with AlpacaHistory("mock", "mock", tmp_path, transport=httpx.MockTransport(respond)) as source:
+        panels = list(source.morning_panels(["SPY"], *dates, feed="sip"))
+    with AlpacaHistory(None, None, tmp_path) as source:
+        cached = source.bars(["SPY"], *dates, feed="sip")
+    assert len(calls) == 2
+    assert [panel["SPY"][0]["t"][:4] for panel in panels] == ["2022", "2023"]
+    assert [len(panel["SPY"]) for panel in panels] == [1, 1]
+    assert len(cached["SPY"]) == 4

@@ -24,9 +24,10 @@ def markdown(result):
     lines = [f"# {result['id']} | {result['status']}", "", result.get("reason", ""), "",
              "Price or volatility proxies. Orders disabled.", "",
              "| Statistic | Value |", "| --- | --- |"]
-    for key, val in (("Sample size", primary.get("n")), ("Independent candidate days or months", primary.get("candidate_days")),
+    for key, val in (("Sample size", primary.get("n")), ("Candidate session dates or months", primary.get("candidate_days")),
                      ("Incremental mean (bps)", primary.get("mean_bps")), ("t-statistic", primary.get("t"))):
-        lines.append(f"| {key} | {val if val is not None else 'Unavailable'} |")
+        shown = f"{val:.4f}" if isinstance(val, float) else val
+        lines.append(f"| {key} | {shown if shown is not None else 'Unavailable'} |")
     for key, val in result.get("checks", {}).items():
         lines.append(f"| {key} | {'Pass' if val else 'Fail'} |")
     return "\n".join(lines).rstrip() + "\n"

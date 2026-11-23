@@ -69,10 +69,21 @@ class BarSource(Protocol):
 
 
 class HistoricalSource:
-    def __init__(self, panel: dict[str, list[dict]]):
-        self.panel = panel
+    def __init__(self, panel: dict[str, list[dict]] | Iterable[dict[str, list[dict]]]):
+        self.panels = (panel,) if isinstance(panel, dict) else panel
 
     def sessions(self):
+        previous = None
+        for panel in self.panels:
+            for session in self._sessions(panel):
+                if previous is not None and session.day <= previous:
+                    raise ValueError("Historical panels must cover ordered, disjoint session dates")
+                previous = session.day
+                yield session
+            del panel
+
+    @staticmethod
+    def _sessions(panel):
         from heapq import merge
 
         def stream(symbol, rows):
@@ -85,9 +96,9 @@ class HistoricalSource:
                 if time(9, 30) <= start.astimezone(ET).time() < time(12, 30):
                     yield Bar.from_row(symbol, row, start + INTERVAL + timedelta(seconds=60))
 
-        bars = merge(*(stream(s, rows) for s, rows in self.panel.items()), key=lambda b: b.available_at)
+        bars = merge(*(stream(s, rows) for s, rows in panel.items()), key=lambda b: b.available_at)
         for day, group in groupby(bars, key=lambda b: b.day):
-            yield Session(day, tuple(group), symbols=tuple(self.panel))
+            yield Session(day, tuple(group), symbols=tuple(panel))
 
 
 class ArchiveSource:

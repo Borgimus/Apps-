@@ -14,13 +14,13 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 import httpx
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 
 from app.hypotheses.registry import REGISTRY, load_registry, register, sha, transition, verify_registration
 from app.research.history.bars import AlpacaHistory, cache_root
 from app.research.history.daily import daily_closes
 from app.research.replay.calibrate import frozen_parity, random_entry_rejection
-from app.research.replay.report import save_report
+from app.research.replay.report import json_write, save_report
 from app.research.replay.sources import ArchiveSource, HistoricalSource
 
 
@@ -39,8 +39,20 @@ def rule_for(root, h):
 
 
 def history(cache):
-    load_dotenv(ROOT / ".env", override=False)
-    return AlpacaHistory(os.getenv("ALPACA_API_KEY"), os.getenv("ALPACA_SECRET_KEY"), cache)
+    path = Path(os.getenv("TRADER_RESEARCH_ENV", str(ROOT / ".env")))
+    config = dotenv_values(path, interpolate=False)
+    return AlpacaHistory(os.getenv("ALPACA_API_KEY") or config.get("ALPACA_API_KEY"),
+                         os.getenv("ALPACA_SECRET_KEY") or config.get("ALPACA_SECRET_KEY"), cache)
+
+
+def intraday_source(history, rule, feed):
+    symbols = list(dict.fromkeys(("SPY", *rule.symbols)))
+    panels = history.morning_panels(symbols, date(2016, 1, 1), date(2026, 11, 21), feed=feed)
+    return HistoricalSource(panels)
+
+
+def progress(message):
+    print(message, file=sys.stderr, flush=True)
 
 
 def historical_screen(root, h, feed, cache):
@@ -49,9 +61,8 @@ def historical_screen(root, h, feed, cache):
 
         rule = rule_for(root, h)
         with history(cache) as source:
-            symbols = list(dict.fromkeys(("SPY", *rule.symbols)))
-            panel = source.bars(symbols, date(2016, 1, 1), date(2026, 11, 21), feed=feed)
-        data = study(root, HistoricalSource(panel), rule)
+            data = study(root, intraday_source(source, rule, feed), rule, scratch_dir=cache,
+                         progress=progress)
         return {**data, "feed": feed, "availability_model": "bar close + 60 seconds",
                 "coverage_note": "IEX volume reflects one venue" if feed == "iex" else "SIP historical bars"}
     if h == "R1":
@@ -145,6 +156,10 @@ def main():
     s = sub.add_parser("screen")
     s.add_argument("id", choices=["S1", "S2", "S3", "R1", "V1"])
     s.add_argument("--feed", default="iex", choices=["iex", "sip"])
+    audit = sub.add_parser("audit-coverage", help="Find missing S1/S3 primary bars using only cached history")
+    audit.add_argument("id", choices=["S1", "S3"])
+    audit.add_argument("--feed", required=True, choices=["iex", "sip"])
+    audit.add_argument("--output", required=True, type=Path)
     f = sub.add_parser("report")
     f.add_argument("id")
     for name in ("archive-replay", "forward"):
@@ -162,6 +177,15 @@ def main():
         register(ROOT, args.id, args.name)
     elif args.command == "screen":
         show(run_screen(ROOT, args.id, args.feed, args.cache))
+    elif args.command == "audit-coverage":
+        from app.research.replay.study import coverage_audit
+
+        rule = rule_for(ROOT, args.id)
+        with AlpacaHistory(None, None, args.cache) as source:
+            report = coverage_audit(intraday_source(source, rule, args.feed), rule, progress=progress)
+        report.update(feed=args.feed, code_commit=sha(ROOT))
+        json_write(args.output, report)
+        print(json.dumps({k: v for k, v in report.items() if k != "gaps"}, sort_keys=True))
     elif args.command == "report":
         from app.hypotheses.registry import record_id
         print((ROOT / REGISTRY.parent / record_id(args.id) / "report.md").read_text(), end="")

@@ -6,7 +6,7 @@ import pytest
 
 from app.research.equity_observer import ET
 from app.research.replay.engine import HypothesisSignal, LookAheadError, outcome, run
-from app.research.replay.portfolio import policy_session, scenarios
+from app.research.replay.portfolio import SizedSessions, policy_session, scenarios
 from app.research.replay.sources import HistoricalSource, index_current
 from app.research.replay.stats import comparison, split_statistics
 
@@ -72,3 +72,74 @@ def test_reusing_frozen_policy_preserves_day_gate_and_missing_bar():
     assert report["closed_proxies"] == 1
     assert report["unresolved"] == 1
     assert report["proxy_net_pnl_dollars"] is None
+
+
+def test_disk_spool_keeps_frozen_portfolio_outputs_and_availability(tmp_path):
+    from dataclasses import replace
+    from app.research.replay.spool import SessionSpool
+
+    first = fixture(date(2026, 11, 19))
+    second = fixture(date(2026, 11, 20), moves=(-35, 0))
+    second.recorded_signals = (
+        {**policy_session(second, run(second, signal)).report["signals"][0], "strategy": "orb"},
+    )
+    spool = SessionSpool(tmp_path)
+    expected = []
+    for session in (first, second):
+        signals = run(session, signal)
+        spool.put(session, signals)
+        expected.append(policy_session(session, signals, shared=True))
+
+    def streamed():
+        for session in (first, second):
+            reloaded, signals = spool.get(session.day)
+            assert reloaded == replace(session, failure_count=0, code_sha="")
+            yield policy_session(reloaded, signals, shared=True)
+
+    assert scenarios(Path("."), SizedSessions(len(expected), streamed)) == scenarios(Path("."), expected)
+
+
+def test_disjoint_panel_source_maintains_one_session_clock():
+    first = {"SPY": [row(ts(date(2025, 12, 31), 9, 30), 101)]}
+    second = {"SPY": [row(ts(date(2026, 1, 2), 9, 30), 101)]}
+    sessions = list(HistoricalSource(iter([first, second])).sessions())
+    assert [s.day for s in sessions] == [date(2025, 12, 31), date(2026, 1, 2)]
+    with pytest.raises(ValueError, match="ordered, disjoint"):
+        list(HistoricalSource(iter([second, first])).sessions())
+
+
+def test_coverage_audit_preserves_primary_arms_and_lists_every_missing_bar():
+    from app.research.replay.study import coverage_audit
+
+    day = date(2026, 11, 20)
+    decision = ts(day, 9, 36)
+    bars = [row(ts(day, 9, 30) + timedelta(minutes=5 * i), 100.0) for i in range(10)]
+    panel = {"SPY": bars, "QQQ": [bar for i, bar in enumerate(bars) if i not in {2, 5}]}
+
+    class Rule:
+        id = "S3"
+        control = "sector_etf"
+
+        def prepare(self, prior):
+            return self
+
+        def __call__(self, view):
+            if view.at == decision:
+                return [HypothesisSignal(arm, symbol, view.at) for arm, symbol in (
+                    ("S3", "SPY"), ("sector_etf.SPY", "QQQ"), ("sector_etf.META", "QQQ"),
+                    ("sector_down", "QQQ"),
+                )]
+            return []
+
+    source, rule = HistoricalSource(panel), Rule()
+    session = next(source.sessions())
+    signals = run(session, rule)
+    index = index_current(session)
+    expected = [s for s in signals[:3] if outcome(s, index, "30m") is None]
+    report = coverage_audit(source, rule)
+    assert report["unresolved"] == len(expected) == 2
+    assert report["unresolved_by_arm"] == {"sector_etf": 2}
+    assert report["unresolved_by_symbol"] == {"QQQ": 2}
+    assert [gap["signal_id"] for gap in report["gaps"]] == [s.hypothesis_id for s in expected]
+    assert all(gap["missing_bar_starts"] == ["2026-11-20T14:40:00+00:00", "2026-11-20T14:55:00+00:00"]
+               for gap in report["gaps"])

@@ -1,7 +1,8 @@
 """Orchestrates registered intraday arms without sharing their order slots."""
 from collections import Counter, defaultdict, deque
 from datetime import timedelta, time
-from math import floor
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from statistics import mean
 
 import numpy as np
@@ -12,9 +13,10 @@ from app.research.history.bars import utc
 from app.strategies import OpeningRangeBreakoutStrategy, VWAPReclaimStrategy
 from .controls import retime
 from .costs import net_bps
-from .engine import HypothesisSignal, outcome, run
-from .portfolio import policy_session, scenarios
+from .engine import HypothesisSignal, holding_window, outcome, run
+from .portfolio import SizedSessions, policy_session, scenarios
 from .sources import index_current
+from .spool import SessionSpool
 from .stats import split_statistics, yearly_concentration
 
 EXITS = ("30m", "60m", "12:30")
@@ -76,6 +78,45 @@ def record(signal, index):
             "features": dict(signal.features), "outcomes": {e: outcome(signal, index, e) for e in signal.exits}}
 
 
+def arm_name(signal):
+    return "sector_etf" if signal.hypothesis_id.startswith("sector_etf.") else signal.hypothesis_id
+
+
+def replay_day(session, rule, prior):
+    found = run(session, rule.prepare(tuple(prior)))
+    if hasattr(rule, "finish"):
+        rule.finish(found)
+    prior.append(session)
+    return found
+
+
+def coverage_audit(source, rule, *, progress=None):
+    """Locate the missing 30-minute holding bars for the S1/S3 primary arms."""
+    prior = deque(maxlen=20)
+    gaps = []
+    market_days = 0
+    for market_days, session in enumerate(source.sessions(), 1):
+        if progress and market_days % 250 == 0:
+            progress(f"{rule.id}: audited {market_days} sessions through {session.day}")
+        index = index_current(session)
+        for signal in replay_day(session, rule, prior):
+            arm = arm_name(signal)
+            if arm not in {rule.id, rule.control}:
+                continue
+            entry, end = holding_window(signal, "30m")
+            symbol_bars = index.get(signal.symbol, {})
+            required = [entry + INTERVAL * i for i in range((end - entry) // INTERVAL)]
+            missing = [at.isoformat() for at in required if at not in symbol_bars]
+            if missing:
+                gaps.append({"arm": arm, "signal_id": signal.hypothesis_id, "symbol": signal.symbol,
+                             "date": session.day.isoformat(), "decided_at": signal.decided_at.isoformat(),
+                             "entry_at": entry.isoformat(), "exit_at": end.isoformat(),
+                             "missing_bar_starts": missing})
+    return {"id": rule.id, "market_days": market_days, "unresolved": len(gaps),
+            "unresolved_by_arm": dict(Counter(gap["arm"] for gap in gaps)),
+            "unresolved_by_symbol": dict(Counter(gap["symbol"] for gap in gaps)), "gaps": gaps}
+
+
 def daily(rows, cost, exit_id="30m"):
     gross = defaultdict(list)
     for row in rows:
@@ -106,11 +147,15 @@ def matched_timing(candidate, sessions_by_date):
             yield retime(signal, day, "same_clock_non_signal_day")
 
 
-def study(root, source, rule, *, archive=False):
+def study(root, source, rule, *, archive=False, scratch_dir=None, progress=None):
+    with TemporaryDirectory(prefix="hypothesis-replay-", dir=scratch_dir) as directory:
+        return _study(root, source, rule, SessionSpool(Path(directory)), archive=archive, progress=progress)
+
+
+def _study(root, source, rule, spool, *, archive, progress):
     prior = deque(maxlen=20)
     markets, spy_days, signals, arms = [], [], [], defaultdict(list)
-    standalone, combined, baseline = [], [], []
-    indices = {}
+    symbols_by_date = {}
     for session in source.sessions():
         markets.append(session.day)
         index = index_current(session)
@@ -120,27 +165,34 @@ def study(root, source, rule, *, archive=False):
             return {"id": rule.id, "status": "blocked",
                     "reason": f"Archive contains a data or strategy failure on {session.day}",
                     "primary": None, "unresolved": session.failure_count, "checks": {}}
-        indices[session.day] = index
+        symbols_by_date[session.day] = frozenset(index)
+        if progress and len(markets) % 250 == 0:
+            progress(f"{rule.id}: processed {len(markets)} sessions through {session.day}")
         if not archive:
             session.recorded_signals = historical_frozen(session, prior)
-        found = run(session, rule.prepare(tuple(prior)))
-        if hasattr(rule, "finish"):
-            rule.finish(found)
+        found = replay_day(session, rule, prior)
         if rule.id == "S2":
             options = tuple(s for s in rule.symbols if s not in {"IWM", "DIA"})
             found.extend(orb_controls(session, options, rule.id))
         primary = [s for s in found if s.hypothesis_id == rule.id]
         signals.extend(primary)
         for signal in found:
-            name = "sector_etf" if signal.hypothesis_id.startswith("sector_etf.") else signal.hypothesis_id
-            arms[name].append({**record(signal, index), "day": signal.day})
-        standalone.append(policy_session(session, primary))
-        combined.append(policy_session(session, primary, shared=True))
-        baseline.append(policy_session(session, (), shared=True))
-        prior.append(session)
+            arms[arm_name(signal)].append({**record(signal, index), "day": signal.day})
+        spool.put(session, primary)
     if rule.id in {"S1", "S2"}:
-        for signal in matched_timing(signals, indices):
-            arms["same_clock_non_signal_day"].append({**record(signal, indices[signal.day]), "day": signal.day})
+        by_day = defaultdict(list)
+        for signal in matched_timing(signals, symbols_by_date):
+            by_day[signal.day].append(signal)
+        for day, controls in by_day.items():
+            loaded, _ = spool.get(day)
+            index = index_current(loaded)
+            for signal in controls:
+                arms["same_clock_non_signal_day"].append({**record(signal, index), "day": day})
+
+    def policy_sessions(with_candidates, shared):
+        for day in markets:
+            loaded, primary = spool.get(day)
+            yield policy_session(loaded, primary if with_candidates else (), shared=shared)
     candidate, control = arms[rule.id], arms[rule.control]
     own, benchmark = daily(candidate, 10), daily(control, 10)
     missing = sum(r["outcomes"]["30m"] is None for r in candidate + control)
@@ -183,6 +235,6 @@ def study(root, source, rule, *, archive=False):
             "frozen_reference_scope": "full archived universe" if archive else "historical candidate input panel",
             "observed_triggers_by_symbol": dict(Counter(s.symbol for s in signals)),
             "arms": forecast,
-            "portfolio": {"standalone": compact(scenarios(root, standalone)),
-                          "shared": compact(scenarios(root, combined)),
-                          "frozen_reference": compact(scenarios(root, baseline))}}
+            "portfolio": {"standalone": compact(scenarios(root, SizedSessions(len(markets), lambda: policy_sessions(True, False)))),
+                          "shared": compact(scenarios(root, SizedSessions(len(markets), lambda: policy_sessions(True, True)))),
+                          "frozen_reference": compact(scenarios(root, SizedSessions(len(markets), lambda: policy_sessions(False, True))))}}

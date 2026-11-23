@@ -1,0 +1,11 @@
+{
+  "broker_entries_enabled": false,
+  "checks": {},
+  "code_commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+  "id": "S1",
+  "phase": "historical_screen",
+  "preregistration_commit": "7ce9abe263ed543c766a0d06d6011291b74c03a5",
+  "primary": null,
+  "reason": "Historical bars require an existing Alpaca key pair or a matching local cache",
+  "status": "blocked"
+}

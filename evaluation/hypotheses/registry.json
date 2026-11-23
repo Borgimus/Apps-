@@ -45,32 +45,147 @@
     "R1": {
       "name": "Monthly sector ETF rotation",
       "preregistration": "evaluation/hypotheses/R1/preregistration.md",
-      "status": "registered",
-      "transitions": []
+      "reason": "Monthly screening gates failed",
+      "report_path": "evaluation/hypotheses/R1/attempts/01/report.json",
+      "status": "killed",
+      "transitions": [
+        {
+          "at": "2026-11-22T17:11:57+00:00",
+          "commit": "7ce9abe263ed543c766a0d06d6011291b74c03a5",
+          "path": "evaluation/hypotheses/R1/preregistration.md",
+          "status": "registered"
+        },
+        {
+          "at": "2026-11-22T17:13:47.268168+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/R1/attempts/01/report.json",
+          "reason": null,
+          "status": "screening"
+        },
+        {
+          "at": "2026-11-22T17:13:47.270422+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/R1/attempts/01/report.json",
+          "reason": "Monthly screening gates failed",
+          "status": "killed"
+        }
+      ]
     },
     "S1": {
       "name": "Sector-relative reversal",
       "preregistration": "evaluation/hypotheses/S1/preregistration.md",
-      "status": "registered",
-      "transitions": []
+      "reason": "Historical bars require an existing Alpaca key pair or a matching local cache",
+      "report_path": "evaluation/hypotheses/S1/attempts/01/report.json",
+      "status": "blocked",
+      "transitions": [
+        {
+          "at": "2026-11-22T17:11:57+00:00",
+          "commit": "7ce9abe263ed543c766a0d06d6011291b74c03a5",
+          "path": "evaluation/hypotheses/S1/preregistration.md",
+          "status": "registered"
+        },
+        {
+          "at": "2026-11-22T17:12:57.349200+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/S1/attempts/01/report.json",
+          "reason": null,
+          "status": "screening"
+        },
+        {
+          "at": "2026-11-22T17:12:57.350947+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/S1/attempts/01/report.json",
+          "reason": "Historical bars require an existing Alpaca key pair or a matching local cache",
+          "status": "blocked"
+        }
+      ]
     },
     "S2": {
       "name": "Failed opening-range breakdown",
       "preregistration": "evaluation/hypotheses/S2/preregistration.md",
-      "status": "registered",
-      "transitions": []
+      "reason": "Historical bars require an existing Alpaca key pair or a matching local cache",
+      "report_path": "evaluation/hypotheses/S2/attempts/01/report.json",
+      "status": "blocked",
+      "transitions": [
+        {
+          "at": "2026-11-22T17:11:57+00:00",
+          "commit": "7ce9abe263ed543c766a0d06d6011291b74c03a5",
+          "path": "evaluation/hypotheses/S2/preregistration.md",
+          "status": "registered"
+        },
+        {
+          "at": "2026-11-22T17:12:55.100835+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/S2/attempts/01/report.json",
+          "reason": null,
+          "status": "screening"
+        },
+        {
+          "at": "2026-11-22T17:12:55.102410+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/S2/attempts/01/report.json",
+          "reason": "Historical bars require an existing Alpaca key pair or a matching local cache",
+          "status": "blocked"
+        }
+      ]
     },
     "S3": {
       "name": "Sector-confirmed relative strength",
       "preregistration": "evaluation/hypotheses/S3/preregistration.md",
-      "status": "registered",
-      "transitions": []
+      "reason": "Historical bars require an existing Alpaca key pair or a matching local cache",
+      "report_path": "evaluation/hypotheses/S3/attempts/01/report.json",
+      "status": "blocked",
+      "transitions": [
+        {
+          "at": "2026-11-22T17:11:57+00:00",
+          "commit": "7ce9abe263ed543c766a0d06d6011291b74c03a5",
+          "path": "evaluation/hypotheses/S3/preregistration.md",
+          "status": "registered"
+        },
+        {
+          "at": "2026-11-22T17:13:00.670914+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/S3/attempts/01/report.json",
+          "reason": null,
+          "status": "screening"
+        },
+        {
+          "at": "2026-11-22T17:13:00.673017+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/S3/attempts/01/report.json",
+          "reason": "Historical bars require an existing Alpaca key pair or a matching local cache",
+          "status": "blocked"
+        }
+      ]
     },
     "V1": {
       "name": "Implied versus realized volatility",
       "preregistration": "evaluation/hypotheses/V1/preregistration.md",
-      "status": "registered",
-      "transitions": []
+      "reason": "Free information screen passed; short-dated SPY stage requires owner-approved OPRA data",
+      "report_path": "evaluation/hypotheses/V1/attempts/01/report.json",
+      "status": "blocked",
+      "transitions": [
+        {
+          "at": "2026-11-22T17:11:57+00:00",
+          "commit": "7ce9abe263ed543c766a0d06d6011291b74c03a5",
+          "path": "evaluation/hypotheses/V1/preregistration.md",
+          "status": "registered"
+        },
+        {
+          "at": "2026-11-22T17:13:50.693066+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/V1/attempts/01/report.json",
+          "reason": null,
+          "status": "screening"
+        },
+        {
+          "at": "2026-11-22T17:13:50.698286+00:00",
+          "commit": "cb667500ce4181feff8141fb7150cfce1cb4e942",
+          "path": "evaluation/hypotheses/V1/attempts/01/report.json",
+          "reason": "Free information screen passed; short-dated SPY stage requires owner-approved OPRA data",
+          "status": "blocked"
+        }
+      ]
     }
   },
   "schema": 1

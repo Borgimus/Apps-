@@ -77,7 +77,8 @@ class AlpacaHistory:
         self.authorized = bool(key and secret)
         self.cache = cache
         headers = {"APCA-API-KEY-ID": key, "APCA-API-SECRET-KEY": secret} if self.authorized else {}
-        self.client = httpx.Client(base_url=ENDPOINT, headers=headers, timeout=25, transport=transport)
+        self.client = httpx.Client(base_url=ENDPOINT, headers=headers, timeout=25, transport=transport,
+                                   trust_env=self.authorized)
 
     def __enter__(self):
         return self

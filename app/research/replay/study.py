@@ -13,7 +13,7 @@ from app.research.history.bars import utc
 from app.strategies import OpeningRangeBreakoutStrategy, VWAPReclaimStrategy
 from .controls import retime
 from .costs import net_bps
-from .engine import HypothesisSignal, outcome, run
+from .engine import HypothesisSignal, holding_window, outcome, run
 from .portfolio import SizedSessions, policy_session, scenarios
 from .sources import index_current
 from .spool import SessionSpool
@@ -78,6 +78,45 @@ def record(signal, index):
             "features": dict(signal.features), "outcomes": {e: outcome(signal, index, e) for e in signal.exits}}
 
 
+def arm_name(signal):
+    return "sector_etf" if signal.hypothesis_id.startswith("sector_etf.") else signal.hypothesis_id
+
+
+def replay_day(session, rule, prior):
+    found = run(session, rule.prepare(tuple(prior)))
+    if hasattr(rule, "finish"):
+        rule.finish(found)
+    prior.append(session)
+    return found
+
+
+def coverage_audit(source, rule, *, progress=None):
+    """Locate the missing 30-minute holding bars for the S1/S3 primary arms."""
+    prior = deque(maxlen=20)
+    gaps = []
+    market_days = 0
+    for market_days, session in enumerate(source.sessions(), 1):
+        if progress and market_days % 250 == 0:
+            progress(f"{rule.id}: audited {market_days} sessions through {session.day}")
+        index = index_current(session)
+        for signal in replay_day(session, rule, prior):
+            arm = arm_name(signal)
+            if arm not in {rule.id, rule.control}:
+                continue
+            entry, end = holding_window(signal, "30m")
+            symbol_bars = index.get(signal.symbol, {})
+            required = [entry + INTERVAL * i for i in range((end - entry) // INTERVAL)]
+            missing = [at.isoformat() for at in required if at not in symbol_bars]
+            if missing:
+                gaps.append({"arm": arm, "signal_id": signal.hypothesis_id, "symbol": signal.symbol,
+                             "date": session.day.isoformat(), "decided_at": signal.decided_at.isoformat(),
+                             "entry_at": entry.isoformat(), "exit_at": end.isoformat(),
+                             "missing_bar_starts": missing})
+    return {"id": rule.id, "market_days": market_days, "unresolved": len(gaps),
+            "unresolved_by_arm": dict(Counter(gap["arm"] for gap in gaps)),
+            "unresolved_by_symbol": dict(Counter(gap["symbol"] for gap in gaps)), "gaps": gaps}
+
+
 def daily(rows, cost, exit_id="30m"):
     gross = defaultdict(list)
     for row in rows:
@@ -131,19 +170,15 @@ def _study(root, source, rule, spool, *, archive, progress):
             progress(f"{rule.id}: processed {len(markets)} sessions through {session.day}")
         if not archive:
             session.recorded_signals = historical_frozen(session, prior)
-        found = run(session, rule.prepare(tuple(prior)))
-        if hasattr(rule, "finish"):
-            rule.finish(found)
+        found = replay_day(session, rule, prior)
         if rule.id == "S2":
             options = tuple(s for s in rule.symbols if s not in {"IWM", "DIA"})
             found.extend(orb_controls(session, options, rule.id))
         primary = [s for s in found if s.hypothesis_id == rule.id]
         signals.extend(primary)
         for signal in found:
-            name = "sector_etf" if signal.hypothesis_id.startswith("sector_etf.") else signal.hypothesis_id
-            arms[name].append({**record(signal, index), "day": signal.day})
+            arms[arm_name(signal)].append({**record(signal, index), "day": signal.day})
         spool.put(session, primary)
-        prior.append(session)
     if rule.id in {"S1", "S2"}:
         by_day = defaultdict(list)
         for signal in matched_timing(signals, symbols_by_date):

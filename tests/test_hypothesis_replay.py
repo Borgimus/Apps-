@@ -106,3 +106,40 @@ def test_disjoint_panel_source_maintains_one_session_clock():
     assert [s.day for s in sessions] == [date(2025, 12, 31), date(2026, 1, 2)]
     with pytest.raises(ValueError, match="ordered, disjoint"):
         list(HistoricalSource(iter([second, first])).sessions())
+
+
+def test_coverage_audit_preserves_primary_arms_and_lists_every_missing_bar():
+    from app.research.replay.study import coverage_audit
+
+    day = date(2026, 11, 20)
+    decision = ts(day, 9, 36)
+    bars = [row(ts(day, 9, 30) + timedelta(minutes=5 * i), 100.0) for i in range(10)]
+    panel = {"SPY": bars, "QQQ": [bar for i, bar in enumerate(bars) if i not in {2, 5}]}
+
+    class Rule:
+        id = "S3"
+        control = "sector_etf"
+
+        def prepare(self, prior):
+            return self
+
+        def __call__(self, view):
+            if view.at == decision:
+                return [HypothesisSignal(arm, symbol, view.at) for arm, symbol in (
+                    ("S3", "SPY"), ("sector_etf.SPY", "QQQ"), ("sector_etf.META", "QQQ"),
+                    ("sector_down", "QQQ"),
+                )]
+            return []
+
+    source, rule = HistoricalSource(panel), Rule()
+    session = next(source.sessions())
+    signals = run(session, rule)
+    index = index_current(session)
+    expected = [s for s in signals[:3] if outcome(s, index, "30m") is None]
+    report = coverage_audit(source, rule)
+    assert report["unresolved"] == len(expected) == 2
+    assert report["unresolved_by_arm"] == {"sector_etf": 2}
+    assert report["unresolved_by_symbol"] == {"QQQ": 2}
+    assert [gap["signal_id"] for gap in report["gaps"]] == [s.hypothesis_id for s in expected]
+    assert all(gap["missing_bar_starts"] == ["2026-11-20T14:40:00+00:00", "2026-11-20T14:55:00+00:00"]
+               for gap in report["gaps"])
